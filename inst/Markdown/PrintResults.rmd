@@ -1,0 +1,135 @@
+---
+title: " "
+date: " "
+output: pdf_document
+header-includes:
+    - \usepackage{caption}
+    - \usepackage{float}
+    - \usepackage{longtable}
+---
+\captionsetup[table]{labelformat=empty}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+```
+
+```{r load data,  results=FALSE}
+##remove this line except when testing the .rmd file
+# outVal<-"C:/Users/ebabcock/Box Sync/bycatch project (ebabcock@miami.edu)/Current R code/outputLLSIMBUMtripOctobs75/Blue marlin catch/"
+## remove
+load(paste0(outVal,"/","resultsR"))
+#library(tidyverse)
+#library(kableExtra)
+#library(ggplot2)
+#library(DHARMa)
+#library(gridExtra)
+#library(cplm)
+#library(glmmTMB)
+#library(MASS)
+#library(tweedie)
+#source("3.BycatchFunctions.r")
+theme_set(theme_bw())
+fignum<-1
+tablenum<-1
+
+varText<- ""
+if(VarCalc=="DeltaMethod") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by the delta method")
+if(VarCalc=="Simulate") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by Monte Carlo simulation") 
+obsText<-""
+if(includeObsCatch) obsText<-". Catches are predicted for unobserved effort and added to the observed catches"
+
+```
+
+## Summary of results for `r runDescription` for  `r common[run]` (`r sp[run]`), 
+`r Sys.Date()`
+
+```{r print results, results="asis"}
+#, fig.height=4
+#Print data summary
+cat("Table ", tablenum,". Input data summary for each year. Columns are the observed bycatch, observed effort, observed sample units (",sampleUnit,"), observed mean CPUE and standard error of CPUE, count of outliers defined as data points more than 8 SD from the mean, observed positive sample units, fraction positive, total trips from the logbooks, total effort, fraction of effort observed, fraction of sample units observed, and estimates of total bycatch and its standard error from a simple ratio estimator stratified only by year", sep="")
+tablenum<-tablenum+1
+yearSum[[run]] %>%
+  mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
+  remove_rownames() %>%
+  kbl(format="latex",longtable=TRUE) %>%
+  kable_styling(font_size=8,
+     latex_options = c("hold_position","basic")) %>%
+  print()
+#Print modelTable including ModelFail
+cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
+tablenum<-tablenum+1
+df1<-modelTable[[run]] %>%
+  mutate(Failure=modelFail[run,]) %>%
+   mutate_if(is.numeric,round,2)
+if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
+kbl(df1,format="latex") %>%
+   kable_styling(
+     latex_options = c("hold_position","basic")) %>%
+    print()
+#Table residual summary
+cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. Tests are a Kolmogorov-Smirnov(KS) test on whether the scaled residuals are uniform, a dispersion test based on comparing the ratio of the observed and simulated residuals (>1 is overdispersed), a zero inflation test based on the ratio of observed to expected zeros, and the number of outliers, defined as data points outside the range of the simulations",sep="")
+tablenum<-tablenum+1
+data.frame(residualTab[[run]]) %>%
+ kbl(format="latex",digits = 2) %>%
+   kable_styling(
+     latex_options = c("hold_position","scale_down","basic")) %>%
+    print()
+# Figures of All models together
+if(EstimateBycatch ) {
+ if(plotValidation)  plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit) else
+    plotSums(
+      yearpred = filter(allmods[[run]],Valid==1),
+      modType = "All",
+      fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, including a simple unstratified ratio estimator, for ",common[run],varText,obsText,". \n",sep="")
+  fignum<-fignum+1
+  cat('\n')
+}
+
+if(EstimateIndex & any(allindex[[run]]$Valid==1)) {
+ plotIndex(dplyr::filter(allindex[[run]],Valid==1),"All", NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+ cat("\n Figure ",fignum,". Abundance indices from all valid models for ",common[run],", plus and minus one standard error. \n",sep="")
+ fignum<-fignum+1
+}
+#Show cross validation figures
+if(DoCrossValidation &!all(is.na(modelTable[[run]]$RMSE))) {
+ plotCrossVal(rmsetab[[run]],metab[[run]],NULL)
+ cat("\n Figure ",fignum,". Boxplots of Root Mean Square Error and Mean Error, across 10 cross- validation folds for ",common[run],". Lowest RMSE model is ",bestmod[run],".\n",sep="")
+ fignum<-fignum+1
+ cat('\n')
+}
+#Print for each model type
+for(mod in 1:length(modelTry)) {
+if(modelFail[run,mod]=="-") {
+  cat("\n Table ",tablenum,". Model selection table for ",modelTry[mod],". Weights are calculated based on ",selectCriteria,".",sep="")
+  tablenum<-tablenum+1
+  data.frame(modelSelectTable[[run]][[modelTry[mod]]]) %>%
+   mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2))) %>%
+   kbl(format="latex") %>%
+   kable_styling(latex_options = c("hold_position","scale_down","basic")) %>%
+    print()
+   temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL)
+   cat("\n Figure ",fignum,". Residuals for the ",selectCriteria, " best model for ",        modelTry[mod],", showing the ordinary residuals (a,b) and DHARMa scaled residuals (c,d). \n",sep="")
+   fignum<-fignum+1
+    cat('\n')
+  lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
+  if(EstimateBycatch) {
+   if(plotValidation & modelTry[mod]!="Binomial")  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit) else
+   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchType)
+  if(modelTry[mod]=="Binomial")  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
+   cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText   ,lineText, ". \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+ }
+ if(EstimateIndex) {
+   plotIndex(modIndexVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+   cat("\n Figure ",fignum,". Estimated relative index from ",modelTry[mod]," plus and minus one standard error. \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+ }
+
+}
+}
+
+```
