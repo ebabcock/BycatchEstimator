@@ -41,7 +41,7 @@ setupObj<-bycatchSetup(
 #----------------------------------------------------------------------------
 #Optionally, instead of running setup, you can read-in a previous model setup
 
-setupObj<-readRDS(file=paste0(getwd(), paste("/Output", "LLSIMBUMtrip2022Aprilobs05mc"),"/", Sys.Date(),"_BycatchModelSpecification.rds"))
+setupObj<-readRDS(file=paste0(getwd(), paste("/Output", "LLSIMBUMtrip2022Aprilobs05mc"),"/", "2022-05-02","_BycatchModelSpecification.rds"))
 
 
 

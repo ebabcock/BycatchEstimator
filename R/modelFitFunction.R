@@ -23,6 +23,7 @@
 #' @param plotValidation Logical. Validation. If you have true values of the total bycatch (for example in a simulation study). Make PlotValidation true and fill out the rest of the specification.
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
+#' @import MuMIn
 #' @export
 #' @examples
 #' \dontrun{
