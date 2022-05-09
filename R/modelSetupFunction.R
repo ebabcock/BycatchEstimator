@@ -206,9 +206,7 @@ bycatchSetup <- function(
   dat<-list()
   #Loop through all species and print data summary. Note that records with NA in either catch or effort are excluded automatically
   yearSum<-list()
-  cl2<-makeCluster(NumCores-2)
-  registerDoParallel(cl2)
-  foreach(run= 1:numSp) %do%  {
+  for(run in 1:numSp) {
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
     if(includeObsCatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
@@ -245,7 +243,6 @@ bycatchSetup <- function(
     }
     write.csv(yearSum[[run]],paste(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
   }
-  stopCluster(cl2)
 
   #Create report
   save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"\\","sumdatR"))
