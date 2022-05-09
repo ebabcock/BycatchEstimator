@@ -373,6 +373,7 @@ bycatchFit<-function(
       write.csv(residualTab[[run]],paste0(outVal,"modelSummary.csv"))
       write.csv(rmsetab[[run]],paste0(outVal,"rmse.csv"))
       write.csv(metab[[run]],paste0(outVal,"me.csv"))
+      write.csv(modelTable[[run]],paste0(outVal,"crossvalSummary.csv"))
       #Select best model based on cross validation
       best<-which(!is.na( modelTable[[run]]$RMSE) &
                     modelTable[[run]]$RMSE==min(modelTable[[run]]$RMSE,na.rm=TRUE))

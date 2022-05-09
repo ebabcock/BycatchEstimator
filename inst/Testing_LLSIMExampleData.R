@@ -4,7 +4,7 @@
 # LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022
 #----------------------------------------------------------------------------------------------
 library(BycatchEstimator)
-
+library(MuMIn)
 
 #-------------------------------------------------
 #Step 1. Run the setup file and review data inputs
