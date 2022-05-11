@@ -10,7 +10,8 @@ library(MuMIn)
 #Step 1. Run the setup file and review data inputs
 
 setupObj<-bycatchSetup(
-  modelTry = c("Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),
+  #modelTry = c("Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),
+  modelTry = c("Delta-Lognormal", "TMBnbinom2"),
   obsdat = LLSIM_BUM_Example_observer,
   logdat = LLSIM_BUM_Example_logbook,
   yearVar = "Year",
@@ -24,7 +25,7 @@ setupObj<-bycatchSetup(
   EstimateBycatch = TRUE,
   logNum = NA,
   sampleUnit = "trips",
-  complexModel = formula(y~Year+fleet+hbf+area+season+Year:area),
+  complexModel = formula(y~Year+fleet+hbf+area+season),
   simpleModel = formula(y~Year+fleet+area),
   indexModel = formula(y~Year+area),
   baseDir = getwd(),
@@ -51,17 +52,18 @@ setupObj<-readRDS(file=paste0(getwd(), paste("/Output", "LLSIMBUMtrip2022Aprilob
 bycatchFit(
   setupObj = setupObj,
   selectCriteria = "BIC",
-  DoCrossValidation = TRUE,
+  DoCrossValidation = FALSE,
   DredgeCrossValidation = FALSE,
   ResidualTest = FALSE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "None",
   useParallel = TRUE,
   nSims = 1000,
   baseDir = getwd(),
   plotValidation = FALSE,
   trueVals = NULL,
-  trueCols = NULL
+  trueCols = NULL,
+  doReport = FALSE
 )
 
 

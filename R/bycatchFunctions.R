@@ -247,7 +247,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @importFrom stats predict model.matrix rbinom sigma rnorm rlnorm rnbinom quantile
 #' @importFrom MASS mvrnorm gamma.shape
 
-makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
   #Separate out sample units
   if(includeObsCatch) newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -459,7 +459,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @importFrom stats predict model.matrix rbinom sigma rnorm rlnorm rnbinom quantile
 #' @importFrom MASS mvrnorm gamma.shape
 
-makePredictionsSimVar<-function(modfit1,modfit2=NULL, modtype, newdat, obsdatval=NULL, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+makePredictionsSimVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -650,7 +650,7 @@ makePredictionsSimVar<-function(modfit1,modfit2=NULL, modtype, newdat, obsdatval
 #' @param run Value
 #' @importFrom stats delete.response terms qnorm
 
-makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch, requiredVarNames, CIval, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
   if(modtype %in% c("Delta-Lognormal","Delta-Gamma")) stop("No delta-method variance available")
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
@@ -791,7 +791,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @param dirname Value
 #' @param run Value
 
-makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL, nsims, includeObsCatch, requiredVarNames, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL, nsims, includeObsCatch, requiredVarNames, printOutput=TRUE, catchType, common, dirname, run) {
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat, .data$SampleUnits)

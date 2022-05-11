@@ -23,6 +23,7 @@
 #' @param plotValidation Logical. Validation. If you have true values of the total bycatch (for example in a simulation study). Make PlotValidation true and fill out the rest of the specification.
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
+#' @param doReport Logical. Create a markdown report of the analysis
 #' @import MuMIn
 #' @export
 #' @examples
@@ -81,7 +82,7 @@ bycatchFit<-function(
 
   setupObj,
   selectCriteria = "BIC",
-  DoCrossValidation = TRUE,
+  DoCrossValidation = FALSE,
   DredgeCrossValidation = FALSE,
   ResidualTest = TRUE,
   CIval = 0.05,
@@ -91,7 +92,8 @@ bycatchFit<-function(
   baseDir = getwd(),
   plotValidation = FALSE,
   trueVals = NULL,
-  trueCols = NULL
+  trueCols = NULL,
+  doReport = TRUE
 
   ){
 
@@ -211,7 +213,11 @@ bycatchFit<-function(
                   includeObsCatch = includeObsCatch,
                   nsim = nSims,
                   requiredVarNames = requiredVarNames,
-                  CIval = CIval)
+                  CIval = CIval,
+                  common = common,
+                  catchType = catchType,
+                  dirname = dirname,
+                  run = run)
              } else {
                      modPredVals[[run]][[modelTry[mod]]]<-
                        makePredictionsSimVar(
@@ -223,7 +229,11 @@ bycatchFit<-function(
                          includeObsCatch = includeObsCatch,
                          nsim = nSims,
                          requiredVarNames = requiredVarNames,
-                         CIval = CIval
+                         CIval = CIval,
+                         common = common,
+                         catchType = catchType,
+                         dirname = dirname,
+                         run = run
                        )
             }
           if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma"))
@@ -235,7 +245,11 @@ bycatchFit<-function(
                 obsdatval=datval,
                 includeObsCatch = includeObsCatch,
                 requiredVarNames = requiredVarNames,
-                CIval = CIval
+                CIval = CIval,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                run = run
               )
           if(VarCalc=="None") {
             modPredVals[[run]][[modelTry[mod]]]<-
@@ -247,7 +261,11 @@ bycatchFit<-function(
                 obsdatval=datval,
                 includeObsCatch = includeObsCatch,
                 nsims = nSims,
-                requiredVarNames = requiredVarNames
+                requiredVarNames = requiredVarNames,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                run = run
               )
            }
         }
@@ -385,27 +403,30 @@ bycatchFit<-function(
         bestmod[run]<-"None"
       }
     }
-    save(list=c("numSp","yearSum","runName","runDescription",
-                "common", "sp","bestmod","CIval","includeObsCatch",
-                "predbestmod","indexbestmod","allmods","allindex","modelTable",
-                "modelSelectTable","modFits","modPredVals","VarCalc"
-                ,"modIndexVals","modelFail","rmsetab","metab",
-                "residualTab" ,"run","modelTry","EstimateIndex","EstimateBycatch",
-                "DoCrossValidation","indexVarNames","selectCriteria","sampleUnit",
-                "modelTry","catchType","catchUnit","residualTab",
-                "plotValidation","trueVals","trueCols","startYear"),
-         file=paste0(outVal,"/","resultsR"))
 
-    mkd<-tryCatch({
-      system.file("Markdown", "PrintResults.Rmd", package = "BycatchEstimator", mustWork = TRUE)
-    },
-    error = function(c) NULL
-    )
-    if(!is.null( mkd)){
-      rmarkdown::render(mkd,
-                        params=list(outVal=outVal),
-                        output_file = paste0(common[run], catchType[run],"results.pdf"),
-                        output_dir=outVal)
+    if(doReport){
+      save(list=c("numSp","yearSum","runName","runDescription",
+                  "common", "sp","bestmod","CIval","includeObsCatch",
+                  "predbestmod","indexbestmod","allmods","allindex","modelTable",
+                  "modelSelectTable","modFits","modPredVals","VarCalc"
+                  ,"modIndexVals","modelFail","rmsetab","metab",
+                  "residualTab" ,"run","modelTry","EstimateIndex","EstimateBycatch",
+                  "DoCrossValidation","indexVarNames","selectCriteria","sampleUnit",
+                  "modelTry","catchType","catchUnit","residualTab",
+                  "plotValidation","trueVals","trueCols","startYear"),
+           file=paste0(outVal,"/","resultsR"))
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintResults.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+      if(!is.null( mkd)){
+        rmarkdown::render(mkd,
+                          params=list(outVal=outVal),
+                          output_file = paste0(common[run], catchType[run],"results.pdf"),
+                          output_dir=outVal)
+      }
     }
     print(paste(run, common[run],"complete, ",Sys.time()))
 
