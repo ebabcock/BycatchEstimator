@@ -7,7 +7,7 @@
 bycatchFit(
   setupObj,
   selectCriteria = "BIC",
-  DoCrossValidation = TRUE,
+  DoCrossValidation = FALSE,
   DredgeCrossValidation = FALSE,
   ResidualTest = TRUE,
   CIval = 0.05,
@@ -17,7 +17,8 @@ bycatchFit(
   baseDir = getwd(),
   plotValidation = FALSE,
   trueVals = NULL,
-  trueCols = NULL
+  trueCols = NULL,
+  doReport = TRUE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ bycatchFit(
 \item{trueVals}{The data set that contains the true simulated total catches by year.}
 
 \item{trueCols}{The column of the true simulated catches that contains true bycatch by year}
+
+\item{doReport}{Logical. Create a markdown report of the analysis}
 }
 \description{
 Produces model-based estimates of bycatch and annual abundance index, as specified in \code{bycatchSetup}

@@ -10,9 +10,9 @@ A tibble with 22 columns. Each row is a fishing trip.
 \item{Year}{Year}
 \item{month}{month of the year}
 \item{gear}{Gear code}
-\item{light}{}
+\item{light}{Light code}
 \item{fleet}{Fleet number}
-\item{bait}{}
+\item{bait}{Bait code}
 \item{hook}
 \item{hooks}
 \item{sets}

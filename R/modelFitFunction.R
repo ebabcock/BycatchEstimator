@@ -103,7 +103,7 @@ bycatchFit<-function(
   common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
 
   numSp<-modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-
-  modelFail<-rmsetab<-metab<-dat<-yearSum<-requiredVarNames<-allVarNames<-indexDat<-NULL
+  modelFail<-rmsetab<-metab<-dat<-yearSum<-requiredVarNames<-allVarNames<-indexDat<-strataSum<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])

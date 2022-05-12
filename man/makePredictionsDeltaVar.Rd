@@ -12,11 +12,11 @@ makePredictionsDeltaVar(
   includeObsCatch,
   requiredVarNames,
   CIval,
-  printOutput = FALSE,
-  catchType = NULL,
-  common = NULL,
-  dirname = NULL,
-  run = NULL
+  printOutput = TRUE,
+  catchType,
+  common,
+  dirname,
+  run
 )
 }
 \arguments{

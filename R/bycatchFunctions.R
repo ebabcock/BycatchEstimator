@@ -1788,3 +1788,60 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
 }
 
 
+#' Function to make data summarizes including ratio estimate at
+#'
+#'stratification defined by strataVars
+#'
+#' @param obsdatval Value
+#' @param logdatval Value
+#' @param strataVars Value
+#' @param EstimateBycatch Value
+#' @param startYear Value
+
+MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear) {
+  x<-obsdatval %>%
+    group_by_at(all_of(strataVars))  %>%
+    summarize(OCat=sum(.data$Catch,na.rm=TRUE),
+              OEff=sum(.data$Effort,na.rm=TRUE),
+              OUnit=length(.data$Year),
+              CPUE=mean(.data$cpue,na.rm=TRUE),
+              CPse=standard.error(.data$cpue),
+              Out=outlierCountFunc(.data$cpue),
+              Pos=sum(.data$pres,na.rm=TRUE),
+              OCatS=sd(.data$Catch,na.rm=TRUE),
+              OEffS=sd(.data$Effort,na.rm=TRUE),
+              Cov=cov(.data$Catch,.data$Effort)) %>%
+    mutate(PFrac=.data$Pos/.data$OUnit)
+  if(EstimateBycatch) {
+    returnval<-logdatval  %>%
+      group_by_at(all_of(strataVars)) %>%
+      summarize(Eff=sum(.data$Effort,na.rm=TRUE),Units=sum(.data$SampleUnits))
+    returnval<-left_join(returnval,x,by=strataVars)  %>%
+      mutate(OEff=ifelse(is.na(.data$OEff),0,.data$OEff),OUnit=ifelse(is.na(.data$OUnit),0,.data$OUnit))%>%
+      mutate(EFrac=.data$OEff/.data$Eff, UFrac=.data$OUnit/.data$Units) %>%
+      mutate(Cat=(.data$OCat/.data$OEff)*.data$Eff,
+             Cse=sqrt(ratioVar(.data$OEff,.data$Eff,.data$OUnit,.data$Units,.data$OCat/.data$OEff,.data$OEffS^2,.data$OCatS^2,.data$Cov))) %>%
+      ungroup() %>% mutate(Year=as.numeric(as.character(.data$Year))) %>%
+      mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
+  }
+  returnval
+}
+
+#' Calculate variance of ratio estimator, from data already summarized by strata
+#'
+#' Variables are x=sum(obs Effort),X=sum(log Effort), n=observed sample units. N=log sample units, Rhat=mean(obs Catch)/mean(obs Effort), sx2, sy2, and sxy are the observed variance in effort and catch, and covariance
+#'
+#' @param x Value
+#' @param X Value
+#' @param n Value
+#' @param N Value
+#' @param Rhat Value
+#' @param sx2 Value
+#' @param sy2 Value
+#' @param sxy Value
+
+ratioVar<-function(x,X,n,N,Rhat,sx2,sy2,sxy) {
+  X^2*(1-n/N)/(x^2/n)*(sy2+Rhat^2*sx2-2*Rhat*sxy)
+}
+
+
