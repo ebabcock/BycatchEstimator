@@ -374,7 +374,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
       d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
       allpred$Total[!is.na(d)]= allpred$Total[!is.na(d)] + obsdatvalyear$Catch[d[!is.na(d)]]
-      sim[d,]= sim[!is.na(d),] + obsdatvalyear$Catch[d[!is.na(d)]]
+      sim[!is.na(d),]= sim[!is.na(d),] + obsdatvalyear$Catch[d[!is.na(d)]]
     }
     if(includeObsCatch & modtype=="Binomial") { 
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
@@ -645,14 +645,14 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat,.data$SampleUnits)
-  getse=ifelse(modtype %in% c("Lognormal","Delta-lognormal"),TRUE,FALSE)
+  getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
     if(dim(response1)[2]==1)     names(response1)="fit"
     if(!is.null(modfit2))  {
       response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=getse,type="response"))
-      if(dim(predval2)[2]==1) names(predval2)[1]<-"fit"   
+      if(dim(response2)[2]==1) names(response2)[1]<-"fit"   
       names(response2)=paste0(names(response2),"2")
     }
     if(modtype== "Binomial") {
