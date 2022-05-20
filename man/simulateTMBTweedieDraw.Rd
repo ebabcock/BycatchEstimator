@@ -18,3 +18,4 @@ simulateTMBTweedieDraw(modfit, nObs, b, Effort)
 \description{
 simulateTMBTweedieDraw
 }
+\keyword{internal}

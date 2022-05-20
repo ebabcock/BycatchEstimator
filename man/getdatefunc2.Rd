@@ -14,3 +14,4 @@ getdatefunc2(x, dateformat = "\%d\%b\%Y")
 \description{
 Function 2 to convert data in excel format with date and time separated by a blank into an R format date
 }
+\keyword{internal}

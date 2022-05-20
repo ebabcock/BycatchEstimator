@@ -18,3 +18,4 @@ simulateNegBin1Draw(modfit, nObs, b, Effort)
 \description{
 simulateNegBin1Draw
 }
+\keyword{internal}

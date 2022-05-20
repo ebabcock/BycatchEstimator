@@ -12,3 +12,4 @@ standard.error(x)
 \description{
 Standard error of a mean
 }
+\keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/bycatchFunctions.R
 \name{makePredictionsNoVar}
 \alias{makePredictionsNoVar}
-\title{Function to predict total positive trips or total catches with no variance calculation}
+\title{Generate standard errors and confidence intervals of predictions with delta-method separately by year}
 \usage{
 makePredictionsNoVar(
   modfit1,
@@ -23,15 +23,11 @@ makePredictionsNoVar(
 \arguments{
 \item{modfit1}{Value}
 
-\item{modfit2}{Value}
-
 \item{modtype}{Value}
 
 \item{newdat}{Value}
 
 \item{obsdatval}{Value}
-
-\item{nsims}{Value}
 
 \item{includeObsCatch}{Value}
 
@@ -46,7 +42,10 @@ makePredictionsNoVar(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{CIval}{Value}
 }
 \description{
-Function to predict total positive trips or total catches with no variance calculation
+Generate standard errors and confidence intervals of predictions with delta-method separately by year
 }
+\keyword{internal}

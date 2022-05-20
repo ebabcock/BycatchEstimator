@@ -26,3 +26,4 @@ ratioVar(x, X, n, N, Rhat, sx2, sy2, sxy)
 \description{
 Variables are x=sum(obs Effort),X=sum(log Effort), n=observed sample units. N=log sample units, Rhat=mean(obs Catch)/mean(obs Effort), sx2, sy2, and sxy are the observed variance in effort and catch, and covariance
 }
+\keyword{internal}

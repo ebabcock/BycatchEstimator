@@ -16,3 +16,4 @@ plotCrossVal(rmse, me, fileName)
 \description{
 Function to plot boxplots of RMSE and ME across folds
 }
+\keyword{internal}

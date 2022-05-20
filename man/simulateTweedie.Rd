@@ -14,3 +14,4 @@ simulateTweedie(modfit1, nsims)
 \description{
 Generate simulations to use as input to DHARMa residual calculations for the Tweedie from cpglm.
 }
+\keyword{internal}

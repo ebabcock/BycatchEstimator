@@ -14,3 +14,4 @@ outlierCountFunc(x, numSD = 8)
 \description{
 Function to count outliers, defined as more than numSD standard deviations from the mean.
 }
+\keyword{internal}

@@ -4,7 +4,7 @@
 \alias{MakeSummary}
 \title{Function to make data summarizes including ratio estimate at}
 \usage{
-MakeSummary(obsdatval, logdatval, strataVars, EstimateBycatch)
+MakeSummary(obsdatval, logdatval, strataVars, EstimateBycatch, startYear)
 }
 \arguments{
 \item{obsdatval}{Value}
@@ -12,7 +12,12 @@ MakeSummary(obsdatval, logdatval, strataVars, EstimateBycatch)
 \item{logdatval}{Value}
 
 \item{strataVars}{Value}
+
+\item{EstimateBycatch}{Value}
+
+\item{startYear}{Value}
 }
 \description{
 stratification defined by strataVars
 }
+\keyword{internal}

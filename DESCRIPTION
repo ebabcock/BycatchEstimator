@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: c(
     person(given = "Elizabeth", family = "Babcock", email = "ebabcock@rsmas.miami.edu", role = c("aut", "cre")),
     person(given = "William", family = "Harford", email = "bill@natureanalytics.ca", role = c("ctb")))
-Description: The code can estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.
+Description: BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -13,3 +13,7 @@ Imports: stats, utils, generics, grDevices, tidyverse, tidyr, dplyr, stringr, rm
 Depends: 
     R (>= 4.0)
 LazyData: true
+URL: https://ebabcock.github.io/BycatchEstimator/
+Suggests: 
+    knitr
+VignetteBuilder: knitr

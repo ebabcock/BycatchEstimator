@@ -118,3 +118,5 @@ catchUnit = "number",
 catchType = "dead discard"
 )}
 }
+\keyword{Fitting}
+\keyword{functions}

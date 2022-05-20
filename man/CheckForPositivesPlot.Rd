@@ -16,3 +16,4 @@ CheckForPositivesPlot(datval, species, variables)
 \description{
 Same for plotting
 }
+\keyword{internal}

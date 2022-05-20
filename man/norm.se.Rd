@@ -14,3 +14,4 @@ norm.se(x1, x1e)
 \description{
 Calculate standard error from lognormal mean and se
 }
+\keyword{internal}

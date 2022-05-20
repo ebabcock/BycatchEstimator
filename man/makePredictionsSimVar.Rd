@@ -53,3 +53,4 @@ makePredictionsSimVar(
 \description{
 Generate standard errors and confidence intervals of predictions from simulation from regression coefficients and their var/covar matrix
 }
+\keyword{internal}

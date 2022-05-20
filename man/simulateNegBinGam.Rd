@@ -16,3 +16,4 @@ simulateNegBinGam(modfit, nsims = 250, offsetval = 1)
 \description{
 Function to simulate DHARMa residuals from a negative binomial GAM or GLM
 }
+\keyword{internal}

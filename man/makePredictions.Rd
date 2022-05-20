@@ -20,3 +20,4 @@ makePredictions(modfit1, modfit2 = NULL, modType, newdat, obsdatval = NULL)
 \description{
 Function to predict CPUE without variances to get predictions quickly for cross validation
 }
+\keyword{internal}

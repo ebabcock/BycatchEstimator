@@ -104,3 +104,5 @@ bycatchFit(
  trueCols = NULL
 )}
 }
+\keyword{Fitting}
+\keyword{functions}

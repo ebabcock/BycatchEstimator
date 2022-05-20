@@ -18,3 +18,4 @@ getSimDeltaLN(modfitBin, modfitLnorm, df1, nsim = 10000)
 \description{
 Generate mean and standard error of predictions for delta lognormal by simulation
 }
+\keyword{internal}

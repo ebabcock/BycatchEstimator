@@ -12,3 +12,4 @@ gettimefunc2(x)
 \description{
 Convert time in excel format
 }
+\keyword{internal}

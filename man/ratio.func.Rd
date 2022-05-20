@@ -22,3 +22,4 @@ ratio.func(x, y, g, X, N, G)
 \description{
 Output is mean and standard error of bycatch by stratum and the total bycatch with SE. Assumes unobserved strata have zero catch
 }
+\keyword{internal}

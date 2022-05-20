@@ -16,3 +16,4 @@ simulateGammaDraw(modfit, nObs, b)
 \description{
 simulateGammaDraw
 }
+\keyword{internal}

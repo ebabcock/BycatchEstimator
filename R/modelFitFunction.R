@@ -26,6 +26,7 @@
 #' @param doReport Logical. Create a markdown report of the analysis
 #' @import MuMIn
 #' @export
+#' @keywords Fitting functions
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)

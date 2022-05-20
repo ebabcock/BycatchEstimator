@@ -41,3 +41,4 @@ makeIndexVar(
 \description{
 Function to get an abundance index with SE, Does not yet have year interactions as random effects
 }
+\keyword{internal}

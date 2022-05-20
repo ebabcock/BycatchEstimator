@@ -14,3 +14,4 @@ norm.mean(x1, x1e)
 \description{
 Calculate normal mean from lognormal mean and se
 }
+\keyword{internal}

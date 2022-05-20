@@ -41,3 +41,4 @@ plotSums(
 \description{
 Function to plot either total positive trips (binomial) or total catch/bycatch (all other models)
 }
+\keyword{internal}

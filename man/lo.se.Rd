@@ -18,3 +18,4 @@ lo.se(x1, x1e, x2, x2e)
 \description{
 Variance of a product from Lo et al. (1992)
 }
+\keyword{internal}

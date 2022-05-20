@@ -50,3 +50,4 @@ findBestModelFunc(
 \description{
 Function to find best model by information criteria, by model type
 }
+\keyword{internal}

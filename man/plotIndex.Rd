@@ -44,3 +44,4 @@ plotIndex(
 \description{
 Function to plot abundance index plus minus standard error
 }
+\keyword{internal}

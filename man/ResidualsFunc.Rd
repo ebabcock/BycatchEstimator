@@ -18,3 +18,4 @@ ResidualsFunc(modfit1, modType, fileName = NULL, nsim = 250)
 \description{
 Function plots residuals with both R and Dharma library and calculate residual diagnostics.
 }
+\keyword{internal}

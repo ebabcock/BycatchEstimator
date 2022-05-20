@@ -16,3 +16,4 @@ FitModelFuncCV(formula1, modType, obsdatval)
 \description{
 Function to fit a specified model formula and print outputs for Cross validation
 }
+\keyword{internal}

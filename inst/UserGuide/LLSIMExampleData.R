@@ -57,7 +57,7 @@ bycatchFit(
   DredgeCrossValidation = FALSE,
   ResidualTest = FALSE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "None",
   useParallel = TRUE,
   nSims = 1000,
   baseDir = getwd(),

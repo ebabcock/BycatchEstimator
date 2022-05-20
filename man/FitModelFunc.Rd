@@ -20,3 +20,4 @@ FitModelFunc(formula1, formula2, modType, obsdatval, outputDir)
 \description{
 Function to fit a specified model formula and print outputs
 }
+\keyword{internal}

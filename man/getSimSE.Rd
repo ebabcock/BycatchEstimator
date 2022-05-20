@@ -20,3 +20,4 @@ getSimSE(modfit, df1, transFunc = "none", offsetval = NULL, nsim)
 \description{
 Generate standard errors of predictions from simulation from regression coefficients and their var/covar matrix
 }
+\keyword{internal}

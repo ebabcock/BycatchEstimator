@@ -12,3 +12,4 @@ mostfreqfunc(x)
 \description{
 Function to find mode of a categorical variable
 }
+\keyword{internal}

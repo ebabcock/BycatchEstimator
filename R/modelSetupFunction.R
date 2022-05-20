@@ -38,6 +38,7 @@
 #' @import ggplot2 parallel dplyr doParallel foreach utils
 #' @importFrom stats median
 #' @export
+#' @keywords Fitting functions
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)

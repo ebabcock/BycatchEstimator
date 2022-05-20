@@ -47,3 +47,4 @@ makePredictionsDeltaVar(
 \description{
 Generate standard errors and confidence intervals of predictions with delta-method separately by year
 }
+\keyword{internal}
