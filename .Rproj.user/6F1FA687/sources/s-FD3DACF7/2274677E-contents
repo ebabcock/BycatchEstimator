@@ -1,0 +1,31 @@
+url: https://ebabcock.github.io/BycatchEstimator/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    pkgdown-nav-height: 100px
+reference:
+- title: Fitting functions
+  desc: Bycatch estimation proceeds in two steps. In step one, use \code{bycatchSetup}
+    to create an input file and verify your data. In step two, use \code{bycatchFit}
+    to estimate bycatch and/or an index of adundance.
+  contents:
+  - '`bycatchSetup`'
+  - '`bycatchFit`'
+- title: Simple data sets
+  desc: A simple example with data from logbooks and an observer program.
+  contents:
+  - '`obsdatExample`'
+  - '`logdatExample`'
+- title: LLSIM data sets
+  desc: LLSIM-based example with data from logbooks and an observer program.
+  contents:
+  - '`LLSIM_BUM_Example_observer`'
+  - '`LLSIM_BUM_Example_logbook`'
+home:
+  links:
+  - text: Browse source code
+    href: https://github.com/ebabcock/BycatchEstimator
+
+
+pkgdown::build_site()
