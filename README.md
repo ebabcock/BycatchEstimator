@@ -31,7 +31,7 @@ accessible R package.
 
 ## Installation
 
-The code runs best in R studio. Before running the code for the first
+The code runs best in RStudio. Before running the code for the first
 time, install the latest versions of R and RStudio. The output figures
 and tables are printed to a pdf file using R Markdown and the knitr
 library, which outputs a LaTex file; therefore, you must have a LaTex
