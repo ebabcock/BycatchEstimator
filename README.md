@@ -181,6 +181,7 @@ bycatchFit(
 Goodyear, C.P. 2021. Development of new model fisheries for simulating
 longline catch data with LLSIM. Collect. Vol. Sci. Pap. ICCAT, 78(5):
 53-62
+
 Babcock, E.A. and C. Phillip Goodyear. 2021. Testing a bycatch estimation
 tool using simulated blue marlin longline data. Collect. Vol. Sci. Pap. ICCAT, 
 78(5): 179-189
