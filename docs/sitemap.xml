@@ -7,6 +7,9 @@
     <loc>https://ebabcock.github.io/BycatchEstimator/articles/index.html</loc>
   </url>
   <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/articles/UserGuide.html</loc>
+  </url>
+  <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html</loc>
   </url>
   <url>
@@ -26,6 +29,9 @@
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/BycatchEstimator-package.html</loc>
+  </url>
+  <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/BycatchEstimator.html</loc>
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchFit.html</loc>
