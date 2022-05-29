@@ -27,7 +27,7 @@ is identified, the standardized CPUE model is used to predict total
 bycatch in all logbook trips and summing across trips. This bycatch
 estimation tool has been developed as an accessible R package. See the 
 User's Guide under articles at https://ebabcock.github.io/BycatchEstimator/ 
-for detail. 
+for details. 
 
 ## Installation
 
