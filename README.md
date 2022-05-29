@@ -25,7 +25,9 @@ a semi-automated model selection process based on the user’s choice of
 information criteria (AICc, AIC or BIC). Once a best approximating model
 is identified, the standardized CPUE model is used to predict total
 bycatch in all logbook trips and summing across trips. This bycatch
-estimation tool has been developed as an accessible R package.
+estimation tool has been developed as an accessible R package. See the 
+User's Guide under articles at https://ebabcock.github.io/BycatchEstimator/ 
+for detail. 
 
 ## Installation
 
