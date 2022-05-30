@@ -82,7 +82,7 @@ standard.error<-function(x) {
 #' @param common Value
 #' @param dirname Value
 #' @param run Value
-#' @import MuMIn parallel doParallel tweedie glmmTMB
+#' @import MuMIn parallel doParallel tweedie glmmTMB cplm
 #' @importFrom reshape2 colsplit
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm
 #' @importFrom MASS glm.nb
