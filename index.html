@@ -60,11 +60,11 @@
 <div class="page-header"><h1 id="bycatchestimator-">BycatchEstimator <img src="reference/figures/imgfile.png" align="right" width="120"><a class="anchor" aria-label="anchor" href="#bycatchestimator-"></a>
 </h1></div>
 <!-- badges: start --><!-- badges: end --><p>BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.</p>
-<p>BycatchEstimator utilizes a model-based procedure to estimate total annual bycatch by expanding a sample, such as an observer database, in relation to total effort from logbooks or landings records. This framework can also be used to estimate an annual index of abundance, calculated only from the observer data. Using this tool, bycatch estimation is carried out by conducting CPUE standardization analysis based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) and linear models with predictor variables (e.g., year, season, depth). The complexity of the task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC). Once a best approximating model is identified, the standardized CPUE model is used to predict total bycatch in all logbook trips and summing across trips. This bycatch estimation tool has been developed as an accessible R package. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details.</p>
+<p>BycatchEstimator uses a model-based procedure to estimate total annual bycatch by expanding a sample, such as an observer database, in relation to total effort from logbooks or landings records. This framework can also be used to estimate an annual index of abundance, calculated only from the observer data. Using this tool, bycatch estimation is carried out by fitting a linear model based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) and predictor variables (e.g., year, season, depth). The the task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC) and cross-validation. Once a best approximating model is identified, the linear model is used to predict total bycatch in all logbook trips and summing across trips. This bycatch estimation tool has been developed as an accessible R package. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The code runs best in R studio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex.</p>
+<p>The code runs best in RStudio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex.</p>
 <p>You can install the development version of BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
@@ -81,11 +81,11 @@
 <div class="section level2">
 <h2 id="llsim-example">LLSIM Example<a class="anchor" aria-label="anchor" href="#llsim-example"></a>
 </h2>
-<p>To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021).</p>
+<p>To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021, Babcock and Goodyear 2021).</p>
 <div class="section level3">
 <h3 id="logbook-data">Logbook data<a class="anchor" aria-label="anchor" href="#logbook-data"></a>
 </h3>
-<p>Simulation of longline fleets with LLSIM was conducted using three idealized fleets as described by Goodyear (2021). These fleets are a USA-like fleet (fleet 1), Japan-like fleet (fleet 2) and a Brazil-like fleet (fleet 3). The simulated data set included three fleets, with data spanning from 1990 to 2018 to reflect the approximate period for which observer coverage has been established (REF). The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were re-allocated by trip. Sets are re-allocated to trip if they were in the same gear, month and spatial area (5 x 5 squares). Trips with more than 100 sets were randomly allocated to different trips so that the median trips had about 20 sets.</p>
+<p>Simulation of longline fleets with LLSIM was conducted using three idealized longline fleets as described by Goodyear (2021), with data from 1990 to 2018. The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were allocated by trip (Babcock and Godyear 2021). Sets are allocated to trip if they were in the same gear, month and spatial area (5 x 5 squares). Trips with more than 100 sets were randomly allocated to different trips so that the median trips had about 20 sets.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">LLSIM_BUM_Example_logbook</span></code></pre></div>
 </div>
@@ -156,14 +156,15 @@
   plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,
   trueVals <span class="op">=</span> <span class="cn">NULL</span>,
   trueCols <span class="op">=</span> <span class="cn">NULL</span>,
-  doReport <span class="op">=</span> <span class="cn">FALSE</span>
+  doReport <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Goodyear, C.P. 2021. Development of new model fisheries for simulating longline catch data with LLSIM. Collect. Vol. Sci. Pap. ICCAT, 78(5): 53-62</p>
+<p>Goodyear, C.P. 2021. Development of new model fisheries for simulating longline catch data with LLSIM. Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation tool using simulated blue marlin longline data. ICCAT Collective Volume of Scientific Papers, 78(5): 179-189. 78(5): 53-62</p>
+<p>Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation tool using simulated blue marlin longline data. ICCAT Collective Volume of Scientific Papers, 78(5): 179-189.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
