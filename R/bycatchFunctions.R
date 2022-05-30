@@ -1597,7 +1597,7 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
           geom_line()+ geom_ribbon(alpha=0.3)+xlab("Year")+
           ylab(ytitle)
     }
-    print(g)
+    suppressWarnings(print(g))
     if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
   }
 }
@@ -1638,7 +1638,7 @@ plotIndex<-function(yearpred, modType, fileName, subtext="", indexVarNames, allV
       varplot=as.formula(paste0("~",paste(grep("Year",indexVarNames,invert=TRUE,value=TRUE),sep="+")))
       g=g+facet_wrap(varplot)
     }
-    print(g)
+    suppressWarnings(print(g))
     if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
   }
 }
@@ -1679,7 +1679,7 @@ plotSumsValidate<-function(yearpred,trueval,fileName,colName, allVarNames, start
     xlab("Year")+
     ylab(paste0(common[run]," ",catchType[run]," (",catchUnit[run],")"))+
     geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)
-  print(g)
+  suppressWarnings(print(g))
   if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
 }
 
@@ -1701,7 +1701,7 @@ plotCrossVal<-function(rmse,me,fileName) {
   g<-ggplot(df)+geom_boxplot(aes(x=Model,y=value),fill="lightgrey")+
     facet_wrap(Metric~.,ncol=1,scales="free")+
     xlab("Model")+ylab("Cross validation metrics")
-  print(g)
+  suppressWarnings(print(g))
   if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
 }
 
