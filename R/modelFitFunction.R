@@ -406,7 +406,7 @@ bycatchFit<-function(
     }
 
     if(doReport){
-      save(list=c("numSp","yearSum","runName","runDescription",
+      save(list=c("numSp","yearSum","runName","runDescription","allVarNames",
                   "common", "sp","bestmod","CIval","includeObsCatch",
                   "predbestmod","indexbestmod","allmods","allindex","modelTable",
                   "modelSelectTable","modFits","modPredVals","VarCalc"
