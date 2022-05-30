@@ -84,9 +84,9 @@ standard.error<-function(x) {
 #' @param run Value
 #' @import MuMIn parallel doParallel tweedie glmmTMB
 #' @importFrom reshape2 colsplit
-#' @importFrom stats anova na.fail as.formula coef vcov Gamma glm.control formula lm glm
+#' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm
 #' @importFrom MASS glm.nb
-#' @importFrom cplm cpglm
+#' @importFrom cplm cpglm vcov
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
