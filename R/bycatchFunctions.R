@@ -86,7 +86,6 @@ standard.error<-function(x) {
 #' @importFrom reshape2 colsplit
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
-#' @importFrom cplm cpglm vcov
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
@@ -790,7 +789,8 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
-    response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
+    if(modtype=="TWeedie")     response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response")) else
+     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
     if(dim(response1)[2]==1)     names(response1)="fit"
     if(!is.null(modfit2))  {
       response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=getse,type="response"))

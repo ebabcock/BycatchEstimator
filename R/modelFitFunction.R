@@ -423,11 +423,11 @@ bycatchFit<-function(
       error = function(c) NULL
       )
       if(!is.null( mkd)){
-        rmarkdown::render(mkd,
+        suppressWarnings(rmarkdown::render(mkd,
                           params=list(outVal=outVal),
                           output_file = paste0(common[run], catchType[run],"results.pdf"),
                           output_dir=outVal,
-                          quiet = TRUE)
+                          quiet = TRUE))
       }
     }
     print(paste(run, common[run],"complete, ",Sys.time()))
