@@ -790,12 +790,12 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
-    if(class(modfit1)!="cpglm") {
+    if(class(modfit1)[1]=="cpglm") {
+     response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=getse))
+    } else {
      response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
-     if(dim(response1)[2]==1)     names(response1)="fit"
-    } else { #if is a cplm model
-     response1<-data.frame("fit"=modfit1$fitted.values)
     }
+    if(dim(response1)[2]==1)     names(response1)="fit"
     if(!is.null(modfit2))  {
       response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=getse,type="response"))
       if(dim(response2)[2]==1) names(response2)[1]<-"fit"
