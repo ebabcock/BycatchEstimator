@@ -181,7 +181,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       if(modfit1$rank<length(coef(modfit1))) class(modfit1)<-"try-error"
     }
     if(class(modfit1)[1] == "cpglm")  {
-      if(length(coef(modfit1))!=dim(modfit1)$vcov)  class(modfit1)<-"try-error"
+      if(length(coef(modfit1))!=dim(modfit1$vcov)[1])  class(modfit1)<-"try-error"
     }
     if(class(modfit1)[1]=="try-error")   {
       args$formula=formulaList[[i]]
