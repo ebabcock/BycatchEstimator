@@ -261,7 +261,8 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
   newdat = newdatall[newdatall$Year==years[i],]
   nObs= nrow(newdat)
   #Get predictions
-  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+  if(modtype=="Tweedie" ) response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
+   response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modtype=="Tweedie")
@@ -470,8 +471,14 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     tm = delete.response(terms(modfit1))
     a = model.matrix(tm, newdat)
     ## predicted value
-    predvallink = predict(modfit1,newdat=newdat)
-    predval = predict(modfit1,newdat=newdat,type="response")
+    if(modtype=="Tweedie" ) {
+     cplm::predvallink = predict(modfit1,newdat=newdat)
+     cplm::predval = predict(modfit1,newdat=newdat,type="response")
+
+    } else {
+     predvallink = predict(modfit1,newdat=newdat)
+     predval = predict(modfit1,newdat=newdat,type="response")
+    }
     if(modtype %in% c("TMBtweedie","TMBnbinom1","TMBnbinom2"))
       vcovval = a %*% vcov(modfit1)[[1]] %*% t(a) else
         vcovval = a %*% vcov(modfit1) %*% t(a)
@@ -602,6 +609,7 @@ makePredictionsSimVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatva
   newdat=uncount(newdat,.data$SampleUnits)
   nObs=dim(newdat)[1]
   #Get predictions
+  if(modtype=="Tweedie")  response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
   response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
@@ -886,6 +894,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
 makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
   returnval=NULL
   if(!is.null(modfit1)) {
+    if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
@@ -1096,7 +1105,8 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
 #' @keywords internal
 makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
   if(!is.null(modfit1)) {
-    predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
+    if(modtype=="Tweedie")    predval1<-try(data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))) else
+      predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
     if(class(predval1)[[1]]!="try-error") {
       if(!is.null(modfit2))  {
         predval2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
@@ -1263,7 +1273,7 @@ simulateTMBTweedieDraw<-function(modfit,nObs,b,Effort) {
 #' @importFrom tweedie rtweedie
 #' @keywords internal
 simulateTweedie <- function(modfit1, nsims){
-  pred = predict(modfit1, type = "response")
+  pred = cplm::predict(modfit1, type = "response")
   nObs = length(pred)
   sim = replicate(nsims,rtweedie(nObs,xi=modfit1$p, mu=pred,phi=modfit1$phi))
   return(sim)
