@@ -1176,7 +1176,9 @@ simulateNegBinGam <- function(modfit, nsims=250, offsetval=1){
 #' @importFrom MASS mvrnorm
 #' @keywords internal
 getSimSE<-function(modfit, df1, transFunc="none", offsetval=NULL, nsim) {
-  if(length(coef(modfit))==dim(vcov(modfit))[1]) {
+  if(class(modfit)[1]=="cpglm") {vcovval=modfit1$vcov else
+      vcovval=vcov(modfit)
+  if(length(coef(modfit))==dim(vcovval)[1]) {
     b=t(mvrnorm(nsim,coef(modfit),vcov(modfit)))
     yvar=sub( " ", " ",formula(modfit) )[2]
     df1<-cbind(y=rep(1,dim(df1)[1]),df1)
