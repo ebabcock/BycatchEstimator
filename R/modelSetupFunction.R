@@ -276,7 +276,8 @@ bycatchSetup <- function(
     rmarkdown::render(mkd,
                       params=list(OutDir=OutDir),
                       output_file = "DataSummary.pdf",
-                      output_dir=outDir)
+                      output_dir=outDir,
+                      quiet = TRUE)
   }
 
   for(run in 1:numSp) {

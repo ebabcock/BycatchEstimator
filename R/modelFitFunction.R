@@ -426,7 +426,8 @@ bycatchFit<-function(
         rmarkdown::render(mkd,
                           params=list(outVal=outVal),
                           output_file = paste0(common[run], catchType[run],"results.pdf"),
-                          output_dir=outVal)
+                          output_dir=outVal,
+                          quiet = TRUE)
       }
     }
     print(paste(run, common[run],"complete, ",Sys.time()))
