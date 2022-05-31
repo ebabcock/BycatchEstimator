@@ -125,7 +125,7 @@ bycatchFit<-function(
     varExclude<-NULL
     #Fit all models except delta
     for(mod in which(!modelTry %in% c("Delta-Lognormal","Delta-Gamma"))){
-      modFit<-BycatchEstimator:::findBestModelFunc(
+      modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
         obsdatval = datval,
         modType = modelTry[mod],
         printOutput=TRUE,
@@ -139,7 +139,7 @@ bycatchFit<-function(
         varExclude = varExclude,
         dirname = dirname,
         run = run
-      )
+      ))
       modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
       modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
     }
