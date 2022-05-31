@@ -54,7 +54,7 @@ yearSum[[run]] %>%
   remove_rownames() %>%
   kbl(format="latex",longtable=TRUE) %>%
   kable_styling(font_size=8,
-     latex_options = c("hold_position","basic")) %>%
+     latex_options = c("HOLD_position","basic")) %>%
   suppressWarnings(print())
 #Print modelTable including ModelFail
 cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
