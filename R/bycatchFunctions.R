@@ -348,7 +348,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         mutate(Total=.data$Effort*.data$fit,
                TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
        sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
-        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))),
+        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
          phi=modfit1$phi))*newdat$Effort
   }
   if(modtype=="TMBnbinom1") {
