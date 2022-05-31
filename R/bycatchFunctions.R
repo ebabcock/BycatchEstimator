@@ -957,7 +957,8 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
 ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
   if(!is.null(fileName))   pdf(fileName,height=5,width=7)
   if(!is.null(modfit1)) {
-    dfcheck<-data.frame(Expected=predict(modfit1),Residuals=residuals(modfit1))
+    if(modType=="Tweedie")  dfcheck<-data.frame(Expected=cplm::predict(modfit1),Residuals=residuals(modfit1)) else
+     dfcheck<-data.frame(Expected=predict(modfit1),Residuals=residuals(modfit1))
     if(nrow(dfcheck)>1000)
       subsam<-sample(1:nrow(dfcheck),1000) else
         subsam<-1:nrow(dfcheck) #Only show 1000 residuals if have more than that
@@ -969,16 +970,16 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
       if(class(modfit1)[1] =="cpglm") {  #Extra step to simulate DHARMa for cpglm or mgcv
         simvals=simulateTweedie(modfit1,nsim)
         simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                            fittedPredictedResponse = predict(modfit1,type="response")))
+                                            fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         if(class(simulationOutput)[1]=="try-error") {
           simvals=simulateTweedie(modfit1,nsim*4)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                              fittedPredictedResponse = predict(modfit1,type="response")))
+                                              fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         }
         if(class(simulationOutput)[1]=="try-error") {
           simvals=simulateTweedie(modfit1,nsim*10)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                              fittedPredictedResponse = predict(modfit1,type="response")))
+                                              fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         }
       }
       if(class(modfit1)[1]=="gam" & modType=="NegBin") {
