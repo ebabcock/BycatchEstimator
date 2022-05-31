@@ -895,7 +895,7 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
   returnval=NULL
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
-    response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modType=="Tweedie")
@@ -1180,7 +1180,7 @@ getSimSE<-function(modfit, df1, transFunc="none", offsetval=NULL, nsim) {
   if(class(modfit)[1]=="cpglm") vcovval=modfit1$vcov else
       vcovval=vcov(modfit)
   if(length(coef(modfit))==dim(vcovval)[1]) {
-    b=t(mvrnorm(nsim,coef(modfit),vcov(modfit)))
+    b=t(mvrnorm(nsim,coef(modfit),vcovval))
     yvar=sub( " ", " ",formula(modfit) )[2]
     df1<-cbind(y=rep(1,dim(df1)[1]),df1)
     names(df1)[1]<-yvar
