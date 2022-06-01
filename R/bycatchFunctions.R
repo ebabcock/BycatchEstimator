@@ -529,17 +529,17 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     }
     if(includeObsCatch & modtype!="Binomial") {
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+      d=match(newdatall$matchColumn,obsdatvalyear$matchColumn)
       #d=match(logdat$matchColumn,obsdatvalyear$matchColumn)
       d=a[!is.na(d)]
-      allpred$Total[a]= allpred$Total[d] + obsdatvalyear$Catch
+      predval[a]= predval[d] + obsdatvalyear$Catch
     }
     if(includeObsCatch & modtype=="Binomial") {
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+      d=match(newdatall$matchColumn,obsdatvalyear$matchColumn)
       #d=match(logdat$matchColumn,obsdatvalyear$matchColumn)
       d=d[!is.na(d)]
-      allpred$Total[d]= obsdatvalyear$pres
+      predval[d]= obsdatvalyear$pres
     }
     yearpred$Total[i]<-sum(predval)
     yearpred$TotalVar[i] = t(deriv) %*%
