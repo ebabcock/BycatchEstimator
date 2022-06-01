@@ -109,7 +109,7 @@ bycatchSetup <- function(
   NumCores<-detectCores()  #Check if machine has multiple cores for parallel processing
 
   #Check that all models in modelTry are valid
-  if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie","Normal","Binomial") ))
+  if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin") ))
     stop(paste("Model requested in modelTry not available"))
 
    #Make sure binomial is included if either of the delta models is
