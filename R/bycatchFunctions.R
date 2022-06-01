@@ -532,7 +532,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       d=match(newdatall$matchColumn,obsdatvalyear$matchColumn)
       #d=match(logdat$matchColumn,obsdatvalyear$matchColumn)
       d=a[!is.na(d)]
-      predval[a]= predval[d] + obsdatvalyear$Catch
+      predval[d]= predval[d] + obsdatvalyear$Catch
     }
     if(includeObsCatch & modtype=="Binomial") {
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
