@@ -1106,7 +1106,7 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
 #' @keywords internal
 makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
   if(!is.null(modfit1)) {
-    if(modtype=="Tweedie")    predval1<-try(data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))) else
+    if(modType=="Tweedie")    predval1<-try(data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))) else
       predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
     if(class(predval1)[[1]]!="try-error") {
       if(!is.null(modfit2))  {
