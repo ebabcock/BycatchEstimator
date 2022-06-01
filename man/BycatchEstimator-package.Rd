@@ -11,6 +11,13 @@ Generic Model-Based Bycatch Estimation Procedure
 \details{
 The code can estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://ebabcock.github.io/BycatchEstimator/}
+}
+
+}
 \author{
 \strong{Maintainer}: Elizabeth Babcock \email{ebabcock@rsmas.miami.edu}
 

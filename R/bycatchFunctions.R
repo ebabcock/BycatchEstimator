@@ -86,7 +86,7 @@ standard.error<-function(x) {
 #' @importFrom reshape2 colsplit
 #' @importFrom stats anova na.fail as.formula coef vcov Gamma glm.control formula lm glm
 #' @importFrom MASS glm.nb
-#' @importFrom cplm cpglm
+#' @importFrom cplm cpglm predict
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
