@@ -41,7 +41,7 @@ For the Monte Carlo variance estimation method, we first draw random values of t
 $$\Sigma_p = J \Sigma_l J'  $$
 
 were $\Sigma_l$ is the variance covariance matrix for the predicted trips in the stratum on the scale of the log link, and J is the matrix of derivatives. See the function MakePredictionsDeltaVar in 
-bycatchFunctions.R for the details for each model type. This code is partly based on the method developed by https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value.
+bycatchFunctions.R for the details for each model type. This code is partly based on the method developed by https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value. The delta method is not available for delta-gamma, delta-lognormal, or Tweedie via the cplm library, although it is available for TMBtweedie. For those error models, if the simulation method will be used even if the delta method is selected with VarCalc. 
 
 If the logbook data is aggregated across multiple trips (e.g. by strata) the effort is allocated equally to all the trips in a row of the logbook data table for the purpose of simulating catches or estimating variances using the delta method. This allocation procedure is not needed to estimate the mean total bycatch, but it is necessary to estimate the variances correctly. When using aggregated effort, it is not yet possible to include the observed catches as known.  
 

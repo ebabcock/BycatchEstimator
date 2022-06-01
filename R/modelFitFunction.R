@@ -237,7 +237,7 @@ bycatchFit<-function(
                          run = run
                        )
             }
-          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma"))
+          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
                 modfit1=modFit1,
