@@ -86,10 +86,6 @@ standard.error<-function(x) {
 #' @importFrom reshape2 colsplit
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
-<<<<<<< HEAD
-#' @importFrom cplm cpglm predict
-=======
->>>>>>> 74f79642425663d3a949036270da3a11868c3038
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
@@ -199,7 +195,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     if(modType %in% c("Normal","Lognormal","Delta-Lognormal")) modfit1<-lm(formula(modfit1),data=obsdatval,na.action=na.fail)
     if(modType %in% c("Gamma","Delta-Gamma")) modfit1<-glm(formula(modfit1),data=obsdatval,family=Gamma(link="log"),na.action=na.fail)
     if(modType=="NegBin") modfit1<-glm.nb(formula(modfit1),data=obsdatval,control=glm.control(epsilon=1E-6,maxit=30),na.action=na.fail)
-    if(modType=="Tweedie") modfit1<-cpglm(formula(modfit1),data=obsdatval,na.action=na.fail)
+    if(modType=="Tweedie") modfit1<-cplm::cpglm(formula(modfit1),data=obsdatval,na.action=na.fail)
     if(modType %in% c("TMBnbinom1","TMBnbinom2","TMBtweedie") )
       modfit1<-glmmTMB(formula(modfit1),family=TMBfamily,data=obsdatval,na.action=na.fail)
     if(useParallel) {
@@ -476,8 +472,8 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     a = model.matrix(tm, newdat)
     ## predicted value
     if(modtype=="Tweedie" ) {
-     cplm::predvallink = predict(modfit1,newdat=newdat)
-     cplm::predval = predict(modfit1,newdat=newdat,type="response")
+     predvallink = cplm::predict(modfit1,newdat=newdat)
+     predval = cplm::predict(modfit1,newdat=newdat,type="response")
 
     } else {
      predvallink = predict(modfit1,newdat=newdat)
@@ -1084,7 +1080,7 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
   }
   if(modType=="Tweedie") {
     obsdatval$y=obsdatval$cpue
-    modfit1=try(cpglm(formula1,data=obsdatval))
+    modfit1=try(cplm::cpglm(formula1,data=obsdatval))
   }
   if(modType %in% c("TMBnbinom1","TMBnbinom2") ){
     obsdatval$y=round(obsdatval$Catch)
@@ -1756,7 +1752,7 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
   }
   if(modType=="Tweedie") {
     obsdatval$y=obsdatval$cpue
-    modfit1=try(cpglm(formula2,data=obsdatval))
+    modfit1=try(cplm::cpglm(formula2,data=obsdatval))
   }
   if(modType %in% c("TMBnbinom1","TMBnbinom2") ){
     obsdatval$y=round(obsdatval$Catch)

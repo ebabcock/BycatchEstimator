@@ -2,7 +2,7 @@
 % Please edit documentation in R/bycatchFunctions.R
 \name{makePredictionsNoVar}
 \alias{makePredictionsNoVar}
-\title{Generate standard errors and confidence intervals of predictions with delta-method separately by year}
+\title{Generate predictions without estimating variance}
 \usage{
 makePredictionsNoVar(
   modfit1,
@@ -46,6 +46,6 @@ makePredictionsNoVar(
 \item{CIval}{Value}
 }
 \description{
-Generate standard errors and confidence intervals of predictions with delta-method separately by year
+Generate predictions without estimating variance
 }
 \keyword{internal}

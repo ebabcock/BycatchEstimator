@@ -37,7 +37,7 @@ Simulated data
 LLSIM_BUM_Example_observer
 }
 \description{
-LLSIm BUM by trip, with 5\% observer coverage including observed catch in totals April 17 2022
+LLSIm BUM by trip, with 5\% observer coverage including observed catch
 }
 \keyword{LLSIM}
 \keyword{Simulated}
