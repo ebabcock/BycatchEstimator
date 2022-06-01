@@ -108,7 +108,11 @@ bycatchSetup <- function(
   options(warn=defaultW)
   NumCores<-detectCores()  #Check if machine has multiple cores for parallel processing
 
-  #Make sure binomial is included if either of the delta models is
+  #Check that all models in modelTry are valid
+  if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin") ))
+    stop(paste("Model requested in modelTry not available"))
+
+   #Make sure binomial is included if either of the delta models is
   if(("Delta-Lognormal" %in% modelTry |"Delta-Gamma" %in% modelTry) & !"Binomial" %in% modelTry)
     modelTry<-c("Binomial",modelTry)
 
@@ -276,7 +280,8 @@ bycatchSetup <- function(
     rmarkdown::render(mkd,
                       params=list(OutDir=OutDir),
                       output_file = "DataSummary.pdf",
-                      output_dir=outDir)
+                      output_dir=outDir,
+                      quiet = TRUE)
   }
 
   for(run in 1:numSp) {

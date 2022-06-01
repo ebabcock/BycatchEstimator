@@ -32,7 +32,7 @@
 
 #' LLSIM-based example observer program data set
 #'
-#' LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022
+#' LLSIm BUM by trip, with 5% observer coverage including observed catch
 #'
 #' @format A tibble with 22 columns. Each row is a fishing trip.
 #' \describe{
@@ -64,7 +64,7 @@
 
 #' LLSIM-based example logbook program data set
 #'
-#' LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022
+#' LLSIm BUM by trip, with 5% observer coverage including observed catch
 #'
 #' @format A tibble with 25 columns. Each row is a fishing trip.
 #' \describe{

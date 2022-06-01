@@ -84,9 +84,12 @@ standard.error<-function(x) {
 #' @param run Value
 #' @import MuMIn parallel doParallel tweedie glmmTMB
 #' @importFrom reshape2 colsplit
-#' @importFrom stats anova na.fail as.formula coef vcov Gamma glm.control formula lm glm
+#' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
+<<<<<<< HEAD
 #' @importFrom cplm cpglm predict
+=======
+>>>>>>> 74f79642425663d3a949036270da3a11868c3038
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
@@ -181,7 +184,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       if(modfit1$rank<length(coef(modfit1))) class(modfit1)<-"try-error"
     }
     if(class(modfit1)[1] == "cpglm")  {
-      if(length(coef(modfit1))!=dim(vcov(modfit1))[1])  class(modfit1)<-"try-error"
+      if(length(coef(modfit1))!=dim(modfit1$vcov)[1])  class(modfit1)<-"try-error"
     }
     if(class(modfit1)[1]=="try-error")   {
       args$formula=formulaList[[i]]
@@ -262,7 +265,8 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
   newdat = newdatall[newdatall$Year==years[i],]
   nObs= nrow(newdat)
   #Get predictions
-  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+  if(modtype=="Tweedie" ) response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
+   response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modtype=="Tweedie")
@@ -348,7 +352,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         mutate(Total=.data$Effort*.data$fit,
                TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
        sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
-        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))),
+        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
          phi=modfit1$phi))*newdat$Effort
   }
   if(modtype=="TMBnbinom1") {
@@ -452,7 +456,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
-  if(modtype %in% c("Delta-Lognormal","Delta-Gamma")) stop("No delta-method variance available")
+  if(modtype %in% c("Delta-Lognormal","Delta-Gamma","Tweedie")) stop("No delta-method variance available, use simulute")
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -471,8 +475,14 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     tm = delete.response(terms(modfit1))
     a = model.matrix(tm, newdat)
     ## predicted value
-    predvallink = predict(modfit1,newdat=newdat)
-    predval = predict(modfit1,newdat=newdat,type="response")
+    if(modtype=="Tweedie" ) {
+     cplm::predvallink = predict(modfit1,newdat=newdat)
+     cplm::predval = predict(modfit1,newdat=newdat,type="response")
+
+    } else {
+     predvallink = predict(modfit1,newdat=newdat)
+     predval = predict(modfit1,newdat=newdat,type="response")
+    }
     if(modtype %in% c("TMBtweedie","TMBnbinom1","TMBnbinom2"))
       vcovval = a %*% vcov(modfit1)[[1]] %*% t(a) else
         vcovval = a %*% vcov(modfit1) %*% t(a)
@@ -523,17 +533,17 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     }
     if(includeObsCatch & modtype!="Binomial") {
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+      d=match(newdatall$matchColumn,obsdatvalyear$matchColumn)
       #d=match(logdat$matchColumn,obsdatvalyear$matchColumn)
-      d=a[!is.na(d)]
-      allpred$Total[a]= allpred$Total[d] + obsdatvalyear$Catch
+      d=d[!is.na(d)]
+      predval[d]= predval[d] + obsdatvalyear$Catch
     }
     if(includeObsCatch & modtype=="Binomial") {
       obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+      d=match(newdatall$matchColumn,obsdatvalyear$matchColumn)
       #d=match(logdat$matchColumn,obsdatvalyear$matchColumn)
       d=d[!is.na(d)]
-      allpred$Total[d]= obsdatvalyear$pres
+      predval[d]= obsdatvalyear$pres
     }
     yearpred$Total[i]<-sum(predval)
     yearpred$TotalVar[i] = t(deriv) %*%
@@ -603,6 +613,7 @@ makePredictionsSimVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatva
   newdat=uncount(newdat,.data$SampleUnits)
   nObs=dim(newdat)[1]
   #Get predictions
+  if(modtype=="Tweedie")  response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
   response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
@@ -689,7 +700,7 @@ if(!any(is.na(response1$se.fit)) & !max(response1$se.fit/response1$fit,na.rm=TRU
         mutate(Total=.data$Effort*.data$fit,
                TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
        sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
-        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))),
+        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
          phi=modfit1$phi))*newdat$Effort
   }
   if(modtype=="TMBnbinom1") {
@@ -766,7 +777,8 @@ if(!any(is.na(response1$se.fit)) & !max(response1$se.fit/response1$fit,na.rm=TRU
 }
   returnval
 }
-#' Generate standard errors and confidence intervals of predictions with delta-method separately by year
+
+#' Generate predictions without estimating variance
 #'
 #' @param modfit1 Value
 #' @param newdat Value
@@ -789,7 +801,8 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
-    response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
+    if(modtype=="Tweedie")     response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response")) else
+     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
     if(dim(response1)[2]==1)     names(response1)="fit"
     if(!is.null(modfit2))  {
       response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=getse,type="response"))
@@ -885,7 +898,8 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
 makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
   returnval=NULL
   if(!is.null(modfit1)) {
-    response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+    if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
+     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modType=="Tweedie")
@@ -947,7 +961,8 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
 ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
   if(!is.null(fileName))   pdf(fileName,height=5,width=7)
   if(!is.null(modfit1)) {
-    dfcheck<-data.frame(Expected=predict(modfit1),Residuals=residuals(modfit1))
+    if(modType=="Tweedie")  dfcheck<-data.frame(Expected=cplm::predict(modfit1),Residuals=residuals(modfit1)) else
+     dfcheck<-data.frame(Expected=predict(modfit1),Residuals=residuals(modfit1))
     if(nrow(dfcheck)>1000)
       subsam<-sample(1:nrow(dfcheck),1000) else
         subsam<-1:nrow(dfcheck) #Only show 1000 residuals if have more than that
@@ -959,16 +974,16 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
       if(class(modfit1)[1] =="cpglm") {  #Extra step to simulate DHARMa for cpglm or mgcv
         simvals=simulateTweedie(modfit1,nsim)
         simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                            fittedPredictedResponse = predict(modfit1,type="response")))
+                                            fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         if(class(simulationOutput)[1]=="try-error") {
           simvals=simulateTweedie(modfit1,nsim*4)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                              fittedPredictedResponse = predict(modfit1,type="response")))
+                                              fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         }
         if(class(simulationOutput)[1]=="try-error") {
           simvals=simulateTweedie(modfit1,nsim*10)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
-                                              fittedPredictedResponse = predict(modfit1,type="response")))
+                                              fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         }
       }
       if(class(modfit1)[1]=="gam" & modType=="NegBin") {
@@ -1095,7 +1110,8 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
 #' @keywords internal
 makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
   if(!is.null(modfit1)) {
-    predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
+    if(modType=="Tweedie")    predval1<-try(data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))) else
+      predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
     if(class(predval1)[[1]]!="try-error") {
       if(!is.null(modfit2))  {
         predval2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
@@ -1165,8 +1181,10 @@ simulateNegBinGam <- function(modfit, nsims=250, offsetval=1){
 #' @importFrom MASS mvrnorm
 #' @keywords internal
 getSimSE<-function(modfit, df1, transFunc="none", offsetval=NULL, nsim) {
-  if(length(coef(modfit))==dim(vcov(modfit))[1]) {
-    b=t(mvrnorm(nsim,coef(modfit),vcov(modfit)))
+  if(class(modfit)[1]=="cpglm") vcovval=modfit$vcov else
+      vcovval=vcov(modfit)
+  if(length(coef(modfit))==dim(vcovval)[1]) {
+    b=t(mvrnorm(nsim,coef(modfit),vcovval))
     yvar=sub( " ", " ",formula(modfit) )[2]
     df1<-cbind(y=rep(1,dim(df1)[1]),df1)
     names(df1)[1]<-yvar
@@ -1262,7 +1280,7 @@ simulateTMBTweedieDraw<-function(modfit,nObs,b,Effort) {
 #' @importFrom tweedie rtweedie
 #' @keywords internal
 simulateTweedie <- function(modfit1, nsims){
-  pred = predict(modfit1, type = "response")
+  pred = cplm::predict(modfit1, type = "response")
   nObs = length(pred)
   sim = replicate(nsims,rtweedie(nObs,xi=modfit1$p, mu=pred,phi=modfit1$phi))
   return(sim)
@@ -1597,7 +1615,7 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
           geom_line()+ geom_ribbon(alpha=0.3)+xlab("Year")+
           ylab(ytitle)
     }
-    print(g)
+    suppressWarnings(print(g))
     if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
   }
 }
@@ -1638,7 +1656,7 @@ plotIndex<-function(yearpred, modType, fileName, subtext="", indexVarNames, allV
       varplot=as.formula(paste0("~",paste(grep("Year",indexVarNames,invert=TRUE,value=TRUE),sep="+")))
       g=g+facet_wrap(varplot)
     }
-    print(g)
+    suppressWarnings(print(g))
     if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
   }
 }
@@ -1679,7 +1697,7 @@ plotSumsValidate<-function(yearpred,trueval,fileName,colName, allVarNames, start
     xlab("Year")+
     ylab(paste0(common[run]," ",catchType[run]," (",catchUnit[run],")"))+
     geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)
-  print(g)
+  suppressWarnings(print(g))
   if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
 }
 
@@ -1701,7 +1719,7 @@ plotCrossVal<-function(rmse,me,fileName) {
   g<-ggplot(df)+geom_boxplot(aes(x=Model,y=value),fill="lightgrey")+
     facet_wrap(Metric~.,ncol=1,scales="free")+
     xlab("Model")+ylab("Cross validation metrics")
-  print(g)
+  suppressWarnings(print(g))
   if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
 }
 

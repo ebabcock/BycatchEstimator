@@ -52,10 +52,10 @@ tablenum<-tablenum+1
 yearSum[[run]] %>%
   mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
   remove_rownames() %>%
-  kbl(format="latex",longtable=TRUE) %>%
-  kable_styling(font_size=8,
+  kbl(format="latex",longtable = TRUE) %>%
+  kable_styling(font_size = 8,
      latex_options = c("hold_position","basic")) %>%
-  print()
+  suppressWarnings(print())
 #Print modelTable including ModelFail
 cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
 tablenum<-tablenum+1
@@ -66,7 +66,7 @@ if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
 kbl(df1,format="latex") %>%
    kable_styling(
      latex_options = c("hold_position","basic")) %>%
-    print()
+    suppressWarnings(print())
 #Table residual summary
 cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. Tests are a Kolmogorov-Smirnov(KS) test on whether the scaled residuals are uniform, a dispersion test based on comparing the ratio of the observed and simulated residuals (>1 is overdispersed), a zero inflation test based on the ratio of observed to expected zeros, and the number of outliers, defined as data points outside the range of the simulations",sep="")
 tablenum<-tablenum+1
@@ -74,7 +74,7 @@ data.frame(residualTab[[run]]) %>%
  kbl(format="latex",digits = 2) %>%
    kable_styling(
      latex_options = c("hold_position","scale_down","basic")) %>%
-    print()
+    suppressWarnings(print())
 # Figures of All models together
 if(EstimateBycatch ) {
  if(plotValidation)  plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit) else

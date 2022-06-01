@@ -125,7 +125,7 @@ bycatchFit<-function(
     varExclude<-NULL
     #Fit all models except delta
     for(mod in which(!modelTry %in% c("Delta-Lognormal","Delta-Gamma"))){
-      modFit<-BycatchEstimator:::findBestModelFunc(
+      modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
         obsdatval = datval,
         modType = modelTry[mod],
         printOutput=TRUE,
@@ -139,7 +139,7 @@ bycatchFit<-function(
         varExclude = varExclude,
         dirname = dirname,
         run = run
-      )
+      ))
       modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
       modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
     }
@@ -202,7 +202,7 @@ bycatchFit<-function(
           modFit2<-NULL
         }
         if(EstimateBycatch) {
-          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma")))
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie")))
             if(BigData) {
               modPredVals[[run]][[modelTry[mod]]]<-
                 makePredictionsSimVarBig(
@@ -237,7 +237,7 @@ bycatchFit<-function(
                          run = run
                        )
             }
-          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma"))
+          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
                 modfit1=modFit1,
@@ -332,7 +332,7 @@ bycatchFit<-function(
         for(mod in which(!modelTry %in% c("Delta-Lognormal","Delta-Gamma"))) {
           if(modelFail[run,modelTry[mod]]=="-") {
             if(DredgeCrossValidation) {
-              modFit1<-findBestModelFunc(
+              modFit1<-suppressWarnings(findBestModelFunc(
                 datin,
                 modelTry[mod],
                 requiredVarNames = requiredVarNames,
@@ -342,10 +342,10 @@ bycatchFit<-function(
                 selectCriteria = selectCriteria,
                 catchType = catchType,
                 varExclude = varExclude
-              )[[1]]
+              ))[[1]]
             } else {
-              modFit1<-FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),
-                                      modType=modelTry[mod],obsdatval=datin)
+              modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),
+                                      modType=modelTry[mod],obsdatval=datin))
             }
             if(modelTry[mod]!="Binomial") {
               predcpue<-makePredictions(
@@ -365,7 +365,7 @@ bycatchFit<-function(
           for(mod in which(modelTry %in% c("Delta-Lognormal","Delta-Gamma"))) {
             if(modelFail[run,modelTry[mod]]=="-" & !(!is.numeric(posdat$Year) & min(table(posdat$Year))==0)) {
               if(DredgeCrossValidation) {
-                modFit1<-findBestModelFunc(
+                modFit1<-suppressWarnings(findBestModelFunc(
                   posdat,
                   modelTry[mod],
                   requiredVarNames = requiredVarNames,
@@ -375,9 +375,9 @@ bycatchFit<-function(
                   selectCriteria = selectCriteria,
                   catchType = catchType,
                   varExclude = varExclude
-                )[[1]]
+                ))[[1]]
               } else {
-                modFit1<-FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat)
+                modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat))
               }
               predcpue<-makePredictions(bin1,modFit1,modelTry[mod],datout)
               rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
@@ -406,7 +406,7 @@ bycatchFit<-function(
     }
 
     if(doReport){
-      save(list=c("numSp","yearSum","runName","runDescription",
+      save(list=c("numSp","yearSum","runName","runDescription","allVarNames",
                   "common", "sp","bestmod","CIval","includeObsCatch",
                   "predbestmod","indexbestmod","allmods","allindex","modelTable",
                   "modelSelectTable","modFits","modPredVals","VarCalc"
@@ -423,10 +423,11 @@ bycatchFit<-function(
       error = function(c) NULL
       )
       if(!is.null( mkd)){
-        rmarkdown::render(mkd,
+        suppressWarnings(rmarkdown::render(mkd,
                           params=list(outVal=outVal),
                           output_file = paste0(common[run], catchType[run],"results.pdf"),
-                          output_dir=outVal)
+                          output_dir=outVal,
+                          quiet = TRUE))
       }
     }
     print(paste(run, common[run],"complete, ",Sys.time()))
