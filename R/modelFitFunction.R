@@ -202,7 +202,7 @@ bycatchFit<-function(
           modFit2<-NULL
         }
         if(EstimateBycatch) {
-          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma")))
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie")))
             if(BigData) {
               modPredVals[[run]][[modelTry[mod]]]<-
                 makePredictionsSimVarBig(

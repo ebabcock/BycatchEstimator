@@ -452,7 +452,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
-  if(modtype %in% c("Delta-Lognormal","Delta-Gamma")) stop("No delta-method variance available")
+  if(modtype %in% c("Delta-Lognormal","Delta-Gamma","Tweedie")) stop("No delta-method variance available, use simulute")
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -696,7 +696,7 @@ if(!any(is.na(response1$se.fit)) & !max(response1$se.fit/response1$fit,na.rm=TRU
         mutate(Total=.data$Effort*.data$fit,
                TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
        sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
-        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))),
+        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
          phi=modfit1$phi))*newdat$Effort
   }
   if(modtype=="TMBnbinom1") {
