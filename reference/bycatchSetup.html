@@ -82,54 +82,103 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>modelTry</dt>
 <dd><p>Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.</p></dd>
+
+
 <dt>obsdat</dt>
 <dd><p>Observer data set</p></dd>
+
+
 <dt>logdat</dt>
 <dd><p>Logbook data set</p></dd>
+
+
 <dt>yearVar</dt>
 <dd><p>Character. The name of the year variable in <code>obsdat</code> and <code>logdat</code>. Both input files must contain the same variable name for year.</p></dd>
+
+
 <dt>obsEffort</dt>
 <dd><p>Character. The name of the effort variable in <code>obsdat</code>. This variable must have the same effort units as <code>logEffort</code></p></dd>
+
+
 <dt>logEffort</dt>
 <dd><p>Character. The name of the effort variable in <code>logdat</code>. Optional and only used when estimating bycatch. This variable must have the same effort units as <code>obsEffort</code></p></dd>
+
+
 <dt>logUnsampledEffort</dt>
 <dd><p>Character. The name of the unsampled effort variable in in <code>logdat</code>. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when <code>includeObsCatch</code> is TRUE</p></dd>
+
+
 <dt>includeObsCatch</dt>
 <dd><p>Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.</p></dd>
+
+
 <dt>matchColumn</dt>
 <dd><p>Character. If <code>includeObsCatch</code> is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA</p></dd>
+
+
 <dt>factorNames</dt>
 <dd><p>Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. Variables not in this list will retain their original format. These variables must have identical names and factor levels in <code>obsdat</code> and <code>logdat</code></p></dd>
+
+
 <dt>EstimateIndex</dt>
 <dd><p>Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.</p></dd>
+
+
 <dt>EstimateBycatch</dt>
 <dd><p>Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to <code>logdat</code>.</p></dd>
+
+
 <dt>logNum</dt>
 <dd><p>Character vector. The name of the column in <code>logdat</code> that gives the number of sample units (e.g., trips or sets). If the logbook data is not aggregated (i.e. each row is a sample unit) set value to NA</p></dd>
+
+
 <dt>sampleUnit</dt>
 <dd><p>Character. What is the sample unit in <code>logdat</code>? e.g. sets or trips.</p></dd>
+
+
 <dt>complexModel</dt>
 <dd><p>Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria.</p></dd>
+
+
 <dt>simpleModel</dt>
 <dd><p>Specify as stats::formula.</p></dd>
+
+
 <dt>indexModel</dt>
 <dd><p>Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.</p></dd>
+
+
 <dt>baseDir</dt>
 <dd><p>Character. A directory to save output. Defaults to current working directory.</p></dd>
+
+
 <dt>runName</dt>
 <dd><p>Characer. Give a name to the run, which will be used to set up a directory for the outputs</p></dd>
+
+
 <dt>runDescription</dt>
 <dd><p>Character. Brief summary of the run, which will be used to set up a directory for the outputs</p></dd>
+
+
 <dt>common</dt>
 <dd><p>Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.</p></dd>
+
+
 <dt>sp</dt>
 <dd><p>Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time</p></dd>
+
+
 <dt>obsCatch</dt>
 <dd><p>Character vector. The name of the column(s) in <code>obsdat</code> that contain catch. If it is a vector, order of variable names must follow the same order as names provided in <code>common</code> and <code>sp</code></p></dd>
+
+
 <dt>catchUnit</dt>
 <dd><p>Character vector. Give units of catch (e.g., number) to go in plot labels. Must be a vector of the same length as <code>sp</code></p></dd>
+
+
 <dt>catchType</dt>
 <dd><p>Character vector. Give type of catch (e.g., dead discards) to go in plot labels. Must be a vector of the same length as <code>sp</code></p></dd>
+
 </dl></div>
 
     <div class="section level2">
@@ -174,7 +223,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>
