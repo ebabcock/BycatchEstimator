@@ -152,7 +152,7 @@ bycatchFit<-function(
       if(length(varExclude>0)) print(paste(common[run], "excluding variable",varExclude,"from delta models for positive catch"))
       if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) & !is.null(modFits[[run]][["Binomial"]])) { #If all years have at least one positive observation and binomial converged, carry on with delta models
         for(mod in which(modelTry %in% c("Delta-Lognormal","Delta-Gamma")))  {
-          modFit<-findBestModelFunc(
+          modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
             obsdatval = posdat,
             modType = modelTry[mod],
             requiredVarNames = requiredVarNames,
@@ -166,7 +166,7 @@ bycatchFit<-function(
             common = common,
             dirname = dirname,
             run = run
-          )
+          ))
           modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
           modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
         }
