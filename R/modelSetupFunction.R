@@ -106,7 +106,7 @@ bycatchSetup <- function(
   theme_set(theme_bw()) #ggplot theme
   defaultW <- 0
   options(warn=defaultW)
-  NumCores<-detectCores()  #Check if machine has multiple cores for parallel processing
+  NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
 
   #Check that all models in modelTry are valid
   if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin") ))
