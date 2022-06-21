@@ -272,7 +272,7 @@ bycatchSetup <- function(
   #Create report
   save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
   mkd<-tryCatch({
-    system.file("Markdown", "PrintDataSummary.rmd", package = "BycatchEstimator", mustWork = TRUE)
+    system.file("Markdown", "PrintDataSummary.Rmd", package = "BycatchEstimator", mustWork = TRUE)
   },
     error = function(c) NULL
   )
