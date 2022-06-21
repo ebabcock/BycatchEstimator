@@ -100,7 +100,7 @@ bycatchSetup <- function(
 
   ){
 
-  SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-OutDir<-NULL
+  SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
 
   #Set global conditions
   theme_set(theme_bw()) #ggplot theme
@@ -270,7 +270,7 @@ bycatchSetup <- function(
   }
 
   #Create report
-  save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"\\","sumdatR"))
+  save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
   mkd<-tryCatch({
     system.file("Markdown", "PrintDataSummary.Rmd", package = "BycatchEstimator", mustWork = TRUE)
   },
@@ -278,7 +278,7 @@ bycatchSetup <- function(
   )
   if(!is.null( mkd)){
     rmarkdown::render(mkd,
-                      params=list(OutDir=OutDir),
+                      params=list(OutDir=outDir),
                       output_file = "DataSummary.pdf",
                       output_dir=outDir,
                       quiet = TRUE)
