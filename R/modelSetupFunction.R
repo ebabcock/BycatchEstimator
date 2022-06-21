@@ -356,7 +356,8 @@ bycatchSetup <- function(
       requiredVarNames = requiredVarNames,
       allVarNames = allVarNames,
       startYear = startYear,
-      strataSum = strataSum
+      strataSum = strataSum,
+      NumCores = NumCores
     )
   )
 
