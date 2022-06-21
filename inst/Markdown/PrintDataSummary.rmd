@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r loadsummary,  results=FALSE,  message=FALSE}
-load(paste0(outDir,"\\","sumdatR"))
+load(paste0(outDir,"/","sumdatR"))
 library(tidyverse)
 library(kableExtra)
 ```
