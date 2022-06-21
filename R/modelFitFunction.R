@@ -104,7 +104,7 @@ bycatchFit<-function(
   common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
 
   numSp<-modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-
-  modelFail<-rmsetab<-metab<-dat<-yearSum<-requiredVarNames<-allVarNames<-indexDat<-strataSum<-NULL
+  modelFail<-rmsetab<-metab<-dat<-yearSum<-requiredVarNames<-allVarNames<-indexDat<-strataSum<-NumCores<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -117,6 +117,9 @@ bycatchFit<-function(
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
   }
+  
+  #Make sure there are multiple cores to use Parallel processing
+  if(NumCores<=1) useParallel=FALSE
 
   ############## This is the main analysis loop ##########################
   for(run in 1:numSp) {
