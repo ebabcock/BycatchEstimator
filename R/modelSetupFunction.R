@@ -35,7 +35,7 @@
 #' @param obsCatch Character vector. The name of the column(s) in \code{obsdat} that contain catch. If it is a vector, order of variable names must follow the same order as names provided in \code{common} and \code{sp}
 #' @param catchUnit Character vector. Give units of catch (e.g., number) to go in plot labels. Must be a vector of the same length as \code{sp}
 #' @param catchType Character vector. Give type of catch (e.g., dead discards) to go in plot labels. Must be a vector of the same length as \code{sp}
-#' @import ggplot2 parallel dplyr doParallel foreach utils kableExtra tidyverse
+#' @import ggplot2 parallel dplyr doParallel foreach utils kableExtra tidyverse parallelly
 #' @importFrom stats median
 #' @export
 #' @keywords Fitting functions
