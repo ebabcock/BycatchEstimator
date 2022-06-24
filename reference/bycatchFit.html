@@ -48,22 +48,22 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">bycatchFit</span><span class="op">(</span>
-  <span class="va">setupObj</span>,
-  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,
-  DoCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  ResidualTest <span class="op">=</span> <span class="cn">TRUE</span>,
-  CIval <span class="op">=</span> <span class="fl">0.05</span>,
-  VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,
-  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,
-  nSims <span class="op">=</span> <span class="fl">10</span>,
-  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  trueVals <span class="op">=</span> <span class="cn">NULL</span>,
-  trueCols <span class="op">=</span> <span class="cn">NULL</span>,
-  doReport <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bycatchFit</span><span class="op">(</span></span>
+<span>  <span class="va">setupObj</span>,</span>
+<span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
+<span>  DoCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  ResidualTest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  CIval <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,</span>
+<span>  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  nSims <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  doReport <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -127,55 +127,55 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="co">#-------------------------------------------------</span></span>
-<span class="r-in"><span class="co">#Step 1. Run the setup file and review data inputs</span></span>
-<span class="r-in"><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
-<span class="r-in"> modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lognormal"</span>,<span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>,<span class="st">"TMBnbinom1"</span>,<span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span><span class="op">)</span>,</span>
-<span class="r-in"> obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,</span>
-<span class="r-in"> logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,</span>
-<span class="r-in"> yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
-<span class="r-in"> obsEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
-<span class="r-in"> logEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
-<span class="r-in"> logUnsampledEffort <span class="op">=</span> <span class="st">"unsampledEffort"</span>,</span>
-<span class="r-in"> includeObsCatch  <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in"> matchColumn <span class="op">=</span> <span class="st">"trip"</span>,</span>
-<span class="r-in"> factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"fleet"</span>,<span class="st">"area"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
-<span class="r-in"> EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in"> EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in"> logNum <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in"> sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span>
-<span class="r-in"> complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">hbf</span><span class="op">+</span><span class="va">area</span><span class="op">+</span><span class="va">season</span><span class="op">+</span><span class="va">Year</span><span class="op">:</span><span class="va">area</span><span class="op">)</span>,</span>
-<span class="r-in"> simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
-<span class="r-in"> indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
-<span class="r-in"> baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span class="r-in"> runName <span class="op">=</span> <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span>,</span>
-<span class="r-in"> runDescription <span class="op">=</span> <span class="st">"LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022"</span>,</span>
-<span class="r-in"> common <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Swordfish"</span>,<span class="st">"Blue marlin"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span class="r-in"> sp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Xiphias gladius"</span>,<span class="st">"Makaira nigricans"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span class="r-in"> obsCatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SWO"</span>,<span class="st">"BUM"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span class="r-in"> catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span>
-<span class="r-in"> catchType <span class="op">=</span> <span class="st">"catch"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span></span>
-<span class="r-in"><span class="co">#Step 2. Model Fitting</span></span>
-<span class="r-in"><span class="fu">bycatchFit</span><span class="op">(</span></span>
-<span class="r-in"> setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
-<span class="r-in"> selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
-<span class="r-in"> DoCrossValidation <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in"> DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span class="r-in"> ResidualTest <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span class="r-in"> CIval <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span class="r-in"> VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,</span>
-<span class="r-in"> useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in"> nSims <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span class="r-in"> baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span class="r-in"> plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span class="r-in"> trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span class="r-in"> trueCols <span class="op">=</span> <span class="cn">NULL</span></span>
-<span class="r-in"><span class="op">)</span><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">#-------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co">#Step 1. Run the setup file and review data inputs</span></span></span>
+<span class="r-in"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span> modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lognormal"</span>,<span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>,<span class="st">"TMBnbinom1"</span>,<span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,</span></span>
+<span class="r-in"><span> logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,</span></span>
+<span class="r-in"><span> yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span></span>
+<span class="r-in"><span> obsEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span></span>
+<span class="r-in"><span> logEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span></span>
+<span class="r-in"><span> logUnsampledEffort <span class="op">=</span> <span class="st">"unsampledEffort"</span>,</span></span>
+<span class="r-in"><span> includeObsCatch  <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span> matchColumn <span class="op">=</span> <span class="st">"trip"</span>,</span></span>
+<span class="r-in"><span> factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"fleet"</span>,<span class="st">"area"</span>,<span class="st">"season"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span> EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span> logNum <span class="op">=</span> <span class="cn">NA</span>,</span></span>
+<span class="r-in"><span> sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span></span>
+<span class="r-in"><span> complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">hbf</span><span class="op">+</span><span class="va">area</span><span class="op">+</span><span class="va">season</span><span class="op">+</span><span class="va">Year</span><span class="op">:</span><span class="va">area</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> runName <span class="op">=</span> <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span>,</span></span>
+<span class="r-in"><span> runDescription <span class="op">=</span> <span class="st">"LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022"</span>,</span></span>
+<span class="r-in"><span> common <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Swordfish"</span>,<span class="st">"Blue marlin"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span> sp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Xiphias gladius"</span>,<span class="st">"Makaira nigricans"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span> obsCatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SWO"</span>,<span class="st">"BUM"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span> catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span></span>
+<span class="r-in"><span> catchType <span class="op">=</span> <span class="st">"catch"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span><span class="op">-</span></span></span>
+<span class="r-in"><span><span class="co">#Step 2. Model Fitting</span></span></span>
+<span class="r-in"><span><span class="fu">bycatchFit</span><span class="op">(</span></span></span>
+<span class="r-in"><span> setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span></span>
+<span class="r-in"><span> selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span></span>
+<span class="r-in"><span> DoCrossValidation <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span> DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span> ResidualTest <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span> CIval <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
+<span class="r-in"><span> VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,</span></span>
+<span class="r-in"><span> useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span> nSims <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span> baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span> trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span> trueCols <span class="op">=</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -187,7 +187,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

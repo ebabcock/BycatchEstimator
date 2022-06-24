@@ -48,34 +48,34 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">bycatchSetup</span><span class="op">(</span>
-  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>, <span class="st">"Delta-Gamma"</span>, <span class="st">"TMBnbinom1"</span>, <span class="st">"TMBnbinom2"</span>,
-    <span class="st">"TMBtweedie"</span><span class="op">)</span>,
-  <span class="va">obsdat</span>,
-  <span class="va">logdat</span>,
-  <span class="va">yearVar</span>,
-  <span class="va">obsEffort</span>,
-  <span class="va">logEffort</span>,
-  logUnsampledEffort <span class="op">=</span> <span class="cn">NULL</span>,
-  includeObsCatch <span class="op">=</span> <span class="cn">FALSE</span>,
-  matchColumn <span class="op">=</span> <span class="cn">NA</span>,
-  <span class="va">factorNames</span>,
-  <span class="va">EstimateIndex</span>,
-  <span class="va">EstimateBycatch</span>,
-  <span class="va">logNum</span>,
-  <span class="va">sampleUnit</span>,
-  <span class="va">complexModel</span>,
-  <span class="va">simpleModel</span>,
-  <span class="va">indexModel</span>,
-  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="va">runName</span>,
-  <span class="va">runDescription</span>,
-  <span class="va">common</span>,
-  <span class="va">sp</span>,
-  <span class="va">obsCatch</span>,
-  <span class="va">catchUnit</span>,
-  <span class="va">catchType</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bycatchSetup</span><span class="op">(</span></span>
+<span>  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>, <span class="st">"Delta-Gamma"</span>, <span class="st">"TMBnbinom1"</span>, <span class="st">"TMBnbinom2"</span>,</span>
+<span>    <span class="st">"TMBtweedie"</span><span class="op">)</span>,</span>
+<span>  <span class="va">obsdat</span>,</span>
+<span>  <span class="va">logdat</span>,</span>
+<span>  <span class="va">yearVar</span>,</span>
+<span>  <span class="va">obsEffort</span>,</span>
+<span>  <span class="va">logEffort</span>,</span>
+<span>  logUnsampledEffort <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  includeObsCatch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  matchColumn <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  <span class="va">factorNames</span>,</span>
+<span>  <span class="va">EstimateIndex</span>,</span>
+<span>  <span class="va">EstimateBycatch</span>,</span>
+<span>  <span class="va">logNum</span>,</span>
+<span>  <span class="va">sampleUnit</span>,</span>
+<span>  <span class="va">complexModel</span>,</span>
+<span>  <span class="va">simpleModel</span>,</span>
+<span>  <span class="va">indexModel</span>,</span>
+<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">runName</span>,</span>
+<span>  <span class="va">runDescription</span>,</span>
+<span>  <span class="va">common</span>,</span>
+<span>  <span class="va">sp</span>,</span>
+<span>  <span class="va">obsCatch</span>,</span>
+<span>  <span class="va">catchUnit</span>,</span>
+<span>  <span class="va">catchType</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -183,35 +183,35 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu">bycatchSetup</span><span class="op">(</span></span>
-<span class="r-in">modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>,<span class="st">"TMBnbinom1"</span>,<span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span><span class="op">)</span>,</span>
-<span class="r-in">obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span>
-<span class="r-in">logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span>
-<span class="r-in">yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
-<span class="r-in">obsEffort <span class="op">=</span> <span class="st">"sampled.sets"</span>,</span>
-<span class="r-in">logEffort <span class="op">=</span> <span class="st">"sets"</span>,</span>
-<span class="r-in">logUnsampledEffort <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span class="r-in">includeObsCatch  <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span class="r-in">matchColumn <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
-<span class="r-in">EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">logNum <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span>
-<span class="r-in">complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="op">(</span><span class="va">Year</span><span class="op">+</span><span class="va">season</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span>
-<span class="r-in">simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
-<span class="r-in">indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
-<span class="r-in">baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span class="r-in">runName <span class="op">=</span> <span class="st">"SimulatedExample"</span>,</span>
-<span class="r-in">runDescription <span class="op">=</span> <span class="st">"Example with simulated data"</span>,</span>
-<span class="r-in">common <span class="op">=</span> <span class="st">"Simulated species"</span>,</span>
-<span class="r-in">sp <span class="op">=</span> <span class="st">"Genus species"</span>,</span>
-<span class="r-in">obsCatch <span class="op">=</span> <span class="st">"Catch"</span>,</span>
-<span class="r-in">catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span>
-<span class="r-in">catchType <span class="op">=</span> <span class="st">"dead discard"</span></span>
-<span class="r-in"><span class="op">)</span><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu">bycatchSetup</span><span class="op">(</span></span></span>
+<span class="r-in"><span>modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>,<span class="st">"TMBnbinom1"</span>,<span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span></span>
+<span class="r-in"><span>logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span></span>
+<span class="r-in"><span>yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span></span>
+<span class="r-in"><span>obsEffort <span class="op">=</span> <span class="st">"sampled.sets"</span>,</span></span>
+<span class="r-in"><span>logEffort <span class="op">=</span> <span class="st">"sets"</span>,</span></span>
+<span class="r-in"><span>logUnsampledEffort <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>includeObsCatch  <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>matchColumn <span class="op">=</span> <span class="cn">NA</span>,</span></span>
+<span class="r-in"><span>factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"season"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>logNum <span class="op">=</span> <span class="cn">NA</span>,</span></span>
+<span class="r-in"><span>sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span></span>
+<span class="r-in"><span>complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="op">(</span><span class="va">Year</span><span class="op">+</span><span class="va">season</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>runName <span class="op">=</span> <span class="st">"SimulatedExample"</span>,</span></span>
+<span class="r-in"><span>runDescription <span class="op">=</span> <span class="st">"Example with simulated data"</span>,</span></span>
+<span class="r-in"><span>common <span class="op">=</span> <span class="st">"Simulated species"</span>,</span></span>
+<span class="r-in"><span>sp <span class="op">=</span> <span class="st">"Genus species"</span>,</span></span>
+<span class="r-in"><span>obsCatch <span class="op">=</span> <span class="st">"Catch"</span>,</span></span>
+<span class="r-in"><span>catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span></span>
+<span class="r-in"><span>catchType <span class="op">=</span> <span class="st">"dead discard"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -223,7 +223,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>
