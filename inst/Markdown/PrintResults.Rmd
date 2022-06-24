@@ -87,7 +87,7 @@ cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, includi
   cat('\n')
 }
 
-if(EstimateIndex & any(allindex[[run]]$Valid==1)) {
+if(EstimateIndex) if(any(allindex[[run]]$Valid==1)) {
  plotIndex(dplyr::filter(allindex[[run]],Valid==1),"All", NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
  cat("\n Figure ",fignum,". Abundance indices from all valid models for ",common[run],", plus and minus one standard error. \n",sep="")
  fignum<-fignum+1
