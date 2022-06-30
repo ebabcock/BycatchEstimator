@@ -161,7 +161,7 @@ bycatchSetup <- function(
     logdat$strata <- pull(logdat,var=requiredVarNames)
   }
   if(max(tapply(logdat$SampleUnits,logdat$strata,sum)) > 100000) {
-    print("Unadvisable to calculate variance of estimators for such large number of logbook sample units")
+    print("Inadvisable to calculate variance of estimators for such large number of logbook sample units")
   }
 
   #indexDat for making index
@@ -185,8 +185,14 @@ bycatchSetup <- function(
     indexDat$Year<-indexDat$Year-startYear
   } else startYear<-min(as.numeric(as.character(obsdat$Year)))
 
-  #Set up directory for output
+  #Set up variables if looping over species
   numSp<-length(sp)
+  if(numSp>1) {
+    if(length(catchUnit)==1) catchUnit<-rep(catchUnit,numSp)
+    if(length(catchType)==1) catchType<-rep(catchType,numSp)
+  }
+
+    #Set up directory for output
   outDir<-paste0(baseDir, paste("/Output", runName))
   if(!dir.exists(outDir)) dir.create(outDir)
 
