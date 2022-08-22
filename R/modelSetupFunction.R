@@ -267,7 +267,7 @@ bycatchSetup <- function(
     strataSum[[run]]<-MakeSummary(
                         obsdatval = dat[[run]],
                         logdatval = logdat,
-                        strataVars = ifelse("Year" %in% requiredVarNames,requiredVarNames,c("Year",requiredVarNames)),
+                        strataVars = unique(c("Year",requiredVarNames)),
                         EstimateBycatch = EstimateBycatch,
                         startYear = startYear
                       )
