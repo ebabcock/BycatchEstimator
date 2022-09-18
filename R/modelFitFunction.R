@@ -117,7 +117,7 @@ bycatchFit<-function(
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
   }
-  
+
   #Make sure there are multiple cores to use Parallel processing
   if(NumCores<=1) useParallel=FALSE
 
@@ -302,14 +302,12 @@ bycatchFit<-function(
 
     #Combine all predictions, except Binomial
     if(EstimateBycatch) {
-      yearsumgraph<-yearSum[[run]] %>% dplyr::select(Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse) %>%
-        mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
-               Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
-        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-      if(is.factor(modPredVals[[run]][[1]]$Year)) yearsumgraph$Year<-factor(yearsumgraph$Year)
-      allmods[[run]]<-bind_rows(c(modPredVals[[run]],list(Ratio=yearsumgraph)),.id="Source") %>%
+      if(is.factor(modPredVals[[run]][[1]]$Year))
+        yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
+       allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
         filter(!.data$Source=="Binomial")
-      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source=="Ratio",1,0)
+      allmods[[run]]<-bind_rows(allmods[[run]],yearSumGraph[[run]])
+      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source %in% c("Unstratified ratio","Ratio","Design Delta"),1,0)
     }
     if(EstimateIndex) {
       allindex[[run]]<-bind_rows(modIndexVals[[run]],.id="Source") %>%

@@ -1907,12 +1907,13 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
 #' @param logdatval Value
 #' @param strataVars Value
 #' @param designVars Value
+#' @param designPooling Value
 #' @param minStrataEffort Value
-#' @param minStrataSample Value
+#' @param minStrataUnit Value
 #' @param startYear Value
 #' @keywords internal
 
-getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,minStrataEffort=1,minStrataSample=1) {
+getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,designPooling, minStrataEffort=1,minStrataUnit=1,startYear) {
   poolVals<-list()
   poolVars<-designVars
   for(i in 1:length(designVars)) {
@@ -1946,7 +1947,8 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,minStrata
     poolVars<-poolVars[!poolVars==designVars[i]]
   }
   returnval<-poolVals[[1]]
-  if(any(poolVals[[1]]$OEff<minStrataEffort) | any(poolVals[[1]]$OUnit<minStrataSample)) {  #if any pooling is needed
+  #if any pooling is needed
+  if((any(poolVals[[1]]$OEff<minStrataEffort) | any(poolVals[[1]]$OUnit<minStrataUnit)) & designPooling) {
     for(i in 2:length(designVars)) {
       poolVals[[i]]<-left_join(dplyr::select(poolVals[[1]],all_of(c(designVars,"Eff"))),
                                poolVals[[i]],by=designVars[designVars %in% names(poolVals[[i]])]) %>%
@@ -1959,9 +1961,12 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,minStrata
     }
     for(i in 1:(length(designVars)-1)) {
       if(any(poolVals[[i]]$OEff<minStrataEffort))
-        returnval[poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataSample,c("ratioMean","ratioSE","deltaMean","deltaSE")]<-
-          poolVals[[i+1]][poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataSample,c("ratioMean","ratioSE","deltaMean","deltaSE")]
+        returnval[poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataUnit,c("ratioMean","ratioSE","deltaMean","deltaSE")]<-
+          poolVals[[i+1]][poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataUnit,c("ratioMean","ratioSE","deltaMean","deltaSE")]
     }
+  }
+  if(!designPooling)  {
+    returnval<-replace_na(returnval,list(ratioMean=0,ratioSE=0,deltaMean=0,deltaSE=0))
   }
   returnval<-returnval %>%
     ungroup() %>%
