@@ -33,6 +33,85 @@ ratio.func= function(x,y,g,X,N,G) {
   list(stratum.est=stratum.est,stratum.se=sqrt(stratum.var),coverage=f,total.est=total.est,total.se=sqrt(total.var))
 }
 
+#' Function for Pennington(1983) method
+#'
+#' Output is result of Gm(t) function for use in calculations of the design based delta estimator
+#' @param m m is the number of non-zero values
+#' @param t t is a real number input
+#' @param jmax jmax is the upper limit of an infinute sum used in calculations. 10 is usually sufficient
+#' @keywords internal
+Gm<-function(m,t,jmax=10) {
+  x=c(NA,m+2*(2:jmax)-3)
+  func1=function(j) prod(seq(m+1,x[j],by=2))
+  y=c(NA,sapply(2:jmax,func1))
+  j=2:jmax
+  1+(m-1)*t/m+sum((m-1)^(2*j-1)*(t/m)^j/(factorial(j)*y[j]))
+}
+
+#' Function for Pennington(1983) method mean
+#'
+#' Output is mean of the delta estimator
+#' @param x is vector of data input
+#' @importFrom stats var
+#' @keywords internal
+deltaEstimatorMean<-function(x) {
+  x=x[!is.na(x)]
+  n=length(x)
+  r=length(x[x==0])
+  p=(n-r)/n
+  ybar=mean(log(x[x>0]))
+  s2=var(log(x[x>0]))
+  returnval=p*exp(ybar)*Gm(m=n-r,t=s2/2)
+  if(r==n-1) returnval=x[x>0]/n
+  if(r==n) returnval=0
+  returnval
+}
+
+#' Function for Pennington(1983) method variance
+#'
+#' Output is variance of the delta estimator
+#' @param x is vector of data input
+#' @importFrom stats var
+#' @keywords internal
+deltaEstimatorVar<-function(x) {
+  x=x[!is.na(x)]
+  n=length(x)
+  r=length(x[x==0])
+  p=(n-r)/n
+  ybar=mean(log(x[x>0]))
+  s2=var(log(x[x>0]))
+  returnval=p*exp(2*ybar)*(Gm(m=n-r,t=2*s2)-(n-r-1)/(n-1)*
+                             Gm(m=n-r,t=s2*(n-r-2)/(n-r-1)))
+  if(r==n-1) returnval=(x[x>0])^2/n
+  if(r==n) returnval=0
+  if(n<2) returnval=NA
+  returnval
+}
+
+#' Function for Pennington(1983) method SE of the mean sqaured
+#'
+#' Output is SE squared of the delta estimator
+#' @param x is vector of data input
+#' @importFrom stats var
+#' @keywords internal
+deltaEstimatorSE2<-function(x) {
+  x=x[!is.na(x)]
+  n=length(x)
+  r=length(x[x==0])
+  p=(n-r)/n
+  ybar=mean(log(x[x>0]))
+  s2=var(log(x[x>0]))
+  returnval=p*exp(2*ybar)*(p*Gm(m=n-r,t=s2/2)^2-(n-r-1)/(n-1)*
+                             Gm(m=n-r,t=s2*(n-r-2)/(n-r-1)))
+  if(r==n-1) returnval=(x[x>0]/n)^2
+  if(r==n) returnval=0
+  if(n<2) returnval=NA
+  returnval
+}
+
+
+
+
 #'Function to find mode of a categorical variable
 #'
 #' @param x value
@@ -1782,7 +1861,7 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
 
 #' Function to make data summarizes including ratio estimate at
 #'
-#'stratification defined by strataVars
+#'stratification defined by strataVars. No pooling for missing strata
 #'
 #' @param obsdatval Value
 #' @param logdatval Value
@@ -1818,6 +1897,87 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
   }
   returnval
 }
+
+#' Function to make design based estimates of bycatch from the
+#' ratio estimator of Pennington Delta estimator, pooling as
+#' neede for strata missing data.
+#' stratification defined by designVars, then aggregated to strataVars
+#'
+#' @param obsdatval Value
+#' @param logdatval Value
+#' @param strataVars Value
+#' @param designVars Value
+#' @param minStrataEffort Value
+#' @param minStrataSample Value
+#' @param startYear Value
+#' @keywords internal
+
+getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,minStrataEffort=1,minStrataSample=1) {
+  poolVals<-list()
+  poolVars<-designVars
+  for(i in 1:length(designVars)) {
+    x<-obsdatval %>%
+      group_by_at(all_of(poolVars))  %>%
+      summarize(OCat=sum(.data$Catch,na.rm=TRUE),
+                OEff=sum(.data$Effort,na.rm=TRUE),
+                OUnit=length(.data$Year),
+                CPUE=mean(.data$cpue,na.rm=TRUE),
+                CPse=standard.error(.data$cpue),
+                Pos=sum(.data$pres,na.rm=TRUE),
+                OCatS=sd(.data$Catch,na.rm=TRUE),
+                OEffS=sd(.data$Effort,na.rm=TRUE),
+                Cov=cov(.data$Catch,Effort, use="complete.obs" ),
+                deltaMeanCPUE=deltaEstimatorMean(.data$cpue),
+                deltaVar=deltaEstimatorVar(.data$cpue),
+                deltaSE2=deltaEstimatorSE2(.data$cpue)) %>%
+      mutate(PFrac=.data$Pos/.data$OUnit)
+    poolVals[[i]]<-logdatval  %>%
+      group_by_at(all_of(poolVars)) %>%
+      summarize(Eff=sum(.data$Effort,na.rm=TRUE),
+                Units=sum(.data$SampleUnits))
+    poolVals[[i]]<-left_join(poolVals[[i]],x,by=poolVars)  %>%
+      mutate(OEff=ifelse(is.na(.data$OEff),0,.data$OEff),
+             OUnit=ifelse(is.na(.data$OUnit),0,.data$OUnit)) %>%
+      mutate(ratioMean=(.data$OCat/.data$OEff)*.data$Eff,
+             ratioSE=sqrt(ratioVar(.data$OEff,.data$Eff,.data$OUnit,.data$Units,
+                                   .data$OCat/.data$OEff,.data$OEffS^2,.data$OCatS^2,.data$Cov)),
+             deltaMean=.data$deltaMeanCPUE*.data$Eff,
+             deltaSE=sqrt(.data$deltaSE2)*.data$Eff)
+    poolVars<-poolVars[!poolVars==designVars[i]]
+  }
+  returnval<-poolVals[[1]]
+  if(any(poolVals[[1]]$OEff<minStrataEffort) | any(poolVals[[1]]$OUnit<minStrataSample)) {  #if any pooling is needed
+    for(i in 2:length(designVars)) {
+      poolVals[[i]]<-left_join(dplyr::select(poolVals[[1]],all_of(c(designVars,"Eff"))),
+                               poolVals[[i]],by=designVars[designVars %in% names(poolVals[[i]])]) %>%
+        mutate(EffortProportion=.data$Eff.x/.data$Eff.y) %>%
+        mutate(ratioMean=.data$ratioMean*.data$EffortProportion,
+               ratioSE=.data$ratioSE*.data$EffortProportion,
+               deltaMean=.data$deltaMean*.data$EffortProportion,
+               deltaSE=.data$deltaSE*.data$EffortProportion) %>%
+        rename(Eff=.data$Eff.x)
+    }
+    for(i in 1:(length(designVars)-1)) {
+      if(any(poolVals[[i]]$OEff<minStrataEffort))
+        returnval[poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataSample,c("ratioMean","ratioSE","deltaMean","deltaSE")]<-
+          poolVals[[i+1]][poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataSample,c("ratioMean","ratioSE","deltaMean","deltaSE")]
+    }
+  }
+  returnval<-returnval %>%
+    ungroup() %>%
+    group_by_at(all_of(strataVars)) %>%
+    summarize(ratioMean=sum(.data$ratioMean),
+              ratioSE=sqrt(sum(.data$ratioSE^2)),
+              deltaMean=sum(.data$deltaMean),
+              deltaSE=sqrt(sum(.data$deltaSE^2))) %>%
+    ungroup() %>%
+    mutate(Year=as.numeric(as.character(.data$Year))) %>%
+    mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
+  returnval
+}
+
+
+
 
 #' Calculate variance of ratio estimator, from data already summarized by strata
 #'
