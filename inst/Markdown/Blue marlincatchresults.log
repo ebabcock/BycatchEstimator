@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.5)  18 SEP 2022 17:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.5)  26 SEP 2022 15:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**"C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults.tex"
-(c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults.tex
+**"C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults.tex"
+(c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults.tex
 LaTeX2e <2022-06-01> patch level 5
 L3 programming layer <2022-08-30> (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2021/10/04 v1.4n Standard LaTeX document class
@@ -419,50 +419,50 @@ Package hyperref Info: Link coloring OFF on input line 70.
 \openout3 = `"Blue marlincatchresults.out"'.
 
 
-Overfull \hbox (289.09467pt too wide) in alignment at lines 91--153
+Overfull \hbox (276.86467pt too wide) in alignment at lines 91--111
  [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
  []
 
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 165.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 165.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 165.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 165.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 165.
+(Font)              <10> on input line 123.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 165.
+(Font)              <7> on input line 123.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 165.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 165.
+(Font)              <5> on input line 123.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 165.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 123.
 (c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf, id=8, 469.755pt x 325.215pt>
-File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf Graphic file (type pdf)
-<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf>
-Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf  used on input line 208.
+<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf, id=8, 469.755pt x 325.215pt>
+File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf Graphic file (type pdf)
+<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf>
+Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf  used on input line 166.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 208--212
+Underfull \hbox (badness 10000) in paragraph at lines 166--171
 [][]
  []
 
@@ -471,66 +471,66 @@ Underfull \hbox (badness 10000) in paragraph at lines 208--212
 {c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Overfull \vbox (24.89728pt too high) has occurred while \output is active []
 
-[2 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf>]
-<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf, id=33, 469.755pt x 325.215pt>
-File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf Graphic file (type pdf)
-<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf>
-Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf  used on input line 213.
+[2 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf>]
+<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf, id=33, 469.755pt x 325.215pt>
+File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf Graphic file (type pdf)
+<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf>
+Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf  used on input line 172.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 213--216
+Underfull \hbox (badness 10000) in paragraph at lines 172--175
 [][]
  []
 
-<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf, id=34, 469.755pt x 325.215pt>
-File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf Graphic file (type pdf)
-<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf>
-Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf  used on input line 238.
+<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf, id=34, 469.755pt x 325.215pt>
+File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf Graphic file (type pdf)
+<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf>
+Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf  used on input line 193.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 238--241
+Underfull \hbox (badness 10000) in paragraph at lines 193--196
 [][]
  []
 
-[3 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf>]
-<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf, id=48, 469.755pt x 325.215pt>
-File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf Graphic file (type pdf)
-<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf>
-Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf  used on input line 242.
+[3 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf>]
+<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf, id=48, 469.755pt x 325.215pt>
+File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf Graphic file (type pdf)
+<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf>
+Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf  used on input line 197.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 242--245
+Underfull \hbox (badness 10000) in paragraph at lines 197--202
 [][]
  []
 
-[4 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf>]
-<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf, id=58, 469.755pt x 325.215pt>
-File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf Graphic file (type pdf)
-<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf>
-Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf  used on input line 246.
+[4 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-3.pdf>]
+<C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf, id=58, 469.755pt x 325.215pt>
+File: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf Graphic file (type pdf)
+<use C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf>
+Package pdftex.def Info: C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf  used on input line 203.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 246--249
+Underfull \hbox (badness 10000) in paragraph at lines 203--206
 [][]
  []
 
-[5 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf>] [6 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Aprilobs05mc/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf>] (./Blue marlincatchresults.aux)
+[5 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-4.pdf>] [6 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-5.pdf>] (./Blue marlincatchresults.aux)
 Package rerunfilecheck Info: File `"Blue marlincatchresults".out' has not changed.
 (rerunfilecheck)             Checksum: 8F4D421D235F0441B9FCC38F81A1AD43;890.
  ) 
 Here is how much of TeX's memory you used:
  11961 strings out of 477035
- 202307 string characters out of 5825563
- 701672 words of memory out of 5000000
+ 202027 string characters out of 5825563
+ 582672 words of memory out of 5000000
  32916 multiletter control sequences out of 15000+600000
  493493 words of font info for 48 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 72i,9n,77p,1068b,437s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,9n,77p,1060b,437s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb>
-Output written on "Blue marlincatchresults.pdf" (6 pages, 351174 bytes).
+Output written on "Blue marlincatchresults.pdf" (6 pages, 203593 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 76 compressed objects within 1 object stream
+ 104 PDF objects out of 1000 (max. 8388607)
+ 79 compressed objects within 1 object stream
  13 named destinations out of 1000 (max. 500000)
  34 words of extra memory for PDF output out of 10000 (max. 10000000)
 
