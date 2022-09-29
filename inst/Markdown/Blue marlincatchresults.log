@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.5)  26 SEP 2022 15:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.5)  28 SEP 2022 13:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -469,7 +469,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 166--171
 [1
 
 {c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \vbox (24.89728pt too high) has occurred while \output is active []
+Overfull \vbox (40.22343pt too high) has occurred while \output is active []
 
 [2 <c:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-1.pdf>]
 <C:/Users/Elizabeth A Babcock/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtrip2022Sep1/Blue marlin catch/Blue marlincatchresults_files/figure-latex/print results-2.pdf, id=33, 469.755pt x 325.215pt>
@@ -521,13 +521,13 @@ Package rerunfilecheck Info: File `"Blue marlincatchresults".out' has not change
 Here is how much of TeX's memory you used:
  11961 strings out of 477035
  202027 string characters out of 5825563
- 582672 words of memory out of 5000000
+ 583672 words of memory out of 5000000
  32916 multiletter control sequences out of 15000+600000
  493493 words of font info for 48 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  72i,9n,77p,1060b,437s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/Elizabeth A Babcock/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb>
-Output written on "Blue marlincatchresults.pdf" (6 pages, 203593 bytes).
+Output written on "Blue marlincatchresults.pdf" (6 pages, 188597 bytes).
 PDF statistics:
  104 PDF objects out of 1000 (max. 8388607)
  79 compressed objects within 1 object stream

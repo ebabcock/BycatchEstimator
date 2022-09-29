@@ -300,7 +300,7 @@ bycatchFit<-function(
     }
     if(EstimateIndex) {
       allindex[[run]]<-bind_rows(modIndexVals[[run]],.id="Source") %>%
-        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinonomial")
       allindex[[run]]$Valid<-ifelse(modelFail[run,match(allindex[[run]]$Source,dimnames(modelFail)[[2]])]=="-" ,1,0)
     }
 
@@ -350,7 +350,7 @@ bycatchFit<-function(
                if(modelTry[mod]=="Binomial")
                  binomial1<-modFit1
                if(modelTry[mod]=="TMBbinomial")
-                 tmbbin1<-modfit1
+                 tmbbin1<-modFit1
             }
           }
         }
@@ -373,7 +373,9 @@ bycatchFit<-function(
               } else {
                 modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat))
               }
-              bin1<-ifelse(modelTry[mod]=="Binomial",binomial1,tmbbin1)
+              if(grepl("TMB",modelTry[mod]))
+                 bin1<-tmbbin1 else
+                 bin1<-binomial1
               predcpue<-makePredictions(bin1,modFit1,modelTry[mod],datout)
               rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
               metab[[run]][i,modelTry[mod]]<-getME(predcpue$est.cpue,datout$cpue)

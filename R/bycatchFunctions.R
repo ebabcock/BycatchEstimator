@@ -371,17 +371,34 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
    b=model.matrix(formula(modfit2),data=newdat)
   }
   #Get predictions sim
+  if(grepl("TMB",modtype)) {
+    coefvals1<-fixef(modfit1)[[1]]
+    vcovvals1<-vcov(modfit1)[[1]]
+  }  else
+  if(!modtype=="Tweedie") {
+    coefvals1<-coef(modfit1)
+    varvals1<-vcov(modfit1)
+  }
+  if(!is.null(modfit2)) {
+  if(grepl("TMB",modtype)) {
+    coefvals2<-fixef(modfit2)[[1]]
+    vcovvals2<-vcov(modfit2)[[1]]
+  }  else  {
+    coefvals2<-coef(modfit2)
+    varvals2<-vcov(modfit2)
+  }
+  }
   if(modtype %in% c("Binomial","TMBbinomial") ){
       allpred<-cbind(newdat,response1) %>%
         mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit*(1-.data$fit))
-      sim=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1))) ) )
+      sim=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)) ) )
      }
   if(modtype %in% c("Normal","TMBnormal")) {
       allpred<-cbind(newdat,response1)   %>%
         mutate(Total=.data$Effort*.data$fit,
                TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)^2))
       sim=replicate(nsim,rnorm(nObs,
-        mean=as.vector(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1))),
+        mean=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1)),
         sd=sigma(modfit1)))*newdat$Effort
   }
   if(modtype %in% c("Lognormal","TMBlognormal") ){
@@ -389,7 +406,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         mutate(Total=.data$Effort*(lnorm.mean(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))-0.1),
                TotalVar=.data$Effort^2*lnorm.se(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))^2)
       sim=replicate(nsim,rlnorm(nObs,
-                                meanlog=as.vector((a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))),
+                                meanlog=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1)),
                                 sdlog=sigma(modfit1))-0.1)*newdat$Effort
   }
   if(modtype  %in% c("Gamma","TMBgamma")) {
@@ -405,9 +422,9 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
                prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
         mutate(Total=.data$Effort*.data$fit*.data$pos.cpue,
                TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$pos.cpue,.data$pos.cpue.se)^2)
-      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1))) ) )
+      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1) ) ))
       sim2=replicate(nsim,newdat$Effort*exp(rnorm(nObs,b %*%
-           mvrnorm(1,coef(modfit2),vcov(modfit2)),sigma(modfit2)) ) )
+           mvrnorm(1,coefvals2,vcovvals2),sigma(modfit2)) ) )
       sim=sim1*sim2
   }
   if(modtype %in% c("Delta-Gamma","TMBdelta-Gamma")) {
@@ -416,14 +433,14 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
                prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
         mutate(Total=.data$Effort*.data$fit*.data$fit2,
                TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$fit2,.data$pos.cpue.se)^2)
-      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1))) ) )
+      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)) ) )
       sim2=replicate(nsim,newdat$Effort*simulateGammaDraw(modfit2,nObs,b) )
       sim=sim1*sim2
   }
   if(modtype=="NegBin") {
       allpred<-cbind(newdat,response1)   %>%
         mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/modfit1$theta)
-      sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,coef(modfit1),vcov(modfit1)))*newdat$Effort,
+      sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,coefvals1,vcovvals1))*newdat$Effort,
         size=modfit1$theta))  #Simulate negative binomial data
   }
   if(modtype=="Tweedie") {
@@ -1124,23 +1141,45 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
     obsdatval$y=obsdatval$pres
     modfit1<-try(glm(formula1,data=obsdatval,family="binomial",control=list(epsilon = 1e-6,maxit=1000)))
   }
+  if(modType %in% c("TMBbinomial") )  {
+    obsdatval$y=obsdatval$pres
+    modfit1<-try(glmmTMB(formula1,data=obsdatval,family="binomial"))
+  }
   if(modType=="Normal") {
     obsdatval$y=obsdatval$cpue
     modfit1<-try(lm(formula1,data=obsdatval))
   }
+  if(modType=="TMBnormal") {
+    obsdatval$y=obsdatval$cpue
+    modfit1<-try(glmmTMB(formula1,data=obsdatval))
+  }
   if(modType=="Lognormal") {
     obsdatval$y=log(obsdatval$cpue+0.1)
     modfit1<-try(lm(formula1,data=obsdatval))
+  }
+  if(modType=="TMBlognormal") {
+    obsdatval$y=log(obsdatval$cpue+0.1)
+    modfit1<-try(glmmTMB(formula1,data=obsdatval))
   }
   if(modType=="Delta-Lognormal") {
     obsdatval$y=obsdatval$log.cpue
     obsdatval=obsdatval[obsdatval$cpue>0,]
     modfit1=try(lm(formula1,data=obsdatval))
   }
+  if(modType=="TMBdelta-Lognormal") {
+    obsdatval$y=obsdatval$log.cpue
+    obsdatval=obsdatval[obsdatval$cpue>0,]
+    modfit1=try(glmmTMB(formula1,data=obsdatval))
+  }
   if(modType=="Delta-Gamma") {
     obsdatval$y=obsdatval$cpue
     obsdatval=obsdatval[obsdatval$cpue>0,]
     modfit1=try(glm(formula1,data=obsdatval,family=Gamma(link="log")))
+  }
+  if(modType=="TMBdelta-Gamma") {
+    obsdatval$y=obsdatval$cpue
+    obsdatval=obsdatval[obsdatval$cpue>0,]
+    modfit1=try(glmmTMB(formula1,data=obsdatval,family=Gamma(link="log")))
   }
   if(modType=="NegBin") {
     obsdatval$y=round(obsdatval$Catch)
@@ -1174,7 +1213,7 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
 #' @keywords internal
 makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
   if(!is.null(modfit1)) {
-    if(modType=="Tweedie")    predval1<-try(data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))) else
+    if(modType=="Tweedie")    predval1<-try(data.frame(fit=cplm::predict(modfit1,newdata=newdat,type="response"))) else
       predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
     if(class(predval1)[[1]]!="try-error") {
       if(!is.null(modfit2))  {
@@ -1193,16 +1232,13 @@ makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
         allpred<-cbind(newdat,predval1)   %>%
           mutate(est.cpue=.data$fit/.data$Effort)
       }
-      if(modType %in% c("TMBtweedie","Normal","TMBnormal")){
+      if(modType %in% c("TMBtweedie","Normal","TMBnormal","Tweedie")){
         allpred<-cbind(newdat,predval1)   %>%
           mutate(est.cpue=.data$fit)
       }
       if(modType %in% c("Gamma","TMBgamma")) {
         allpred<-cbind(newdat,predval1)   %>%
           mutate(est.cpue=.data$fit-0.1)
-      }
-      if(modType =="Tweedie") {
-        allpred<-data.frame(est.cpue=predict(modfit1,newdata=newdat,type="response"))
       }
       if(modType %in% c("Lognormal","TMBlognormal")){
         allpred<-cbind(newdat,predval1)   %>%
@@ -1804,15 +1840,25 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
     obsdatval$y=obsdatval$pres
     modfit1<-try(glm(formula1,data=obsdatval,family="binomial",control=list(epsilon = 1e-6,maxit=1000)))
   }
-  if(modType=="Delta-Lognormal") {
-    obsdatval$y=obsdatval$log.cpue
+  if(modType %in% c("TMBBinomial","TMBdelta-Lognormal","TMBdelta-Gamma") )  {
+    obsdatval$y=obsdatval$pres
+    modfit1<-try(glmmTMB(formula1,data=obsdatval,family="binomial"))
+  }
+  if(grepl("delta",modType,ignore.case = TRUE)) {
+    obsdatval$y=obsdatval$cpue
     obsdatval=obsdatval[obsdatval$cpue>0,]
+  }
+  if(modType=="Delta-Lognormal") {
     modfit2=try(lm(formula2,data=obsdatval))
   }
   if(modType=="Delta-Gamma") {
-    obsdatval$y=obsdatval$cpue
-    obsdatval=obsdatval[obsdatval$cpue>0,]
     modfit2=try(glm(formula2,data=obsdatval,family=Gamma(link="log")))
+  }
+  if(modType=="TMBdelta-Lognormal") {
+    modfit2=try(glmmTMB(formula2,data=obsdatval))
+  }
+  if(modType=="TMBdelta-Gamma") {
+    modfit2=try(glmmTMB(formula2,data=obsdatval,family=Gamma(link="log")))
   }
   if(modType=="NegBin") {
     obsdatval$y=round(obsdatval$Catch)
@@ -1832,18 +1878,30 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
     TMBfamily=gsub("TMB","",modType)
     modfit1=try(glmmTMB(formula2,family=TMBfamily,data=obsdatval))
   }
+  if(modType =="TMBnormal"){
+    obsdatval$y=obsdatval$cpue
+    modfit1=try(glmmTMB(formula2,data=obsdatval))
+  }
+  if(modType =="TMBlognormal"){
+    obsdatval$y=log(obsdatval$cpue+0.1)
+    modfit1=try(glmmTMB(formula2,data=obsdatval))
+  }
+  if(modType =="TMBgamma"){
+    obsdatval$y=log(obsdatval$cpue+0.1)
+    modfit1=try(glmmTMB(formula2,family=Gamma(link="log"),data=obsdatval))
+  }
   if(class(modfit1)[1]=="try-error") modfit1=NULL
   if(class(modfit2)[1]=="try-error") modfit2=NULL
-  if(!is.null(modfit1)) {
-    if(modType %in% c("Binomial","Delta-Lognormal","Delta-Gamma"))  #for delta models write binomial anova
-      write.csv(anova(modfit1,test="Chi"),file=paste0(outputDir,"/BinomialAnova.csv"))
-    if(modType %in% c("NegBin")) anova1=anova(modfit1,test="Chi")
-    if(modType %in% c("Tweedie","TMBtweedie","TMBnbinom1","TMBnbinom2")) anova1=NULL
-    if(modType %in% c("Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit2,test="F")
-    if(!is.null(anova1)) {
-      write.csv(anova1,paste0(outputDir,"/anova",modType,".csv"))
-    }
-  }
+  # if(!is.null(modfit1)) {
+  #   if(modType %in% c("Binomial","Delta-Lognormal","Delta-Gamma"))  #for delta models write binomial anova
+  #     write.csv(anova(modfit1,test="Chi"),file=paste0(outputDir,"/BinomialAnova.csv"))
+  #   if(modType %in% c("NegBin")) anova1=anova(modfit1,test="Chi")
+  #   if(modType %in% c("Tweedie","TMBtweedie","TMBnbinom1","TMBnbinom2")) anova1=NULL
+  #   if(modType %in% c("Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit2,test="F")
+  #   if(!is.null(anova1)) {
+  #     write.csv(anova1,paste0(outputDir,"/anova",modType,".csv"))
+  #   }
+  # }
   list(modfit1=modfit1,modfit2=modfit2)
 }
 

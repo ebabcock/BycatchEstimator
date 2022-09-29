@@ -1,0 +1,4 @@
+"","model","formula","RMSE","ME"
+"1","TMBbinomial","area + Year + (1 | Year:area)",NA,NA
+"2","TMBdelta-Lognormal","area + Year + (1 | Year:area)",0.0673514297318599,-0.000390499676557488
+"3","TMBdelta-Gamma","area + Year + (1 | Year:area)",0.0676851432595484,-0.000320845634885568
