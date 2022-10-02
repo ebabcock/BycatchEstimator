@@ -377,7 +377,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
   }  else
   if(!modtype=="Tweedie") {
     coefvals1<-coef(modfit1)
-    varvals1<-vcov(modfit1)
+    vcovvals1<-vcov(modfit1)
   }
   if(!is.null(modfit2)) {
   if(grepl("TMB",modtype)) {
@@ -385,7 +385,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
     vcovvals2<-vcov(modfit2)[[1]]
   }  else  {
     coefvals2<-coef(modfit2)
-    varvals2<-vcov(modfit2)
+    vcovvals2<-vcov(modfit2)
   }
   }
   if(modtype %in% c("Binomial","TMBbinomial") ){
@@ -410,9 +410,11 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
                                 sdlog=sigma(modfit1))-0.1)*newdat$Effort
   }
   if(modtype  %in% c("Gamma","TMBgamma")) {
+      if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
+        shapepar<-1/(glmmTMB::sigma(modfit1))^2
       allpred<-cbind(newdat,response1)   %>%
         mutate(Total=.data$Effort*(.data$fit-0.1),
-               TotalVar=.data$Effort^2*(.data$se.fit^2+.data$fit*gamma.shape(modfit1)[[1]]))
+               TotalVar=.data$Effort^2*(.data$se.fit^2+.data$fit*shapepar))
       sim=replicate(nsim,newdat$Effort*(simulateGammaDraw(modfit1,nObs,a)-0.1) )
   }
   if(modtype %in% c("Delta-Lognormal","TMBdelta-Lognormal")) {
@@ -428,8 +430,10 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
       sim=sim1*sim2
   }
   if(modtype %in% c("Delta-Gamma","TMBdelta-Gamma")) {
+     if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
+      shapepar<-1/(glmmTMB::sigma(modfit1))^2
       allpred<-cbind(newdat,response1,response2) %>%
-        mutate(pos.cpue.se=sqrt(.data$se.fit2^2+.data$fit2*gamma.shape(modfit2)[[1]]),
+        mutate(pos.cpue.se=sqrt(.data$se.fit2^2+.data$fit2*shapepar),
                prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
         mutate(Total=.data$Effort*.data$fit*.data$fit2,
                TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$fit2,.data$pos.cpue.se)^2)
@@ -599,9 +603,11 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       residvar = lnorm.se(temp$fit,sqrt(temp$se.fit^2+sigma(modfit1)^2))^2*newdat$Effort^2
     }
     if(modtype %in% c("Gamma","TMBgamma") ) {
+      if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
+        shapepar<-1/(glmmTMB::sigma(modfit1))^2
       predval = (predval-0.1) * newdat$Effort
       predval[predval<0]<-0
-      residvar =exp(predvallink)*gamma.shape(modfit1)[[1]]*newdat$Effort^2
+      residvar =exp(predvallink)*shapepar*newdat$Effort^2
       deriv =  exp(predvallink)*newdat$Effort
     }
     if(modtype == c("NegBin") ) {
@@ -1149,6 +1155,14 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
     obsdatval$y=obsdatval$cpue
     modfit1<-try(lm(formula1,data=obsdatval))
   }
+  if(modType=="Gamma") {
+    obsdatval$y=obsdatval$cpue+0.1
+    modfit1<-try(glm(formula1,data=obsdatval,family=Gamma(link=log)))
+  }
+  if(modType=="TMBgamma") {
+    obsdatval$y=obsdatval$cpue+0.1
+    modfit1<-try(glmmTMB(formula1,data=obsdatval,family=Gamma(link=log)))
+  }
   if(modType=="TMBnormal") {
     obsdatval$y=obsdatval$cpue
     modfit1<-try(glmmTMB(formula1,data=obsdatval))
@@ -1346,8 +1360,13 @@ simulateNegBin1Draw<-function(modfit,nObs,b,Effort) {
 #' @importFrom stats coef vcov rgamma
 #' @keywords internal
 simulateGammaDraw<-function(modfit,nObs,b) {
-  muval<-exp(b %*% mvrnorm(1,coef(modfit),vcov(modfit)))
-  shapeval<-gamma.shape(modfit)[[1]]
+  if(class(modfit)[1]=="glm") {
+   muval<-exp(b %*% mvrnorm(1,coef(modfit),vcov(modfit)))
+   shapeval<-gamma.shape(modfit)[[1]]
+  } else {
+    muval<-exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]]))
+    shapeval<-1/glmmTMB::sigma(modfit)^2
+  }
   scaleval<-muval/shapeval
   rgamma(nObs,shape=shapeval,scale=scaleval)
 }
