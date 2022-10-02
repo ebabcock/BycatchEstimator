@@ -162,11 +162,10 @@ standard.error<-function(x) {
 #' @param common Value
 #' @param dirname Value
 #' @param run Value
-#' @import MuMIn parallel doParallel tweedie glmmTMB
+#' @import MuMIn parallel doParallel tweedie glmmTMB cplm
 #' @importFrom reshape2 colsplit
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
-#' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,randomEffects, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
   offset<-TMBfamily<-NULL
@@ -256,7 +255,8 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
                     as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames) &!allVarNames %in% varExclude],randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(requiredVarNames,collapse="+"),offset)), NA)
   args$formula=formulaList[[1]]
-  modfit1<-try(do.call(funcName,args))
+  if(! modType=="Tweedie") modfit1<-try(do.call(funcName,args))  else
+    modfit1<-try(cplm::cpglm(formula(modfit1),data=obsdatval,na.action=na.fail))
   for(i in 2:(length(formulaList))-1) {
     if(class(modfit1)[1] %in% c("glm","lm","glm.nb")) {
       if(modfit1$rank<length(coef(modfit1))) class(modfit1)<-"try-error"
@@ -325,27 +325,30 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @param common Value
 #' @param dirname Value
 #' @param run Value
+#' @param randomEffects Value
+#' @param randomEffects2 Value
 #' @import tidyr
 #' @importFrom stats predict model.matrix rbinom sigma rnorm rlnorm rnbinom quantile
 #' @importFrom MASS mvrnorm gamma.shape
 #' @keywords internal
-makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run) {
- #Separate out sample units
- if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
+makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval, includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run,randomEffects,randomEffects2) {
+  #Separate out sample units
+  if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
- newdat=uncount(newdat,.data$SampleUnits)
- newdatall=newdat
- #Set up output dataframes
- years=sort(unique(newdat$Year))
- yearpred=expand.grid(Year=years,Total=NA,TotalVar=NA,Total.mean=NA,TotalLCI=NA,TotalUCI=NA,Total.se=NA,Total.cv=NA)
- stratapred=expand.grid(strata=unique(newdatall$strata),Total=0,TotalVar=0,Total.mean=0,TotalLCI=NA,TotalUCI=NA,Total.se=NA,Total.cv=NA)
- stratapred$Year=newdatall$Year[match(stratapred$strata,newdatall$strata)]
- for(i in 1:length(years)) {
-  newdat = newdatall[newdatall$Year==years[i],]
-  nObs= nrow(newdat)
-  #Get predictions
-  if(modtype=="Tweedie" ) response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
-   response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+  newdat=uncount(newdat,.data$SampleUnits)
+  newdatall=newdat
+  #Set up output dataframes
+  years=sort(unique(newdat$Year))
+  yearpred=expand.grid(Year=years,Total=NA,TotalVar=NA,Total.mean=NA,TotalLCI=NA,TotalUCI=NA,Total.se=NA,Total.cv=NA)
+  stratapred=expand.grid(strata=unique(newdatall$strata),Total=0,TotalVar=0,Total.mean=0,TotalLCI=NA,TotalUCI=NA,Total.se=NA,Total.cv=NA)
+  stratapred$Year=newdatall$Year[match(stratapred$strata,newdatall$strata)]
+  for(i in 1:length(years)) {
+    newdat = newdatall[newdatall$Year==years[i],]
+    nObs= nrow(newdat)
+    #Get predictions
+    if(modtype=="Tweedie" ) response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+    if(grepl("TMB",modtype)) response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE,allow.new.levels=TRUE))
+    if(!grepl("TMB",modtype) & !modtype=="Tweedie") response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modtype=="Tweedie")
@@ -353,189 +356,205 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
           response1$se.fit=rep(NA,dim(response1)[2])
     }
     if(!is.null(modfit2))  {
-      response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
+      if(grepl("TMB",modtype)) response2<-data.frame(predict(modfit2,newdata=newdat,type="response",se.fit=TRUE,allow.new.levels=TRUE))
+      if(!grepl("TMB",modtype) ) response2<-data.frame(predict(modfit2,newdata=newdat,type="response",se.fit=TRUE))
       names(response2)=paste0(names(response2),"2")
     }
- if(!any(is.na(response1$se.fit)) & !max(response1$se.fit/response1$fit,na.rm=TRUE)>10000)  {
-  #Set up model matrices for simulation
-  yvar=sub( " ", " ",formula(modfit1) )[2]
-  newdat<-cbind(y=rep(1,nObs),newdat)
-  names(newdat)[1]=yvar
-  a=model.matrix(formula(modfit1),data=newdat)
-  if(!is.null(modfit2)) {
-   yvar=sub( " ", " ",formula(modfit2) )[2]
-   if(! yvar %in% names(newdat)) {
-    newdat<-cbind(y=rep(1,nObs),newdat)
-    names(newdat)[1]=yvar
-   }
-   b=model.matrix(formula(modfit2),data=newdat)
-  }
-  #Get predictions sim
-  if(grepl("TMB",modtype)) {
-    coefvals1<-fixef(modfit1)[[1]]
-    vcovvals1<-vcov(modfit1)[[1]]
-  }  else
-  if(!modtype=="Tweedie") {
-    coefvals1<-coef(modfit1)
-    vcovvals1<-vcov(modfit1)
-  }
-  if(!is.null(modfit2)) {
-  if(grepl("TMB",modtype)) {
-    coefvals2<-fixef(modfit2)[[1]]
-    vcovvals2<-vcov(modfit2)[[1]]
-  }  else  {
-    coefvals2<-coef(modfit2)
-    vcovvals2<-vcov(modfit2)
-  }
-  }
-  if(modtype %in% c("Binomial","TMBbinomial") ){
-      allpred<-cbind(newdat,response1) %>%
-        mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit*(1-.data$fit))
-      sim=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)) ) )
-     }
-  if(modtype %in% c("Normal","TMBnormal")) {
-      allpred<-cbind(newdat,response1)   %>%
-        mutate(Total=.data$Effort*.data$fit,
-               TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)^2))
-      sim=replicate(nsim,rnorm(nObs,
-        mean=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1)),
-        sd=sigma(modfit1)))*newdat$Effort
-  }
-  if(modtype %in% c("Lognormal","TMBlognormal") ){
-      allpred<-cbind(newdat,response1)   %>%
-        mutate(Total=.data$Effort*(lnorm.mean(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))-0.1),
-               TotalVar=.data$Effort^2*lnorm.se(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))^2)
-      sim=replicate(nsim,rlnorm(nObs,
-                                meanlog=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1)),
-                                sdlog=sigma(modfit1))-0.1)*newdat$Effort
-  }
-  if(modtype  %in% c("Gamma","TMBgamma")) {
-      if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
-        shapepar<-1/(glmmTMB::sigma(modfit1))^2
-      allpred<-cbind(newdat,response1)   %>%
-        mutate(Total=.data$Effort*(.data$fit-0.1),
-               TotalVar=.data$Effort^2*(.data$se.fit^2+.data$fit*shapepar))
-      sim=replicate(nsim,newdat$Effort*(simulateGammaDraw(modfit1,nObs,a)-0.1) )
-  }
-  if(modtype %in% c("Delta-Lognormal","TMBdelta-Lognormal")) {
-      allpred<-cbind(newdat,response1,response2) %>%
-        mutate(pos.cpue=lnorm.mean(.data$fit2,sqrt(.data$se.fit2^2+sigma(modfit2)^2)),
-               pos.cpue.se=lnorm.se(.data$fit2,sqrt(.data$se.fit2^2+sigma(modfit2)^2)),
-               prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
-        mutate(Total=.data$Effort*.data$fit*.data$pos.cpue,
-               TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$pos.cpue,.data$pos.cpue.se)^2)
-      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1) ) ))
-      sim2=replicate(nsim,newdat$Effort*exp(rnorm(nObs,b %*%
-           mvrnorm(1,coefvals2,vcovvals2),sigma(modfit2)) ) )
-      sim=sim1*sim2
-  }
-  if(modtype %in% c("Delta-Gamma","TMBdelta-Gamma")) {
-     if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
-      shapepar<-1/(glmmTMB::sigma(modfit1))^2
-      allpred<-cbind(newdat,response1,response2) %>%
-        mutate(pos.cpue.se=sqrt(.data$se.fit2^2+.data$fit2*shapepar),
-               prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
-        mutate(Total=.data$Effort*.data$fit*.data$fit2,
-               TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$fit2,.data$pos.cpue.se)^2)
-      sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)) ) )
-      sim2=replicate(nsim,newdat$Effort*simulateGammaDraw(modfit2,nObs,b) )
-      sim=sim1*sim2
-  }
-  if(modtype=="NegBin") {
-      allpred<-cbind(newdat,response1)   %>%
-        mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/modfit1$theta)
-      sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,coefvals1,vcovvals1))*newdat$Effort,
-        size=modfit1$theta))  #Simulate negative binomial data
-  }
-  if(modtype=="Tweedie") {
-      allpred=cbind(newdat,response1)   %>%
-        mutate(Total=.data$Effort*.data$fit,
-               TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
-       sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
-        mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
-         phi=modfit1$phi))*newdat$Effort
-  }
-  if(modtype=="TMBnbinom1") {
-      allpred<-cbind(newdat,response1)  %>%
-        mutate(Total=.data$fit,
-               TotalVar=.data$se.fit^2+.data$fit+.data$fit*sigma(modfit1))
-      sim = replicate(nsim,simulateNegBin1Draw(modfit1,nObs,a,newdat$Effort))
-  }
-  if(modtype=="TMBnbinom2") {
-       allpred<-cbind(newdat,response1)  %>%
-        mutate(Total=.data$fit,
-               TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/sigma(modfit1))
-      sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,fixef(modfit1)[[1]],
-        vcov(modfit1)[[1]]))*newdat$Effort, size=sigma(modfit1)))
-  }
-  if(modtype=="TMBtweedie") {
-      allpred<-cbind(newdat,response1)  %>%
-        mutate(Total=.data$Effort*.data$fit,
-               TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)*.data$fit^(glmmTMB:::.tweedie_power(modfit1))))
-       sim=replicate(nsim, simulateTMBTweedieDraw(modfit1,nObs,a,newdat$Effort) )
-  }
-    if(includeObsCatch & !modtype %in% c("Binomial","TMBbinomial")) {
-      obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
-      allpred$Total[!is.na(d)]= allpred$Total[!is.na(d)] + obsdatvalyear$Catch[d[!is.na(d)]]
-      sim[!is.na(d),]= sim[!is.na(d),] + obsdatvalyear$Catch[d[!is.na(d)]]
-    }
-    if(includeObsCatch & modtype %in% c("Binomial","TMBbinomial")) {
-      obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
-      d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
-      allpred$Total[!is.na(d)]= obsdatvalyear$pres[d[!is.na(d)]]
-      sim[!is.na(d),]= obsdatvalyear$pres[d[!is.na(d)]]
-    }
-  stratatotal<-allpred %>%
-      group_by_at(all_of(requiredVarNames)) %>%
-      summarize(Total=sum(.data$Total,na.rm=TRUE))
-  yeartotal<-allpred%>% group_by(.data$Year) %>%
-      summarize(Total=sum(.data$Total,na.rm=TRUE))
-  stratapredyear<-cbind(newdat,sim) %>%
-       group_by_at(all_of(c("strata",requiredVarNames))) %>%
-       summarize_at(.vars=as.character(1:nsim),.funs=sum,na.rm=TRUE) %>%
-       rowwise() %>%
-       mutate(Total.mean=mean(c_across(as.character(1:nsim))),
-         TotalVar=var(c_across(as.character(1:nsim))),
-         TotalLCI=quantile(c_across(as.character(1:nsim)),p=CIval/2),
-         TotalUCI=quantile(c_across(as.character(1:nsim)),p=1-CIval/2)) %>%
-       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI),Total.mean=ifelse(.data$TotalLCI<0,0,.data$Total.mean)) %>%
-       mutate(Total.se=sqrt(.data$TotalVar))  %>%
-       mutate(Total.cv=.data$Total.se/.data$Total.mean)  %>%
+    if(!any(is.na(response1$se.fit)) & !max(response1$se.fit/response1$fit,na.rm=TRUE)>10000)  {
+      #Set up model matrices for simulation
+      yvar=sub( " ", " ",formula(modfit1) )[2]
+      newdat<-cbind(y=rep(1,nObs),newdat)
+      names(newdat)[1]=yvar
+      a=model.matrix(formula(modfit1,fixed.only=TRUE),data=newdat)
+      if(!is.null(modfit2)) {
+        yvar=sub( " ", " ",formula(modfit2) )[2]
+        if(! yvar %in% names(newdat)) {
+          newdat<-cbind(y=rep(1,nObs),newdat)
+          names(newdat)[1]=yvar
+        }
+        b=model.matrix(formula(modfit2,fixed.only=TRUE),data=newdat)
+      }
+      #Get predictions sim
+      if(grepl("TMB",modtype)) {
+        coefvals1<-fixef(modfit1)[[1]]
+        vcovvals1<-vcov(modfit1)[[1]]
+      }  else
+        if(!modtype=="Tweedie") {
+          coefvals1<-coef(modfit1)
+          vcovvals1<-vcov(modfit1)
+        }
+      if(!is.null(modfit2)) {
+        if(grepl("TMB",modtype)) {
+          coefvals2<-fixef(modfit2)[[1]]
+          vcovvals2<-vcov(modfit2)[[1]]
+        }  else  {
+          coefvals2<-coef(modfit2)
+          vcovvals2<-vcov(modfit2)
+        }
+      }
+      NewRandomVals<-rep(0,nrow(newdat))
+      NewRandomVals2<-rep(0,nrow(newdat))
+      if(!is.null(randomEffects))  {
+        for(j in 1:length(randomEffects)) {
+          RandomVals1<-ranef(modfit1)[[1]][[j]]
+          x<-match(newdat[,randomEffects[j]],rownames(RandomVals1))
+          NewRandomVals[!is.na(x)]<-NewRandomVals[!is.na(x)]+RandomVals1[x[!is.na(x)],1]
+        }
+        if(!is.null(randomEffects2) & !is.null(modfit2))
+          for(j in 1:length(randomEffects2)) {
+            RandomVals2<-ranef(modfit2)[[1]][[j]]
+            x<-match(newdat[,randomEffects2[j]],rownames(RandomVals2))
+            NewRandomVals2[!is.na(x)]<-NewRandomVals2[!is.na(x)]+RandomVals2[x[!is.na(x)],1]
+          }
+      }
+      if(modtype %in% c("Binomial","TMBbinomial") ){
+        allpred<-cbind(newdat,response1) %>%
+          mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit*(1-.data$fit))
+        sim=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)+NewRandomVals ) ) )
+      }
+      if(modtype %in% c("Normal","TMBnormal")) {
+        allpred<-cbind(newdat,response1)   %>%
+          mutate(Total=.data$Effort*.data$fit,
+                 TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)^2))
+        sim=replicate(nsim,rnorm(nObs,
+                                 mean=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1)+NewRandomVals),
+                                 sd=sigma(modfit1)))*newdat$Effort
+      }
+      if(modtype %in% c("Lognormal","TMBlognormal") ){
+        allpred<-cbind(newdat,response1)   %>%
+          mutate(Total=.data$Effort*(lnorm.mean(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))-0.1),
+                 TotalVar=.data$Effort^2*lnorm.se(.data$fit,sqrt(.data$se.fit^2+sigma(modfit1)^2))^2)
+        sim=replicate(nsim,rlnorm(nObs,
+                                  meanlog=as.vector(a %*% mvrnorm(1,coefvals1,vcovvals1))+NewRandomVals,
+                                  sdlog=sigma(modfit1))-0.1)*newdat$Effort
+      }
+      if(modtype  %in% c("Gamma","TMBgamma")) {
+        if(class(modfit1)[1]=="glm") shapepar<-gamma.shape(modfit1)[[1]] else
+          shapepar<-1/(glmmTMB::sigma(modfit1))^2
+        allpred<-cbind(newdat,response1)   %>%
+          mutate(Total=.data$Effort*(.data$fit-0.1),
+                 TotalVar=.data$Effort^2*(.data$se.fit^2+.data$fit*shapepar))
+        sim=replicate(nsim,newdat$Effort*(simulateGammaDraw(modfit1,nObs,a)-0.1+NewRandomVals) )
+      }
+      if(modtype %in% c("Delta-Lognormal","TMBdelta-Lognormal")) {
+        allpred<-cbind(newdat,response1,response2) %>%
+          mutate(pos.cpue=lnorm.mean(.data$fit2,sqrt(.data$se.fit2^2+sigma(modfit2)^2)),
+                 pos.cpue.se=lnorm.se(.data$fit2,sqrt(.data$se.fit2^2+sigma(modfit2)^2)),
+                 prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
+          mutate(Total=.data$Effort*.data$fit*.data$pos.cpue,
+                 TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$pos.cpue,.data$pos.cpue.se)^2)
+        sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1) ) ))
+        sim2=replicate(nsim,newdat$Effort*exp(rnorm(nObs,b %*%
+                                                      mvrnorm(1,coefvals2,vcovvals2),sigma(modfit2)) ) )
+        sim=sim1*sim2
+      }
+      if(modtype %in% c("Delta-Gamma","TMBdelta-Gamma")) {
+        if(class(modfit2)[1]=="glm") shapepar<-gamma.shape(modfit2)[[1]] else
+          shapepar<-1/(glmmTMB::sigma(modfit2))^2
+        allpred<-cbind(newdat,response1,response2) %>%
+          mutate(pos.cpue.se=sqrt(.data$se.fit2^2+.data$fit2*shapepar),
+                 prob.se=sqrt(.data$se.fit^2+.data$fit*(1-.data$fit))) %>%
+          mutate(Total=.data$Effort*.data$fit*.data$fit2,
+                 TotalVar=.data$Effort^2*lo.se(.data$fit,.data$prob.se,.data$fit2,.data$pos.cpue.se)^2)
+        sim1=replicate(nsim,rbinom(nObs,1,ilogit(a %*% mvrnorm(1,coefvals1,vcovvals1)+NewRandomVals) ) )
+        sim2=replicate(nsim,newdat$Effort*simulateGammaDraw(modfit2,nObs,b,NewRandomVals2) )
+        sim=sim1*sim2
+      }
+      if(modtype=="NegBin") {
+        allpred<-cbind(newdat,response1)   %>%
+          mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/modfit1$theta)
+        sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,coefvals1,vcovvals1))*newdat$Effort,
+                                     size=modfit1$theta))  #Simulate negative binomial data
+      }
+      if(modtype=="Tweedie") {
+        allpred=cbind(newdat,response1)   %>%
+          mutate(Total=.data$Effort*.data$fit,
+                 TotalVar=.data$Effort^2*(.data$se.fit^2+modfit1$phi*.data$fit^modfit1$p))
+        sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
+                                    mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
+                                    phi=modfit1$phi))*newdat$Effort
+      }
+      if(modtype=="TMBnbinom1") {
+        allpred<-cbind(newdat,response1)  %>%
+          mutate(Total=.data$fit,
+                 TotalVar=.data$se.fit^2+.data$fit+.data$fit*sigma(modfit1))
+        sim = replicate(nsim,simulateNegBin1Draw(modfit1,nObs,a,newdat$Effort,NewRandomVals))
+      }
+      if(modtype=="TMBnbinom2") {
+        allpred<-cbind(newdat,response1)  %>%
+          mutate(Total=.data$fit,
+                 TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/sigma(modfit1))
+        sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,fixef(modfit1)[[1]],
+                                                               vcov(modfit1)[[1]])+NewRandomVals)*newdat$Effort, size=sigma(modfit1)))
+      }
+      if(modtype=="TMBtweedie") {
+        allpred<-cbind(newdat,response1)  %>%
+          mutate(Total=.data$Effort*.data$fit,
+                 TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)*.data$fit^(glmmTMB:::.tweedie_power(modfit1))))
+        sim=replicate(nsim, simulateTMBTweedieDraw(modfit1,nObs,a,newdat$Effort,NewRandomVals) )
+      }
+      if(includeObsCatch & !modtype %in% c("Binomial","TMBbinomial")) {
+        obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
+        d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+        allpred$Total[!is.na(d)]= allpred$Total[!is.na(d)] + obsdatvalyear$Catch[d[!is.na(d)]]
+        sim[!is.na(d),]= sim[!is.na(d),] + obsdatvalyear$Catch[d[!is.na(d)]]
+      }
+      if(includeObsCatch & modtype %in% c("Binomial","TMBbinomial")) {
+        obsdatvalyear=obsdatval[obsdatval$Year==years[i],]
+        d=match(allpred$matchColumn,obsdatvalyear$matchColumn)
+        allpred$Total[!is.na(d)]= obsdatvalyear$pres[d[!is.na(d)]]
+        sim[!is.na(d),]= obsdatvalyear$pres[d[!is.na(d)]]
+      }
+      stratatotal<-allpred %>%
+        group_by_at(all_of(requiredVarNames)) %>%
+        summarize(Total=sum(.data$Total,na.rm=TRUE))
+      yeartotal<-allpred%>% group_by(.data$Year) %>%
+        summarize(Total=sum(.data$Total,na.rm=TRUE))
+      stratapredyear<-cbind(newdat,sim) %>%
+        group_by_at(all_of(c("strata",requiredVarNames))) %>%
+        summarize_at(.vars=as.character(1:nsim),.funs=sum,na.rm=TRUE) %>%
+        rowwise() %>%
+        mutate(Total.mean=mean(c_across(as.character(1:nsim))),
+               TotalVar=var(c_across(as.character(1:nsim))),
+               TotalLCI=quantile(c_across(as.character(1:nsim)),p=CIval/2),
+               TotalUCI=quantile(c_across(as.character(1:nsim)),p=1-CIval/2)) %>%
+        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI),Total.mean=ifelse(.data$TotalLCI<0,0,.data$Total.mean)) %>%
+        mutate(Total.se=sqrt(.data$TotalVar))  %>%
+        mutate(Total.cv=.data$Total.se/.data$Total.mean)  %>%
         dplyr::select(-one_of(as.character(1:nsim)))
-  stratapredyear$Total=stratatotal$Total
-  yearpredyear<-cbind(newdat,sim) %>%
-       group_by(.data$Year) %>%
-       summarize_at(.vars=as.character(1:nsim),.funs=sum,na.rm=TRUE) %>%
-       rowwise() %>%
-       mutate(Total.mean=mean(c_across(as.character(1:nsim))),
-         TotalVar=var(c_across(as.character(1:nsim))),
-         TotalLCI=quantile(c_across(as.character(1:nsim)),p=CIval/2),
-         TotalUCI=quantile(c_across(as.character(1:nsim)),p=1-CIval/2)) %>%
-       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI),Total.mean=ifelse(.data$Total.mean<0,0,.data$Total.mean)) %>%
-       mutate(Total.se=sqrt(.data$TotalVar))  %>%
-       mutate(Total.cv=.data$Total.se/.data$Total.mean)  %>%
+      stratapredyear$Total=stratatotal$Total
+      yearpredyear<-cbind(newdat,sim) %>%
+        group_by(.data$Year) %>%
+        summarize_at(.vars=as.character(1:nsim),.funs=sum,na.rm=TRUE) %>%
+        rowwise() %>%
+        mutate(Total.mean=mean(c_across(as.character(1:nsim))),
+               TotalVar=var(c_across(as.character(1:nsim))),
+               TotalLCI=quantile(c_across(as.character(1:nsim)),p=CIval/2),
+               TotalUCI=quantile(c_across(as.character(1:nsim)),p=1-CIval/2)) %>%
+        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI),Total.mean=ifelse(.data$Total.mean<0,0,.data$Total.mean)) %>%
+        mutate(Total.se=sqrt(.data$TotalVar))  %>%
+        mutate(Total.cv=.data$Total.se/.data$Total.mean)  %>%
         dplyr::select(-one_of(as.character(1:nsim)))
-  yearpredyear$Total<-yeartotal$Total
-  yearpred[i,c("Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]<-
-   yearpredyear[1,c("Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]
-  if(nrow(stratapredyear)>1) #If there are more than one strata in a year
-    stratapred[stratapred$Year==years[i],c("strata","Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]<-
-     stratapredyear[,c("strata","Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]
-  if(nrow(stratapredyear)==1) #If there may be more than one year in a stratum (e.g. multiyear data)
-    stratapred[stratapred$strata==stratapredyear$strata[1],c("Total.mean", "TotalVar","Total")]<-
-     stratapred[stratapred$strata==stratapredyear$strata[1],c("Total.mean", "TotalVar","Total")] +
-     stratapredyear[,c("Total.mean", "TotalVar", "Total")]
+      yearpredyear$Total<-yeartotal$Total
+      yearpred[i,c("Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]<-
+        yearpredyear[1,c("Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]
+      if(nrow(stratapredyear)>1) #If there are more than one strata in a year
+        stratapred[stratapred$Year==years[i],c("strata","Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]<-
+        stratapredyear[,c("strata","Total.mean", "TotalVar", "TotalLCI", "TotalUCI", "Total.se" ,"Total.cv", "Total")]
+      if(nrow(stratapredyear)==1) #If there may be more than one year in a stratum (e.g. multiyear data)
+        stratapred[stratapred$strata==stratapredyear$strata[1],c("Total.mean", "TotalVar","Total")]<-
+        stratapred[stratapred$strata==stratapredyear$strata[1],c("Total.mean", "TotalVar","Total")] +
+        stratapredyear[,c("Total.mean", "TotalVar", "Total")]
+    }
   }
- }
- if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
-       print(paste(common[run],modtype," CV >10 or NA variance"))
-       returnval=NULL
+  if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
+    print(paste(common[run],modtype," CV >10 or NA variance"))
+    returnval=NULL
   }  else  {     returnval=yearpred  }
- if(printOutput) {
-       write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"))
-       write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"))
- }
+  if(printOutput) {
+    write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"))
+    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"))
+  }
   returnval
 }
 
@@ -580,8 +599,13 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
      predval = cplm::predict(modfit1,newdat=newdat,type="response")
 
     } else {
-     predvallink = predict(modfit1,newdat=newdat)
-     predval = predict(modfit1,newdat=newdat,type="response")
+    if(grepl("TMB",modtype)) {
+      predvallink = predict(modfit1,newdat=newdat,allow.new.levels = TRUE)
+      predval = predict(modfit1,newdat=newdat,type="response",allow.new.levels = TRUE)
+    } else {
+      predvallink = predict(modfit1,newdat=newdat)
+      predval = predict(modfit1,newdat=newdat,type="response")
+    }
     }
     if(grepl("TMB",modtype))  vcovval = a %*% vcov(modfit1)[[1]] %*% t(a) else
         vcovval = a %*% vcov(modfit1) %*% t(a)
@@ -607,8 +631,8 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
         shapepar<-1/(glmmTMB::sigma(modfit1))^2
       predval = (predval-0.1) * newdat$Effort
       predval[predval<0]<-0
-      residvar =exp(predvallink)*shapepar*newdat$Effort^2
-      deriv =  exp(predvallink)*newdat$Effort
+      residvar = exp(predvallink)*newdat$Effort * shapepar
+      deriv =  exp(predvallink) #derivative of exp(x) is exp(x)
     }
     if(modtype == c("NegBin") ) {
       residvar =  predval+predval^2/modfit1$theta
@@ -986,7 +1010,8 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
   returnval=NULL
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
-     response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+    if(!grepl("TMB",modType)) response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
+    if(grepl("TMB",modType))  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE,allow.new.values=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modType=="Tweedie")
@@ -994,7 +1019,8 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
           response1$se.fit=rep(NA,dim(response1)[2])
     }
     if(!is.null(modfit2))  {
-      response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
+      if(!grepl("TMB",modType)) response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
+      if(grepl("TMB",modType)) response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response",allow.new.levels=TRUE))
       names(response2)=paste0(names(response2),"2")
     }
     if(modType %in% c("Delta-Lognormal","TMBdelta-Lognormal" )) {
@@ -1338,12 +1364,13 @@ lnorm.se=function(x1,x1e) {
 #' @param nObs Value
 #' @param b Value
 #' @param Effort Value
+#' @param NewRandomVals Value
 #' @importFrom MASS mvrnorm
 #' @importFrom glmmTMB fixef
 #' @importFrom stats sigma rnbinom vcov
 #' @keywords internal
-simulateNegBin1Draw<-function(modfit,nObs,b,Effort) {
-  muval<-exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]]))*Effort
+simulateNegBin1Draw<-function(modfit,nObs,b,Effort,NewRandomVals=0) {
+  muval<-exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]]) + NewRandomVals)*Effort
   thetaval<-sigma(modfit)
   predval<-rep(0,nObs)
   predval[muval>0]<-rnbinom(length(muval[muval>0]),mu=muval[muval>0],size=muval[muval>0]/thetaval)
@@ -1355,13 +1382,14 @@ simulateNegBin1Draw<-function(modfit,nObs,b,Effort) {
 #' @param modfit Value
 #' @param nObs Value
 #' @param b Value
+#' @param NewRandomVals Value
 #' @importFrom MASS mvrnorm gamma.shape
 #' @importFrom glmmTMB fixef
 #' @importFrom stats coef vcov rgamma
 #' @keywords internal
-simulateGammaDraw<-function(modfit,nObs,b) {
+simulateGammaDraw<-function(modfit,nObs,b,NewRandomVals) {
   if(class(modfit)[1]=="glm") {
-   muval<-exp(b %*% mvrnorm(1,coef(modfit),vcov(modfit)))
+   muval<-exp(b %*% mvrnorm(1,coef(modfit),vcov(modfit))+NewRandomVals)
    shapeval<-gamma.shape(modfit)[[1]]
   } else {
     muval<-exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]]))
@@ -1377,12 +1405,13 @@ simulateGammaDraw<-function(modfit,nObs,b) {
 #' @param nObs Value
 #' @param b Value
 #' @param Effort Value
+#' @param NewRandomVals value
 #' @importFrom MASS mvrnorm
 #' @importFrom stats vcov rgamma sigma
 #' @importFrom tweedie rtweedie
 #' @keywords internal
-simulateTMBTweedieDraw<-function(modfit,nObs,b,Effort) {
-  muval<-as.vector(exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]])))
+simulateTMBTweedieDraw<-function(modfit,nObs,b,Effort,NewRandomVals=0) {
+  muval<-as.vector(exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]])+NewRandomVals))
   if(all(muval>0)) {
     simval<-rtweedie(nObs,power=glmmTMB:::.tweedie_power(modfit),
                      mu=muval,phi=sigma(modfit))*Effort  } else  {
@@ -1757,13 +1786,13 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
 plotIndex<-function(yearpred, modType, fileName, subtext="", indexVarNames, allVarNames, startYear, common, run, catchType, catchUnit) {
   if(is.numeric(yearpred$Year) & "Year" %in% allVarNames) yearpred$Year=yearpred$Year+startYear
   if(!is.null(yearpred)) {
-    if(modType=="Binomial") ytitle=paste0(common[run]," ","Positive trip index") else
+    if(modType %in% c("Binomial","TMBbinomial")) ytitle=paste0(common[run]," ","Positive trip index") else
       ytitle=paste0("Index ", common[run]," ",catchType[run]," (",catchUnit[run],")")
-    if(modType %in% c("Delta-Lognormal","Delta-Gamma")) modType=paste("Delta",modType)
+#    if(modType %in% c("Delta-Lognormal","Delta-Gamma","TMBdelta-Gamma","TMBdelta-Lognormal")) modType=paste("Delta",modType)
     yearpred<-yearpred %>% mutate(Year=as.numeric(as.character(.data$Year)),ymin=.data$Index-.data$SE,ymax=.data$Index+.data$SE) %>%
       mutate(ymin=ifelse(.data$ymin>0,.data$ymin,0))
     if(modType=="All") {
-      g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Index,ymin=.data$ymin,ymax=.data$ymax,fill=.data$Source))+
+      g<-ggplot(dplyr::filter(yearpred,!Source %in% c("Binomial","TMBbinomial")),aes(x=.data$Year,y=.data$Index,ymin=.data$ymin,ymax=.data$ymax,fill=.data$Source))+
         geom_line(aes(col=.data$Source))+ geom_ribbon(alpha=0.3)+xlab("Year")+
         ylab(ytitle)
     } else {

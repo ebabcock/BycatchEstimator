@@ -9,7 +9,7 @@
 #'Sets global conditions and makes a preliminary data summary.
 #'
 #'
-#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.
+#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.
 #' @param obsdat Observer data set
 #' @param logdat Logbook data set
 #' @param yearVar Character. The name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.
@@ -19,7 +19,8 @@
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
 #' @param factorNames Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. Variables not in this list will retain their original format. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
-#' @param randomEffects Character vector. Random effects that should be included in all models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
+#' @param randomEffects Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
+#' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param logNum Character vector. The name of the column in \code{logdat} that gives the number of sample units (e.g., trips or sets). If the logbook data is not aggregated (i.e. each row is a sample unit) set value to NA
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
@@ -87,6 +88,7 @@ bycatchSetup <- function(
   matchColumn = NA,
   factorNames,
   randomEffects=NULL,
+  randomEffects2=NULL,
   EstimateIndex,
   EstimateBycatch,
   logNum,
@@ -94,8 +96,8 @@ bycatchSetup <- function(
   complexModel,
   simpleModel,
   indexModel,
-  designMethods,
-  designVars,
+  designMethods = "None",
+  designVars="Year",
   designPooling = FALSE,
   minStrataUnit=1,
   minStrataEffort=1,
@@ -128,11 +130,11 @@ bycatchSetup <- function(
    #Make sure binomial is included if either of the delta models is
   if(("Delta-Lognormal" %in% modelTry |"Delta-Gamma" %in% modelTry) & !"Binomial" %in% modelTry)
     modelTry<-c("Binomial",modelTry)
-  if(("TMBdelta-Lognormal" %in% modelTry |"TMBdelta-Gamma" %in% modelTry) & !"Binomial" %in% modelTry)
+  if(("TMBdelta-Lognormal" %in% modelTry |"TMBdelta-Gamma" %in% modelTry) & !"TMBbinomial" %in% modelTry)
     modelTry<-c("TMBbinomial",modelTry)
 
   #If there are any random effects, all fitting will be done in glmmTMB
-  if(!is.null(randomEffects)) {
+  if(!is.null(randomEffects) | !is.null(randomEffects2)) {
     modelTry<-case_when(modelTry=="Binomial" ~"TMBbinomial",
                         modelTry=="Normal" ~"TMBnormal",
                         modelTry=="Tweedie" ~"TMBtweedie",
@@ -157,6 +159,7 @@ bycatchSetup <- function(
   allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)]
   allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)]
   if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL
+  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
   allVarNames<-unique(c(allVarNames,temp,designVars))
   if(!all(allVarNames %in% names(obsdat)))
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
@@ -184,6 +187,15 @@ bycatchSetup <- function(
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
     }
   }
+  #Add interaction random effects to logdat for ease of prediction
+  randomInteractions<-unique(c(randomEffects,randomEffects2))
+  for(i in which(grepl(":",randomInteractions))) {
+    varval<-strsplit(randomInteractions[i],":")[[1]]
+    x<-data.frame(logdat[,varval])
+    x$newvar<-base::paste(x[,1],x[,2],sep=":")
+    names(x)[3]<-randomInteractions[i]
+    logdat<-bind_cols(logdat,select(x,randomInteractions[i]))
+}
 
   #Add stratum designation and check sample size in strata
   if(length(requiredVarNames) > 1) {
@@ -390,6 +402,7 @@ bycatchSetup <- function(
       matchColumn = matchColumn,
       factorNames = factorNames,
       randomEffects = randomEffects,
+      randomEffects2 = randomEffects2,
       EstimateIndex = EstimateIndex,
       EstimateBycatch =EstimateBycatch,
       logNum = logNum,

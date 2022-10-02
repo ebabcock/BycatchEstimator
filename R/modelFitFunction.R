@@ -100,7 +100,7 @@ bycatchFit<-function(
 
   #Unpack setupObj
   modelTry<-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
-    includeObsCatch<-matchColumn<-factorNames<-randomEffects<-
+    includeObsCatch<-matchColumn<-factorNames<-randomEffects<-randomEffects2<-
   EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-complexModel<-simpleModel<-indexModel<-
     designMethods<-designVars<-designPooling<-minStrataUnit<-minStrataEffort<-
     baseDir<-runName<-runDescription<-
@@ -166,7 +166,7 @@ bycatchFit<-function(
             requiredVarNames = requiredVarNames,
             allVarNames = allVarNames,
             complexModel = complexModel,
-            randomEffects = randomEffects,
+            randomEffects = randomEffects2,
             useParallel = useParallel,
             selectCriteria = selectCriteria,
             varExclude = varExclude,
@@ -200,7 +200,6 @@ bycatchFit<-function(
       VarCalc<-"None"
     }
 
-    #Make predictions, residuals, etc. for all models
     for(mod in 1:length(modelTry)) {
       if(!is.null(modFits[[run]][[modelTry[mod]]])) {
         if(grepl("delta",modelTry[mod],ignore.case = TRUE )) {
@@ -228,7 +227,9 @@ bycatchFit<-function(
                   common = common,
                   catchType = catchType,
                   dirname = dirname,
-                  run = run)
+                  run = run,
+                  randomEffects=randomEffects,
+                  randomEffects2=randomEffects2)
           if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
