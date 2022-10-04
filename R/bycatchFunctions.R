@@ -927,11 +927,13 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal", "TMBlognormal","TMBdelta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
-    if(modtype=="Tweedie")     response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response")) else
-      response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
+    if(modtype=="Tweedie")  response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response"))
+    if(grepl("TMB",modtype))  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse,allow.new.levels=TRUE))
+    if(!grepl("TMB",modtype) & !modtype=="Tweedie")  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=getse))
     if(dim(response1)[2]==1)     names(response1)="fit"
     if(!is.null(modfit2))  {
-      response2<-data.frame(predict(modfit2,newdata=newdat,se.fit=getse,type="response"))
+      if(grepl("TMB",modtype))  response2<-data.frame(predict(modfit2,newdata=newdat,type="response",se.fit=getse,allow.new.levels=TRUE))
+      if(!grepl("TMB",modtype) )  response2<-data.frame(predict(modfit2,newdata=newdat,type="response",se.fit=getse))
       if(dim(response2)[2]==1) names(response2)[1]<-"fit"
       names(response2)=paste0(names(response2),"2")
     }
@@ -1405,7 +1407,7 @@ simulateGammaDraw<-function(modfit,nObs,b,NewRandomVals) {
 #' @param nObs Value
 #' @param b Value
 #' @param Effort Value
-#' @param NewRandomVals value
+#' @param NewRandomVals Value
 #' @importFrom MASS mvrnorm
 #' @importFrom stats vcov rgamma sigma
 #' @importFrom tweedie rtweedie

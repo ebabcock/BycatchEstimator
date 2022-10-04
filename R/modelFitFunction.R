@@ -329,11 +329,11 @@ bycatchFit<-function(
                 requiredVarNames = requiredVarNames,
                 allVarNames = allVarNames,
                 complexModel = complexModel,
-                randomEffects = randomEffects,
                 useParallel = useParallel,
                 selectCriteria = selectCriteria,
                 catchType = catchType,
-                varExclude = varExclude
+                varExclude = varExclude,
+                randomEffects=randomEffects
               ))[[1]]
             } else {
               modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),
@@ -369,7 +369,8 @@ bycatchFit<-function(
                   useParallel = useParallel,
                   selectCriteria = selectCriteria,
                   catchType = catchType,
-                  varExclude = varExclude
+                  varExclude = varExclude,
+                  randomEffects=randomEffects2
                 ))[[1]]
               } else {
                 modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat))
