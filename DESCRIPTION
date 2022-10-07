@@ -1,6 +1,6 @@
 Package: BycatchEstimator
 Title: Generic Model-Based Bycatch Estimation Procedure
-Version: 0.0.0.9000
+Version: 1.0.0.000
 Authors@R: c(
     person(given = "Elizabeth", family = "Babcock", email = "ebabcock@rsmas.miami.edu", role = c("aut", "cre")),
     person(given = "William", family = "Harford", email = "bill@natureanalytics.ca", role = c("ctb")))
