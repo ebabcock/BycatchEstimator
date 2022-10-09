@@ -8,8 +8,8 @@
 <meta name="description" content="BycatchEstimator">
 <title>Bycatch-Estimator User Guide • BycatchEstimator</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Bycatch-Estimator User Guide">
 <meta property="og:description" content="BycatchEstimator">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">BycatchEstimator</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,12 +60,12 @@
 
 
 <div class="row">
-  <main id="main"><div class="page-header">
+  <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Bycatch-Estimator User Guide</h1>
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2022-05-29</h4>
+            <h4 data-toc-skip class="date">2022-10-09</h4>
       
       
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -78,7 +78,8 @@ Babcock</h4>
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>The BycatchEstimator tool runs a generic model-based bycatch
-estimation procedure, after you first set up the data inputs and other
+estimation procedure,along with some common design-based bycatch
+estimation methods, after you first set up the data inputs and other
 specifications. The code can estimate both total bycatch, calculated by
 expanding a sample, such as an observer database, to total effort from
 logbooks or landings records, and an annual index of abundance,
@@ -100,23 +101,34 @@ outputs a LaTex file; therefore, you must have a LaTex program
 installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
 <span class="citation">Xie (2021)</span>, <span class="citation">Xie
 (2015)</span>).</p>
-<p>The R code estimates total bycatch as follows. First, mean catch per
-unit effort (CPUE) of observed sample units (trips in this example, but
-it could be sets) is estimated from a linear model with predictor
-variables. The observation error models used are delta-lognormal,
-delta-gamma, negative binomial (from either glm.nb in the MASS library
-or glmmTMB, nbinom1 and nbinom2) and Tweedie (from cpglm or glmmTMB).
-For comparison, simple normal and lognormal models are also available,
-although these methods are not expected to perform well with many zero
-bycatch observations. Within each observation error model group,
-potential predictor variables are chosen based on the user’s choice of
-information criteria (AICc, AIC or BIC) (<span class="citation">Barton
-(2020)</span>). The user specifies a most complex and simplest model,
-and all intermediate models are considered. The user-specified simplest
-model will usually include year, and can also include, for example,
-stratification variables that are used in the observer program sampling
-design. The model with the lowest value of the information criterion is
-chosen as best within each observation error group.</p>
+<p>The R code estimates total bycatch from models as follows. First,
+mean catch per unit effort (CPUE) of observed sample units (trips in
+this example, but it could be sets) is estimated from a linear model
+with predictor variables. The observation error models used are
+delta-lognormal (using either glm or glmmTMB), delta-gamma (from glm or
+glmmTMB), negative binomial (from either glm.nb in the MASS library or
+glmmTMB, nbinom1 and nbinom2) and Tweedie (from cpglm or glmmTMB). For
+comparison, simple normal and lognormal models (from lm or glmmTMB) are
+also available, although these methods are not expected to perform well
+with many zero bycatch observations. Binomial models from either glm or
+glmmTMB, are used in the delta-models, and can also be used
+independently.</p>
+<p>Within each observation error model group, potential predictor
+variables are chosen based on the user’s choice of information criteria
+(AICc, AIC or BIC) (<span class="citation">Barton (2020)</span>). The
+user specifies a most complex and simplest model, and all intermediate
+models are considered. All the variables in the simples and most complex
+model are interpretted as fixed effects. The user may also specify
+random effects if desired, and the random effects will be included in
+all models. This may be useful for including a trip effect in a
+set-by-set analysis, for example, or for including a Year:area
+interaction as a random effect when calculating indices. If random
+effects are included in the model, then glmmTMB is used for all model
+fitting. The user-specified simplest model will usually include year,
+and can also include, for example, stratification variables that are
+used in the observer program sampling design. The model with the lowest
+value of the information criterion is chosen as best within each
+observation error group.</p>
 <p>The best candidate models in each observation error group are then
 compared using 10-fold cross validation, if desired, to see which
 observation error model best predicts CPUE. Note that information
@@ -190,7 +202,11 @@ J'  \]</span></p>
 covariance matrix for the predicted trips in the stratum on the scale of
 the log link, and J is the matrix of derivatives. See the function
 MakePredictionsDeltaVar in bycatchFunctions.R for the details for each
-model type. This code is partly based on the method developed by <a href="https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value" class="external-link uri">https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value</a>.</p>
+model type. This code is partly based on the method developed by <a href="https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value" class="external-link uri">https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value</a>.
+The delta method is not available for delta-gamma, delta-lognormal, or
+Tweedie via the cplm library. For those error models, the simulation
+method will be used even if the delta method is selected with
+VarCalc.</p>
 <p>If the logbook data is aggregated across multiple trips (e.g. by
 strata) the effort is allocated equally to all the trips in a row of the
 logbook data table for the purpose of simulating catches or estimating
@@ -198,13 +214,27 @@ variances using the delta method. This allocation procedure is not
 needed to estimate the mean total bycatch, but it is necessary to
 estimate the variances correctly. When using aggregated effort, it is
 not yet possible to include the observed catches as known.</p>
+<p>The model also calculations design based total bycatch estimates if
+requested, using either a stratified ratio estimator <span class="citation">Rao (2000)</span> or the design based delta-lognormal
+estimator of <span class="citation">Pennington (1983)</span>. These
+total bycatch estimates are made at the the stratification variables
+defined by the user. If any strata have no observations, the user may
+request pooling, and specify the minimum number of sample units and/or
+the minimum effort needed to avoid pooling. IF pooling is requested, it
+is done by combining all the levels of the factors specified in
+designVars in order (e.g. first year, then area, etc.). The total
+bycatch is estimated in the simplified design and then allocated across
+strata by the logbook effort. Unpooled estimates are used for strata
+with sufficient data. See <span class="citation">Brown (2001)</span> for
+details.</p>
 <p>The model can estimate bycatch and abundance indices for multiple
 species or dispositions (e.g. dead discard, live release) from the same
 fishery simultaneously if they are all being estimated from the same
 data sets.</p>
 <p>If a user requests an annual abundance index, this is calculated from
 the same models as were selected for bycatch estimation, with an option
-to specify the simplest model to be considered.</p>
+to specify the simplest model to be considered. Any random effects will
+be included in the index.</p>
 </div>
 <div class="section level2">
 <h2 id="data-specification">Data specification<a class="anchor" aria-label="anchor" href="#data-specification"></a>
@@ -260,21 +290,32 @@ such as <em>y ~ Year</em> will estimate a linear trend across years.
 Polynomial regression may be a useful way to estimate more complex
 trends across years in data sets where not all years have enough data to
 estimate Year as a categorical fixed effect. This can be specified as,
-for example <em>y ~ Year + I(Year^2) + I(Year^3).</em></p>
+for example <em>y ~ Year + I(Year^2) + I(Year^3).</em> Any desire random
+effects can be entered as a character vector
+(e.g. randomEffects=“Year:area”). In the case that any delta models are
+used, there can be separate random effects for the binomial model
+(randomEffects) and abundance when present model (randomEffects2).</p>
+<p>To use design-based estimators, specify them as a character vector.
+For example, designMethods =c(“Ratio”,“Delta”) would calculate both a
+stratified ratio estimator and a delta-lognormal estimator. The
+variables in designVar will be included in the stratified design. If
+pooling is requested, the strat will be poooled in the order of
+designVars. You can also specify the minimum number of sample units or
+minimum effort in a stratum to require pooling.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
 </h2>
 <p>This provides guidance and summarizes arguments of the function
 <code>bycatchFit</code></p>
-<p>First, specify which models to try and which information criterion to
-use in narrowing down the predictor variables to use in each observation
-error model group. Model selection is done with dredge function in the
-MuMIn library(<span class="citation">Barton (2020)</span>). Note that
-the tweedie outputs should be the same whether using TMB (TweedieTMB) or
-the cpglm function (Tweedie). The negative binomial 2 in TMB is the same
-as the negative binomial in glm.nb. To get faster results, use TMB only
-for these distributions. They are both included for comparison.</p>
+<p>First, specify the input data object generated by bycatchSetup. Then,
+specify which information criterion to use in narrowing down the
+predictor variables to use in each observation error model group. Model
+selection is done with dredge function in the MuMIn library(<span class="citation">Barton (2020)</span>). Note that the model outputs
+should be the same whether using glmmTMB or other functions. The
+negative binomial 2 in TMB is the same as the negative binomial in
+glm.nb. To get faster results, use TMB only for model fitting. The other
+functions are included for comparison.</p>
 <p>Also, specify whether to do cross validation to choose between
 observation error models, and whether to use the dredge function to use
 information criteria to choose the best set of predictor variables for
@@ -498,8 +539,9 @@ CPUE, and predicted catch is the predicted CPUE times effort. For all
 models, the predicted total catches are summed across trips to get the
 totals in each stratum. The variance are calculated using the Monte
 Carlo simulation method described above or using a delta method. The
-delta method variance is not available for the delta-lognormal or
-delta-gamma models.</p>
+delta method variance is not available for the delta-lognormal,
+delta-gamma or Tweedie models using cplm, although it is available for
+Tweedie using glmmTMB.</p>
 <p>If a user requests an annual abundance index, this is also calculated
 from the best model in each model group. The annual abundance index is
 calculated by setting all variables other than year, and any variables
@@ -603,6 +645,12 @@ Maechler, and Benjamin M. Bolker. 2017. <span>“<span class="nocase">glmmTMB</s
 Packages for Zero-Inflated Generalized Linear Mixed Modeling.”</span>
 <em>The R Journal</em> 9 (2): 378–400. <a href="https://journal.r-project.org/archive/2017/RJ-2017-066/index.html" class="external-link">https://journal.r-project.org/archive/2017/RJ-2017-066/index.html</a>.
 </div>
+<div id="ref-Brown" class="csl-entry">
+Brown, C. A. 2001. <span>“Revised Estimates of Bluefin Tuna Dead
+Discards by the u.s. Atlantic Pelagic Longline Fleet, 1992-1999.”</span>
+Journal Article. <em>ICCAT Collective Volume of Scientific Papers</em>
+52 (3): 1007–21.
+</div>
 <div id="ref-doParallel" class="csl-entry">
 Corporation, Microsoft, and Steve Weston. 2020. <em>doParallel: Foreach
 Parallel Adaptor for the ’Parallel’ Package</em>. <a href="https://CRAN.R-project.org/package=doParallel" class="external-link">https://CRAN.R-project.org/package=doParallel</a>.
@@ -642,10 +690,19 @@ Construct</em>. <a href="https://CRAN.R-project.org/package=foreach" class="exte
 Ooms, Jeroen. 2020. <em>Pdftools: Text Extraction, Rendering and
 Converting of PDF Documents</em>. <a href="https://CRAN.R-project.org/package=pdftools" class="external-link">https://CRAN.R-project.org/package=pdftools</a>.
 </div>
+<div id="ref-Pennington" class="csl-entry">
+Pennington, M. 1983. <span>“Efficient Estimators of Abundance, for Fish
+and Plankton Surveys.”</span> Journal Article. <em>Biometrics</em> 39
+(1): 281–86. <a href="https://www.jstor.org/stable/2530830" class="external-link">https://www.jstor.org/stable/2530830</a>.
+</div>
 <div id="ref-R-base" class="csl-entry">
 R Core Team. 2020. <em>R: A Language and Environment for Statistical
 Computing</em>. Vienna, Austria: R Foundation for Statistical Computing.
 <a href="https://www.R-project.org/" class="external-link">https://www.R-project.org/</a>.
+</div>
+<div id="ref-Rao" class="csl-entry">
+Rao, P. S. R. S. 2000. <em>Sampling Methodologies with Applications. 1st
+Edition.</em> Chapman; Hall/CRC.
 </div>
 <div id="ref-RStudio" class="csl-entry">
 RStudio Team. 2020. <em>RStudio: Integrated Development Environment for
@@ -705,7 +762,7 @@ Tweedie Compound Poisson Linear Mixed Models.”</span>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>

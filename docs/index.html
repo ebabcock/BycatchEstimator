@@ -8,8 +8,8 @@
 <meta name="description" content="BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.">
 <title>Generic Model-Based Bycatch Estimation Procedure • BycatchEstimator</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Generic Model-Based Bycatch Estimation Procedure">
 <meta property="og:description" content="BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">BycatchEstimator</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,110 +62,111 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p>BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.</p>
-<p>BycatchEstimator utilizes a model-based procedure to estimate total annual bycatch by expanding a sample, such as an observer database, in relation to total effort from logbooks or landings records. This framework can also be used to estimate an annual index of abundance, calculated only from the observer data. Using this tool, bycatch estimation is carried out by conducting CPUE standardization analysis based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) and linear models with predictor variables (e.g., year, season, depth). The complexity of the task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC). Once a best approximating model is identified, the standardized CPUE model is used to predict total bycatch in all logbook trips and summing across trips. This bycatch estimation tool has been developed as an accessible R package. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details.</p>
+<p>BycatchEstimator uses a model-based procedure to estimate total annual bycatch by expanding a sample, such as an observer database, in relation to total effort from logbooks or landings records. This framework can also be used to estimate an annual index of abundance, calculated only from the observer data. Using this tool, bycatch estimation is carried out by fitting a linear model based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) and predictor variables (e.g., year, season, depth). The the task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC) and cross-validation. Once a best approximating model is identified, the linear model is used to predict total bycatch in all logbook trips and summing across trips. This bycatch estimation tool has been developed as an accessible R package. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The code runs best in R studio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex.</p>
+<p>The code runs best in RStudio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex.</p>
 <p>You can install the development version of BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
 <p>Due to a complication in coding, the user must load <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(MuMIn)</a></code> in addition to <code><a href="https://ebabcock.github.io/BycatchEstimator/">library(BycatchEstimator)</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="llsim-example">LLSIM Example<a class="anchor" aria-label="anchor" href="#llsim-example"></a>
 </h2>
-<p>To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021).</p>
+<p>To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021, Babcock and Goodyear 2021).</p>
 <div class="section level3">
 <h3 id="logbook-data">Logbook data<a class="anchor" aria-label="anchor" href="#logbook-data"></a>
 </h3>
-<p>Simulation of longline fleets with LLSIM was conducted using three idealized fleets as described by Goodyear (2021). These fleets are a USA-like fleet (fleet 1), Japan-like fleet (fleet 2) and a Brazil-like fleet (fleet 3). The simulated data set included three fleets, with data spanning from 1990 to 2018 to reflect the approximate period for which observer coverage has been established (REF). The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were re-allocated by trip. Sets are re-allocated to trip if they were in the same gear, month and spatial area (5 x 5 squares). Trips with more than 100 sets were randomly allocated to different trips so that the median trips had about 20 sets.</p>
+<p>Simulation of longline fleets with LLSIM was conducted using three idealized longline fleets as described by Goodyear (2021), with data from 1990 to 2018. The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were allocated by trip (Babcock and Godyear 2021). Sets are allocated to trip if they were in the same gear, month and spatial area (5 x 5 squares). Trips with more than 100 sets were randomly allocated to different trips so that the median trips had about 20 sets.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">LLSIM_BUM_Example_logbook</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">LLSIM_BUM_Example_logbook</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="observer-program-data">Observer program data<a class="anchor" aria-label="anchor" href="#observer-program-data"></a>
 </h3>
 <p>Observer program data are generated by passing the trip-level logbook data to an observer program sub-model. The observer sub-model assumes that observer coverage is randomly assigned to trips, with 5% coverage of trips. The entire trip is assumed to be observed.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">LLSIM_BUM_Example_observer</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">LLSIM_BUM_Example_observer</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="model-setup">Model setup<a class="anchor" aria-label="anchor" href="#model-setup"></a>
 </h3>
 <p>The first step in bycatch estimation is setup the input file and review and verify the data. Notice that returned value from <code>bycatchSetup</code> is assigned as an object that will be used in a subsequent step. This step also produces output that is saved to the working directory for the user to review. Review is essential to ensure that data have been correctly formatted and interpreted in model setup.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span>
-  <span class="co">#modelTry = c("Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),</span>
-  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>, <span class="st">"TMBnbinom2"</span><span class="op">)</span>,
-  obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,
-  logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,
-  yearVar <span class="op">=</span> <span class="st">"Year"</span>,
-  obsEffort <span class="op">=</span> <span class="st">"hooks"</span>,
-  logEffort <span class="op">=</span> <span class="st">"hooks"</span>,
-  logUnsampledEffort <span class="op">=</span> <span class="st">"unsampledEffort"</span>,
-  includeObsCatch  <span class="op">=</span> <span class="cn">TRUE</span>,
-  matchColumn <span class="op">=</span> <span class="st">"trip"</span>,
-  factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"fleet"</span>,<span class="st">"area"</span>,<span class="st">"season"</span><span class="op">)</span>,
-  EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,
-  EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,
-  logNum <span class="op">=</span> <span class="cn">NA</span>,
-  sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,
-  complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">hbf</span><span class="op">+</span><span class="va">area</span><span class="op">+</span><span class="va">season</span><span class="op">)</span>,
-  simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,
-  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,
-  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  runName <span class="op">=</span> <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span>,
-  runDescription <span class="op">=</span> <span class="st">"LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022"</span>,
-  common <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Swordfish"</span>,<span class="st">"Blue marlin"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
-  sp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Xiphias gladius"</span>,<span class="st">"Makaira nigricans"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
-  obsCatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SWO"</span>,<span class="st">"BUM"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
-  catchUnit <span class="op">=</span> <span class="st">"number"</span>,
-  catchType <span class="op">=</span> <span class="st">"catch"</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
+<span>  <span class="co">#modelTry = c("Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),</span></span>
+<span>  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Delta-Lognormal"</span>, <span class="st">"TMBnbinom2"</span><span class="op">)</span>,</span>
+<span>  obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,</span>
+<span>  logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,</span>
+<span>  yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
+<span>  obsEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
+<span>  logEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
+<span>  logUnsampledEffort <span class="op">=</span> <span class="st">"unsampledEffort"</span>,</span>
+<span>  includeObsCatch  <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  matchColumn <span class="op">=</span> <span class="st">"trip"</span>,</span>
+<span>  factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"fleet"</span>,<span class="st">"area"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
+<span>  EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  logNum <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span>
+<span>  complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">hbf</span><span class="op">+</span><span class="va">area</span><span class="op">+</span><span class="va">season</span><span class="op">)</span>,</span>
+<span>  simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">fleet</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
+<span>  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
+<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  runName <span class="op">=</span> <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span>,</span>
+<span>  runDescription <span class="op">=</span> <span class="st">"LLSIm BUM by trip, with 5% observer coverage including observed catch in totals April 17 2022"</span>,</span>
+<span>  common <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Swordfish"</span>,<span class="st">"Blue marlin"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  sp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Xiphias gladius"</span>,<span class="st">"Makaira nigricans"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  obsCatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SWO"</span>,<span class="st">"BUM"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span>
+<span>  catchType <span class="op">=</span> <span class="st">"catch"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="optional-step">Optional step<a class="anchor" aria-label="anchor" href="#optional-step"></a>
 </h3>
 <p>The output produced in step one includes the object returned by <code>bycatchSetup</code>. The naming convention for this object ends <code>_BycatchModelSpecification.rds</code>, as shown below. Thus, any model setup can be stored and later retrieved for analysis.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"/Output"</span>, <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span><span class="op">)</span>,<span class="st">"/"</span>, <span class="st">"2022-05-02"</span>,<span class="st">"_BycatchModelSpecification.rds"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"/Output"</span>, <span class="st">"LLSIMBUMtrip2022Aprilobs05mc"</span><span class="op">)</span>,<span class="st">"/"</span>, <span class="st">"2022-05-02"</span>,<span class="st">"_BycatchModelSpecification.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="model-fitting">Model fitting<a class="anchor" aria-label="anchor" href="#model-fitting"></a>
 </h3>
 <p>Estimation of bycatch and/or index of abundance is carried out by using the function <code>bycatchFit</code>. This function requires an object produced by <code>bycatchSetup</code> as well as several other arguments.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span>
-  setupObj <span class="op">=</span> <span class="va">setupObj</span>,
-  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,
-  DoCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  ResidualTest <span class="op">=</span> <span class="cn">FALSE</span>,
-  CIval <span class="op">=</span> <span class="fl">0.05</span>,
-  VarCalc <span class="op">=</span> <span class="st">"None"</span>,
-  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,
-  nSims <span class="op">=</span> <span class="fl">1000</span>,
-  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,
-  trueVals <span class="op">=</span> <span class="cn">NULL</span>,
-  trueCols <span class="op">=</span> <span class="cn">NULL</span>,
-  doReport <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
+<span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
+<span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
+<span>  DoCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  DredgeCrossValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  ResidualTest <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  CIval <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  VarCalc <span class="op">=</span> <span class="st">"None"</span>,</span>
+<span>  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  nSims <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  doReport <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Goodyear, C.P. 2021. Development of new model fisheries for simulating longline catch data with LLSIM. Collect. Vol. Sci. Pap. ICCAT, 78(5): 53-62</p>
+<p>Goodyear, C.P. 2021. Development of new model fisheries for simulating longline catch data with LLSIM. Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation tool using simulated blue marlin longline data. ICCAT Collective Volume of Scientific Papers, 78(5): 179-189. 78(5): 53-62</p>
+<p>Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation tool using simulated blue marlin longline data. ICCAT Collective Volume of Scientific Papers, 78(5): 179-189.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -212,7 +213,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>
