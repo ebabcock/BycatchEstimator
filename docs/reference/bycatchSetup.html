@@ -60,6 +60,8 @@
 <span>  includeObsCatch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  matchColumn <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">factorNames</span>,</span>
+<span>  randomEffects <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  randomEffects2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">EstimateIndex</span>,</span>
 <span>  <span class="va">EstimateBycatch</span>,</span>
 <span>  <span class="va">logNum</span>,</span>
@@ -67,6 +69,11 @@
 <span>  <span class="va">complexModel</span>,</span>
 <span>  <span class="va">simpleModel</span>,</span>
 <span>  <span class="va">indexModel</span>,</span>
+<span>  designMethods <span class="op">=</span> <span class="st">"None"</span>,</span>
+<span>  designVars <span class="op">=</span> <span class="st">"Year"</span>,</span>
+<span>  designPooling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  minStrataUnit <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  minStrataEffort <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">runName</span>,</span>
 <span>  <span class="va">runDescription</span>,</span>
@@ -81,11 +88,7 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>modelTry</dt>
-<dd><p>Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.</p></dd>
-
-
-<dt>obsdat</dt>
-<dd><p>Observer data set</p></dd>
+<dd><p>Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected. @param obsdat Observer data set</p></dd>
 
 
 <dt>logdat</dt>
@@ -120,6 +123,14 @@
 <dd><p>Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. Variables not in this list will retain their original format. These variables must have identical names and factor levels in <code>obsdat</code> and <code>logdat</code></p></dd>
 
 
+<dt>randomEffects</dt>
+<dd><p>Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.</p></dd>
+
+
+<dt>randomEffects2</dt>
+<dd><p>Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.</p></dd>
+
+
 <dt>EstimateIndex</dt>
 <dd><p>Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.</p></dd>
 
@@ -137,15 +148,35 @@
 
 
 <dt>complexModel</dt>
-<dd><p>Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria.</p></dd>
+<dd><p>Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria. Include only fixed effects.</p></dd>
 
 
 <dt>simpleModel</dt>
-<dd><p>Specify as stats::formula.</p></dd>
+<dd><p>Specify as stats::formula. This model includes all variables tha must be in the final bycatch estimation model</p></dd>
 
 
 <dt>indexModel</dt>
 <dd><p>Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.</p></dd>
+
+
+<dt>designMethods</dt>
+<dd><p>Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).</p></dd>
+
+
+<dt>designVars</dt>
+<dd><p>Specify strata that must be included in design based estimates, in order across which data should be pooled</p></dd>
+
+
+<dt>designPooling</dt>
+<dd><p>TRUE if design-based estimates should be pooled for strata with missing data</p></dd>
+
+
+<dt>minStrataUnit</dt>
+<dd><p>The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)</p></dd>
+
+
+<dt>minStrataEffort</dt>
+<dd><p>The smallest amount of effort in the strata defined by designVars that is acceptable (e.g sets)</p></dd>
 
 
 <dt>baseDir</dt>
@@ -196,6 +227,8 @@
 <span class="r-in"><span>includeObsCatch  <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>matchColumn <span class="op">=</span> <span class="cn">NA</span>,</span></span>
 <span class="r-in"><span>factorNames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"season"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>randomEffects <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>randomEffects2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>EstimateIndex <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>logNum <span class="op">=</span> <span class="cn">NA</span>,</span></span>
@@ -203,6 +236,11 @@
 <span class="r-in"><span>complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="op">(</span><span class="va">Year</span><span class="op">+</span><span class="va">season</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>designMethods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ratio"</span>, <span class="st">"Delta"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>designVars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"season"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>designPooling <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>minStrataUnit <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>minStrataEffort <span class="op">=</span><span class="fl">1</span>,</span></span>
 <span class="r-in"><span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>runName <span class="op">=</span> <span class="st">"SimulatedExample"</span>,</span></span>
 <span class="r-in"><span>runDescription <span class="op">=</span> <span class="st">"Example with simulated data"</span>,</span></span>

@@ -16,6 +16,8 @@ bycatchSetup(
   includeObsCatch = FALSE,
   matchColumn = NA,
   factorNames,
+  randomEffects = NULL,
+  randomEffects2 = NULL,
   EstimateIndex,
   EstimateBycatch,
   logNum,
@@ -23,6 +25,11 @@ bycatchSetup(
   complexModel,
   simpleModel,
   indexModel,
+  designMethods = "None",
+  designVars = "Year",
+  designPooling = FALSE,
+  minStrataUnit = 1,
+  minStrataEffort = 1,
   baseDir = getwd(),
   runName,
   runDescription,
@@ -34,9 +41,7 @@ bycatchSetup(
 )
 }
 \arguments{
-\item{modelTry}{Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.}
-
-\item{obsdat}{Observer data set}
+\item{modelTry}{Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected. @param obsdat Observer data set}
 
 \item{logdat}{Logbook data set}
 
@@ -54,6 +59,10 @@ bycatchSetup(
 
 \item{factorNames}{Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. Variables not in this list will retain their original format. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}}
 
+\item{randomEffects}{Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.}
+
+\item{randomEffects2}{Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.}
+
 \item{EstimateIndex}{Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.}
 
 \item{EstimateBycatch}{Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.}
@@ -62,11 +71,21 @@ bycatchSetup(
 
 \item{sampleUnit}{Character. What is the sample unit in \code{logdat}? e.g. sets or trips.}
 
-\item{complexModel}{Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria.}
+\item{complexModel}{Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria. Include only fixed effects.}
 
-\item{simpleModel}{Specify as stats::formula.}
+\item{simpleModel}{Specify as stats::formula. This model includes all variables tha must be in the final bycatch estimation model}
 
 \item{indexModel}{Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.}
+
+\item{designMethods}{Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).}
+
+\item{designVars}{Specify strata that must be included in design based estimates, in order across which data should be pooled}
+
+\item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
+
+\item{minStrataUnit}{The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)}
+
+\item{minStrataEffort}{The smallest amount of effort in the strata defined by designVars that is acceptable (e.g sets)}
 
 \item{baseDir}{Character. A directory to save output. Defaults to current working directory.}
 
@@ -101,6 +120,8 @@ logUnsampledEffort = NULL,
 includeObsCatch  = FALSE,
 matchColumn = NA,
 factorNames = c("Year","season"),
+randomEffects = NULL,
+randomEffects2 = NULL,
 EstimateIndex = TRUE,
 EstimateBycatch = TRUE,
 logNum = NA,
@@ -108,6 +129,11 @@ sampleUnit = "trips",
 complexModel = formula(y~(Year+season)^2),
 simpleModel = formula(y~Year),
 indexModel = formula(y~Year),
+designMethods = c("Ratio", "Delta"),
+designVars = c("Year","season"),
+designPooling = TRUE,
+minStrataUnit = 1,
+minStrataEffort =1,
 baseDir = getwd(),
 runName = "SimulatedExample",
 runDescription = "Example with simulated data",

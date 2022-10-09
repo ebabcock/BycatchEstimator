@@ -4,7 +4,7 @@
 \alias{simulateNegBin1Draw}
 \title{simulateNegBin1Draw}
 \usage{
-simulateNegBin1Draw(modfit, nObs, b, Effort)
+simulateNegBin1Draw(modfit, nObs, b, Effort, NewRandomVals = 0)
 }
 \arguments{
 \item{modfit}{Value}
@@ -14,6 +14,8 @@ simulateNegBin1Draw(modfit, nObs, b, Effort)
 \item{b}{Value}
 
 \item{Effort}{Value}
+
+\item{NewRandomVals}{Value}
 }
 \description{
 simulateNegBin1Draw

@@ -4,7 +4,7 @@
 \alias{simulateGammaDraw}
 \title{simulateGammaDraw}
 \usage{
-simulateGammaDraw(modfit, nObs, b)
+simulateGammaDraw(modfit, nObs, b, NewRandomVals)
 }
 \arguments{
 \item{modfit}{Value}
@@ -12,6 +12,8 @@ simulateGammaDraw(modfit, nObs, b)
 \item{nObs}{Value}
 
 \item{b}{Value}
+
+\item{NewRandomVals}{Value}
 }
 \description{
 simulateGammaDraw

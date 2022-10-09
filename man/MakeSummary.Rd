@@ -18,6 +18,6 @@ MakeSummary(obsdatval, logdatval, strataVars, EstimateBycatch, startYear)
 \item{startYear}{Value}
 }
 \description{
-stratification defined by strataVars
+stratification defined by strataVars. No pooling for missing strata
 }
 \keyword{internal}

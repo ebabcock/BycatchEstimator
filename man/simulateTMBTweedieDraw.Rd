@@ -4,7 +4,7 @@
 \alias{simulateTMBTweedieDraw}
 \title{simulateTMBTweedieDraw}
 \usage{
-simulateTMBTweedieDraw(modfit, nObs, b, Effort)
+simulateTMBTweedieDraw(modfit, nObs, b, Effort, NewRandomVals = 0)
 }
 \arguments{
 \item{modfit}{Value}
@@ -14,6 +14,8 @@ simulateTMBTweedieDraw(modfit, nObs, b, Effort)
 \item{b}{Value}
 
 \item{Effort}{Value}
+
+\item{NewRandomVals}{Value}
 }
 \description{
 simulateTMBTweedieDraw

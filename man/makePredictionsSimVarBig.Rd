@@ -18,7 +18,9 @@ makePredictionsSimVarBig(
   catchType,
   common,
   dirname,
-  run
+  run,
+  randomEffects,
+  randomEffects2
 )
 }
 \arguments{
@@ -49,6 +51,10 @@ makePredictionsSimVarBig(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{randomEffects}{Value}
+
+\item{randomEffects2}{Value}
 }
 \description{
 Generate standard errors and confidence intervals of predictions from simulation from regression coefficients and their var/covar matrix
