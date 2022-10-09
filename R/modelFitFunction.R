@@ -99,8 +99,11 @@ bycatchFit<-function(
   ){
 
   #Unpack setupObj
-  modelTry<-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-includeObsCatch<-matchColumn<-factorNames<-
-  EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-complexModel<-simpleModel<-indexModel<-baseDir<-runName<-runDescription<-
+  modelTry<-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
+    includeObsCatch<-matchColumn<-factorNames<-randomEffects<-randomEffects2<-
+  EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-complexModel<-simpleModel<-indexModel<-
+    designMethods<-designVars<-designPooling<-minStrataUnit<-minStrataEffort<-
+    baseDir<-runName<-runDescription<-
   common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
 
   numSp<-modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-
@@ -117,7 +120,7 @@ bycatchFit<-function(
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
   }
-  
+
   #Make sure there are multiple cores to use Parallel processing
   if(NumCores<=1) useParallel=FALSE
 
@@ -127,7 +130,7 @@ bycatchFit<-function(
     outVal<-dirname[[run]]
     varExclude<-NULL
     #Fit all models except delta
-    for(mod in which(!modelTry %in% c("Delta-Lognormal","Delta-Gamma"))){
+    for(mod in which(!grepl("delta",modelTry,ignore.case=TRUE))){
       modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
         obsdatval = datval,
         modType = modelTry[mod],
@@ -136,6 +139,7 @@ bycatchFit<-function(
         allVarNames = allVarNames,
         complexModel = complexModel,
         common = common,
+        randomEffects = randomEffects,
         useParallel = useParallel,
         selectCriteria = selectCriteria,
         catchType = catchType,
@@ -148,19 +152,21 @@ bycatchFit<-function(
     }
 
     #Fit delta models
-    if("Delta-Lognormal" %in% modelTry | "Delta-Gamma" %in% modelTry) {  #Delta models if requested
+    if(any(grepl("delta",modelTry,ignore.case=TRUE))) {  #Delta models if requested
       posdat<-filter(dat[[run]], .data$pres==1)
       y<-unlist(lapply(posdat[,factorNames],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
       varExclude<-names(y)[y>0]
       if(length(varExclude>0)) print(paste(common[run], "excluding variable",varExclude,"from delta models for positive catch"))
-      if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) & !is.null(modFits[[run]][["Binomial"]])) { #If all years have at least one positive observation and binomial converged, carry on with delta models
-        for(mod in which(modelTry %in% c("Delta-Lognormal","Delta-Gamma")))  {
+      if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) &
+         (!is.null(modFits[[run]][["Binomial"]]) | !is.null(modFits[[run]][["TMBbinomial"]]))) { #If all years have at least one positive observation and binomial converged, carry on with delta models
+        for(mod in which(grepl("delta",modelTry,ignore.case=TRUE)))  {
           modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
             obsdatval = posdat,
             modType = modelTry[mod],
             requiredVarNames = requiredVarNames,
             allVarNames = allVarNames,
             complexModel = complexModel,
+            randomEffects = randomEffects2,
             useParallel = useParallel,
             selectCriteria = selectCriteria,
             varExclude = varExclude,
@@ -194,19 +200,19 @@ bycatchFit<-function(
       VarCalc<-"None"
     }
 
-    #Make predictions, residuals, etc. for all models
     for(mod in 1:length(modelTry)) {
       if(!is.null(modFits[[run]][[modelTry[mod]]])) {
-        if(modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma")) {
-          modFit1<-modFits[[run]][["Binomial"]]
+        if(grepl("delta",modelTry[mod],ignore.case = TRUE )) {
+          if(grepl("TMB",modelTry[mod])) modFit1=modFits[[run]][["TMBbinomial"]] else
+            modFit1=modFits[[run]][["Binomial"]]
           modFit2<-modFits[[run]][[modelTry[mod]]]
-        } else {
+        }
+        if(!grepl("delta",modelTry[mod],ignore.case = TRUE )) {
           modFit1<-modFits[[run]][[modelTry[mod]]]
           modFit2<-NULL
         }
         if(EstimateBycatch) {
-          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie")))
-            if(BigData) {
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-lognormal","TMBdelta-gamma")))
               modPredVals[[run]][[modelTry[mod]]]<-
                 makePredictionsSimVarBig(
                   modfit1=modFit1,
@@ -221,26 +227,10 @@ bycatchFit<-function(
                   common = common,
                   catchType = catchType,
                   dirname = dirname,
-                  run = run)
-             } else {
-                     modPredVals[[run]][[modelTry[mod]]]<-
-                       makePredictionsSimVar(
-                         modfit1=modFit1,
-                         modfit2=modFit2,
-                         modtype=modelTry[mod],
-                         newdat=logdat,
-                         obsdatval=datval,
-                         includeObsCatch = includeObsCatch,
-                         nsim = nSims,
-                         requiredVarNames = requiredVarNames,
-                         CIval = CIval,
-                         common = common,
-                         catchType = catchType,
-                         dirname = dirname,
-                         run = run
-                       )
-            }
-          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie"))
+                  run = run,
+                  randomEffects=randomEffects,
+                  randomEffects2=randomEffects2)
+          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
                 modfit1=modFit1,
@@ -302,18 +292,16 @@ bycatchFit<-function(
 
     #Combine all predictions, except Binomial
     if(EstimateBycatch) {
-      yearsumgraph<-yearSum[[run]] %>% dplyr::select(Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse) %>%
-        mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
-               Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
-        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-      if(is.factor(modPredVals[[run]][[1]]$Year)) yearsumgraph$Year<-factor(yearsumgraph$Year)
-      allmods[[run]]<-bind_rows(c(modPredVals[[run]],list(Ratio=yearsumgraph)),.id="Source") %>%
-        filter(!.data$Source=="Binomial")
-      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source=="Ratio",1,0)
+      if(is.factor(modPredVals[[run]][[1]]$Year))
+        yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
+       allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+      allmods[[run]]<-bind_rows(allmods[[run]],yearSumGraph[[run]])
+      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source %in% c("Unstratified ratio","Ratio","Design Delta"),1,0)
     }
     if(EstimateIndex) {
       allindex[[run]]<-bind_rows(modIndexVals[[run]],.id="Source") %>%
-        filter(!.data$Source=="Binomial")
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinonomial")
       allindex[[run]]$Valid<-ifelse(modelFail[run,match(allindex[[run]]$Source,dimnames(modelFail)[[2]])]=="-" ,1,0)
     }
 
@@ -325,14 +313,14 @@ bycatchFit<-function(
     rmsetab[[run]]<-matrix(NA,10,length(modelTry),dimnames=list(1:10,modelTry))
     rmsetab[[run]]<-rmsetab[[run]][,colnames(rmsetab[[run]])!="Binomial"]
     metab[[run]]<-rmsetab[[run]]
-    if(DoCrossValidation & length(which(modelFail[run,colnames(modelFail)!="Binomial"]=="-"))>1) {  #Don't do unless at least one model worked
+    if(DoCrossValidation & length(which(modelFail[run,!colnames(modelFail)%in%c("Binomial","TMBbinomial")]=="-"))>1) {  #Don't do unless at least one model worked
       datval$cvsample<-sample(rep(1:10,length=dim(datval)[1]),replace=FALSE)
       table(datval$cvsample,datval$Year)
       for(i in 1:10 ) {
         datin<-datval[datval$cvsample!=i,]
         datout<-datval[datval$cvsample==i,]
         datout$SampleUnits<-rep(1,dim(datout)[1])
-        for(mod in which(!modelTry %in% c("Delta-Lognormal","Delta-Gamma"))) {
+        for(mod in which(!grepl("delta",modelTry,ignore.case = TRUE))) {
           if(modelFail[run,modelTry[mod]]=="-") {
             if(DredgeCrossValidation) {
               modFit1<-suppressWarnings(findBestModelFunc(
@@ -344,13 +332,14 @@ bycatchFit<-function(
                 useParallel = useParallel,
                 selectCriteria = selectCriteria,
                 catchType = catchType,
-                varExclude = varExclude
+                varExclude = varExclude,
+                randomEffects=randomEffects
               ))[[1]]
             } else {
               modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),
                                       modType=modelTry[mod],obsdatval=datin))
             }
-            if(modelTry[mod]!="Binomial") {
+            if(!modelTry[mod] %in% c("Binomial","TMBbinomial")) {
               predcpue<-makePredictions(
                 modFit1,
                 modType=modelTry[mod],
@@ -359,13 +348,16 @@ bycatchFit<-function(
               rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
               metab[[run]][i,modelTry[mod]]<-getME(predcpue$est.cpue,datout$cpue)
             } else {
-              bin1<-modFit1
+               if(modelTry[mod]=="Binomial")
+                 binomial1<-modFit1
+               if(modelTry[mod]=="TMBbinomial")
+                 tmbbin1<-modFit1
             }
           }
         }
-        if("Delta-Lognormal" %in% modelTry | "Delta-Gamma" %in% modelTry) {
+        if(any(grepl("delta",modelTry,ignore.case = TRUE))) {
           posdat<-filter(datin, .data$pres==1)
-          for(mod in which(modelTry %in% c("Delta-Lognormal","Delta-Gamma"))) {
+          for(mod in which(grepl("delta",modelTry,ignore.case = TRUE))) {
             if(modelFail[run,modelTry[mod]]=="-" & !(!is.numeric(posdat$Year) & min(table(posdat$Year))==0)) {
               if(DredgeCrossValidation) {
                 modFit1<-suppressWarnings(findBestModelFunc(
@@ -377,11 +369,15 @@ bycatchFit<-function(
                   useParallel = useParallel,
                   selectCriteria = selectCriteria,
                   catchType = catchType,
-                  varExclude = varExclude
+                  varExclude = varExclude,
+                  randomEffects=randomEffects2
                 ))[[1]]
               } else {
                 modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat))
               }
+              if(grepl("TMB",modelTry[mod]))
+                 bin1<-tmbbin1 else
+                 bin1<-binomial1
               predcpue<-makePredictions(bin1,modFit1,modelTry[mod],datout)
               rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
               metab[[run]][i,modelTry[mod]]<-getME(predcpue$est.cpue,datout$cpue)

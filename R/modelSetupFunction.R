@@ -1,5 +1,4 @@
 
-
 #---------------------------------
 #Model setup
 #----------------------------------
@@ -10,7 +9,7 @@
 #'Sets global conditions and makes a preliminary data summary.
 #'
 #'
-#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.
+#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", "Delta-Gamma", "NegBin" for Negative binomial" using glm.mb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for negative binomial 1, negative binomial 2 and Tweedie from the GLMMTMB library. Binomial is run automatically as part of the delta models if either of them are selected.
 #' @param obsdat Observer data set
 #' @param logdat Logbook data set
 #' @param yearVar Character. The name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.
@@ -20,13 +19,20 @@
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
 #' @param factorNames Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. Variables not in this list will retain their original format. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
+#' @param randomEffects Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
+#' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param logNum Character vector. The name of the column in \code{logdat} that gives the number of sample units (e.g., trips or sets). If the logbook data is not aggregated (i.e. each row is a sample unit) set value to NA
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
 #' @param EstimateBycatch Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria.
-#' @param simpleModel Specify as stats::formula.
+#' @param simpleModel Specify as stats::formula. This model includes all variables tha must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
+#' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
+#' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled
+#' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
+#' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)
+#' @param minStrataEffort The smallest amount of effort in the strata defined by designVars that is acceptable (e.g sets)
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
 #' @param runName Characer. Give a name to the run, which will be used to set up a directory for the outputs
 #' @param runDescription Character. Brief summary of the run, which will be used to set up a directory for the outputs
@@ -81,6 +87,8 @@ bycatchSetup <- function(
   includeObsCatch  = FALSE,
   matchColumn = NA,
   factorNames,
+  randomEffects=NULL,
+  randomEffects2=NULL,
   EstimateIndex,
   EstimateBycatch,
   logNum,
@@ -88,6 +96,11 @@ bycatchSetup <- function(
   complexModel,
   simpleModel,
   indexModel,
+  designMethods = "None",
+  designVars="Year",
+  designPooling = FALSE,
+  minStrataUnit=1,
+  minStrataEffort=1,
   baseDir = getwd(),
   runName,
   runDescription,
@@ -109,12 +122,30 @@ bycatchSetup <- function(
   NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
 
   #Check that all models in modelTry are valid
-  if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin") ))
+  if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma", "TMBnbinom1","TMBlognormal",
+                          "TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin", "TMBgamma","Gamma",
+                          "TMBbinomial","TMBnormal","TMBdelta-Lognormal","TMBdelta-Gamma") ))
     stop(paste("Model requested in modelTry not available"))
 
    #Make sure binomial is included if either of the delta models is
   if(("Delta-Lognormal" %in% modelTry |"Delta-Gamma" %in% modelTry) & !"Binomial" %in% modelTry)
     modelTry<-c("Binomial",modelTry)
+  if(("TMBdelta-Lognormal" %in% modelTry |"TMBdelta-Gamma" %in% modelTry) & !"TMBbinomial" %in% modelTry)
+    modelTry<-c("TMBbinomial",modelTry)
+
+  #If there are any random effects, all fitting will be done in glmmTMB
+  if(!is.null(randomEffects) | !is.null(randomEffects2)) {
+    modelTry<-case_when(modelTry=="Binomial" ~"TMBbinomial",
+                        modelTry=="Normal" ~"TMBnormal",
+                        modelTry=="Tweedie" ~"TMBtweedie",
+                        modelTry=="Gamma"~"TMBgamma",
+                        modelTry=="Delta-Lognormal"~"TMBdelta-Lognormal",
+                        modelTry=="Delta-Gamma"~"TMBdelta-Gamma",
+                        modelTry=="Lognormal"~"TMBlognormal",
+                        modelTry=="NegBin"~"TMBnbinom2",
+                        grepl("TMB",modelTry)~modelTry)
+    modelTry<-unique(modelTry)
+  }
 
   # Set up variables
   #if("Year" %in% names(obsdat) & !yearVar=="Year") obsdat<-obsdat %>% rename(oldYear=Year)
@@ -127,6 +158,9 @@ bycatchSetup <- function(
   allVarNames<-as.vector(getAllTerms(complexModel))
   allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)]
   allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)]
+  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL
+  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
+  allVarNames<-unique(c(allVarNames,temp,designVars))
   if(!all(allVarNames %in% names(obsdat)))
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
   if(!all(allVarNames %in% names(logdat)))
@@ -153,6 +187,15 @@ bycatchSetup <- function(
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
     }
   }
+  #Add interaction random effects to logdat for ease of prediction
+  randomInteractions<-unique(c(randomEffects,randomEffects2))
+  for(i in which(grepl(":",randomInteractions))) {
+    varval<-strsplit(randomInteractions[i],":")[[1]]
+    x<-data.frame(logdat[,varval])
+    x$newvar<-base::paste(x[,1],x[,2],sep=":")
+    names(x)[3]<-randomInteractions[i]
+    logdat<-bind_cols(logdat,select(x,randomInteractions[i]))
+}
 
   #Add stratum designation and check sample size in strata
   if(length(requiredVarNames) > 1) {
@@ -212,12 +255,13 @@ bycatchSetup <- function(
   rmsetab<-list()
   metab<-list()
   strataSum<-list()
+  yearSum<-list()
+  yearSumGraph<-list()
 
   #Make lists to keep output, which will also be output as .pdf and .csv files for use in reports.
   dirname<-list()
   dat<-list()
   #Loop through all species and print data summary. Note that records with NA in either catch or effort are excluded automatically
-  yearSum<-list()
   for(run in 1:numSp) {
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
@@ -262,8 +306,32 @@ bycatchSetup <- function(
                       EstimateBycatch = EstimateBycatch,
                       startYear = startYear
                     )
-    write.csv(dplyr::select(yearSum[[run]],c("Year","OCat","OEff","OUnit","CPUE","CPse","Out","Pos","PFrac","Eff","Units","EFrac","UFrac","Cat","Cse")),
+    if("Ratio" %in% designMethods | "Delta" %in% designMethods) {
+      temp<-getDesignEstimates(obsdatval = dat[[run]],
+                               logdatval = logdat,
+                               strataVars = "Year",
+                               designVars = designVars,
+                               designPooling = designPooling,
+                               minStrataUnit = minStrataUnit,
+                               minStrataEffort = minStrataEffort,
+                               startYear = startYear
+                             )
+      yearSum[[run]]<-left_join(yearSum[[run]],temp,by="Year")
+    }
+
+    # write.csv(dplyr::select(yearSum[[run]],c("Year","OCat","OEff","OUnit","CPUE","CPse","Out","Pos","PFrac","Eff","Units","EFrac","UFrac","Cat","Cse")),
+    #           paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
+    write.csv(yearSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
+
+    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=Year,Total=Cat,Total.se=Cse))
+    if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=Year,Total=ratioMean,Total.se=ratioSE)))
+    if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=Year,Total=deltaMean,Total.se=deltaSE)))
+    yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
+        mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
+               Total.mean=NA,TotalLCI=Total-1.96*Total.se,TotalUCI=Total+1.96*Total.se) %>%
+        mutate(TotalLCI=ifelse(TotalLCI<0,0,TotalLCI))
+
     strataSum[[run]]<-MakeSummary(
                         obsdatval = dat[[run]],
                         logdatval = logdat,
@@ -271,6 +339,19 @@ bycatchSetup <- function(
                         EstimateBycatch = EstimateBycatch,
                         startYear = startYear
                       )
+    if("Ratio" %in% designMethods | "Delta" %in% designMethods) {
+      temp<-getDesignEstimates(obsdatval = dat[[run]],
+                               logdatval = logdat,
+                               strataVars = unique(c("Year",requiredVarNames)),
+                               designVars = designVars,
+                               designPooling = designPooling,
+                               minStrataUnit = minStrataUnit,
+                               minStrataEffort = minStrataEffort,
+                               startYear = startYear
+      )
+      strataSum[[run]]<-left_join(strataSum[[run]],temp,by=unique(c("Year",requiredVarNames)))
+    }
+
     write.csv(strataSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"))
   }
@@ -320,6 +401,8 @@ bycatchSetup <- function(
       includeObsCatch  = includeObsCatch,
       matchColumn = matchColumn,
       factorNames = factorNames,
+      randomEffects = randomEffects,
+      randomEffects2 = randomEffects2,
       EstimateIndex = EstimateIndex,
       EstimateBycatch =EstimateBycatch,
       logNum = logNum,
@@ -327,6 +410,11 @@ bycatchSetup <- function(
       complexModel = complexModel,
       simpleModel = simpleModel,
       indexModel = indexModel,
+      designMethods = designMethods,
+      designVars = designVars,
+      designPooling = designPooling,
+      minStrataUnit = minStrataUnit,
+      minStrataEffort = minStrataEffort,
       baseDir = baseDir,
       runName = runName,
       runDescription = runDescription,
@@ -359,6 +447,7 @@ bycatchSetup <- function(
       dat = dat,
       numSp = numSp,
       yearSum = yearSum,
+      yearSumGraph = yearSumGraph,
       requiredVarNames = requiredVarNames,
       allVarNames = allVarNames,
       startYear = startYear,

@@ -82,7 +82,7 @@ if(EstimateBycatch ) {
       yearpred = filter(allmods[[run]],Valid==1),
       modType = "All",
       fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
-cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, including a simple unstratified ratio estimator, for ",common[run],varText,obsText,". \n",sep="")
+cat("\n Figure ",fignum,". Total bycatch estimates for all valid models and desgin-based methods, for ",common[run],varText,obsText,". \n",sep="")
   fignum<-fignum+1
   cat('\n')
 }
@@ -113,11 +113,11 @@ if(modelFail[run,mod]=="-") {
    cat("\n Figure ",fignum,". Residuals for the ",selectCriteria, " best model for ",        modelTry[mod],", showing the ordinary residuals (a,b) and DHARMa scaled residuals (c,d). \n",sep="")
    fignum<-fignum+1
     cat('\n')
-  lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
+  lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
   if(EstimateBycatch) {
-   if(plotValidation & modelTry[mod]!="Binomial")  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit) else
+   if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit) else
    plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchType)
-  if(modelTry[mod]=="Binomial")  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
+  if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
    cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText   ,lineText, ". \n",sep="")
    fignum<-fignum+1
    cat('\n')
