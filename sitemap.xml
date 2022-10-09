@@ -37,6 +37,9 @@
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/FitModelFuncCV.html</loc>
   </url>
   <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/Gm.html</loc>
+  </url>
+  <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/LLSIM_BUM_Example_logbook.html</loc>
   </url>
   <url>
@@ -64,10 +67,22 @@
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchSetup.html</loc>
   </url>
   <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorMean.html</loc>
+  </url>
+  <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorSE2.html</loc>
+  </url>
+  <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorVar.html</loc>
+  </url>
+  <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/findBestModelFunc.html</loc>
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/fishTimeFunc.html</loc>
+  </url>
+  <url>
+    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getDesignEstimates.html</loc>
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/getME.html</loc>
@@ -128,9 +143,6 @@
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsNoVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVar.html</loc>
   </url>
   <url>
     <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVarBig.html</loc>
