@@ -43,6 +43,8 @@ bycatchSetup(
 \arguments{
 \item{modelTry}{Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected. @param obsdat Observer data set}
 
+\item{obsdat}{Observer data set}
+
 \item{logdat}{Logbook data set}
 
 \item{yearVar}{Character. The name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.}

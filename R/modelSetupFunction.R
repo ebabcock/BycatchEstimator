@@ -10,6 +10,7 @@
 #'
 #'
 #' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected. @param obsdat Observer data set
+#' @param obsdat  Observer data set
 #' @param logdat Logbook data set
 #' @param yearVar Character. The name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.
 #' @param obsEffort Character. The name of the effort variable in \code{obsdat}. This variable must have the same effort units as \code{logEffort}
@@ -40,7 +41,7 @@
 #' @param obsCatch Character vector. The name of the column(s) in \code{obsdat} that contain catch. If it is a vector, order of variable names must follow the same order as names provided in \code{common} and \code{sp}
 #' @param catchUnit Character vector. Give units of catch (e.g., number) to go in plot labels. Must be a vector of the same length as \code{sp}
 #' @param catchType Character vector. Give type of catch (e.g., dead discards) to go in plot labels. Must be a vector of the same length as \code{sp}
-#' @import ggplot2 parallel dplyr doParallel foreach utils kableExtra tidyverse parallelly
+#' @import ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @importFrom stats median
 #' @export
 #' @keywords Fitting functions
@@ -330,13 +331,13 @@ bycatchSetup <- function(
     write.csv(yearSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
 
-    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=Year,Total=Cat,Total.se=Cse))
-    if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=Year,Total=ratioMean,Total.se=ratioSE)))
-    if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=Year,Total=deltaMean,Total.se=deltaSE)))
+    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
+    if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+    if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
         mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
-               Total.mean=NA,TotalLCI=Total-1.96*Total.se,TotalUCI=Total+1.96*Total.se) %>%
-        mutate(TotalLCI=ifelse(TotalLCI<0,0,TotalLCI))
+               Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
+        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
 
     strataSum[[run]]<-MakeSummary(
                         obsdatval = dat[[run]],
