@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   UserGuide2: UserGuide2.html
-last_built: 2022-10-09T13:51Z
+last_built: 2022-10-22T16:22Z
 urls:
   reference: https://ebabcock.github.io/BycatchEstimator/reference
   article: https://ebabcock.github.io/BycatchEstimator/articles
