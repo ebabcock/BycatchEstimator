@@ -82,7 +82,7 @@ if(EstimateBycatch ) {
       yearpred = filter(allmods[[run]],Valid==1),
       modType = "All",
       fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
-cat("\n Figure ",fignum,". Total bycatch estimates for all valid models and desgin-based methods, for ",common[run],varText,obsText,". \n",sep="")
+cat("\n Figure ",fignum,". Total bycatch estimates for all valid models and design-based methods, for ",common[run],varText,obsText,". \n",sep="")
   fignum<-fignum+1
   cat('\n')
 }
