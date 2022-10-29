@@ -809,7 +809,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
 }
 
 
-#' Function to get an abundance index with SE, Does not yet have year interactions as random effects
+#' Function to get an abundance index with SE
 #'
 #' @param modfit1 Value
 #' @param modfit2 Value
