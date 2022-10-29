@@ -23,7 +23,7 @@ library(kableExtra)
 ```{r tablesummary, results='asis'}
 for(run in 1:numSp) {
   headerText<-paste0("Data summary for ",common[[run]]," (",sp[[run]],")")
-  df1<-yearSum[[run]][,1:18] %>%
+  df1<-yearSum[[run]][,!names(yearSum[[run]]) %in% c("ratioMean",	"ratioSE",	"deltaMean",	"deltaSE")] %>%
   mutate_if(
     is.numeric,
     ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))

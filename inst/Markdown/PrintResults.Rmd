@@ -49,7 +49,7 @@ if(includeObsCatch) obsText<-". Catches are predicted for unobserved effort and 
 #Print data summary
 cat("Table ", tablenum,". Input data summary for each year. Columns are the observed bycatch, observed effort, observed sample units (",sampleUnit,"), observed mean CPUE and standard error of CPUE, count of outliers defined as data points more than 8 SD from the mean, observed positive sample units, fraction positive, total trips from the logbooks, total effort, fraction of effort observed, fraction of sample units observed, and estimates of total bycatch and its standard error from a simple ratio estimator stratified only by year", sep="")
 tablenum<-tablenum+1
-yearSum[[run]][,1:18] %>%
+yearSum[[run]][,!names(yearSum[[run]]) %in% c("ratioMean",	"ratioSE",	"deltaMean",	"deltaSE")] %>%
   mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
   remove_rownames() %>%
   kbl(format="latex",longtable = TRUE) %>%

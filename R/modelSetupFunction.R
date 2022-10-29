@@ -159,8 +159,10 @@ bycatchSetup <- function(
   #if("Year" %in% names(logdat) & !yearVar=="Year") logdat<-logdat %>% rename(oldYear=Year)
   obsdat<-obsdat %>% ungroup() %>%
     rename(Year=!!yearVar)
+  if(EstimateBycatch) {
   logdat<-logdat %>%  ungroup() %>%
     rename(Year=!!yearVar)
+  }
   requiredVarNames<-as.vector(getAllTerms(simpleModel))
   allVarNames<-as.vector(getAllTerms(complexModel))
   allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)]
@@ -193,28 +195,27 @@ bycatchSetup <- function(
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
     }
+    #Add interaction random effects to logdat for ease of prediction
+    randomInteractions<-unique(c(randomEffects,randomEffects2))
+    for(i in which(grepl(":",randomInteractions))) {
+      varval<-strsplit(randomInteractions[i],":")[[1]]
+      x<-data.frame(logdat[,varval])
+      x$newvar<-base::paste(x[,1],x[,2],sep=":")
+      names(x)[3]<-randomInteractions[i]
+      logdat<-bind_cols(logdat,select(x,randomInteractions[i]))
+    }
+    #Add stratum designation and check sample size in strata
+    if(length(requiredVarNames) > 1) {
+      logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
+    } else {
+      logdat$strata <- pull(logdat,var=requiredVarNames)
+    }
+    if(max(tapply(logdat$SampleUnits,logdat$strata,sum)) > 100000) {
+      print("Inadvisable to calculate variance of estimators for such large number of logbook sample units")
+    }
   }
-  #Add interaction random effects to logdat for ease of prediction
-  randomInteractions<-unique(c(randomEffects,randomEffects2))
-  for(i in which(grepl(":",randomInteractions))) {
-    varval<-strsplit(randomInteractions[i],":")[[1]]
-    x<-data.frame(logdat[,varval])
-    x$newvar<-base::paste(x[,1],x[,2],sep=":")
-    names(x)[3]<-randomInteractions[i]
-    logdat<-bind_cols(logdat,select(x,randomInteractions[i]))
-}
-
-  #Add stratum designation and check sample size in strata
-  if(length(requiredVarNames) > 1) {
-    logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
-  } else {
-    logdat$strata <- pull(logdat,var=requiredVarNames)
-  }
-  if(max(tapply(logdat$SampleUnits,logdat$strata,sum)) > 100000) {
-    print("Inadvisable to calculate variance of estimators for such large number of logbook sample units")
-  }
-
   #indexDat for making index
+  if(EstimateIndex) {
   indexDat<-distinct_at(obsdat,vars(all_of(indexVarNames)),.keep_all=TRUE) %>%
     arrange(Year) %>%
     mutate(Effort=1)
@@ -225,14 +226,14 @@ bycatchSetup <- function(
         indexDat[,temp[i]]<-median(pull(obsdat,!!temp[i]),na.rm=TRUE) else
           indexDat[,temp[i]]<-mostfreqfunc(obsdat[,temp[i]])
     }
+   }
   }
-
   #Subtract first year if numeric to improve convergence
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
     obsdat$Year<-obsdat$Year-startYear
-    logdat$Year<-logdat$Year-startYear
-    indexDat$Year<-indexDat$Year-startYear
+   if(EstimateBycatch) logdat$Year<-logdat$Year-startYear
+   if(EstimateIndex)  indexDat$Year<-indexDat$Year-startYear
   } else startYear<-min(as.numeric(as.character(obsdat$Year)))
 
   #Set up variables if looping over species
@@ -313,7 +314,7 @@ bycatchSetup <- function(
                       EstimateBycatch = EstimateBycatch,
                       startYear = startYear
                     )
-    if("Ratio" %in% designMethods | "Delta" %in% designMethods) {
+    if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) {
       temp<-getDesignEstimates(obsdatval = dat[[run]],
                                logdatval = logdat,
                                strataVars = "Year",
@@ -330,11 +331,11 @@ bycatchSetup <- function(
     #           paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
     write.csv(yearSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
-
-    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
-    if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
-    if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
-    yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
+    if(EstimateBycatch) {
+     x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
+     if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+     if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
         mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
                Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
         mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
@@ -361,8 +362,8 @@ bycatchSetup <- function(
 
     write.csv(strataSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"))
+   }
   }
-
   #Create report
   save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
   mkd<-tryCatch({

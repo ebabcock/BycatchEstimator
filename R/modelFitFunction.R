@@ -187,19 +187,20 @@ bycatchFit<-function(
       }
     }
 
-    # See if data set is large
-    BigData<-ifelse(sum(logdat$SampleUnits)>10000, TRUE, FALSE)
-    #Add stratum designation and check sample size in strata
-    if(length(requiredVarNames)>1) {
+    # If estimating bycatch, see if data set is large
+    if(EstimateBycatch) {
+      BigData<-ifelse(sum(logdat$SampleUnits)>10000, TRUE, FALSE)
+      #Add stratum designation and check sample size in strata
+     if(length(requiredVarNames)>1) {
       logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
-    } else {
-      logdat$strata <- pull(logdat,var=requiredVarNames)
+     } else {
+       logdat$strata <- pull(logdat,var=requiredVarNames)
+     }
+     if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000) {
+       print("Cannot calculate variance for large number of logbook sample units")
+       VarCalc<-"None"
+     }
     }
-    if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000) {
-      print("Cannot calculate variance for large number of logbook sample units")
-      VarCalc<-"None"
-    }
-
     for(mod in 1:length(modelTry)) {
       if(!is.null(modFits[[run]][[modelTry[mod]]])) {
         if(grepl("delta",modelTry[mod],ignore.case = TRUE )) {
@@ -284,7 +285,7 @@ bycatchFit<-function(
           residualTab[[run]][,modelTry[mod]]<-temp
           if(residualTab[[run]]["KS.p",modelTry[mod]]<0.01 & ResidualTest) modelFail[run,modelTry[mod]]<-"resid"
         }
-        if(is.null(modPredVals[[run]][[modelTry[mod]]])) modelFail[run,modelTry[mod]]<-"cv"
+        if(is.null(modPredVals[[run]][[modelTry[mod]]]) & EstimateBycatch) modelFail[run,modelTry[mod]]<-"cv"
       } else {
         if(modelFail[run,modelTry[mod]]=="-") modelFail[run,modelTry[mod]]<-"fit"
       }

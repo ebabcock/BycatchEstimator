@@ -1805,6 +1805,8 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
              Cse=sqrt(ratioVar(.data$OEff,.data$Eff,.data$OUnit,.data$Units,.data$OCat/.data$OEff,.data$OEffS^2,.data$OCatS^2,.data$Cov))) %>%
       ungroup() %>% mutate(Year=as.numeric(as.character(.data$Year))) %>%
       mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
+  } else {
+    returnval<-x
   }
   returnval
 }
