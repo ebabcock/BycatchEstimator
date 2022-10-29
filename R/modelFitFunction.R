@@ -316,7 +316,6 @@ bycatchFit<-function(
     metab[[run]]<-rmsetab[[run]]
     if(DoCrossValidation & length(which(modelFail[run,!colnames(modelFail)%in%c("Binomial","TMBbinomial")]=="-"))>1) {  #Don't do unless at least one model worked
       datval$cvsample<-sample(rep(1:10,length=dim(datval)[1]),replace=FALSE)
-      table(datval$cvsample,datval$Year)
       for(i in 1:10 ) {
         datin<-datval[datval$cvsample!=i,]
         datout<-datval[datval$cvsample==i,]
@@ -358,6 +357,8 @@ bycatchFit<-function(
         }
         if(any(grepl("delta",modelTry,ignore.case = TRUE))) {
           posdat<-filter(datin, .data$pres==1)
+          y<-unlist(lapply(posdat[,factorNames],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
+          varExcludecv<-names(y)[y>0]
           for(mod in which(grepl("delta",modelTry,ignore.case = TRUE))) {
             if(modelFail[run,modelTry[mod]]=="-" & !(!is.numeric(posdat$Year) & min(table(posdat$Year))==0)) {
               if(DredgeCrossValidation) {
@@ -370,11 +371,16 @@ bycatchFit<-function(
                   useParallel = useParallel,
                   selectCriteria = selectCriteria,
                   catchType = catchType,
-                  varExclude = varExclude,
+                  varExclude = varExcludecv,
                   randomEffects=randomEffects2
                 ))[[1]]
               } else {
-                modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat))
+                if(length(varExcludecv==0))
+                  modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat)) else {
+                    temp<-strsplit(gsub(" ","",modelTable[[run]]$formula[mod]),"[+]")[[1]]
+                    temp<-paste(temp[!temp %in%  varExcludecv],collapse="+")
+                    modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",temp)),modType=modelTry[mod],obsdatval=posdat))
+                  }
               }
               if(grepl("TMB",modelTry[mod]))
                  bin1<-tmbbin1 else

@@ -191,7 +191,7 @@ bycatchSetup <- function(
       rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
       mutate_at(vars(all_of(factorNames)),factor)
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
-    if(includeObsCatch) {
+    if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
     }
@@ -273,7 +273,7 @@ bycatchSetup <- function(
   for(run in 1:numSp) {
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
-    if(includeObsCatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
+    if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
       tempvars<-c(allVarNames,"Effort","Catch")
     if(!"Year" %in%  tempvars) tempvars<-c("Year",tempvars)
     dat[[run]]<-obsdat %>%
