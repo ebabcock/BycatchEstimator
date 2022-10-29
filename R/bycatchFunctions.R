@@ -88,7 +88,7 @@ deltaEstimatorVar<-function(x) {
   returnval
 }
 
-#' Function for Pennington(1983) method SE of the mean sqaured
+#' Function for Pennington(1983) method SE of the mean squAred
 #'
 #' Output is SE squared of the delta estimator
 #' @param x is vector of data input
