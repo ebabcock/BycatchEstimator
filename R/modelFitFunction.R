@@ -375,7 +375,7 @@ bycatchFit<-function(
                   randomEffects=randomEffects2
                 ))[[1]]
               } else {
-                if(length(varExcludecv==0))
+                if(length(varExcludecv)==0)
                   modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat)) else {
                     temp<-strsplit(gsub(" ","",modelTable[[run]]$formula[mod]),"[+]")[[1]]
                     temp<-paste(temp[!temp %in%  varExcludecv],collapse="+")
