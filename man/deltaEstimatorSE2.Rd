@@ -2,7 +2,7 @@
 % Please edit documentation in R/bycatchFunctions.R
 \name{deltaEstimatorSE2}
 \alias{deltaEstimatorSE2}
-\title{Function for Pennington(1983) method SE of the mean sqaured}
+\title{Function for Pennington(1983) method SE of the mean squAred}
 \usage{
 deltaEstimatorSE2(x)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/bycatchFunctions.R
 \name{makeIndexVar}
 \alias{makeIndexVar}
-\title{Function to get an abundance index with SE, Does not yet have year interactions as random effects}
+\title{Function to get an abundance index with SE}
 \usage{
 makeIndexVar(
   modfit1,
@@ -39,6 +39,6 @@ makeIndexVar(
 \item{run}{Value}
 }
 \description{
-Function to get an abundance index with SE, Does not yet have year interactions as random effects
+Function to get an abundance index with SE
 }
 \keyword{internal}
