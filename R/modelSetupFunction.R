@@ -172,7 +172,7 @@ bycatchSetup <- function(
   allVarNames<-unique(c(allVarNames,temp,designVars))
   if(!all(allVarNames %in% names(obsdat)))
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
-  if(!all(allVarNames %in% names(logdat)))
+  if(!all(allVarNames %in% names(logdat)) &estimateBycatch)
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(logdat) ], " not found in logbook data"))
   #It's all right not to see the variable name if it is a function of another variable that is present
   indexVarNames<-as.vector(getAllTerms(indexModel))
