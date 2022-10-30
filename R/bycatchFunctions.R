@@ -170,7 +170,7 @@ standard.error<-function(x) {
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,randomEffects, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
   offset<-TMBfamily<-NULL
-  keepVars=requiredVarNames
+  keepVars=requiredVarNames[!requiredVarNames %in% varExclude]
   extras=c("AICc","AIC", "BIC")
   if(!is.null(randomEffects)) randomEffects<-paste0("(1|",randomEffects,")")
   #Check if parallel is possible
@@ -215,7 +215,6 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
                      modType %in% c("Tweedie") ~"cpglm",
                      grepl("TMB",modType)~"glmmTMB")
   args=list(formula="",data=obsdatval,na.action=na.fail)
-  keepVars=requiredVarNames
   if(funcName=="glm") args=c(args,list(control=list(epsilon = 1e-6,maxit=100)))
   if(modType %in% c("Binomial","TMBbinomial")) {
     args=c(args,list(family="binomial"))
