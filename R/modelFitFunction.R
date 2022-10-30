@@ -124,6 +124,7 @@ bycatchFit<-function(
   #Make sure there are multiple cores to use Parallel processing
   if(NumCores<=1) useParallel=FALSE
 
+  if(! VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
   ############## This is the main analysis loop ##########################
   for(run in 1:numSp) {
     datval<-dat[[run]]
