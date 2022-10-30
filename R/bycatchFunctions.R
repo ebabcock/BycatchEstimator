@@ -251,6 +251,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     keepVars=paste0("cond(",requiredVarNames,")")
   }
   allVarNames<-as.vector(getAllTerms(complexModel))
+  allVarNames<-allVarNames[!allVarNames %in% varExclude]
   formulaList<-list(as.formula(paste("y~",paste(c(allVarNames,randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames)],randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames) &!allVarNames %in% varExclude],randomEffects),collapse="+"),offset)),
