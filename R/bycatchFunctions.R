@@ -1883,10 +1883,10 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,designPoo
   returnval<-returnval %>%
     ungroup() %>%
     group_by_at(all_of(strataVars)) %>%
-    summarize(ratioMean=sum(.data$ratioMean),
-              ratioSE=sqrt(sum(.data$ratioSE^2)),
-              deltaMean=sum(.data$deltaMean),
-              deltaSE=sqrt(sum(.data$deltaSE^2))) %>%
+    summarize(ratioMean=sum(.data$ratioMean,na.rm=TRUE),
+              ratioSE=sqrt(sum(.data$ratioSE^2,na.rm=TRUE)),
+              deltaMean=sum(.data$deltaMean,na.rm=TRUE),
+              deltaSE=sqrt(sum(.data$deltaSE^2,na.rm=TRUE))) %>%
     ungroup() %>%
     mutate(Year=as.numeric(as.character(.data$Year))) %>%
     mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
