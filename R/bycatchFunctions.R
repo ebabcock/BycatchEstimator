@@ -64,6 +64,7 @@ deltaEstimatorMean<-function(x) {
   returnval=p*exp(ybar)*Gm(m=n-r,t=s2/2)
   if(r==n-1) returnval=x[x>0]/n
   if(r==n) returnval=0
+  if(n==0) returnval=NA
   returnval
 }
 
@@ -85,6 +86,7 @@ deltaEstimatorVar<-function(x) {
   if(r==n-1) returnval=(x[x>0])^2/n
   if(r==n) returnval=0
   if(n<2) returnval=NA
+  if(n==0) returnval=NA
   returnval
 }
 
@@ -106,6 +108,7 @@ deltaEstimatorSE2<-function(x) {
   if(r==n-1) returnval=(x[x>0]/n)^2
   if(r==n) returnval=0
   if(n<2) returnval=NA
+  if(n==0) returnval=NA
   returnval
 }
 
@@ -1813,7 +1816,7 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
 
 #' Function to make design based estimates of bycatch from the
 #' ratio estimator of Pennington Delta estimator, pooling as
-#' neede for strata missing data.
+#' needed for strata missing data.
 #' stratification defined by designVars, then aggregated to strataVars
 #'
 #' @param obsdatval Value
