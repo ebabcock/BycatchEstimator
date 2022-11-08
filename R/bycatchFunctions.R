@@ -1814,6 +1814,100 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
   returnval
 }
 
+#' Function to setup pooling if requested for design estimators
+#'
+#' @param obsdatval Value
+#' @param logdatval Value
+#' @param minStrataUnit Value
+#' @param designVars Value
+#' @param pooledVar Value
+#' @param poolTypes Value
+#' @param adjacentNum Value
+#' @keywords internal
+getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
+  pooledVar,poolTypes,adjacentNum) {
+ poolingVars<-c(designVars,pooledVar[!is.na(pooledVar)])
+ if(is.factor(obsdatval$Year)) yearFactor<-TRUE
+ if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
+ if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
+ poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%
+  summarize(totalUnits=n(),totalEffort=sum(.data$Effort))
+ x<-obsdatval %>%group_by_at(all_of(poolingVars)) %>%
+   summarize(units=n(),effort=sum(.data$Effort))
+ poolingSum<-left_join(poolingSum,x,by=poolingVars) %>%
+   mutate(units=replace_na(.data$units,0),effort=replace_na(.data$effort,0)) %>%
+   mutate(needs.pooling=ifelse(.data$units>minStrataUnit, FALSE,TRUE),
+          pooled.n=ifelse(.data$units>minStrataUnit, units,NA),
+          poolnum=NA,pooledTotalUnits=NA,pooledTotalEffort=NA) %>%
+   ungroup()
+  poolingSum<-as.data.frame(poolingSum)
+  poolingSum$poolnum[!poolingSum$needs.pooling]<-0
+  includePool<-list()
+  for(i in which(!poolingSum$needs.pooling))  {
+   poolingSum$pooledTotalUnits[i]<-poolingSum$totalUnits[i]
+   poolingSum$pooledTotalEffort[i]<-poolingSum$totalEffort[i]
+   bb<-1:nrow(obsdatval)
+   for(j in 1:length(designVars)) {
+     bb<-bb[bb %in% which(obsdatval[,designVars[j]]==poolingSum[i,designVars[j]])]
+   }
+   includePool[[i]]<-obsdatval[bb,]
+  }
+  for(var in 1:length(designVars))  {
+   keepVars<-designVars[(1:length(designVars))>var]
+   for(i in which(poolingSum$needs.pooling))  {
+    if(poolTypes[1]=="all") {
+      aa<-1:nrow(poolingSum)
+      bb<-1:nrow(obsdatval)
+    }
+    if(poolTypes[1]=="pooledVar") {
+      aa<-aa[aa %in% which(poolingSum[,pooledVar[1]]==poolingSum[i,pooledVar[1]])]
+      bb<-bb[bb %in% which(obsdatval[,pooledVar[1]]==poolingSum[i,pooledVar[1]])]
+    }
+    if(poolTypes[1]=="adjacent") {
+      aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
+                                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+      bb<-which(obsdatval[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
+                                  obsdatval[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+    }
+    if(var>1) {
+      for(var2 in 2:var) {
+        if(poolTypes[var2]=="pooledVar") {
+          aa<-aa[aa %in% which(poolingSum[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
+          bb<-bb[bb %in% which(obsdatval[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
+        }
+        if(poolTypes[var2]=="adjacent") {
+          aa<-which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
+          bb<-which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
+        }
+      }
+    }
+    if(length(keepVars)>0) {
+    for(j in 1:length(keepVars)) {
+      aa<-aa[aa %in% which(poolingSum[,keepVars[j]]==poolingSum[i,keepVars[j]])]
+      bb<-bb[bb %in% which(obsdatval[,keepVars[j]]==poolingSum[i,keepVars[j]])]
+    }}
+    if(length(bb)>0) {
+     includePool[[i]]<-obsdatval[bb,]
+     poolingSum$pooled.n[i]<-nrow(includePool[[i]])
+     poolingSum$needs.pooling[i]<-ifelse(poolingSum$pooled.n[i]>=minStrataUnit,FALSE,TRUE)
+     poolingSum$pooledTotalEffort[i]<-sum(poolingSum$totalEffort[aa])
+     poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
+    } else poolingSum$needs.pooling[i]<-TRUE
+   }
+   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-var
+  }
+  includePool<-bind_rows(includePool,.id="stratum")
+  poolingSum$stratum<-1:nrow(poolingSum)
+  if(yearFactor) {
+    poolingSum$Year<-factor(poolingSum$Year)
+    includePool$Year<-factor(includePool$Year)
+  }
+  list(poolingSum,includePool)
+}
+
+
 #' Function to make design based estimates of bycatch from the
 #' ratio estimator of Pennington Delta estimator, pooling as
 #' needed for strata missing data.
@@ -1827,13 +1921,15 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
 #' @param minStrataEffort Value
 #' @param minStrataUnit Value
 #' @param startYear Value
+#' @param poolingSum Value
+#' @param includePool Value
 #' @keywords internal
-getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,designPooling, minStrataEffort=1,minStrataUnit=1,startYear) {
-  poolVals<-list()
-  poolVars<-designVars
-  for(i in 1:length(designVars)) {
+getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
+                             designPooling,minStrataUnit=1,startYear,
+                             poolingSum=NULL,includePool=NULL) {
+  if(!designPooling) {
     x<-obsdatval %>%
-      group_by_at(all_of(poolVars))  %>%
+      group_by_at(all_of(designVars))  %>%
       summarize(OCat=sum(.data$Catch,na.rm=TRUE),
                 OEff=sum(.data$Effort,na.rm=TRUE),
                 OUnit=length(.data$Year),
@@ -1847,11 +1943,11 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,designPoo
                 deltaVar=deltaEstimatorVar(.data$cpue),
                 deltaSE2=deltaEstimatorSE2(.data$cpue)) %>%
       mutate(PFrac=.data$Pos/.data$OUnit)
-    poolVals[[i]]<-logdatval  %>%
-      group_by_at(all_of(poolVars)) %>%
+    returnval<-logdatval  %>%
+      group_by_at(all_of(designVars)) %>%
       summarize(Eff=sum(.data$Effort,na.rm=TRUE),
                 Units=sum(.data$SampleUnits))
-    poolVals[[i]]<-left_join(poolVals[[i]],x,by=poolVars)  %>%
+    returnval<-left_join(returnval,x,by=poolVars)  %>%
       mutate(OEff=ifelse(is.na(.data$OEff),0,.data$OEff),
              OUnit=ifelse(is.na(.data$OUnit),0,.data$OUnit)) %>%
       mutate(ratioMean=(.data$OCat/.data$OEff)*.data$Eff,
@@ -1859,30 +1955,53 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars,designPoo
                                    .data$OCat/.data$OEff,.data$OEffS^2,.data$OCatS^2,.data$Cov)),
              deltaMean=.data$deltaMeanCPUE*.data$Eff,
              deltaSE=sqrt(.data$deltaSE2)*.data$Eff)
-    poolVars<-poolVars[!poolVars==designVars[i]]
-  }
-  returnval<-poolVals[[1]]
-  #if any pooling is needed
-  if((any(poolVals[[1]]$OEff<minStrataEffort) | any(poolVals[[1]]$OUnit<minStrataUnit)) & designPooling) {
-    for(i in 2:length(designVars)) {
-      poolVals[[i]]<-left_join(dplyr::select(poolVals[[1]],all_of(c(designVars,"Eff"))),
-                               poolVals[[i]],by=designVars[designVars %in% names(poolVals[[i]])]) %>%
-        mutate(EffortProportion=.data$Eff.x/.data$Eff.y) %>%
-        mutate(ratioMean=.data$ratioMean*.data$EffortProportion,
-               ratioSE=.data$ratioSE*.data$EffortProportion,
-               deltaMean=.data$deltaMean*.data$EffortProportion,
-               deltaSE=.data$deltaSE*.data$EffortProportion) %>%
-        rename(Eff=.data$Eff.x)
-    }
-    for(i in 1:(length(designVars)-1)) {
-      if(any(poolVals[[i]]$OEff<minStrataEffort))
-        returnval[poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataUnit,c("ratioMean","ratioSE","deltaMean","deltaSE")]<-
-          poolVals[[i+1]][poolVals[[i]]$OEff<minStrataEffort | poolVals[[i]]$OUnit<minStrataUnit,c("ratioMean","ratioSE","deltaMean","deltaSE")]
-    }
-  }
-  if(!designPooling)  {
     returnval<-replace_na(returnval,list(ratioMean=0,ratioSE=0,deltaMean=0,deltaSE=0))
-  }
+  } else {
+  poolVars<-designVars
+  logdatval<-left_join(logdatval,poolingSum[,c(designVars,"stratum")],by=designVars)
+  x<-obsdatval %>%
+      group_by_at(all_of(poolVars) ) %>%
+      summarize(OCat=sum(.data$Catch,na.rm=TRUE),
+                OEff=sum(.data$Effort,na.rm=TRUE),
+                OUnit=length(.data$Year),
+                CPUE=mean(.data$cpue,na.rm=TRUE),
+                CPse=standard.error(.data$cpue),
+                Pos=sum(.data$pres,na.rm=TRUE),
+                OCatS=sd(.data$Catch,na.rm=TRUE),
+                OEffS=sd(.data$Effort,na.rm=TRUE),
+                Cov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%
+      mutate(PFrac=.data$Pos/.data$OUnit)
+     y<-includePool %>%
+      group_by(stratum) %>%
+      summarize(deltaMeanCPUE=deltaEstimatorMean(.data$cpue),
+                deltaVar=deltaEstimatorVar(.data$cpue),
+                deltaSE2=deltaEstimatorSE2(.data$cpue),
+                pCat=sum(.data$Catch,na.rm=TRUE),
+                pEff=sum(.data$Effort,na.rm=TRUE),
+                pUnit=n(),
+                pCatS=sd(.data$Catch,na.rm=TRUE),
+                pEffS=sd(.data$Effort,na.rm=TRUE),
+                pCov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%
+      ungroup() %>%
+      mutate(stratum=as.numeric(as.character(stratum)))
+    poolVals<-logdatval  %>%
+      group_by_at(all_of(c(poolVars,"stratum"))) %>%
+      summarize(Eff=sum(.data$Effort,na.rm=TRUE),
+                Units=sum(.data$SampleUnits))
+    poolVals<-left_join(poolVals,x,by=poolVars)
+    poolVals<-left_join(poolVals,poolingSum[,c(poolVars,"pooledTotalEffort","pooledTotalUnits")],by=poolVars)
+    poolVals<-left_join(poolVals,y,by="stratum")
+    poolVals<-poolVals %>%
+      mutate(OEff=ifelse(is.na(.data$OEff),0,.data$OEff),
+             OUnit=ifelse(is.na(.data$OUnit),0,.data$OUnit)) %>%
+      mutate(ratioMean=(.data$pCat/.data$pEff)*.data$Eff,
+             ratioSE=sqrt(ratioVar(.data$pEff,.data$pooledTotalEffort,.data$pUnit,.data$pooledTotalUnits,
+                                   .data$pCat/.data$pEff,.data$pEffS^2,.data$pCatS^2,.data$pCov))*
+                             .data$Eff/.data$pooledTotalEffort,
+             deltaMean=.data$deltaMeanCPUE*.data$Eff,
+             deltaSE=sqrt(.data$deltaSE2)*.data$Eff)
+    returnval<-replace_na(poolVals,list(ratioMean=0,ratioSE=0,deltaMean=0,deltaSE=0))
+   }
   returnval<-returnval %>%
     ungroup() %>%
     group_by_at(all_of(strataVars)) %>%
