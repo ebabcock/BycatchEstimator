@@ -4,18 +4,19 @@
 \alias{getDesignEstimates}
 \title{Function to make design based estimates of bycatch from the
 ratio estimator of Pennington Delta estimator, pooling as
-neede for strata missing data.
+needed for strata missing data.
 stratification defined by designVars, then aggregated to strataVars}
 \usage{
 getDesignEstimates(
   obsdatval,
   logdatval,
   strataVars,
-  designVars,
+  designVars = NULL,
   designPooling,
-  minStrataEffort = 1,
   minStrataUnit = 1,
-  startYear
+  startYear,
+  poolingSum = NULL,
+  includePool = NULL
 )
 }
 \arguments{
@@ -29,16 +30,18 @@ getDesignEstimates(
 
 \item{designPooling}{Value}
 
-\item{minStrataEffort}{Value}
-
 \item{minStrataUnit}{Value}
 
 \item{startYear}{Value}
+
+\item{poolingSum}{Value}
+
+\item{includePool}{Value}
 }
 \description{
 Function to make design based estimates of bycatch from the
 ratio estimator of Pennington Delta estimator, pooling as
-neede for strata missing data.
+needed for strata missing data.
 stratification defined by designVars, then aggregated to strataVars
 }
 \keyword{internal}

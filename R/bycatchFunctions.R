@@ -1918,7 +1918,6 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
 #' @param strataVars Value
 #' @param designVars Value
 #' @param designPooling Value
-#' @param minStrataEffort Value
 #' @param minStrataUnit Value
 #' @param startYear Value
 #' @param poolingSum Value
@@ -1972,7 +1971,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
                 Cov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%
       mutate(PFrac=.data$Pos/.data$OUnit)
      y<-includePool %>%
-      group_by(stratum) %>%
+      group_by(.data$stratum) %>%
       summarize(deltaMeanCPUE=deltaEstimatorMean(.data$cpue),
                 deltaVar=deltaEstimatorVar(.data$cpue),
                 deltaSE2=deltaEstimatorSE2(.data$cpue),
@@ -1983,7 +1982,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
                 pEffS=sd(.data$Effort,na.rm=TRUE),
                 pCov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%
       ungroup() %>%
-      mutate(stratum=as.numeric(as.character(stratum)))
+      mutate(stratum=as.numeric(as.character(.data$stratum)))
     poolVals<-logdatval  %>%
       group_by_at(all_of(c(poolVars,"stratum"))) %>%
       summarize(Eff=sum(.data$Effort,na.rm=TRUE),

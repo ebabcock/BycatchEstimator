@@ -102,7 +102,8 @@ bycatchFit<-function(
   modelTry<-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
     includeObsCatch<-matchColumn<-factorNames<-randomEffects<-randomEffects2<-
   EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-complexModel<-simpleModel<-indexModel<-
-    designMethods<-designVars<-designPooling<-minStrataUnit<-minStrataEffort<-
+    designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-
+minStrataUnit<-
     baseDir<-runName<-runDescription<-
   common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
 

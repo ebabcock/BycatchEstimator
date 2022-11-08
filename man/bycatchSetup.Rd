@@ -28,8 +28,10 @@ bycatchSetup(
   designMethods = "None",
   designVars = "Year",
   designPooling = FALSE,
+  poolTypes = NULL,
+  pooledVar = NULL,
+  adjacentNum = NULL,
   minStrataUnit = 1,
-  minStrataEffort = 1,
   baseDir = getwd(),
   runName,
   runDescription,
@@ -85,9 +87,13 @@ bycatchSetup(
 
 \item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
 
-\item{minStrataUnit}{The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)}
+\item{poolTypes}{Type of pooling for each variable in designVars, as a character vector in the same order. Options are "all", "pooledVar" and (currently for year only) "adjacent"}
 
-\item{minStrataEffort}{The smallest amount of effort in the strata defined by designVars that is acceptable (e.g sets)}
+\item{pooledVar}{Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.}
+
+\item{adjacentNum}{Number of adjacent years to include for adjacent pooling, as a numberical vector in the same order as designVars. NA for anything other than year.}
+
+\item{minStrataUnit}{The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)}
 
 \item{baseDir}{Character. A directory to save output. Defaults to current working directory.}
 
@@ -134,8 +140,10 @@ indexModel = formula(y~Year),
 designMethods = c("Ratio", "Delta"),
 designVars = c("Year","season"),
 designPooling = TRUE,
+poolTypes=c("adjacent","all","all"),
+pooledVar=c(NA,NA,NA),
+adjacentNum=c(1,NA,NA),
 minStrataUnit = 1,
-minStrataEffort =1,
 baseDir = getwd(),
 runName = "SimulatedExample",
 runDescription = "Example with simulated data",
