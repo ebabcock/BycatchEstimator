@@ -1946,7 +1946,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
       group_by_at(all_of(designVars)) %>%
       summarize(Eff=sum(.data$Effort,na.rm=TRUE),
                 Units=sum(.data$SampleUnits))
-    returnval<-left_join(returnval,x,by=poolVars)  %>%
+    returnval<-left_join(returnval,x,by=designVars)  %>%
       mutate(OEff=ifelse(is.na(.data$OEff),0,.data$OEff),
              OUnit=ifelse(is.na(.data$OUnit),0,.data$OUnit)) %>%
       mutate(ratioMean=(.data$OCat/.data$OEff)*.data$Eff,
