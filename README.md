@@ -134,7 +134,6 @@ setupObj<-bycatchSetup(
   designVars=c("Year","area"),
   designPooling = FALSE,
   minStrataUnit=1,
-  minStrataEffort=1,
   baseDir = getwd(),
   runName = "LLSIMBUMtripExample",
   runDescription = "LLSIm BUM by trip, with 5% observer coverage including observed catch in totals",

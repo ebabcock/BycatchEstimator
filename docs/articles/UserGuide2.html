@@ -218,15 +218,16 @@ not yet possible to include the observed catches as known.</p>
 requested, using either a stratified ratio estimator <span class="citation">Rao (2000)</span> or the design based delta-lognormal
 estimator of <span class="citation">Pennington (1983)</span>. These
 total bycatch estimates are made at the the stratification variables
-defined by the user. If any strata have no observations, the user may
-request pooling, and specify the minimum number of sample units and/or
-the minimum effort needed to avoid pooling. IF pooling is requested, it
-is done by combining all the levels of the factors specified in
-designVars in order (e.g. first year, then area, etc.). The total
-bycatch is estimated in the simplified design and then allocated across
-strata by the logbook effort. Unpooled estimates are used for strata
-with sufficient data. See <span class="citation">Brown (2001)</span> for
-details.</p>
+defined by the user in the vector called designVars. If any strata have
+no observations, the user may request pooling (designPooling=TRUE), and
+specify the minimum number of sample units needed to avoid pooling. The
+specifics of the pooling scheme are defined by inputs described below.
+If pooling, the total bycatch is estimated for the observer and logbook
+data specified by the pooling scheme for each stratum (i.e. combination
+fo varaibles) and then allocated to the stratum according to the
+fraction of the logbook effort in the pooled data that is in the stratum
+of interest. Unpooled estimates are used for strata with sufficient
+data. See <span class="citation">Brown (2001)</span> for details.</p>
 <p>The model can estimate bycatch and abundance indices for multiple
 species or dispositions (e.g. dead discard, live release) from the same
 fishery simultaneously if they are all being estimated from the same
@@ -299,9 +300,16 @@ used, there can be separate random effects for the binomial model
 For example, designMethods =c(“Ratio”,“Delta”) would calculate both a
 stratified ratio estimator and a delta-lognormal estimator. The
 variables in designVar will be included in the stratified design. If
-pooling is requested, the strat will be poooled in the order of
-designVars. You can also specify the minimum number of sample units or
-minimum effort in a stratum to require pooling.</p>
+pooling is requested, the strata will be pooled in the order of
+designVars. If pooling is requested, three additional vectors are needed
+to define how the pooling works: poolTypes, which says whether the
+variable should be pooled across adjacent levels (for Year only), all
+values, or a a new variable (e.g. season rather than month); pooledVar
+which specifies the new variable for pooling for the last pooling
+method; and adjacentNum which specifies the number of adjacent years to
+include if the adjacent year method is used. Each of these vectors must
+be the same length as designVars. You must also specify the minimum
+number of sample units in a stratum to require pooling.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
