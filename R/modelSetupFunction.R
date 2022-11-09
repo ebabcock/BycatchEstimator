@@ -309,7 +309,7 @@ bycatchSetup <- function(
                        poolTypes=poolTypes,
                        adjacentNum=adjacentNum)
         poolingSum[[run]]<-temp[[1]]
-        write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"PoolinSummary.csv"))
+        write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"))
         includePool[[run]]<-temp[[2]]
       } else  {
         poolingSum[[run]]<-NULL
@@ -460,6 +460,8 @@ bycatchSetup <- function(
       allVarNames = allVarNames,
       startYear = startYear,
       strataSum = strataSum,
+      poolingSum = poolingSum,
+      includePool = includePool,
       NumCores = NumCores
     )
   )
