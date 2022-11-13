@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   InstallationGuide: InstallationGuide.html
   UserGuide2: UserGuide2.html
-last_built: 2022-11-13T17:20Z
+last_built: 2022-11-13T17:29Z
 urls:
   reference: https://ebabcock.github.io/BycatchEstimator/reference
   article: https://ebabcock.github.io/BycatchEstimator/articles
