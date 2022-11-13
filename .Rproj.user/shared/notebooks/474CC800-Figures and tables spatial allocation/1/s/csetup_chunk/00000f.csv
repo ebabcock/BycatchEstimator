@@ -1,0 +1,19 @@
+"0","library(tidyverse)
+"
+"2","Registered S3 methods overwritten by 'dbplyr':
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      
+"
+"2","── [1mAttaching packages[22m ────────────────────────────────── tidyverse 1.3.2 ──"
+"2","[32m✔[39m [34mtibble [39m 3.1.8      [32m✔[39m [34mdplyr  [39m 1.0.10
+[32m✔[39m [34mreadr  [39m 2.1.2      [32m✔[39m [34mforcats[39m 0.5.2 
+[32m✔[39m [34mpurrr  [39m 0.3.4      "
+"2","── [1mConflicts[22m ───────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[39m [34mpurrr[39m::[32mcompose()[39m masks [34mflextable[39m::compose()
+[31m✖[39m [34mdplyr[39m::[32mfilter()[39m  masks [34mstats[39m::filter()
+[31m✖[39m [34mdplyr[39m::[32mlag()[39m     masks [34mstats[39m::lag()"
+"0","library(tidyverse)"
+"0","library(rnaturalearth)"
+"0","library(ggspatial)"
+"0","library(ggridges)"
