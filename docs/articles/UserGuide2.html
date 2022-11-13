@@ -41,6 +41,7 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/InstallationGuide.html">Installing bycatch estimator</a>
     <a class="dropdown-item" href="../articles/UserGuide2.html">Bycatch-Estimator User Guide</a>
   </div>
 </li>
@@ -65,7 +66,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2022-11-08</h4>
+            <h4 data-toc-skip class="date">2022-11-13</h4>
       
       
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -100,35 +101,37 @@ are printed to a pdf file using R Markdown and the knitr library, which
 outputs a LaTex file; therefore, you must have a LaTex program
 installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
 <span class="citation">Xie (2021)</span>, <span class="citation">Xie
-(2015)</span>).</p>
+(2015)</span>). For a quick start guide with example data, see the
+GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
+help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.</p>
 <p>The R code estimates total bycatch from models as follows. First,
-mean catch per unit effort (CPUE) of observed sample units (trips in
-this example, but it could be sets) is estimated from a linear model
-with predictor variables. The observation error models used are
-delta-lognormal (using either glm or glmmTMB), delta-gamma (from glm or
-glmmTMB), negative binomial (from either glm.nb in the MASS library or
-glmmTMB, nbinom1 and nbinom2) and Tweedie (from cpglm or glmmTMB). For
-comparison, simple normal and lognormal models (from lm or glmmTMB) are
-also available, although these methods are not expected to perform well
-with many zero bycatch observations. Binomial models from either glm or
-glmmTMB, are used in the delta-models, and can also be used
-independently.</p>
+mean catch per unit effort (CPUE) of observed sample units (e.g. trips
+or sets) is estimated from a linear model with predictor variables. The
+observation error models used are delta-lognormal (using either glm or
+glmmTMB), delta-gamma (from glm or glmmTMB), negative binomial (from
+either glm.nb in the MASS library or glmmTMB, nbinom1 and nbinom2) and
+Tweedie (from cpglm or glmmTMB). For comparison, simple normal and
+lognormal models (from lm or glmmTMB) are also available, although these
+methods are not expected to perform well with many zero bycatch
+observations. Binomial models from either glm or glmmTMB, are used in
+the delta-models, and can also be used independently.</p>
 <p>Within each observation error model group, potential predictor
 variables are chosen based on the user’s choice of information criteria
 (AICc, AIC or BIC) (<span class="citation">Barton (2020)</span>). The
 user specifies a most complex and simplest model, and all intermediate
-models are considered. All the variables in the simples and most complex
-model are interpretted as fixed effects. The user may also specify
-random effects if desired, and the random effects will be included in
-all models. This may be useful for including a trip effect in a
-set-by-set analysis, for example, or for including a Year:area
+models are considered. All the variables in the simplest and most
+complex model are interpretted as fixed effects. The user may also
+specify random effects if desired, and the random effects will be
+included in all models. This may be useful for including a trip effect
+in a set-by-set analysis, for example, or for including a Year:area
 interaction as a random effect when calculating indices. If random
 effects are included in the model, then glmmTMB is used for all model
 fitting. The user-specified simplest model will usually include year,
 and can also include, for example, stratification variables that are
 used in the observer program sampling design. The model with the lowest
-value of the information criterion is chosen as best within each
-observation error group.</p>
+value of the information criterion, between the simplest and most
+commplex model, is chosen as best within each observation error
+group.</p>
 <p>The best candidate models in each observation error group are then
 compared using 10-fold cross validation, if desired, to see which
 observation error model best predicts CPUE. Note that information
@@ -218,16 +221,19 @@ not yet possible to include the observed catches as known.</p>
 requested, using either a stratified ratio estimator <span class="citation">Rao (2000)</span> or the design based delta-lognormal
 estimator of <span class="citation">Pennington (1983)</span>. These
 total bycatch estimates are made at the the stratification variables
-defined by the user in the vector called designVars. If any strata have
-no observations, the user may request pooling (designPooling=TRUE), and
-specify the minimum number of sample units needed to avoid pooling. The
-specifics of the pooling scheme are defined by inputs described below.
-If pooling, the total bycatch is estimated for the observer and logbook
-data specified by the pooling scheme for each stratum (i.e. combination
-fo varaibles) and then allocated to the stratum according to the
-fraction of the logbook effort in the pooled data that is in the stratum
-of interest. Unpooled estimates are used for strata with sufficient
-data. See <span class="citation">Brown (2001)</span> for details.</p>
+defined by the user in the vector called designVars. To deal with strata
+that have no observations or few observations, the user may request
+pooling (designPooling=TRUE), and specify the minimum number of sample
+units needed to avoid pooling. The specifics of the pooling scheme are
+defined by inputs described below. If pooling, the total bycatch is
+estimated for the observer and logbook data specified by the pooling
+scheme for each stratum (i.e. combination of variables) and then
+allocated to the stratum according to the fraction of the logbook effort
+in the pooled data that is in the stratum of interest. Unpooled
+estimates are used for strata with sufficient data. Variances are also
+allocated to the stratum of interest based on the fraction of total
+effort. See <span class="citation">Brown (2001)</span> for details of
+one potential pooling scheme.</p>
 <p>The model can estimate bycatch and abundance indices for multiple
 species or dispositions (e.g. dead discard, live release) from the same
 fishery simultaneously if they are all being estimated from the same
@@ -291,8 +297,8 @@ such as <em>y ~ Year</em> will estimate a linear trend across years.
 Polynomial regression may be a useful way to estimate more complex
 trends across years in data sets where not all years have enough data to
 estimate Year as a categorical fixed effect. This can be specified as,
-for example <em>y ~ Year + I(Year^2) + I(Year^3).</em> Any desire random
-effects can be entered as a character vector
+for example <em>y ~ Year + I(Year^2) + I(Year^3).</em> Any desired
+random effects can be entered as a character vector
 (e.g. randomEffects=“Year:area”). In the case that any delta models are
 used, there can be separate random effects for the binomial model
 (randomEffects) and abundance when present model (randomEffects2).</p>
@@ -304,12 +310,21 @@ pooling is requested, the strata will be pooled in the order of
 designVars. If pooling is requested, three additional vectors are needed
 to define how the pooling works: poolTypes, which says whether the
 variable should be pooled across adjacent levels (for Year only), all
-values, or a a new variable (e.g. season rather than month); pooledVar
+values, or a new variable (e.g. season rather than month); pooledVar
 which specifies the new variable for pooling for the last pooling
 method; and adjacentNum which specifies the number of adjacent years to
-include if the adjacent year method is used. Each of these vectors must
-be the same length as designVars. You must also specify the minimum
-number of sample units in a stratum to require pooling.</p>
+include if the adjacent year method is used (e.g. 1 to include both the
+previous and following year). Each of these vectors must be the same
+length as designVars. You must also specify the minimum number of sample
+units in a stratum to require pooling.</p>
+<p>The design-based estimators are calculated when bycatchSetup is run,
+so you may stop here if you only need the design based estimators. They
+are given in the columns called ratioMean, ratiaSE, deltaMean and
+deltaSE in the file labelled AnnualSummary and the file labelled
+StratumSummary. See details on model outputs below. See the function
+getPooling for details on how the pooling is set up for design-based
+estimation, and getDesignEstimates for the total bycatch
+calculations.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
@@ -382,24 +397,24 @@ and do cross validation if requested. You can ignore the warnings and
 information about the models as long as the code keeps running. Most of
 these are information about which variables are being tried and which
 models have converged, which will be summarized in the output files.</p>
-<p>The model may be slow if you have a large data set or are doing cross
-validation. The outputs all go into the directories labeled with the
-species names, and include a pdf of all results, and separate csv files
-for all the tables. When the models are fit, the code keeps track of
-whether the model converged correctly, or if not, where it went wrong.
-An output table called modelFail.csv summarizes the results, with a “-”
-for models that converged successfully, “data” for models that could not
-be fit due to insufficient data (no positive observations in some year
-prevents fitting the delta models), “fit” for models that failed to
-converge, “cv” for models that produced results with unreasonably high
-CVs (&gt;10) in the annual catch predictions, and “resid” for models
-that failed the Kolmogorov Smirnoff test for having the correct
-distribution in the DHARMa library (<span class="citation">Hartig
-(2020)</span>), if <code>residualTest</code> is TRUE. Models that fail
-in any of these ways are discarded and not used in cross validation. If
-you get one of these errors for a model you want to use, you should
-check the data for missing combinations of predictor variables, extreme
-outliers, or years with too few positive observations.</p>
+<p>The model may be slow (many hours) if you have a large data set or
+are doing cross validation. The outputs all go into the directories
+labeled with the species names, and include a pdf of all results, and
+separate csv files for all the tables. When the models are fit, the code
+keeps track of whether the model converged correctly, or if not, where
+it went wrong. An output table called modelFail.csv summarizes the
+results, with a “-” for models that converged successfully, “data” for
+models that could not be fit due to insufficient data (no positive
+observations in some year prevents fitting the delta models), “fit” for
+models that failed to converge, “cv” for models that produced results
+with unreasonably high CVs (&gt;10) in the annual catch predictions, and
+“resid” for models that failed the Kolmogorov Smirnoff test for having
+the correct distribution in the DHARMa library (<span class="citation">Hartig (2020)</span>), if <code>residualTest</code> is
+TRUE. Models that fail in any of these ways are discarded and not used
+in cross validation. If you get one of these errors for a model you want
+to use, you should check the data for missing combinations of predictor
+variables, extreme outliers, or years with too few positive
+observations.</p>
 <div class="section level4">
 <h4 id="finding-best-approximating-models">Finding best approximating models<a class="anchor" aria-label="anchor" href="#finding-best-approximating-models"></a>
 </h4>
@@ -423,14 +438,13 @@ averaging function, but this may be worth considering if several models
 have similar weights.</p>
 <p>A binomial model will be tried if it was requested, or if either a
 delta-lognormal or delta-gamma model were requested, since delta models
-have a binomial component. The binomial models are fitted using the glm
-function with a logit link. The negative binomial is run using the
-glm.nb function from the MASS library (<span class="citation">Venables
-and Ripley (2002)</span>) or nbinom1 nbinom2 from the glmmTMB
-library(<span class="citation">Brooks et al. (2017)</span>). The glm.nb
-function is very similar to the nbinom2 method in glmTMB, but both are
-included for comparison. Both define the variance of the negative
-binomial as: <span class="math display">\[\sigma^2=\mu+\mu^2/\theta\]</span>, where <span class="math inline">\(\theta\)</span> is an estimated parameter. For
+have a binomial component. The binomial models are fitted with a logit
+link using either the glm function or glmmTMB. The negative binomial is
+run using the glm.nb function from the MASS library (<span class="citation">Venables and Ripley (2002)</span>) or nbinom1 nbinom2
+from the glmmTMB library(<span class="citation">Brooks et al.
+(2017)</span>). The glm.nb function is very similar to the nbinom2
+method in glmTMB, but both are included for comparison. Both define the
+variance of the negative binomial as: <span class="math display">\[\sigma^2=\mu+\mu^2/\theta\]</span>, where <span class="math inline">\(\theta\)</span> is an estimated parameter. For
 nbinom1, the variance is defined as: <span class="math display">\[\sigma^2= \mu(1+\alpha)\]</span>, where <span class="math inline">\(\alpha\)</span> is an estimated parameter. This
 version of the negative binomial model, which is equivalent to a
 quasi-Poisson model, gives somewhat different results from the other
@@ -523,33 +537,33 @@ appropriate, so the results of the binomial model alone are not included
 in the cross validation for model comparison. An abundance index based
 on the binomial distribution is also calculated, if requested.</p>
 <p>For all the other model types, the functions
-<code>makePredictionSimVar</code>, <code>makePredictionDeltaVar</code>
-and <code>makePredictionNoVar</code> (depending on the selected variance
-calculation method) calculate the total bycatch in each year, by first
-predicting the total catch in each trip in the logbook data and then
-summing over all trips in each stratum. For all the negative binomial
-models, the log(effort) from the logbook trips is used as an offset in
-the predictions, along with the values of all the predictor variables,
-so that the model can predict bycatch in each trip directly. For the
-Tweedie, normal, and gamma models the CPUE is predicted for each trip in
-the logbook data and must be multiplied by effort and summed across
-trips to get the annual summaries. For delta-gamma models, the predicted
-bycatch in each trip is the predicted probability of a positive
-observation from the binomial, times the predicted CPUE from the gamma
-model, times effort in the trip. For delta-lognormal models, the
-variance of the predicted CPUE is needed to bias-correct when converting
-the mean predicted log(CPUE) to mean predicted CPUE. The variance of the
-prediction interval for each trip is calculated as the variance of the
-estimated mean plus the residual variance, and this value is used in the
-bias correction. The total predicted CPUE is the predicted probability
-of a positive observation from the binomial times the predicted positive
-CPUE, and predicted catch is the predicted CPUE times effort. For all
-models, the predicted total catches are summed across trips to get the
-totals in each stratum. The variance are calculated using the Monte
-Carlo simulation method described above or using a delta method. The
-delta method variance is not available for the delta-lognormal,
-delta-gamma or Tweedie models using cplm, although it is available for
-Tweedie using glmmTMB.</p>
+<code>makePredictionSimVarBig</code>,
+<code>makePredictionDeltaVar</code> and <code>makePredictionNoVar</code>
+(depending on the selected variance calculation method) calculate the
+total bycatch in each year, by first predicting the total catch in each
+trip in the logbook data and then summing over all trips in each
+stratum. For all the negative binomial models, the log(effort) from the
+logbook trips is used as an offset in the predictions, along with the
+values of all the predictor variables, so that the model can predict
+bycatch in each trip directly. For the Tweedie, normal, and gamma models
+the CPUE is predicted for each trip in the logbook data and must be
+multiplied by effort and summed across trips to get the annual
+summaries. For delta-gamma models, the predicted bycatch in each trip is
+the predicted probability of a positive observation from the binomial,
+times the predicted CPUE from the gamma model, times effort in the trip.
+For delta-lognormal models, the variance of the predicted CPUE is needed
+to bias-correct when converting the mean predicted log(CPUE) to mean
+predicted CPUE. The variance of the prediction interval for each trip is
+calculated as the variance of the estimated mean plus the residual
+variance, and this value is used in the bias correction. The total
+predicted CPUE is the predicted probability of a positive observation
+from the binomial times the predicted positive CPUE, and predicted catch
+is the predicted CPUE times effort. For all models, the predicted total
+catches are summed across trips to get the totals in each stratum. The
+variance are calculated using the Monte Carlo simulation method
+described above or using a delta method. The delta method variance is
+not available for the delta-lognormal, delta-gamma or Tweedie models
+using cplm, although it is available for Tweedie using glmmTMB.</p>
 <p>If a user requests an annual abundance index, this is also calculated
 from the best model in each model group. The annual abundance index is
 calculated by setting all variables other than year, and any variables
@@ -598,9 +612,13 @@ is selected as the best model. Mean error (ME) is also calculated as an
 indicator of whether the model has any systematic bias.</p>
 <p><span class="math display">\[ME
 =\frac{1}{n}\sum_{i=1}^{n}\hat{y_i}-y_i\]</span></p>
+<p>Note that cross-validation is only done for one random draw of the
+data. To use cross-validation for model selection it would be
+appropriate to do more than one draw. This is only intended to diagnose
+large problems with model predictive ability.</p>
 </div>
 <div class="section level4">
-<h4 id="final-results-markdown">Final results markdown<a class="anchor" aria-label="anchor" href="#final-results-markdown"></a>
+<h4 id="final-results-markdown-and-files">Final results markdown and files<a class="anchor" aria-label="anchor" href="#final-results-markdown-and-files"></a>
 </h4>
 <p>The last section of the code saves all the results to a file, and
 uses markdown to make output files that print all the graphics and
@@ -616,6 +634,27 @@ bycatch figures for each individual model show both the analytical
 estimate of the total bycatch, and the mean across the Monte Carlo
 draws. These should be very similar, but may be different in years with
 small sample sizes, due to sampling error.</p>
+<p>The other output files are, where [model] refers to the name of the
+observation error model:</p>
+<ol style="list-style-type: decimal">
+<li><p>DataSummary.csv. Contains the data summaries for each year, and
+the ratio and delta-lognormal design-based estimators, aggregated to
+years.</p></li>
+<li><p>StrataSummary.csv. The same as DataSummary, except aggregated to
+the variables in simpleModel. This is useful if you need to, for
+example, keep fleets or regions separate.</p></li>
+<li><p>catchPooling.csv If pooling was requested. Summarizes the amount
+of pooling in each stratum</p></li>
+<li><p>[model]AnnualSummary.csv. The estimated total bycatch, standard
+errors and confidence intervals for the model.</p></li>
+<li><p>[model]StatumSummary.csv. The estimated total bycatch, standard
+errors and confidence intervals for the model at the variables in
+simpleModel.</p></li>
+<li><p>[model]Index.csv. An annual abundance index.</p></li>
+<li><p>Residuals[model].pdf The same residuals figure that is in the
+combined output.</p></li>
+<li><p>residualDiagnostics from the DHARMa library.</p></li>
+</ol>
 </div>
 </div>
 <div class="section level2">
@@ -770,7 +809,7 @@ Tweedie Compound Poisson Linear Mixed Models.”</span>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>
