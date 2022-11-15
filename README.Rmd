@@ -34,6 +34,7 @@ You can install the development version of BycatchEstimator from [GitHub](https:
 devtools::install_github("ebabcock/BycatchEstimator")
 ```
 For more help with installation, see the Installation Guide https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html
+Also, see the video tutorial at https://miami.box.com/s/sjqwj3c1v1tcv4y3n169u3x5bs18rir2
 
 ## Getting started
 
