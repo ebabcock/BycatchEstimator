@@ -1556,7 +1556,8 @@ goodman.var<-function(x,y) {
 #' @keywords internal
 plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear, common, run, catchType, catchUnit) {
   if(is.numeric(yearpred$Year) & "Year" %in% allVarNames)
-    yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
+    yearpred$Year[yearpred$Year<startYear]=yearpred$Year[yearpred$Year<startYear]+startYear
+ #  yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
   if(!is.null(yearpred)) {
     if(modType=="Binomial") ytitle=paste0(common[run]," ","predicted total positive trips") else
       ytitle=paste0("Total",common[run]," ",catchType[run]," (",catchUnit[run],")")
@@ -1827,7 +1828,7 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
 getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
   pooledVar,poolTypes,adjacentNum) {
  poolingVars<-c(designVars,pooledVar[!is.na(pooledVar)])
- if(is.factor(obsdatval$Year)) yearFactor<-TRUE
+ if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
  if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
  if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
  poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%

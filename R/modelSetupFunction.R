@@ -232,7 +232,7 @@ bycatchSetup <- function(
           indexDat[,temp[i]]<-mostfreqfunc(obsdat[,temp[i]])
     }
    }
-  }
+  } else indexDat<-NULL
   #Subtract first year if numeric to improve convergence
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
