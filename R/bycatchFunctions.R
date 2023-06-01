@@ -170,7 +170,8 @@ standard.error<-function(x) {
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
 #' @keywords internal
-findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,randomEffects, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,
+  randomEffects=NULL, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
   offset<-TMBfamily<-NULL
   keepVars=requiredVarNames[!requiredVarNames %in% varExclude]
@@ -301,7 +302,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       modfit3<-NULL
     }
     if(printOutput & !is.null(modfit2)) {
-      write.csv(modfit2,paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"))
+      write.csv(data.frame(modfit2),paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"))
       if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
       if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
