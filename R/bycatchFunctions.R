@@ -830,7 +830,7 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
     if(!grepl("TMB",modType)) response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE))
-    if(grepl("TMB",modType))  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE,allow.new.values=TRUE))
+    if(grepl("TMB",modType))  response1<-data.frame(predict(modfit1,newdata=newdat,type="response",se.fit=TRUE,allow.new.levels=TRUE))
     if(dim(response1)[2]==1) {
       names(response1)="fit"
       if(modType=="Tweedie")
