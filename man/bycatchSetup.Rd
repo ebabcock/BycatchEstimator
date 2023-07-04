@@ -118,7 +118,7 @@ Sets global conditions and makes a preliminary data summary.
 \dontrun{
 library(BycatchEstimator)
 setupObj<-bycatchSetup(
-modelTry = c("Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),
+modelTry = c("Delta-Lognormal","TMBnbinom2"),
 obsdat = obsdatExample,
 logdat = logdatExample,
 yearVar = "Year",
@@ -140,9 +140,9 @@ indexModel = formula(y~Year),
 designMethods = c("Ratio", "Delta"),
 designVars = c("Year","season"),
 designPooling = TRUE,
-poolTypes=c("adjacent","all","all"),
-pooledVar=c(NA,NA,NA),
-adjacentNum=c(1,NA,NA),
+poolTypes=c("adjacent","all"),
+pooledVar=c(NA,NA),
+adjacentNum=c(1,NA),
 minStrataUnit = 1,
 baseDir = getwd(),
 runName = "SimulatedExample",

@@ -66,7 +66,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2023-06-01</h4>
+            <h4 data-toc-skip class="date">2023-07-04</h4>
       
       
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -74,7 +74,7 @@ Babcock</h4>
 
     
     
-<p><a href="mailto:ebabcock@rsmas.miami.edu" class="email">ebabcock@rsmas.miami.edu</a></p>
+<p><a href="mailto:ebabcock@miami.edu" class="email">ebabcock@miami.edu</a></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -217,7 +217,7 @@ variances using the delta method. This allocation procedure is not
 needed to estimate the mean total bycatch, but it is necessary to
 estimate the variances correctly. When using aggregated effort, it is
 not yet possible to include the observed catches as known.</p>
-<p>The model also calculations design based total bycatch estimates if
+<p>The model also calculations design-based total bycatch estimates if
 requested, using either a stratified ratio estimator <span class="citation">Rao (2000)</span> or the design based delta-lognormal
 estimator of <span class="citation">Pennington (1983)</span>. These
 total bycatch estimates are made at the the stratification variables
@@ -233,7 +233,11 @@ in the pooled data that is in the stratum of interest. Unpooled
 estimates are used for strata with sufficient data. Variances are also
 allocated to the stratum of interest based on the fraction of total
 effort. See <span class="citation">Brown (2001)</span> for details of
-one potential pooling scheme.</p>
+one potential pooling scheme. The designed-based estimates are
+calculated by the bycatchSetup function, and printed to .csv files with
+the word “design” in the title, one for the sums in each year, and one
+for the sums at the specified minimum level of stratification defined by
+the design variables.</p>
 <p>The model can estimate bycatch and abundance indices for multiple
 species or dispositions (e.g. dead discard, live release) from the same
 fishery simultaneously if they are all being estimated from the same

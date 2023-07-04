@@ -1,10 +1,10 @@
-pandoc: 2.19.2
+pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   InstallationGuide: InstallationGuide.html
   UserGuide2: UserGuide2.html
-last_built: 2023-06-01T15:20Z
+last_built: 2023-07-04T19:41Z
 urls:
   reference: https://ebabcock.github.io/BycatchEstimator/reference
   article: https://ebabcock.github.io/BycatchEstimator/articles
