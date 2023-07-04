@@ -302,12 +302,12 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       modfit3<-NULL
     }
     if(printOutput & !is.null(modfit2)) {
-      write.csv(data.frame(modfit2),paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"))
+      write.csv(data.frame(modfit2),paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"), row.names = FALSE)
       if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
       if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
       if(!is.null(anova1)) {
-        write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"))
+        write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"), row.names = FALSE)
       }
     }
     returnval=list(modfit3,modfit2)
@@ -559,8 +559,8 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
     returnval=NULL
   }  else  {     returnval=yearpred  }
   if(printOutput) {
-    write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"))
-    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"))
+    write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"), row.names = FALSE)
+    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
 }
@@ -698,7 +698,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
              TotalLCI=.data$Total-qnorm(1-CIval/2)*.data$Total.se,
              TotalUCI=.data$Total+qnorm(1-CIval/2)*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-    if(printOutput)  write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"))
+    if(printOutput)  write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"), row.names = FALSE)
 
   }
   yearpred<-yearpred %>%
@@ -713,7 +713,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     returnval=NULL
   }  else  {     returnval=yearpred  }
   if(printOutput) {
-    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"))
+    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
 }
@@ -803,8 +803,8 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
              Total.cv=NA)
     returnval=yearpred
     if(printOutput) {
-      write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"))
-      write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"))
+      write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modtype,"StratumSummary.csv"), row.names = FALSE)
+      write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
     }
   } else {
     returnval=NULL
@@ -875,7 +875,7 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
       mutate(ymin=ifelse(.data$ymin<0,0,.data$ymin))
     returnval=allpred
     if(printOutput) {
-      write.csv(allpred,paste0(dirname[[run]],common[run],catchType[run],modType,"Index.csv"))
+      write.csv(allpred,paste0(dirname[[run]],common[run],catchType[run],modType,"Index.csv"), row.names = FALSE)
     }
   }
   returnval

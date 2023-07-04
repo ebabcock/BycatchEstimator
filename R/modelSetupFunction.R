@@ -73,9 +73,9 @@
 #' designMethods = c("Ratio", "Delta"),
 #' designVars = c("Year","season"),
 #' designPooling = TRUE,
-#' poolTypes=c("adjacent","all","all"),
-#' pooledVar=c(NA,NA,NA),
-#' adjacentNum=c(1,NA,NA),
+#' poolTypes=c("adjacent","all"),
+#' pooledVar=c(NA,NA),
+#' adjacentNum=c(1,NA),
 #' minStrataUnit = 1,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
@@ -309,7 +309,7 @@ bycatchSetup <- function(
                        poolTypes=poolTypes,
                        adjacentNum=adjacentNum)
         poolingSum[[run]]<-temp[[1]]
-        write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"))
+        write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
         includePool[[run]]<-temp[[2]]
       } else  {
         poolingSum[[run]]<-NULL
@@ -326,9 +326,24 @@ bycatchSetup <- function(
                                includePool= includePool[[run]]
                              )
       yearSum[[run]]<-left_join(yearSum[[run]],temp,by="Year")
+      write.csv(temp,
+              paste0(dirname[[run]],common[run],catchType[run],"DesignYear.csv"), row.names = FALSE)
+     #And design based stratification
+      temp<-getDesignEstimates(obsdatval = dat[[run]],
+                               logdatval = logdat,
+                               strataVars = designVars,
+                               designVars = designVars,
+                               designPooling = designPooling,
+                               minStrataUnit = minStrataUnit,
+                               startYear = startYear,
+                               poolingSum = poolingSum[[run]],
+                               includePool= includePool[[run]]
+                             )
+     write.csv(temp,
+              paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
     }
     write.csv(yearSum[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"))
+              paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE)
     if(EstimateBycatch) {
      x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
      if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
@@ -345,21 +360,8 @@ bycatchSetup <- function(
                         EstimateBycatch = EstimateBycatch,
                         startYear = startYear
                       )
-    if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch ) {
-      temp<-getDesignEstimates(obsdatval = dat[[run]],
-                               logdatval = logdat,
-                               strataVars = unique(c("Year",requiredVarNames)),
-                               designVars = designVars,
-                               designPooling = designPooling,
-                               minStrataUnit = minStrataUnit,
-                               startYear = startYear,
-                               poolingSum = poolingSum[[run]],
-                               includePool= includePool[[run]]
-                             )
-      strataSum[[run]]<-left_join(strataSum[[run]],temp,by=unique(c("Year",requiredVarNames)))
-    }
     write.csv(strataSum[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"))
+              paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
    }
   }
   #Create report
