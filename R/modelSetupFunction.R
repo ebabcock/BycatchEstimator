@@ -51,7 +51,7 @@
 #' \dontrun{
 #' library(BycatchEstimator)
 #' setupObj<-bycatchSetup(
-#' modelTry = c("Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),
+#' modelTry = c("Delta-Lognormal","TMBnbinom2"),
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
