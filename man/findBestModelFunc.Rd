@@ -10,7 +10,7 @@ findBestModelFunc(
   requiredVarNames,
   allVarNames,
   complexModel,
-  randomEffects,
+  randomEffects = NULL,
   useParallel,
   selectCriteria,
   varExclude,
