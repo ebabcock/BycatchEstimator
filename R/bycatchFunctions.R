@@ -1830,7 +1830,7 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
   pooledVar,poolTypes,adjacentNum) {
  obsdatval<-data.frame(obsdatval)
  logdatval<-data.frame(logdatval)
- poolingVars<-c(designVars,pooledVar[!is.na(pooledVar)])
+ poolingVars<-c(designVars,pooledVar[!is.na(pooledVar) &!pooledVar %in% designVars])
  if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
  if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
  if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
