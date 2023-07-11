@@ -497,7 +497,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
       if(modtype=="TMBtweedie") {
         allpred<-cbind(newdat,response1)  %>%
           mutate(Total=.data$Effort*.data$fit,
-                 TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)*.data$fit^(glmmTMB:::.tweedie_power(modfit1))))
+                 TotalVar=.data$Effort^2*(.data$se.fit^2+sigma(modfit1)*.data$fit^(glmmTMB::family_params(modfit1))))
         sim=replicate(nsim, simulateTMBTweedieDraw(modfit1,nObs,a,newdat$Effort,NewRandomVals) )
       }
       if(includeObsCatch & !modtype %in% c("Binomial","TMBbinomial")) {
@@ -659,7 +659,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       deriv =  predval  #derivative of exp(x) is exp(x)
     }
     if(modtype=="TMBtweedie") {
-      residvar =  sigma(modfit1)*predval^(glmmTMB:::.tweedie_power(modfit1))*newdat$Effort^2
+      residvar =  sigma(modfit1)*predval^(glmmTMB::family_params(modfit1))*newdat$Effort^2
       predval = predval * newdat$Effort
       deriv =  predval  #derivative of exp(x) is exp(x)
     }
@@ -1233,7 +1233,7 @@ simulateGammaDraw<-function(modfit,nObs,b,NewRandomVals) {
 simulateTMBTweedieDraw<-function(modfit,nObs,b,Effort,NewRandomVals=0) {
   muval<-as.vector(exp(b %*% mvrnorm(1,fixef(modfit)[[1]],vcov(modfit)[[1]])+NewRandomVals))
   if(all(muval>0)) {
-    simval<-rtweedie(nObs,power=glmmTMB:::.tweedie_power(modfit),
+    simval<-rtweedie(nObs,power=glmmTMB::family_params(modfit),
                      mu=muval,phi=sigma(modfit))*Effort  } else  {
                        simval=rep(NA,nObs)
                      }
@@ -1295,7 +1295,8 @@ getSimDeltaLN<-function(modfitBin,modfitLnorm, df1, nsim=10000) {
 #' @importFrom stats cor
 #' @keywords internal
 lo.se=function(x1,x1e,x2,x2e) {
-  cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)])
+  if(length(x1)>1)
+   cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
   (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
 }
 
