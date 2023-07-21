@@ -195,8 +195,12 @@ minStrataUnit<-
       #Add stratum designation and check sample size in strata
      if(length(requiredVarNames)>1) {
       logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
-     } else {
+     }
+     if(length(requiredVarNames)==1)   {
        logdat$strata <- pull(logdat,var=requiredVarNames)
+     }
+     if(length(requiredVarNames)==0)   {
+       logdat$strata <- rep(1,nrow(logdat))
      }
      if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000) {
        print("Cannot calculate variance for large number of logbook sample units")

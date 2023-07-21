@@ -100,13 +100,13 @@ bycatchSetup <- function(
   factorNames,
   randomEffects=NULL,
   randomEffects2=NULL,
-  EstimateIndex,
+  EstimateIndex=FALSE,
   EstimateBycatch,
   logNum,
   sampleUnit,
   complexModel,
   simpleModel,
-  indexModel,
+  indexModel=NULL,
   designMethods = "None",
   designVars="Year",
   designPooling = FALSE,
@@ -180,9 +180,10 @@ bycatchSetup <- function(
   if(!all(allVarNames %in% names(logdat)) & EstimateBycatch)
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(logdat) ], " not found in logbook data"))
   #It's all right not to see the variable name if it is a function of another variable that is present
-  indexVarNames<-as.vector(getAllTerms(indexModel))
-  if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
-
+  if(EstimateIndex) {
+   indexVarNames<-as.vector(getAllTerms(indexModel))
+   if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
+  } else indexVarNames=NULL
   #Set up data frames
   obsdat<-obsdat %>%
     rename(Effort=!!obsEffort) %>%
@@ -212,8 +213,12 @@ bycatchSetup <- function(
     #Add stratum designation and check sample size in strata
     if(length(requiredVarNames) > 1) {
       logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
-    } else {
+    }
+    if(length(requiredVarNames)==1) {
       logdat$strata <- pull(logdat,var=requiredVarNames)
+    }
+    if(length(requiredVarNames)==0) {
+      logdat$strata <- rep(1,nrow(logdat))
     }
     if(max(tapply(logdat$SampleUnits,logdat$strata,sum)) > 100000) {
       print("Inadvisable to calculate variance of estimators for such large number of logbook sample units")

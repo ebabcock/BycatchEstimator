@@ -258,7 +258,8 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
   formulaList<-list(as.formula(paste("y~",paste(c(allVarNames,randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames)],randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames) &!allVarNames %in% varExclude],randomEffects),collapse="+"),offset)),
-                    as.formula(paste("y~",paste(requiredVarNames,collapse="+"),offset)), NA)
+                    ifelse(length(requiredVarNames)>0,
+                      as.formula(paste("y~",paste(requiredVarNames,collapse="+"),offset)),NA), NA)
   args$formula=formulaList[[1]]
   if(! modType=="Tweedie") modfit1<-try(do.call(funcName,args))  else
     modfit1<-try(cplm::cpglm(formulaList[[1]],data=obsdatval,na.action=na.fail))
