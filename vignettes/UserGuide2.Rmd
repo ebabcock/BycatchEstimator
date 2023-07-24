@@ -1,6 +1,5 @@
 ---
 title: "Bycatch-Estimator User Guide"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{UserGuide}
   %\VignetteEngine{knitr::rmarkdown}
