@@ -66,7 +66,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2023-07-04</h4>
+            <h4 data-toc-skip class="date">2023-07-24</h4>
       
       
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -130,7 +130,7 @@ fitting. The user-specified simplest model will usually include year,
 and can also include, for example, stratification variables that are
 used in the observer program sampling design. The model with the lowest
 value of the information criterion, between the simplest and most
-commplex model, is chosen as best within each observation error
+complex model, is chosen as best within each observation error
 group.</p>
 <p>The best candidate models in each observation error group are then
 compared using 10-fold cross validation, if desired, to see which
@@ -217,27 +217,27 @@ variances using the delta method. This allocation procedure is not
 needed to estimate the mean total bycatch, but it is necessary to
 estimate the variances correctly. When using aggregated effort, it is
 not yet possible to include the observed catches as known.</p>
-<p>The model also calculations design-based total bycatch estimates if
+<p>The model also calculates design-based total bycatch estimates if
 requested, using either a stratified ratio estimator <span class="citation">Rao (2000)</span> or the design based delta-lognormal
 estimator of <span class="citation">Pennington (1983)</span>. These
 total bycatch estimates are made at the the stratification variables
-defined by the user in the vector called designVars. To deal with strata
-that have no observations or few observations, the user may request
-pooling (designPooling=TRUE), and specify the minimum number of sample
-units needed to avoid pooling. The specifics of the pooling scheme are
-defined by inputs described below. If pooling, the total bycatch is
-estimated for the observer and logbook data specified by the pooling
-scheme for each stratum (i.e. combination of variables) and then
-allocated to the stratum according to the fraction of the logbook effort
-in the pooled data that is in the stratum of interest. Unpooled
-estimates are used for strata with sufficient data. Variances are also
-allocated to the stratum of interest based on the fraction of total
-effort. See <span class="citation">Brown (2001)</span> for details of
-one potential pooling scheme. The designed-based estimates are
-calculated by the bycatchSetup function, and printed to .csv files with
-the word “design” in the title, one for the sums in each year, and one
-for the sums at the specified minimum level of stratification defined by
-the design variables.</p>
+defined by the user in the vector called designVars, which must be
+categorical variables. To deal with strata that have no observations or
+few observations, the user may request pooling (designPooling=TRUE), and
+specify the minimum number of sample units needed to avoid pooling. The
+specifics of the pooling scheme are defined by inputs described below.
+If pooling, the total bycatch is estimated for the observer and logbook
+data specified by the pooling scheme for each stratum (i.e. combination
+of variables) and then allocated to the stratum according to the
+fraction of the logbook effort in the pooled data that is in the stratum
+of interest. Unpooled estimates are used for strata with sufficient
+data. Variances are also allocated to the stratum of interest based on
+the fraction of total effort. See <span class="citation">Brown
+(2001)</span> for details of one potential pooling scheme. The
+designed-based estimates are calculated by the bycatchSetup function,
+and printed to .csv files with the word “design” in the title, one for
+the sums in each year, and one for the sums at the specified minimum
+level of stratification defined by the design variables.</p>
 <p>The model can estimate bycatch and abundance indices for multiple
 species or dispositions (e.g. dead discard, live release) from the same
 fishery simultaneously if they are all being estimated from the same
@@ -324,8 +324,8 @@ units in a stratum to require pooling.</p>
 <p>The design-based estimators are calculated when bycatchSetup is run,
 so you may stop here if you only need the design based estimators. They
 are given in the columns called ratioMean, ratiaSE, deltaMean and
-deltaSE in the file labelled AnnualSummary and the file labelled
-StratumSummary. See details on model outputs below. See the function
+deltaSE in the file labelled DesignSummary and the file labelled
+DesignStrata. See details on model outputs below. See the function
 getPooling for details on how the pooling is set up for design-based
 estimation, and getDesignEstimates for the total bycatch
 calculations.</p>
@@ -435,7 +435,7 @@ includes all the information criteria for each model that was
 considered, as well as model weights calculated for the information
 criterion the user specified, which sum to one and indicate the degree
 of support for the model in the data. The best model will have the
-highest weight. But, in some cases other models with also have strong
+highest weight. But, in some cases other models may also have strong
 support, and should perhaps be considered, particularly if they are
 simpler. The current version of the code does not use MuMIn’s model
 averaging function, but this may be worth considering if several models
@@ -476,7 +476,7 @@ is thus appropriate for continuous data with extra zeros. It uses a log
 link, and, in addition to the linear predictor for the log(mean) it
 estimates an index parameter <span class="math inline">\(p\)</span> and
 dispersion parameter <span class="math inline">\(\phi\)</span> which
-together determine the shape of the distribution.</p>
+together determine the shape of the distribution. The variance is: <span class="math display">\[\sigma^2=\phi \mu^p\]</span></p>
 <p>If all years have at least one positive observation, the code next
 runs the lognormal and gamma models if requested. For the delta
 lognormal model, the CPUE is log transformed, and the mean CPUE for
@@ -494,7 +494,8 @@ the model residuals, residual diagnostics from the DHARMa library (<span class="
 of the total bycatch and an index of abundance.</p>
 <p>For the best model (according to the information criterion) in each
 observation error model group, both ordinary residuals and DHARMa scaled
-residuals are plotted, and the DHARMa diagnostics are calculated. The
+residuals are plotted (also called quantile or PIT probability integral
+transform residuals), and the DHARMa diagnostics are calculated. The
 DHARMa library uses simulation to generate scaled residuals based on the
 specified observation error model so that the results are more clearly
 interpretable than ordinary residuals for non-normal models. DHARMA

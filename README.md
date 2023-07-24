@@ -195,3 +195,7 @@ longline catch data with LLSIM. Collect. Vol. Sci. Pap. ICCAT, 78(5):
 Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation
 tool using simulated blue marlin longline data. ICCAT Collective Volume
 of Scientific Papers, 78(5): 179-189.
+
+Babcock E. A., W. J. Harford, T. Gedamke, D. Soto, and C. P. Goodyear.
+2022. Efficacy of a bycatch estimation tool. ICCAT Collective Volume of
+Scientific Papers 79(5): 304-339
