@@ -1,0 +1,55 @@
+"0","bycatchFit(
+  setupObj,
+  selectCriteria = ""BIC"",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = ""DeltaMethod"",
+  useParallel = TRUE,  
+  nSims = 100,
+  baseDir = getwd(),
+)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 8 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 7 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 6 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 5 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 4 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Warning in .Internal(gc(verbose, reset, full)) :"
+"2","
+ "
+"2"," closing unused connection 3 (<-UM-7MMMP13.cgcent.miami.edu:11338)
+"
+"2","Fixed terms are ""cond(Year)"", ""cond((Int))"" and ""disp((Int))""
+"
+"2","Fixed terms are ""cond(Year)"", ""cond(offset(log(Effort)))"", ""cond((Int))"" and ""disp((Int))""
+"
+"2","Fixed terms are ""Year"", ""offset(log(Effort))"" and ""(Intercept)""
+"
+"2","Fixed terms are ""cond(Year)"", ""cond(offset(log(Effort)))"", ""cond((Int))"" and ""disp((Int))""
+"
+"2","Fixed terms are ""cond(Year)"", ""cond((Int))"" and ""disp((Int))""
+"
+"2","Fixed terms are ""cond(Year)"", ""cond((Int))"" and ""disp((Int))""
+"

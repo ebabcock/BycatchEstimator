@@ -1,0 +1,57 @@
+"0","setupObj<-bycatchSetup(
+ modelTry = c(""TMBdelta-Lognormal"",""TMBnbinom2""), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = ""Year"",  #Keep year in the inpus because effort will be expanded by year
+  obsEffort = ""hooks"",
+  logEffort = ""hooks"",
+  logUnsampledEffort = NULL,
+  includeObsCatch = FALSE,  
+  matchColumn = NULL,
+  factorNames = c(""Year2"",""fleet"",""area""), #Two year time blocks now used as a variable
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = ""trips"",
+  complexModel = formula(y~Year2+area+fleet),  #Year is not in the formula
+  simpleModel = formula(y~1),  #Even Year2 not needed in formula 
+  indexModel = NULL, 
+  designMethods =c(""None""),
+  baseDir = getwd(),
+  runName = ""LLSIMBUM2year"",
+  runDescription = ""LLSIm BUM 2 year blocks"",
+  common = c(""Blue marlin"",""Swordfish"")[1], 
+  sp = c(""Makaira nigricans"",""Xiphias gladius"")[1] , 
+  obsCatch = c(""BUM"",""SWO"")[1], 
+  catchUnit = ""number"",  
+  catchType = ""catch""  
+)
+"
+"0","setupObj<-bycatchSetup("
+"0"," modelTry = c(""TMBdelta-Lognormal"",""TMBnbinom2""), #model types to compare"
+"0"," obsdat = obsdatTest,"
+"0","  logdat = logdatTest,"
+"0","  yearVar = ""Year"",  #Keep year in the inpus because effort will be expanded by year"
+"0","  obsEffort = ""hooks"","
+"0","  logEffort = ""hooks"","
+"0","  logUnsampledEffort = NULL,"
+"0","  includeObsCatch = FALSE,  "
+"0","  matchColumn = NULL,"
+"0","  factorNames = c(""Year2"",""fleet"",""area""), #Two year time blocks now used as a variable"
+"0","  EstimateIndex = FALSE,"
+"0","  EstimateBycatch = TRUE,"
+"0","  logNum=NA,"
+"0","  sampleUnit = ""trips"","
+"0","  complexModel = formula(y~Year2+area+fleet),  #Year is not in the formula"
+"0","  simpleModel = formula(y~1),  #Even Year2 not needed in formula "
+"0","  indexModel = NULL, "
+"0","  designMethods =c(""None""),"
+"0","  baseDir = getwd(),"
+"0","  runName = ""LLSIMBUM2year"","
+"0","  runDescription = ""LLSIm BUM 2 year blocks"","
+"0","  common = c(""Blue marlin"",""Swordfish"")[1], "
+"0","  sp = c(""Makaira nigricans"",""Xiphias gladius"")[1] , "
+"0","  obsCatch = c(""BUM"",""SWO"")[1], "
+"0","  catchUnit = ""number"",  "
+"0","  catchType = ""catch""  "
+"0",")"
