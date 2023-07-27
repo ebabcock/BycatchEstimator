@@ -44,3 +44,6 @@ jobs:
           clean: false
           branch: gh-pages
           folder: docs
+
+development:
+  mode:auto
