@@ -8,7 +8,7 @@ Description: BycatchEstimator is used to estimate both total bycatch, calculated
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: stats, utils, generics, grDevices, tidyverse, tidyr, dplyr, stringr, rmarkdown, ggplot2, MASS, DHARMa, quantreg, tidyselect, MuMIn, foreach, doParallel, pdftools, tweedie, reshape2, parallel, cplm, glmmTMB, gridExtra, parallelly, kableExtra
 Depends: 
     R (>= 4.0)

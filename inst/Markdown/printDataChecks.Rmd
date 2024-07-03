@@ -1,0 +1,147 @@
+---
+title: "Data summaries "
+date: " "
+output: html_document
+header-includes:
+    - \usepackage{caption}
+    - \usepackage{float}
+---
+
+
+```{r load data,  results=FALSE,  message=FALSE, echo=FALSE}
+outDir<-"C:/Users/ebabcock/OneDrive - University of Miami/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtripExample"
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchModelSpecification.rds"))
+library(tidyverse)
+library(kableExtra)
+theme_set(theme_bw())
+
+#Unpack setupObj
+  modelTry<-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
+    includeObsCatch<-matchColumn<-factorNames<-randomEffects<-randomEffects2<-
+    EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-complexModel<-simpleModel<-indexModel<-
+    designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-
+    minStrataUnit<-
+    baseDir<-runName<-runDescription<-
+    common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
+
+  numSp<-modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-
+    modelFail<-rmsetab<-metab<-dat<-yearSum<-requiredVarNames<-allVarNames<-indexDat<-strataSum<-NumCores<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+
+numericalVars<-allVarNames[!allVarNames %in% factorNames]
+```
+
+**Summary of data for `r runDescription` , `r Sys.Date()`**
+
+```{r all plots,  message=FALSE,warning=FALSE, echo=FALSE,results="asis"}
+makeObserverPlots<-function(spNum,figurenum) {
+## Show where species was caught in observer data
+obsdatTemp <-obsdat %>% rename(Catch=!!obsCatch[spNum]) %>%
+  mutate(Present=factor(ifelse(Catch>1,1,0)),
+         CPUE=Catch/Effort)
+# Presence/absence across years
+cat("\n")
+print(ggplot(obsdatTemp,aes(x=Year,fill=Present))+
+  geom_bar()+
+  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "in each year"))+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+# Presence/absence across all factors
+cat("\n")
+figurenum<-figurenum+1
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,fill=Present))+
+  geom_bar()+
+  facet_wrap(Variable~.,scales="free")+
+  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across factor variables"))+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+
+# Presence/absence across numerical variables
+cat("\n")
+figurenum<-figurenum+1
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,fill=Present))+
+  geom_histogram()+
+  facet_wrap(Variable~.,scales="free")+
+  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across numerical variables"))+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+
+# Presence/absence across effort
+cat("\n")
+figurenum<-figurenum+1
+print(ggplot(obsdatTemp,aes(x=Effort,fill=Present))+
+  geom_histogram()+
+  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across observed effort \n per sample unit"))+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+
+#CPUE
+cat("\n")
+figurenum<-figurenum+1
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=CPUE))+
+  geom_violin(fill="grey")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary()+
+  ggtitle(paste("Figure ",figurenum,". Observed CPUE of",common[spNum], "by factor levels")))
+
+cat("\n")
+figurenum<-figurenum+1
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=CPUE))+
+  geom_point(alpha=0.3)+
+  stat_smooth()+
+  facet_wrap(Variable~.,scales="free")+
+  ggtitle(paste("Figure ",figurenum,". Observed CPUE of",common[spNum], " across numerical variables")))
+  figurenum
+}
+
+#Compare observed and logbook  
+makeEffortPlots<-function(figurenum) {
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
+                  effort=select(logdat,all_of(c(allVarNames,"Effort")))),
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
+
+cat("\n")
+print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  ggtitle(paste0("Figure ",figurenum,". Total Effort by factor levels, observed and total"))+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Sum of effort")))
+figurenum<-figurenum+1
+cat("\n")
+print(ggplot(allData,aes(x=Level,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  ggtitle(paste0("Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total"))+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
+                  effort=rename(select(logdat,all_of(c(allVarNames,"unsampledEffort"))),Effort=unsampledEffort)),
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value")
+cat("\n")
+figurenum<-figurenum+1
+print(ggplot(allData,aes(x=Value,fill=Source))+
+  geom_histogram(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  ggtitle(paste0("Figure ",figurenum,". Effort across numerical variables"))+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+figurenum<-figurenum+1
+  figurenum
+}
+fignum<-makeEffortPlots(1)
+for(i in 1:numSp) {
+ fignum<-makeObserverPlots(i,fignum)
+}
+
+```
+
