@@ -1841,7 +1841,7 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
  if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
  if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
  poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%
-  summarize(totalUnits=n(),totalEffort=sum(.data$Effort))
+  summarize(totalUnits=sum(.data$SampleUnits),totalEffort=sum(.data$Effort))
  x<-obsdatval %>%group_by_at(all_of(poolingVars)) %>%
    summarize(units=n(),effort=sum(.data$Effort))
  poolingSum<-left_join(poolingSum,x,by=poolingVars) %>%

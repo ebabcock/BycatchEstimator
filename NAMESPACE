@@ -2,6 +2,7 @@
 
 export(bycatchFit)
 export(bycatchSetup)
+export(dataCheck)
 import(DHARMa)
 import(MuMIn)
 import(doParallel)

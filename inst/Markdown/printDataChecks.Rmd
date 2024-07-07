@@ -9,7 +9,7 @@ header-includes:
 
 
 ```{r load data,  results=FALSE,  message=FALSE, echo=FALSE}
-outDir<-"C:/Users/ebabcock/OneDrive - University of Miami/Documents/GitHub/BycatchEstimator/Output LLSIMBUMtripExample"
+#outDir<-"C:/Users/Elizabeth A Babcock/Box/Shrimp trawl bycatch/bycatchEstimatorRuns/Output SawfishSetNoPool"
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchModelSpecification.rds"))
 library(tidyverse)
 library(kableExtra)
@@ -30,73 +30,58 @@ theme_set(theme_bw())
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
-numericalVars<-allVarNames[!allVarNames %in% factorNames]
-```
-
-**Summary of data for `r runDescription` , `r Sys.Date()`**
-
-```{r all plots,  message=FALSE,warning=FALSE, echo=FALSE,results="asis"}
+numericalVars<-c("Effort",allVarNames[!allVarNames %in% factorNames])
+##Function to plot by species
 makeObserverPlots<-function(spNum,figurenum) {
 ## Show where species was caught in observer data
 obsdatTemp <-obsdat %>% rename(Catch=!!obsCatch[spNum]) %>%
-  mutate(Present=factor(ifelse(Catch>1,1,0)),
+  mutate(Present=factor(ifelse(Catch>0,1,0)),
          CPUE=Catch/Effort)
 # Presence/absence across years
-cat("\n")
+cat("\n Figure ", figurenum,". Presence and absence of",common[spNum], "in each year. \n",sep="")
 print(ggplot(obsdatTemp,aes(x=Year,fill=Present))+
   geom_bar()+
-  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "in each year"))+
   scale_fill_manual(values=c("grey","red"))+
     ylab(paste0("Count of observed ",sampleUnit)))
+figurenum<-figurenum+1
 # Presence/absence across all factors
 cat("\n")
-figurenum<-figurenum+1
+cat("\n Figure ", figurenum,". Presence and absence of ",common[spNum], " across factor variables. \n",sep="")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
 print(ggplot(temp,aes(x=Level,fill=Present))+
   geom_bar()+
   facet_wrap(Variable~.,scales="free")+
-  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across factor variables"))+
   scale_fill_manual(values=c("grey","red"))+
     ylab(paste0("Count of observed ",sampleUnit)))
-
-# Presence/absence across numerical variables
-cat("\n")
 figurenum<-figurenum+1
-temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value") 
+
+# Presence/absence across numerical variables and effort
+cat("\n")
+cat("\n Figure ", figurenum,". Presence and absence of ",common[spNum], " across numerical variables. \n",sep="")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(c("Effort",numericalVars)),names_to="Variable",values_to = "Value") 
 print(ggplot(temp,aes(x=Value,fill=Present))+
   geom_histogram()+
   facet_wrap(Variable~.,scales="free")+
-  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across numerical variables"))+
   scale_fill_manual(values=c("grey","red"))+
     ylab(paste0("Count of observed ",sampleUnit)))
-
-# Presence/absence across effort
-cat("\n")
 figurenum<-figurenum+1
-print(ggplot(obsdatTemp,aes(x=Effort,fill=Present))+
-  geom_histogram()+
-  ggtitle(paste("Figure ",figurenum,". Presence and absence of",common[spNum], "across observed effort \n per sample unit"))+
-  scale_fill_manual(values=c("grey","red"))+
-    ylab(paste0("Count of observed ",sampleUnit)))
 
 #CPUE
 cat("\n")
-figurenum<-figurenum+1
+cat("\n Figure ",figurenum,". Observed CPUE of ",common[spNum], " by factor levels.\n",sep="")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
 print(ggplot(temp,aes(x=Level,y=CPUE))+
   geom_violin(fill="grey")+
   facet_wrap(Variable~.,scales="free")+
-  stat_summary()+
-  ggtitle(paste("Figure ",figurenum,". Observed CPUE of",common[spNum], "by factor levels")))
-
-cat("\n")
+  stat_summary())
 figurenum<-figurenum+1
+cat("\n")
+cat("\n Figure ",figurenum,". Observed CPUE of",common[spNum], " across numerical variables. \n",sep="")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value") 
 print(ggplot(temp,aes(x=Value,y=CPUE))+
   geom_point(alpha=0.3)+
   stat_smooth()+
-  facet_wrap(Variable~.,scales="free")+
-  ggtitle(paste("Figure ",figurenum,". Observed CPUE of",common[spNum], " across numerical variables")))
+  facet_wrap(Variable~.,scales="free"))
   figurenum
 }
 
@@ -108,40 +93,67 @@ allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
   pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
 
 cat("\n")
+cat("\n Figure ",figurenum,". Total Effort by factor levels, observed and total. \n",sep="")
 print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
   geom_bar(position=position_dodge())+
   facet_wrap(Variable~.,ncol=2,scales="free")+
-  ggtitle(paste0("Figure ",figurenum,". Total Effort by factor levels, observed and total"))+
   scale_fill_manual(values=c("grey","black"))+
     ylab(paste0("Sum of effort")))
 figurenum<-figurenum+1
 cat("\n")
+cat("\n Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total. \n",sep="")
 print(ggplot(allData,aes(x=Level,fill=Source))+
   geom_bar(position=position_dodge())+
   facet_wrap(Variable~.,ncol=2,scales="free")+
-  ggtitle(paste0("Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total"))+
   scale_fill_manual(values=c("grey","black"))+
     ylab(paste0("Count of ",sampleUnit)))
+figurenum<-figurenum+1
 
 allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
-                  effort=rename(select(logdat,all_of(c(allVarNames,"unsampledEffort"))),Effort=unsampledEffort)),
+                  effort=select(logdat,all_of(c(allVarNames,"Effort")))),
                   .id = "Source")%>%
   pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value")
 cat("\n")
-figurenum<-figurenum+1
+cat("\n Figure ",figurenum,". Effort across numerical variables. \n",sep="")
 print(ggplot(allData,aes(x=Value,fill=Source))+
   geom_histogram(position=position_dodge())+
   facet_wrap(Variable~.,ncol=2,scales="free")+
-  ggtitle(paste0("Figure ",figurenum,". Effort across numerical variables"))+
   scale_fill_manual(values=c("grey","black"))+
     ylab(paste0("Count of ",sampleUnit)))
 figurenum<-figurenum+1
-  figurenum
-}
-fignum<-makeEffortPlots(1)
-for(i in 1:numSp) {
- fignum<-makeObserverPlots(i,fignum)
+figurenum
 }
 
 ```
+
+**Summary of data for `r runDescription` , `r Sys.Date()`**
+
+```{r effort plots,  message=FALSE,warning=FALSE, echo=FALSE,results="asis"}
+if(!"Year" %in% factorNames) {
+  obsdat$Year<-obsdat$Year+startYear
+  logdat$Year<-logdat$Year+startYear
+}
+fignum<-makeEffortPlots(1)
+```
+
+Table 1. Observed and unobserved effort by `r sampleUnit`.
+
+```{r tables,  message=FALSE,warning=FALSE, echo=FALSE}
+temp<-bind_rows(list(observer=select(obsdat,Effort),
+                  effort=select(logdat,Effort)),
+                  .id = "Source") %>% group_by(Source) %>%
+  summarize(`Sample units` = n(),
+            `Total effort`=sum(Effort))%>%
+  mutate(`Proportion units`=round(`Sample units`/sum(`Sample units`),3),
+         `Proportion effort`=round(`Total effort`/sum(`Total effort`),3)) 
+kbl(temp,format="simple")
+```
+
+
+```{r species plots,  message=FALSE,warning=FALSE, echo=FALSE,results="asis"}
+for(i in 1:numSp) {
+ fignum<-makeObserverPlots(i,fignum)
+}
+```
+
 

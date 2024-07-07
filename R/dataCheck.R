@@ -10,12 +10,13 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup}.
-#' @import
 #' @export
 #' @keywords Data plotting function
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)
+#' dataCheck(setupObj)
+#' #' }
 #' #-------------------------------------------------
 
 dataCheck<-function(setupObj){
@@ -34,7 +35,7 @@ dataCheck<-function(setupObj){
   if(!is.null( mkd)){
     rmarkdown::render(mkd,
                       params=list(outDir=outDir),
-                      output_file = "DataChecks.pdf",
+                      output_file = "DataChecks.html",
                       output_dir=outDir,
                       quiet = TRUE)
   }
