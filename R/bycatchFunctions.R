@@ -1965,7 +1965,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
              deltaMean=.data$deltaMeanCPUE*.data$Eff,
              deltaSE=sqrt(.data$deltaSE2)*.data$Eff)
     returnval<-replace_na(returnval,list(ratioMean=0,ratioSE=0,deltaMean=0,deltaSE=0))
-  } else {
+  } else {  #For pooling
   poolVars<-designVars
   logdatval<-left_join(logdatval,poolingSum[,c(designVars,"stratum")],by=designVars)
   x<-obsdatval %>%
@@ -1987,7 +1987,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
                 deltaSE2=deltaEstimatorSE2(.data$cpue),
                 pCat=sum(.data$Catch,na.rm=TRUE),
                 pEff=sum(.data$Effort,na.rm=TRUE),
-                pUnit=n(),
+                pUnit=n(), #eab
                 pCatS=sd(.data$Catch,na.rm=TRUE),
                 pEffS=sd(.data$Effort,na.rm=TRUE),
                 pCov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%

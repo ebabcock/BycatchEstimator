@@ -31,6 +31,7 @@ theme_set(theme_bw())
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
 numericalVars<-c("Effort",allVarNames[!allVarNames %in% factorNames])
+obsdat<-mutate(obsdat,SampleUnits=1)
 ##Function to plot by species
 makeObserverPlots<-function(spNum,figurenum) {
 ## Show where species was caught in observer data
@@ -87,8 +88,8 @@ print(ggplot(temp,aes(x=Value,y=CPUE))+
 
 #Compare observed and logbook  
 makeEffortPlots<-function(figurenum) {
-allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
-                  effort=select(logdat,all_of(c(allVarNames,"Effort")))),
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits"))),
+                  effort=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
                   .id = "Source")%>%
   pivot_longer(cols=all_of(factorNames),names_to="Variable",values_to = "Level") 
 
@@ -102,15 +103,19 @@ print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
 figurenum<-figurenum+1
 cat("\n")
 cat("\n Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total. \n",sep="")
-print(ggplot(allData,aes(x=Level,fill=Source))+
+print(ggplot(allData,aes(x=Level,weight=SampleUnits,fill=Source))+
   geom_bar(position=position_dodge())+
   facet_wrap(Variable~.,ncol=2,scales="free")+
   scale_fill_manual(values=c("grey","black"))+
     ylab(paste0("Count of ",sampleUnit)))
 figurenum<-figurenum+1
 
+logdatTemp<-logdat %>%
+  mutate(Effort=Effort/SampleUnits) %>%
+  uncount(SampleUnits)
+
 allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
-                  effort=select(logdat,all_of(c(allVarNames,"Effort")))),
+                  effort=select(logdatTemp,all_of(c(allVarNames,"Effort")))),
                   .id = "Source")%>%
   pivot_longer(cols=all_of(numericalVars),names_to="Variable",values_to = "Value")
 cat("\n")

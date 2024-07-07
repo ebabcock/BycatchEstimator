@@ -1,219 +1,75 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/InstallationGuide.html</loc>
-  </url>
-  <url>
-    <loc>/articles/UserGuide2.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/reference/areaDivide.html</loc>
-  </url>
-  <url>
-    <loc>/reference/areafunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/areaGOM.html</loc>
-  </url>
-  <url>
-    <loc>/reference/BycatchEstimator-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/bycatchFit.html</loc>
-  </url>
-  <url>
-    <loc>/reference/bycatchSetup.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CheckForPositives.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CheckForPositivesPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dataCheck.html</loc>
-  </url>
-  <url>
-    <loc>/reference/deltaEstimatorMean.html</loc>
-  </url>
-  <url>
-    <loc>/reference/deltaEstimatorSE2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/deltaEstimatorVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/findBestModelFunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fishTimeFunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/FitModelFunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/FitModelFuncCV.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getdatefunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getdatefunc2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getDesignEstimates.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getME.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getPooling.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getRange.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getRMSE.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getSimDeltaLN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getSimSE.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gettimefunc2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Gm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/goodman.var.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ilogit.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/length.unique.html</loc>
-  </url>
-  <url>
-    <loc>/reference/LLSIM_BUM_Example_logbook.html</loc>
-  </url>
-  <url>
-    <loc>/reference/LLSIM_BUM_Example_observer.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lnorm.mean.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lnorm.se.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lo.se.html</loc>
-  </url>
-  <url>
-    <loc>/reference/logdatExample.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makeIndexVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makePredictions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makePredictionsDeltaVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makePredictionsNoVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makePredictionsSimVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/makePredictionsSimVarBig.html</loc>
-  </url>
-  <url>
-    <loc>/reference/MakeSummary.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mostfreqfunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/norm.mean.html</loc>
-  </url>
-  <url>
-    <loc>/reference/norm.se.html</loc>
-  </url>
-  <url>
-    <loc>/reference/obsdatExample.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outlierCountFunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotCrossVal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotIndex.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotSums.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotSumsValidate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ratio.func.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ratioVar.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ResidualsFunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonfunc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateGammaDraw.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateNegBin1Draw.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateNegBinGam.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateTMBTweedieDraw.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateTweedie.html</loc>
-  </url>
-  <url>
-    <loc>/reference/standard.error.html</loc>
-  </url>
-  <url>
-    <loc>/reference/yearfunc.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/InstallationGuide.html</loc></url>
+<url><loc>/articles/UserGuide2.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/reference/areaDivide.html</loc></url>
+<url><loc>/reference/areafunc.html</loc></url>
+<url><loc>/reference/areaGOM.html</loc></url>
+<url><loc>/reference/BycatchEstimator-package.html</loc></url>
+<url><loc>/reference/bycatchFit.html</loc></url>
+<url><loc>/reference/bycatchSetup.html</loc></url>
+<url><loc>/reference/CheckForPositives.html</loc></url>
+<url><loc>/reference/CheckForPositivesPlot.html</loc></url>
+<url><loc>/reference/dataCheck.html</loc></url>
+<url><loc>/reference/deltaEstimatorMean.html</loc></url>
+<url><loc>/reference/deltaEstimatorSE2.html</loc></url>
+<url><loc>/reference/deltaEstimatorVar.html</loc></url>
+<url><loc>/reference/findBestModelFunc.html</loc></url>
+<url><loc>/reference/fishTimeFunc.html</loc></url>
+<url><loc>/reference/FitModelFunc.html</loc></url>
+<url><loc>/reference/FitModelFuncCV.html</loc></url>
+<url><loc>/reference/getdatefunc.html</loc></url>
+<url><loc>/reference/getdatefunc2.html</loc></url>
+<url><loc>/reference/getDesignEstimates.html</loc></url>
+<url><loc>/reference/getME.html</loc></url>
+<url><loc>/reference/getPooling.html</loc></url>
+<url><loc>/reference/getRange.html</loc></url>
+<url><loc>/reference/getRMSE.html</loc></url>
+<url><loc>/reference/getSimDeltaLN.html</loc></url>
+<url><loc>/reference/getSimSE.html</loc></url>
+<url><loc>/reference/gettimefunc2.html</loc></url>
+<url><loc>/reference/Gm.html</loc></url>
+<url><loc>/reference/goodman.var.html</loc></url>
+<url><loc>/reference/ilogit.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/length.unique.html</loc></url>
+<url><loc>/reference/LLSIM_BUM_Example_logbook.html</loc></url>
+<url><loc>/reference/LLSIM_BUM_Example_observer.html</loc></url>
+<url><loc>/reference/lnorm.mean.html</loc></url>
+<url><loc>/reference/lnorm.se.html</loc></url>
+<url><loc>/reference/lo.se.html</loc></url>
+<url><loc>/reference/logdatExample.html</loc></url>
+<url><loc>/reference/makeIndexVar.html</loc></url>
+<url><loc>/reference/makePredictions.html</loc></url>
+<url><loc>/reference/makePredictionsDeltaVar.html</loc></url>
+<url><loc>/reference/makePredictionsNoVar.html</loc></url>
+<url><loc>/reference/makePredictionsSimVar.html</loc></url>
+<url><loc>/reference/makePredictionsSimVarBig.html</loc></url>
+<url><loc>/reference/MakeSummary.html</loc></url>
+<url><loc>/reference/mostfreqfunc.html</loc></url>
+<url><loc>/reference/norm.mean.html</loc></url>
+<url><loc>/reference/norm.se.html</loc></url>
+<url><loc>/reference/obsdatExample.html</loc></url>
+<url><loc>/reference/outlierCountFunc.html</loc></url>
+<url><loc>/reference/plotCrossVal.html</loc></url>
+<url><loc>/reference/plotIndex.html</loc></url>
+<url><loc>/reference/plotSums.html</loc></url>
+<url><loc>/reference/plotSumsValidate.html</loc></url>
+<url><loc>/reference/ratio.func.html</loc></url>
+<url><loc>/reference/ratioVar.html</loc></url>
+<url><loc>/reference/ResidualsFunc.html</loc></url>
+<url><loc>/reference/seasonfunc.html</loc></url>
+<url><loc>/reference/simulateGammaDraw.html</loc></url>
+<url><loc>/reference/simulateNegBin1Draw.html</loc></url>
+<url><loc>/reference/simulateNegBinGam.html</loc></url>
+<url><loc>/reference/simulateTMBTweedieDraw.html</loc></url>
+<url><loc>/reference/simulateTweedie.html</loc></url>
+<url><loc>/reference/standard.error.html</loc></url>
+<url><loc>/reference/yearfunc.html</loc></url>
 </urlset>
+
