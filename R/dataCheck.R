@@ -27,7 +27,7 @@ dataCheck<-function(setupObj){
   if(!file.exists(fileName))
     saveRDS(output, file=fileName)
   mkd<-tryCatch({
-    system.file("Markdown", "PrintDataChecks.Rmd",
+    system.file("Markdown", "printDataChecks.Rmd",
                 package = "BycatchEstimator", mustWork = TRUE)
   },
   error = function(c) NULL
