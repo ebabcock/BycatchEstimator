@@ -25,7 +25,7 @@ dataCheck<-function(setupObj){
   if(!dir.exists(outDir)) dir.create(outDir)
   fileName<-paste0(outDir,"/", Sys.Date(),"_BycatchModelSpecification.rds")
   if(!file.exists(fileName))
-    saveRDS(output, file=fileName)
+    saveRDS(setupObj, file=fileName)
   mkd<-tryCatch({
     system.file("Markdown", "printDataChecks.Rmd",
                 package = "BycatchEstimator", mustWork = TRUE)
