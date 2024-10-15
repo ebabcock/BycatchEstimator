@@ -961,11 +961,19 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
         g3<-ggplot(df1,aes(x=.data$Expected.Quantile,y=.data$Residual))+geom_point()+
           geom_abline()+ylab("DHARMa scaled residuals")+ xlab("Expected quantile")+
           ggtitle("c. QQ uniform scaled residuals")
-        g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
-          geom_point()+xlab("Model predictions (rank transformed)")+
-          ylab("DHARMa scaled residuals")+ggtitle("d. Scaled residual vs. predicted")+
-          geom_hline(aes(yintercept=0.5),lty=2)+geom_hline(aes(yintercept=0.75),lty=2)+geom_hline(aes(yintercept=0.25),lty=2)+
-          geom_quantile(method = "rqss",col="red", formula=y ~ qss(x, lambda = 2))
+        if(length(unique(df1$Rank.Predictor))>1) {
+          g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
+            geom_point()+xlab("Model predictions (rank transformed)")+
+            ylab("DHARMa scaled residuals")+ggtitle("d. Scaled residual vs. predicted")+
+            geom_hline(aes(yintercept=0.5),lty=2)+geom_hline(aes(yintercept=0.75),lty=2)+geom_hline(aes(yintercept=0.25),lty=2)+
+            geom_quantile(method = "rqss",col="red", formula=y ~ qss(x, lambda = 2))
+
+        } else {
+          g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
+            geom_point()+xlab("Model predictions (rank transformed)")+
+            ylab("DHARMa scaled residuals")+ggtitle("d. Scaled residual vs. predicted")+
+            geom_hline(aes(yintercept=0.5),lty=2)+geom_hline(aes(yintercept=0.75),lty=2)+geom_hline(aes(yintercept=0.25),lty=2)
+        }
         grid.arrange(g1,g2,g3,g4,ncol=2)
         test1=testUniformity(simulationOutput,plot=FALSE)
         test2=testDispersion(simulationOutput,plot=FALSE)
