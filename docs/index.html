@@ -161,10 +161,17 @@
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"/Output"</span>, <span class="st">"LLSIMBUMtripExample"</span><span class="op">)</span>,<span class="st">"/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"_BycatchModelSpecification.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="data-checking">Data Checking<a class="anchor" aria-label="anchor" href="#data-checking"></a>
+</h3>
+<p>The optional function dataCheck produces summary figures and tables showing the sample size and presence and absence of the bycatch species across levels of predictor variables, observer coverage levels, and raw trends in CPUE. This produces an html file in the output directory.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/dataCheck.html">dataCheck</a></span><span class="op">(</span><span class="va">setupObj</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="model-fitting">Model fitting<a class="anchor" aria-label="anchor" href="#model-fitting"></a>
 </h3>
 <p>Estimation of bycatch and/or index of abundance is carried out by using the function <code>bycatchFit</code>. This function requires an object produced by <code>bycatchSetup</code> as well as several other arguments.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
@@ -231,7 +238,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

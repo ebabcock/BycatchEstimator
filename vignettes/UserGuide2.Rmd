@@ -67,6 +67,22 @@ To use design-based estimators, specify them as a character vector. For example,
 
 The design-based estimators are calculated when bycatchSetup is run, so you may stop here if you only need the design based estimators. They are given in the columns called ratioMean, ratiaSE, deltaMean and deltaSE in the file labelled DesignSummary and the file labelled DesignStrata. See details on model outputs below. See the function getPooling for details on how the pooling is set up for design-based estimation, and getDesignEstimates for the total bycatch calculations.
 
+## Data checking
+
+This provides guidance and summarizes arguments of the function `dataCheck`
+
+The dataCheck function takes as input, the output from bycatchSetup.  It makes plots and summary tables including:
+
+- A barplot number of total effort in the whole fishery and the observed sample across the levels of each categorical and numerical variable.
+
+- A table showing the observer coverage level by sample unit and effort units.
+
+- Barplots of presence and absence of the bycatch species by year and by level of categorical and numerical variables.
+
+- CPUE of the bycatch species across categorical and numerical variables, including the effort variable.
+
+Model-based estimation methods work best of there are non-zero catches across all levels of each variable. Numerical variables can introduce bias if the observed data does not include the full range of values in the whole fishery. Also, check for instances of very high CPUE. This may happen if a catch occurs in a set/trip with low recorded effort, and these outliers may bias the results.  
+
 ## Model specification
 
 This provides guidance and summarizes arguments of the function `bycatchFit`
