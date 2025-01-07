@@ -161,6 +161,17 @@ can be stored and later retrieved for analysis.
 setupObj<-readRDS(file=paste0(getwd(), paste("/Output", "LLSIMBUMtripExample"),"/", Sys.Date(),"_BycatchModelSpecification.rds"))
 ```
 
+### Data Checking
+
+The optional function dataCheck produces summary figures and tables
+showing the sample size and presence and absence of the bycatch species
+across levels of predictor variables, observer coverage levels, and raw
+trends in CPUE. This produces an html file in the output directory.
+
+``` r
+dataCheck(setupObj)
+```
+
 ### Model fitting
 
 Estimation of bycatch and/or index of abundance is carried out by using
