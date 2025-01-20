@@ -16,7 +16,7 @@ Make plots and tables of the data
 \dontrun{
 library(BycatchEstimator)
 dataCheck(setupObj)
-#' }
+}
 #-------------------------------------------------
 }
 \keyword{Data}

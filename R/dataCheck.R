@@ -16,7 +16,7 @@
 #' \dontrun{
 #' library(BycatchEstimator)
 #' dataCheck(setupObj)
-#' #' }
+#' }
 #' #-------------------------------------------------
 
 dataCheck<-function(setupObj){
