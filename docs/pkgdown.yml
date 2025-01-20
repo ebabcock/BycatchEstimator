@@ -1,0 +1,7 @@
+pandoc: 3.1.11
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  InstallationGuide: InstallationGuide.html
+  UserGuide2: UserGuide2.html
+last_built: 2025-01-20T18:55Z

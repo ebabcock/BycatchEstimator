@@ -1,0 +1,6 @@
+"0","logdatTemp<-logdat %>%
+  mutate(Effort=Effort/SampleUnites) %>%
+  uncount(SampleUnits)
+"
+"2","Error: object 'logdat' not found
+"
