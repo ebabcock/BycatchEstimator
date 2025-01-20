@@ -1,5 +1,9 @@
 ---
 title: "Installing bycatch estimator"
+vignette: >
+  %\VignetteIndexEntry{InstallationGuide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 author: "Beth Babcock"
 date: "`r Sys.Date()`"
 output: html_document

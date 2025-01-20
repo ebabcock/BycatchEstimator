@@ -733,7 +733,6 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @param obsdatval Value
 #' @param includeObsCatch Value
 #' @param requiredVarNames Value
-#' @param CIval Value
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value

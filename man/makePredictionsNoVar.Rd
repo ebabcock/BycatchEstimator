@@ -44,8 +44,6 @@ makePredictionsNoVar(
 \item{dirname}{Value}
 
 \item{run}{Value}
-
-\item{CIval}{Value}
 }
 \description{
 Generate predictions without estimating variance
