@@ -1,0 +1,266 @@
+---
+title: "Design based estimators and pooling"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+This tutorial gives some practice in working with design-based estimators, including different pooling methods, using the data sets included with the tool. First load the libraries:
+
+```{r, message=FALSE, warning=FALSE}
+# devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed and up to date
+library(BycatchEstimator)
+library(MuMIn)
+```
+
+Then look at the simulated longline data. This is generated from Phil Goodyear's species distribution and longline fishery simulator. The data in both the logbook and observer data are at trip-by-trip.  There is a variable called *trip* which can be used to match the sampled trips in the observer data to the corresponding trips in the logbook.   
+
+```{r}
+print(head(LLSIM_BUM_Example_observer))
+print(head(LLSIM_BUM_Example_logbook))
+```
+
+To understand how stratified estimators work, let's stratify by year, fleet and area (N vs. S Atlantic). The bycatch response variable is the catch of blue marlin *BUM* and effort is in *hooks*. Note that the the design-based estimators are calculated in the bycatchSetup function, so many of the inputs for model-based estimation can be left blank and go to their default values (see help file for bycatchSetup). However, if you want to use bycatchFit later, you should include some models in modelTry. 
+
+Let's run this first with no pooling.
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal"),
+ obsdat = LLSIM_BUM_Example_observer,
+  logdat = LLSIM_BUM_Example_logbook,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area","fleet"), #To be sure that factors are not interpreted as numbers
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,  #Should be true
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet),  #Complex model not used in this set
+  simpleModel = formula(y~Year+area), # This defines strata for the models, and also some output files
+  indexModel = formula(y~Year+area),  # not used
+  designMethods =c("Ratio","Delta"),  #THis specifies the design-based methods to use
+  designVars=c("Year","area","fleet"),  #Stratification variables
+  designPooling = FALSE,  #No pooling.  #Bycatch will be estimated at 0 for strata with no observer data
+  baseDir = getwd(),
+  runName = "LLSIMBUMNoPool",
+  runDescription = "LLSIm BUM with no pooling",
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+```
+
+This part of the tool doesn't make any graphs, but it did print out the data in files labelled DesignYear and DesignStrata. We can read them in and plot them. The annual summaries are also in the object made by bycatchSetup, were we can access them. For example, the following reads in the annual summary and plots the ratio estimator. 
+
+```{r}
+yearSum<-read.csv("Output LLSIMBUMNoPool/Blue marlin catch/Blue marlincatchDesignYear.csv") 
+head(yearSum)
+ggplot(yearSum,aes(x=Year,y=ratioMean))+
+    geom_line()+
+    geom_ribbon(aes(ymin=ratioMean-ratioSE,ymax=ratioMean+ratioSE),alpha=0.5)
+```
+
+If you open the file called designStrata, you can see that some strata have zero estimates. This may mean that those combinations of the designVars *Year*, *season* and *area* have effort in the logbooks, but are not sampled by observers. The file labelled strataSummary has summaries of the total and observed catches, number of positive catches, etc. from the strata defined in simpleModel. If we include all three designVars in simpleModel, we can see these data summaries in the same strata as the design based estimates. 
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal"),
+ obsdat = LLSIM_BUM_Example_observer,
+  logdat = LLSIM_BUM_Example_logbook,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area","fleet"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet),
+  simpleModel = formula(y~Year+area+fleet),  # added fleet here
+  indexModel = formula(y~Year+area),
+  designMethods =c("Ratio","Delta"),
+  designVars=c("Year","area","fleet"),
+  designPooling = FALSE,
+  baseDir = getwd(),
+  runName = "LLSIMBUMNoPool",
+  runDescription = "LLSIm BUM with no pooling",
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+
+```
+
+Now, we can see in strataSummary that there are indeed some strata with logbook effort and no observer effort. We can resolve this by pooling. We need to add some more inputs to define the pooling. 
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal"),
+ obsdat = LLSIM_BUM_Example_observer,
+  logdat = LLSIM_BUM_Example_logbook,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area","fleet"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet),
+  simpleModel = formula(y~Year+area+fleet),  
+  indexModel = formula(y~Year+area),
+  designMethods =c("Ratio","Delta"),
+  designVars=c("Year","area","fleet"),
+  designPooling = TRUE,  #make this true
+  poolTypes = c("adjacent","all","all"),  #Pool by adjacent years, and all fleets or all areas 
+  pooledVar = c("Year","area","fleet"),  #Pool variables in this order
+  adjacentNum = c(2,NA,NA),  #Pool 2 years before and after
+  minStrataUnit = 2,  #Pool if there are fewer than 2 trips in a stratum
+  baseDir = getwd(),
+  runName = "LLSIMBUMPool2",
+  runDescription = "LLSIm BUM with pooling 2 or fewer trips",  
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+
+```
+
+In this example, we pooled by year, area and fleet, in that order. If a stratum had less than  minStrataUnit=2 trips, we pooled with the two years before and after, for a total of 5 years. The file called Pooling gives details on how the pooling worked in each statum. The column called *needs.pooling* should be FALSE for all, if the pooling algorithm gave a sufficiently large pool to make the estimate for the stratum. The column *poolnum* gives the level of pooling, where 1 is just the first variable (Year), 2 is the second variable, etc. The column *pooled.n* give the sample size in the pool for that stratum, which can be the same as the observed n in the stratum, if n was above the minimum. For example, look at *Year* 1996, *fleet* 3, and *area* N. 
+
+```{r}
+pooling<-read.csv("Output LLSIMBUMPool2/Blue marlin catch/Blue marlincatchPooling.csv") 
+head(pooling)
+filter(pooling,Year %in% 1994:2000, fleet==3, area=="N")
+```
+
+You can see that years 1996 and 1998 both needed to be pooled (*units* of 2 or less). There was no effort in 1994 or 1995 in this area and fleet. So the pool for year 1996 was 1996 to 1998, which gave a pooled sample size (*pooled.n*) of 2+3+1=6. This was above minStrataUnit, so that pool was sufficient and *poolnum* was one, meaning no further pooling. Does the *pooled.n* value for 1998 make sense?
+
+Let's look at a stratum that needed more pooling. 
+
+```{r}
+print(filter(pooling,Year %in% 2002:2006, fleet==1))
+
+```
+
+This fleet had one trip in the area in 2003, and zero in 2002 and 2004, so combining years did not give enough trips for a pool for the 2004 estimate. So, *poolnum* is 2, and the *pooled.n* includes all areas for that fleet in that year. 
+
+```{r}
+nrow(filter(LLSIM_BUM_Example_observer,Year %in% 2002:2006,fleet==1))
+```
+
+You can plot what fraction of the strata are pooled to each level as a diagnostic that the pooling works as intended.
+
+```{r}
+ggplot(pooling,aes(x=Year,fill=factor(poolnum)))+
+  geom_bar()+
+  ggtitle("Count of strata per year with number of dimensions pooled")
+```
+
+Now have a higher minimum number of observed trips. 
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal"),
+ obsdat = LLSIM_BUM_Example_observer,
+  logdat = LLSIM_BUM_Example_logbook,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area","fleet"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet),
+  simpleModel = formula(y~Year+area+fleet),  
+  indexModel = formula(y~Year+area),
+  designMethods =c("Ratio","Delta"),
+  designVars=c("Year","area","fleet"),
+  designPooling = TRUE,  #make this true
+  poolTypes = c("adjacent","all","all"),  
+  pooledVar = c("Year","area","fleet"), 
+  adjacentNum = c(2,NA,NA),  
+  minStrataUnit = 5,  #Pool if there are 5 or fewer trips in a stratum
+  baseDir = getwd(),
+  runName = "LLSIMBUMPool5",  #update name
+  runDescription = "LLSIm BUM with pooling <5 trips",    #update descritipn
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+pooling<-read.csv("Output LLSIMBUMPool5/Blue marlin catch/Blue marlincatchPooling.csv") 
+ggplot(pooling,aes(x=Year,fill=factor(poolnum)))+
+  geom_bar()+
+  ggtitle("Count of strata per year with number of dimensions pooled")
+
+```
+
+Another option for pooling is to add another column to the data that is a more aggregated variable to use when the original data doesn't meet the minimum sample size requirement. For example, if the strata were months, the variable to pool on (if needed) could be season. Let's try that.
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal"),
+ obsdat = LLSIM_BUM_Example_observer,
+  logdat = LLSIM_BUM_Example_logbook,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area","fleet","month"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+month),
+  simpleModel = formula(y~Year+area+fleet),  
+  indexModel = formula(y~Year+area),
+  designMethods =c("Ratio","Delta"),
+  designVars=c("Year","area","fleet","month"), #Added month to the model
+  designPooling = TRUE,  
+  poolTypes = c("adjacent","all","all","pooledVar"),  
+  pooledVar = c("Year","area","fleet","season"), 
+  adjacentNum = c(2,NA,NA),  
+  minStrataUnit = 5,  #Pool if there are 5 or fewer trips in a stratum
+  baseDir = getwd(),
+  runName = "LLSIMBUMPoolMonth",  #update name
+  runDescription = "LLSIm BUM with pooling <5 trips with mont",    #update description
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+pooling<-read.csv("Output LLSIMBUMPoolMonth/Blue marlin catch/Blue marlincatchPooling.csv") 
+ggplot(pooling,aes(x=Year,fill=factor(poolnum)))+
+  geom_bar()+
+  ggtitle("Count of strata per year with number of dimensions pooled")
+
+```
+
+This stratification scheme requires pooling for nearly all the strata. It still works, but the resulting estimates will be somewhat smoothed by the pooling process. 
+
+
+## Extra code for making plots
+
+```{r}
+yearSumLong<-pivot_longer(yearSum,ratioMean:deltaSE,names_to = "Method") %>%
+  mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
+    Method=sub("Mean","",Method),
+    Method=sub("SE","",Method)) %>%
+  pivot_wider(names_from=parameter,values_from=value)
+head(yearSumLong)
+ggplot(yearSumLong,aes(x=Year,y=Mean,ymin=Mean-SE,ymax=Mean+SE,color=Method,fill=Method))+
+  geom_line()+
+  geom_point()+
+  geom_ribbon(alpha=0.5)
+```

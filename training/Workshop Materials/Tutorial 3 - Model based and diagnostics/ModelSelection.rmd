@@ -1,0 +1,163 @@
+---
+title: "Fitting and selecting the models"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+This tutorial will run the model and then evaluate model selection and diagnostics, including
+
+1. Checking the the model was able to fit at all.
+
+2. Selecting predictor variables using information criteria within each group of models.
+
+3. Using cross-validation to compare the best model in each group. 
+
+4. Comparing bycatch predictions from the best model in each group.
+
+5. Checking model diagnostics, such as quantile residuals.
+
+6. Choosing the best model.
+
+
+```{r, message=FALSE, warning=FALSE}
+# devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed
+library(BycatchEstimator)
+library(MuMIn)
+library(tidyverse)
+library(flextable)
+```
+
+Model fitting and model selection can be slow. So, for the purposes of this demonstration, we will limit the data to 5 year period so it will run faster. 
+
+```{r}
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+```
+
+To try multiple models, we must set them up in modelSetup. The input modelTry is the list of model types to fit and possibly compare with cross-validation.The are explained in the bycatchSetup help file. If the model type starts with TMB, it will be fit in Template Model Builder using the glmmTMB library, otherwise the are fit using other R libraries, including ordinary lm or glm. Results for Tweedie vs. TMBtweedie, or NegBin vs. TMBnbinom2 should be identical.
+
+The inputs complexModel and simpleModel give the range of models to be evaluated with information criteria in each model group. The simpleModel should not include any interactions.  
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom1","NegBin","TMBnbinom2","TMBtweedie"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","season","area","fleet"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum = NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+season+area+fleet +area:season), #upper range of models to compare with information criteria,
+  simpleModel = formula(y~Year), #lower range of models to compare
+  indexModel = formula(y~Year),
+  designMethods ="None",
+  baseDir = getwd(),
+  runName = "LLSIMBUMModel1",
+  runDescription = "LLSIm BUM with model comparison",
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch = "BUM",
+  catchUnit = "number",
+  catchType = "catch"
+)
+```
+
+Now run bycatchFit. The input setupObj is the output from bycatchSetup. The selectCriteria will be used to select the best combination of predictor variables. This may be any of the criteria for ranking models in the MuMIn dredge function. Bayesian information criterion (BIC) works well.  
+
+```{r}
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,  #Generally should be FALSE.
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,  
+  nSims = 100,
+  baseDir = getwd(),
+)
+```
+
+As the model is running, it prints out some text about how the models are being selected, which you can ignore. It is done when it says "1 Blue marlin complete" along with the time. Tables and figures are all printed to a pdf file called BluemarlincatchResults.pdf, along with .csv files with all the data for all the figures and tables. 
+
+1. Checking the the model was able to fit at all
+
+Table 2 in the pdf labelled bluemarlincatchresults.pdf includes a summary of the model fitting diagnostics.  The column labelled *Failure* will have a dash if the model was able to fit successfully. If the model was not able to fit, there will be a word saying the model failed due to "data" (meaning that that the model was not able to fit the delta models due to all zero all all non-zero observations), "fit" (meaning the model never converged) or "CV" (meaning predicted CVs were too large). If any models failed this step, there will be no results for that model. In this case, only delta-lognormal failed, based on the CV criteria. These is usually cause by too few positive observations in a strata, leading to an infinite variance, which is a common problem with delta-models. This information is also in a table called modelFail.csv, which will have a row for each species if running multiple species in a loop.
+
+```{r}
+modelFail<-read.csv("Output LLSIMBUMModel1/modelFail.csv")
+modelFail %>% flextable()
+```
+
+2. Selecting predictor variables using information criteria within each group of models.
+
+The first step in model selection is to choose predictor variables using information criteria. This is done for each of the model types listed in modelTry. Table 2 in the pdf gives the formula for the BIC best model in each model group. The information criteria tables are also available given for each model group further down in the pdf file, and in .csv files. For example, for the Negative Binomial model (NegBin) the best model includes area, fleet and year. We can see the ranking of other models in the file labelled modelSelectionNegbin.csv.
+
+
+```{r,message=FALSE}
+negBinSel<-read_csv("Output LLSIMBUMModel1/Blue marlin catch/Blue marlincatchModelSelectionNegBin.csv")
+negBinSel %>%
+  mutate_if(is.numeric,round,digits=1) %>%
+  flextable()
+```
+
+This gives the information criteria for the models, sorted from best to worst, along with model weights calculated from the information criterion we selected (BIC). If there were two models with similar weight, both might be viable. 
+
+3. Using cross-validation to compare the best model in each group. 
+
+After we find the best model in each group, the next step is to use cross-validation to compare models across groups in terms of their ability to predict CPUE. For delta models, like delta-lognormal, both the binomial and lognormal models are used together to predict CPUE, so the binomial model doesn't have it's own value in the crossvalidation tables. Table 2 gives the root mean squared error and mean error to compare the best models in each group. In this example, there are not enough digits to see the results clearly, but you can look at the .csv file. 
+
+```{r}
+crossValSummary<-read.csv("Output LLSIMBUMModel1/Blue marlin catch/crossValSummary.csv")
+crossValSummary %>%
+  mutate_if(is.numeric,round,digits=4) %>%
+  flextable()
+
+```
+
+Smallest RMSE and ME closest to zero are best. Figure 2 in the .pdf file shows boxplots or RMSE and ME across 10 folds of the 10-fold cross validation. The RMSE values are very similar with but Tweedie has the best. The csv files called rmse and me have the numbers to recreate these figures.
+
+```{r}
+rmse<-read.csv("Output LLSIMBUMModel1/Blue marlin catch/rmse.csv") %>% 
+  pivot_longer(TMBdelta.Lognormal:TMBtweedie, names_to="Model", values_to="RMSE") 
+ggplot(rmse,aes(x=Model,y=RMSE)) + geom_boxplot()
+me<-read.csv("Output LLSIMBUMModel1/Blue marlin catch/me.csv") %>% 
+  pivot_longer(TMBdelta.Lognormal:TMBtweedie, names_to="Model", values_to="ME") 
+ggplot(me,aes(x=Model,y=ME)) + geom_boxplot()
+```
+
+4. Comparing bycatch predictions from the best model in each group.
+
+Figure 1 in the .pdf document shows the bycatch predictions, with confidence intervals if varCalc was used, along with the estimate from the design based estimators used in setupBycatch, if any. There is also an unstratified ratio estimator, called "ratio" which is included as a reality check to make sure there are no errors in the scaling of the output. If any models are very different from the others, that may indicate that not all models are consistent with the data. The bycatch predictions are also plotted one model at a time later in the .pdf, and the data are in the .csv files. 
+
+```{r}
+ResultsNegBin<-read.csv("Output LLSIMBUMModel1/Blue marlin catch/Blue marlincatchNegbinAnnualSummary.csv")
+ggplot(ResultsNegBin,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI))+
+  geom_line()+
+  geom_ribbon(alpha=0.5)
+```
+
+5. Checking model diagnostics, such as quantile residuals.
+
+The file Bluemarlincatchresults.pdf has a four panel residual plot for each model and the same figures are also included separately as pdfs. The four panels are: (a) ordinary residuals, i.e plotting $y-\hat{y}$ against $\hat{y}$, (b) the qqnormal plot of the ordinary residuals, (c) a qquniform plot of the quantile residuals, and (d) quantile residuals against model predictions. Part c and d are the plots generated by the DHARMa library. The residuals are calculated by simulating data from the defined model and likelihood function and calculating the quantile calculated from each data point. If the model is adequately specified, the scaled residuals should be uniformly distributed between 0 and 1. This will be seen in all the points following the line in the qq plot, and all the median, 25th and 75th percentiles (red lines in d are a smooth) being horizontal and in the right place. The ordinary residuals are only appropriate for normal or lognormal models. For models with complex variance functions or integer responses (binomial and negative binomial) the quantile residuals are more appropriate. The DHARMa library also produces a set of diagnostic checks, which are given are given in Table 3 of the results document, and in residualDiagnostics.csv
+
+```{r}
+residualDiagnostics<-read.csv("Output LLSIMBUMModel1/Blue marlin catch/residualDiagnostics.csv")
+residualDiagnostics %>%
+  mutate_if(is.numeric,round,digits=1) %>%
+  flextable()
+
+```
+
+The diagnostics include a test of whether the quantile residuals are uniformly distributed (KS), an overdispersion test, a zero inflation test and an outlier test. In all cases, signficant P values indicate potential problems. As usual with hypothesis tests like this, the Null hypothesis is that the data do not have the problem, so that larger datasets are more likely to find significant P values. At the same time, larger datasets are more robust to minor violations of model assumptions. Thus, although there is an option in bycatchFit to exclude models that fail the KS distribution test, it doesn't seem to perform well. In this case, negative binomal 2/NegBin pass all the tests, and negative binomial 1 and Tweedie have some failures.
+
+
+6. Choose the best model.
+
+It is not possible to completely automate the problem of model selection. In this case, all models performed very similarly in cross validation (excluding the delta-lognormal, which was not appropriate), and the DIC preferred the same combination of predictor variables for all models. the models produced quite similar results. Negative binomial 2 had the best residuals, so it would seem like a reasonable choice. 

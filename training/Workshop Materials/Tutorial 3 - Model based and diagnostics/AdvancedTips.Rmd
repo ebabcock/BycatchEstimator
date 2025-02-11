@@ -1,0 +1,308 @@
+---
+title: "Advanced and specialized features"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+This tutorial has some advanced and specialized methods.
+
+    a. Running more than one species at once.
+
+    b. Matching trips to estimate bycatch in unsampled effort only
+
+    c. Making year a number, polynomial regression on year, or leaving year out of the model
+
+    d. Validation data. 
+
+
+```{r, message=FALSE, warning=FALSE}
+# devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed
+library(BycatchEstimator)
+library(MuMIn)
+library(tidyverse)
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+
+```
+
+a. Running more than one species at once.
+
+To run multiple species or catch types (eg bycatch vs. catch) at once, all species must have their own column in the observer data. The inputs common,  sp  obsCatch, catchUnit and catchType may all be vectors to run multiple species or catch types. All these vectors must have the same length. Running multiple species together only works if you want to use the same variables and model set up for each species. The information criteria and cross validation may select different models for each species. 
+
+We will run both blue marlin and swordfish together.
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom2"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  factorNames = c("Year","area"),
+  EstimateIndex = TRUE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet ), 
+  simpleModel = formula(y~Year), 
+  indexModel = formula(y~Year+area), 
+  designMethods =c("Ratio","Delta"),
+  baseDir = getwd(),
+  runName = "LLSIMBUMSWO",
+  runDescription = "LLSIm blue marlin and swordfish",
+  common = c("Blue marlin","Swordfish"),  #common name vector
+  sp = c("Makaira nigricans","Xiphias gladius") , #scientific name vector
+  obsCatch = c("BUM","SWO"), #Column name vector
+  catchUnit = "number",  #Will be replicated if one number is given
+  catchType = "catch"  #Will be replicated if one number is given
+)
+```
+
+There are now folders for each species. The preliminary data summary results include all species together in one file, so that you can check whether each species has enough positive observations for delta models, etc. 
+
+```{r}
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = "none",
+  useParallel = TRUE,   
+  nSims = 100,
+  baseDir = getwd(),
+)
+
+
+```
+
+The model runs a loop with the two species, so you will see a notification when each species finishes. This might take some time. The file called modelfail.csv will now include a row for each species, so you can see at a glance which models work. All the other results are in separate folders for each species. 
+
+b. Matching trips to estimate bycatch for unsampled effort
+
+If it is possible to match individual trips in the observer and logbook data, and the observed effort is less than the total effort, you can predict only unobserved effort. If observers include only part of the effort in a trip, the data can include both observed and unobserved effort. For the LLSIM data, the matching variable is the trip ID. You must now specify logUnsampledEffort, includeObsCatch, and matchColumn. All trips from obsdat must match trips in logdat. logUnsampledEffort must be the name of a column in logdat with the unsampled effort in the trip. This can be zero if observers sample all effort in a trip, as in this example.
+
+```{r}
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom2"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  logUnsampledEffort = "unsampledEffort",  #A column in logbook with all zeros
+  includeObsCatch = TRUE,  #True to include observed catch as a constant
+  matchColumn = "trip",  #Must have the same name in obsdat and logdat
+  factorNames = c("Year","fleet","area"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet ), 
+  simpleModel = formula(y~Year), 
+  indexModel = formula(y~Year+area), 
+  designMethods =c("Ratio","Delta"),
+  baseDir = getwd(),
+  runName = "LLSIMBUMobscat",
+  runDescription = "LLSIm BUM including observed catch as a constant",
+  common = c("Blue marlin","Swordfish")[1], 
+  sp = c("Makaira nigricans","Xiphias gladius")[1] , 
+  obsCatch = c("BUM","SWO")[1], 
+  catchUnit = "number",  
+  catchType = "catch"  
+)
+
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,  
+  nSims = 100,
+  baseDir = getwd(),
+)
+```
+
+The variance of the estimated total bycatch is now slightly lower. However, with an observer coverage of only 5% there isn't much difference. 
+
+c. Making year a number, polynomial regression, pooling years in the model
+
+When there are too few observations in each year to estimate an independent year effect, it may be desirable to make year a number rather than a factor. The model  *y~Year* is thus a linear regression with year. It also works to put in year squared and year cubed terms, and let the information criteria select the best model. This allows for fitting trends with complex shapes, but estimating a smaller number of parameters. 
+
+```{r}
+obsdatTest$Year<-as.numeric(as.character(obsdatTest$Year))
+logdatTest$Year<-as.numeric(as.character(logdatTest$Year))
+
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom2"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  logUnsampledEffort = NULL,
+  includeObsCatch = FALSE,  
+  matchColumn = NULL,
+  factorNames = c("fleet","area"), #Year no longer a factor
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet +I(Year^2)+I(Year^3)),  #Year is still in formula, now with polynomial
+  simpleModel = formula(y~Year), 
+  indexModel = formula(y~Year+area), 
+  designMethods =c("Ratio","Delta"),
+  baseDir = getwd(),
+  runName = "LLSIMBUMNumyear",
+  runDescription = "LLSIm BUM numeric year",
+  common = c("Blue marlin","Swordfish")[1], 
+  sp = c("Makaira nigricans","Xiphias gladius")[1] , 
+  obsCatch = c("BUM","SWO")[1], 
+  catchUnit = "number",  
+  catchType = "catch"  
+)
+
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,  #Make this FALSE if parallel processing doesn't work. 
+  nSims = 100,
+  baseDir = getwd(),
+)
+```
+
+In this case, the information criteria included a squared term. 
+
+```{r}
+Resultsnbinom<-read.csv("Output LLSIMBUMNumyear/Blue marlin catch/Blue marlincatchTMBnbinom2AnnualSummary.csv")
+ggplot(Resultsnbinom,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI))+
+  geom_line()+
+  geom_ribbon(alpha=0.5)
+
+```
+
+Another method that might be useful for bycatch estimation with small sample sizes is to not include year in the model. The estimates will still be annual, but the model doesn't necessarily need to include year. The following tests a two year time block, and also allows
+the model to estimate a null model by setting simpleModel=formula(y~1)
+
+
+```{r}
+obsdatTest$Year2<-2*trunc(obsdatTest$Year/2)
+logdatTest$Year2<-2*trunc(logdatTest$Year/2)
+
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom2"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",  #Keep year in the inputs because effort will be expanded by year
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  logUnsampledEffort = NULL,
+  includeObsCatch = FALSE,  
+  matchColumn = NULL,
+  factorNames = c("Year2","fleet","area"), #Two year time blocks now used as a variable
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year2+area+fleet),  #Year is not in the formula
+  simpleModel = formula(y~1),  #Even Year2 not needed in formula 
+  indexModel = NULL, 
+  designMethods =c("None"),
+  baseDir = getwd(),
+  runName = "LLSIMBUM2year",
+  runDescription = "LLSIm BUM 2 year blocks",
+  common = c("Blue marlin","Swordfish")[1], 
+  sp = c("Makaira nigricans","Xiphias gladius")[1] , 
+  obsCatch = c("BUM","SWO")[1], 
+  catchUnit = "number",  
+  catchType = "catch"  
+)
+
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,   
+  nSims = 100,
+  baseDir = getwd(),
+)
+```
+As you can see in the output .pdf file, the best model is now the one that has the year2 variable, which is estimating a single coefficient for each 2 year block. There is still a different bycatch estimation for each year, becasue each year has a different total effort, and a different distribution of the other variables, effort and fleet. 
+
+
+d. Validation data. 
+
+With simulated data you can compare the estimated total bycatch to true total bycatch, as we will do here. With real data, you can use the tool to predict total landed catch as a test of the methodology. The validation data must be input in bycatchFit using 
+
+```{r}
+trueVals<-read.csv("TotalAnnualCatches.csv")
+trueVals<-filter(trueVals,Year %in% 2011:2015)
+setupObj<-bycatchSetup(
+ modelTry = c("TMBdelta-Lognormal","TMBnbinom2"), #model types to compare
+ obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  logUnsampledEffort = NULL,
+  includeObsCatch = TRUE,  
+  matchColumn = "trip",  
+  factorNames = c("Year","fleet","area"),
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  logNum=NA,
+  sampleUnit = "trips",
+  complexModel = formula(y~Year+area+fleet ), 
+  simpleModel = formula(y~Year), 
+  indexModel = formula(y~Year+area), 
+  designMethods =c("Ratio","Delta"),
+  baseDir = getwd(),
+  runName = "LLSIMBUMSWO2",
+  runDescription = "LLSIm BUM obsCat Validate",
+  common = c("Blue marlin","Swordfish")[1], 
+  sp = c("Makaira nigricans","Xiphias gladius")[1] , 
+  obsCatch = c("BUM","SWO")[1], 
+  catchUnit = "number", 
+  catchType = "catch"  
+)
+
+bycatchFit(
+  setupObj,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  DredgeCrossValidation = FALSE,
+  ResidualTest = FALSE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,  
+  nSims = 100,
+  plotValidation = TRUE,  #Make this true to include validation data in the plot
+  trueVals = trueVals,  #Include the name of the data frame with the validation data (annual only)
+  trueCols = c("Total.BUM","Total.SWO")[1],  #Names of columns in trueVals.
+  baseDir = getwd(),
+)
+```
+
+The Validation data points are now plotted as points in figure 1 of the .pdf files. 
+
+
+
+
+
+
+
