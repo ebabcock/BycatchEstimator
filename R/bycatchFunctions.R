@@ -1877,8 +1877,8 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
       bb<-1:nrow(obsdatval)
     }
     if(poolTypes[1]=="pooledVar") {
-      aa<-aa[aa %in% which(poolingSum[,pooledVar[1]]==poolingSum[i,pooledVar[1]])]
-      bb<-bb[bb %in% which(obsdatval[,pooledVar[1]]==poolingSum[i,pooledVar[1]])]
+      aa<-which(poolingSum[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
+      bb<-which(obsdatval[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
     }
     if(poolTypes[1]=="adjacent") {
       aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
