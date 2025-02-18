@@ -171,9 +171,10 @@ bycatchSetup <- function(
   allVarNames<-as.vector(getAllTerms(complexModel))
   allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)]
   allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)]
+  allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
   if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL
   if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
-  if(designPooling & length(pooledVar[!is.na(pooledVar)>0])) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
+  if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
   allVarNames<-unique(c(allVarNames,temp,temp2,designVars))
   if(!all(allVarNames %in% names(obsdat)))
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
