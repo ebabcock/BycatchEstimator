@@ -1,0 +1,17 @@
+"0","library(lme4)"
+"2","Loading required package: Matrix
+"
+"2","
+Attaching package: ‘Matrix’
+
+"
+"2","The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+"
+"0","ggplot(sleepstudy,aes(x=Days,y=Reaction))+"
+"0","  stat_smooth(aes(color=Subject,fill=Subject),method=""lm"")+"
+"0","  geom_point(aes(color=Subject))"
+"1","[38;5;232m`geom_smooth()` using formula = 'y ~ x'[39m
+"

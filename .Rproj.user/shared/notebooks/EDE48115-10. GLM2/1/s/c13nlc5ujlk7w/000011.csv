@@ -1,0 +1,3 @@
+"0","ggplot(data.frame(aVals),aes(x=exp(a)))+"
+"0","  geom_density()+"
+"0","  ggtitle(""C/H"")"

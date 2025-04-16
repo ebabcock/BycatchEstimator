@@ -1,0 +1,13 @@
+"0","resList<-list(sleep1=as_tibble(precis(sleepFit1,depth=2),rownames=""Parameter""),"
+"0","              sleep2=as_tibble(precis(sleepFit2,depth=2),rownames=""Parameter""),"
+"0","              sleep3=as_tibble(precis(sleepFit3,depth=2),rownames=""Parameter""),"
+"0","              sleep4=as_tibble(precis(sleepFit4,depth=2),rownames=""Parameter"")"
+"0","            )"
+"2","Warning:"
+"2"," The ESS has been capped to avoid unstable estimates.
+"
+"0","resDF<-bind_rows(resList,.id=""Model"") "
+"0","ggplot(filter(resDF,grepl(""sigma"",Parameter)),"
+"0","       aes(x=Model,y=mean,color=Parameter,ymin=`5.5%`,ymax=`94.5%`))+"
+"0","  geom_point(position=position_dodge(width=0.1))+"
+"0","  geom_errorbar(width=0.1,position=position_dodge(width=0.1))"

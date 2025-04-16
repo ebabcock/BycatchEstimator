@@ -1,0 +1,5 @@
+"0",""
+"0","round(precis(sleepFit4,depth=2),2)"
+"2","Warning:"
+"2"," The ESS has been capped to avoid unstable estimates.
+"

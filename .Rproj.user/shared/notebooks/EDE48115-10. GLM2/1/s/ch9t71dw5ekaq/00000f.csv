@@ -1,0 +1,14 @@
+"0","c(predMean=apply(predVals,2,mean),
+               LCI=apply(predVals,2,quantile,p=0.05),
+               UCI=apply(predVals,2,quantile,p=0.95))
+"
+"1"," predMean "
+"1","      LCI "
+"1","      UCI "
+"1","
+"
+"1","0.3603794 "
+"1","0.2710244 "
+"1","0.4629775 "
+"1","
+"

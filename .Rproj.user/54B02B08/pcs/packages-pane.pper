@@ -1,0 +1,7 @@
+{
+    "installOptions": {
+        "installFromRepository": true,
+        "libraryPath": "C:/Users/ebabcock/AppData/Local/Programs/R/R-4.4.2/library",
+        "installDependencies": true
+    }
+}

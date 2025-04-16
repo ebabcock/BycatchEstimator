@@ -1,0 +1,6 @@
+"0","simVals<-sim(CatchModelPoisson)"
+"0","DHARMaRes = createDHARMa(simulatedResponse =t(simVals) , "
+"0","                         observedResponse = fishers$C, "
+"0","                         fittedPredictedResponse = fishers$predMean, "
+"0","                         integerResponse = TRUE)"
+"0","plot(DHARMaRes)"

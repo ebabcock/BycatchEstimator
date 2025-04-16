@@ -1,0 +1,8 @@
+"0","simVals<-sim(CatchModelNB)"
+"0","DHARMaRes = createDHARMa(simulatedResponse =t(simVals) , "
+"0","                         observedResponse = fishers$C, "
+"0","                         fittedPredictedResponse = fishers$predMeanNB, "
+"0","                         integerResponse = TRUE)"
+"2","No fitted predicted response provided, using the mean of the simulations
+"
+"0","plot(DHARMaRes)"

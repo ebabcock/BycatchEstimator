@@ -1,0 +1,6 @@
+"0","priorDF<-data.frame(priorVals)"
+"0","posteriorDF<-data.frame(a=extract.samples(CatchModelPoisson)$a)"
+"0","parVals<-bind_rows(list(prior=priorDF,posterior=posteriorDF),.id=""Distribution"")"
+"0","ggplot(parVals,aes(x=a,color=Distribution))+"
+"0","  geom_density()"
+"0",""

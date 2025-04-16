@@ -1,0 +1,6 @@
+"0","fishersZero<-fishers %>%"
+"0","  mutate(S=rbinom(nrow(fishers),size=1,prob=0.5),"
+"0","         C=rpois(nrow(fishers),catchRate*H*S))"
+"0","ggplot(fishersZero,aes(x=C))+geom_histogram()"
+"1","[38;5;232m`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.[39m
+"

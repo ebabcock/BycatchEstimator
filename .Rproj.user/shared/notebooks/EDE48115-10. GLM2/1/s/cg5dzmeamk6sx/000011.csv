@@ -1,0 +1,9 @@
+"0",""
+"0","simVals<-sim(CatchModelNoZIP)"
+"0","DHARMaRes = createDHARMa(simulatedResponse =t(simVals) , "
+"0","                         observedResponse = fishersZero$C, "
+"0","                         integerResponse = TRUE)"
+"2","No fitted predicted response provided, using the mean of the simulations
+"
+"0","plot(DHARMaRes)"
+"0",""

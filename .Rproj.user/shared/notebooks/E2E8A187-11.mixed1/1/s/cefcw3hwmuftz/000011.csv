@@ -1,0 +1,10 @@
+"0","sleepstudy <- sleepstudy %>%"
+"0","  mutate(x=standardize(sleepstudy$Days),"
+"0","         y=standardize(sleepstudy$Reaction),"
+"0","         subject=as.numeric(factor(sleepstudy$Subject)))"
+"0",""
+"0","ggplot(sleepstudy,aes(x=x,y=y))+"
+"0","  stat_smooth(aes(color=factor(subject),fill=factor(subject)),method=""lm"")+"
+"0","  geom_point(aes(color=factor(subject)))"
+"1","[38;5;232m`geom_smooth()` using formula = 'y ~ x'[39m
+"
