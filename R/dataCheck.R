@@ -31,7 +31,7 @@ dataCheck<-function(setupObj){
                 package = "BycatchEstimator", mustWork = TRUE)
   },
   error = function(c) NULL
-  )
+  ) #tries to find the markdown file; if there is an error, return NULL
   if(!is.null( mkd)){
     rmarkdown::render(mkd,
                       params=list(outDir=outDir),
