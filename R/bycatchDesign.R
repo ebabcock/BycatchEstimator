@@ -6,7 +6,7 @@
 #Roxygen header
 #'Bycatch estimation using design-based estimators
 #'
-#' ADD DESCRIPTION
+#' Produces estimates of bycatch using design-based ratio estimator and delta estimator, with the option of pooling across stratification variables.
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup_new}.
@@ -77,6 +77,113 @@ bycatchDesign_new <- function(
   minStrataUnit = 1,
   baseDir = getwd()
 ){
+
+  #unpack setup object
+
+
+
+  if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
+
+  #Make R objects to store analysis
+  poolingSum<-list()
+  includePool<-list()
+  yearSumGraph<-list()
+
+  # this needs to be inside a loop for each run/sp
+  for(run in 1:numSp) {
+  #Make annual summary
+  yearSum[[run]]<-MakeSummary(
+    obsdatval = dat[[run]],
+    logdatval = logdat,
+    strataVars = "Year", #argument within MakeSummary function, not to be changed
+    EstimateBycatch = EstimateBycatch,
+    startYear = startYear
+  )
+
+  # move this whole chunk to design function? yearSum needed for following chunk of code?
+  if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) {
+    if(designPooling) {
+      temp<-getPooling(obsdatval= dat[[run]],
+                       logdatval=logdat,
+                       minStrataUnit=minStrataUnit,
+                       designVars=designVars,
+                       pooledVar=pooledVar,
+                       poolTypes=poolTypes,
+                       adjacentNum=adjacentNum)
+      poolingSum[[run]]<-temp[[1]]
+      write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
+      includePool[[run]]<-temp[[2]]
+    } else  {
+      poolingSum[[run]]<-NULL
+      includePool[[run]]<-NULL
+    }
+
+    temp<-getDesignEstimates(obsdatval = dat[[run]],
+                             logdatval = logdat,
+                             strataVars = "Year",
+                             designVars = designVars,
+                             designPooling = designPooling,
+                             minStrataUnit = minStrataUnit,
+                             startYear = startYear,
+                             poolingSum = poolingSum[[run]],
+                             includePool= includePool[[run]]
+    )
+    yearSum[[run]]<-left_join(yearSum[[run]],temp,by="Year")
+    write.csv(temp,
+              paste0(dirname[[run]],common[run],catchType[run],"DesignYear.csv"), row.names = FALSE)
+
+    #And design based stratification
+    temp<-getDesignEstimates(obsdatval = dat[[run]],
+                             logdatval = logdat,
+                             strataVars = designVars,
+                             designVars = designVars,
+                             designPooling = designPooling,
+                             minStrataUnit = minStrataUnit,
+                             startYear = startYear,
+                             poolingSum = poolingSum[[run]],
+                             includePool= includePool[[run]]
+    )
+    write.csv(temp,
+              paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
+  }
+
+  write.csv(yearSum[[run]],
+            paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE) #does this contain design-based estimators as well?
+
+  if(EstimateBycatch) {
+    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
+    if("Ratio" %in% designMethods)
+      x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+    if("Delta" %in% designMethods)
+      x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+
+    yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
+      mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
+             Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
+      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
+
+    #Calculations at level of simple model
+    strataSum[[run]]<-MakeSummary(
+      obsdatval = dat[[run]],
+      logdatval = logdat,
+      strataVars = unique(c("Year",requiredVarNames)), #replace by factorVariables?
+      EstimateBycatch = EstimateBycatch,
+      startYear = startYear
+    )
+    write.csv(strataSum[[run]],
+              paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
+  }
+
+  } #close loop for each sp
+
+
+
+
+
+
+
+
+  # list of outputs to be saved in rds file
 
 
 

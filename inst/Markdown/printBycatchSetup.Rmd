@@ -1,0 +1,65 @@
+---
+title: "Data checks (new)"
+date: " "
+output: html_document
+header-includes:
+    - \usepackage{caption}
+    - \usepackage{float}
+---
+
+```{r setupsummary, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load-libraries,  results=FALSE,  message=FALSE}
+library(tidyverse)
+library(kableExtra)
+```
+
+```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchModelSpecification.rds"))
+
+#unpack setup obj - unpack in same order as new bycatchSetup, add new arguments
+
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
+    includeObsCatch<-matchColumn<-factorNames<-
+    EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-
+    baseDir<-runName<-runDescription<-
+    common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
+
+  numSp<-dat<-yearSum<-strataSum<-NumCores<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element; could this function create each variable without needing the previous code (creating NULL objects)?
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+
+
+```
+
+
+## Summary of input data for `r runName`
+`r Sys.Date()`
+
+```{r tablesummary, results='asis'}
+# there is a similar table in PrintResults, copy info from there
+for(run in 1:numSp) {
+  headerText<-paste0("Data summary for ",common[[run]]," (",sp[[run]],")")
+  df1<-yearSum[[run]]
+  mutate_if(
+    is.numeric,
+    ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))
+  )
+  df1 %>%
+   remove_rownames() %>%
+   kbl(caption = headerText,format="latex",label=paste0("tablesummary",run)) %>%
+   kable_styling(font_size = 8,
+     latex_options = c("hold_position","basic","scale_down")) %>%
+    print()
+}
+```
+
+
+```{r functions-datachecks, results=FALSE,  message=FALSE, echo=FALSE}
+
+```
+
+

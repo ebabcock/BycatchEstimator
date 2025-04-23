@@ -38,72 +38,64 @@
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)
-#'setupObj<-bycatchSetup_new( #reorder arguments; do we need to include optional arguments in the example?
+#'setupObj<-bycatchSetup_new( #do we need to include optional arguments in the example?
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
+#' obsCatch = "Catch",
+#' catchUnit = "number",
+#' catchType = "dead discard"
+#' logNum = NA,
+#' sampleUnit = "trips",
+#' factorVariables = c("Year","season"),
+#' numericVariables = "Value",
 #' logUnsampledEffort = NULL,
 #' includeObsCatch  = FALSE,
 #' matchColumn = NA,
-#' factorVariables = c("Year","season"),
-#' numericVariables = "Value",
 #' EstimateIndex = TRUE,
 #' EstimateBycatch = TRUE,
-#' logNum = NA,
-#' sampleUnit = "trips",
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
 #' sp = "Genus species",
-#' obsCatch = "Catch",
-#' catchUnit = "number",
-#' catchType = "dead discard"
 #')}
 
-bycatchSetup_new <- function( #reorder arguments of this function
+bycatchSetup_new <- function(
     obsdat,
     logdat,
     yearVar,
     obsEffort,
     logEffort,
+    obsCatch,
+    catchUnit,
+    catchType,
+    logNum,
+    sampleUnit,
+    factorVariables,
+    numericVariables,
     logUnsampledEffort = NULL,
     includeObsCatch  = FALSE,
     matchColumn = NA,
-    factorVariables,
-    numericVariables,
     EstimateIndex=FALSE,
     EstimateBycatch=TRUE,
-    logNum,
-    sampleUnit,
     baseDir = getwd(),
     runName,
     runDescription,
     common,
-    sp,
-    obsCatch,
-    catchUnit,
-    catchType
+    sp
 ){
 
   SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
     # drop_na: drops rows with missing values
-    # pres: presence/absence vector of cpue values
-    # Pos: Positive values
-    # OUnit: Observer units?
-    # OEff: Observer effort?
-    # Eff: Total or logbook effort?
-    # Units: Total or logbook units?
 
   #Set global conditions
   theme_set(theme_bw()) #ggplot theme
 
   defaultW <- 0 # allow code to run with warnings showing as they happen
   options(warn=defaultW)
-
-  NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing - move this to bycatchFit?
 
   # Set up variables
   obsdat<-obsdat %>% ungroup() %>%
@@ -113,9 +105,9 @@ bycatchSetup_new <- function( #reorder arguments of this function
       rename(Year=!!yearVar)
   }
 
-  # replace by something like:
-  # allVarNames <- as.vector(factorVariables,numericVariables)
-  # allVarNames <- unique(c("Year",allVarNames))
+  # set up factor variables and numeric variables
+  allVarNames <- c(factorVariables,numericVariables)
+  allVarNames <- unique(c("Year",allVarNames))
 
   if(!all(allVarNames %in% names(obsdat)))
     print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
@@ -125,15 +117,10 @@ bycatchSetup_new <- function( #reorder arguments of this function
   #It's all right not to see the variable name if it is a function of another variable that is present
 
 
-  if(EstimateIndex) { #define these variables in modelfit function?
-    indexVarNames<-as.vector(getAllTerms(indexModel))
-    if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
-  } else indexVarNames=NULL
-
   #Set up data frames
   obsdat<-obsdat %>%
     rename(Effort=!!obsEffort) %>%
-    mutate_at(vars(all_of(factorNames)),factor) # replace factorNames by factorVariables? vars deprecated, replace by across; replace mutate_at by mutate
+    mutate_at(vars(all_of(factorVariables)),factor) #vars deprecated, replace by across; replace mutate_at by mutate
 
   if(EstimateBycatch) {
     if(is.na(logNum))   {
@@ -142,7 +129,8 @@ bycatchSetup_new <- function( #reorder arguments of this function
     }
     logdat<-logdat %>%
       rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
-      mutate_at(vars(all_of(factorNames)),factor) #same changes to do here
+      mutate_at(vars(all_of(factorVariables)),factor) #same changes to do here
+
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
@@ -152,28 +140,9 @@ bycatchSetup_new <- function( #reorder arguments of this function
 
   }
 
-
-  #indexDat for making index - what is this code used for?
-  if(EstimateIndex) {
-    indexDat<-distinct_at(obsdat,vars(all_of(indexVarNames)),.keep_all=TRUE) %>%
-      arrange(Year) %>%
-      mutate(Effort=1)
-    temp<-allVarNames[allVarNames != "Year"]
-    for(i in 1:length(temp)) {
-      if(!temp[i] %in% indexVarNames) {
-        if(is.numeric(pull(obsdat,!!temp[i])))
-          indexDat[,temp[i]]<-median(pull(obsdat,!!temp[i]),na.rm=TRUE) else
-            indexDat[,temp[i]]<-mostfreqfunc(obsdat[,temp[i]])
-      }
-    }
-  } else indexDat<-NULL
-
-  #Subtract first year if numeric to improve convergence - keep this here?
+  # define startYear
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
-    obsdat$Year<-obsdat$Year-startYear
-    if(EstimateBycatch) logdat$Year<-logdat$Year-startYear
-    if(EstimateIndex)  indexDat$Year<-indexDat$Year-startYear
   } else startYear<-min(as.numeric(as.character(obsdat$Year)))
 
   #Set up variables if looping over species
@@ -187,32 +156,16 @@ bycatchSetup_new <- function( #reorder arguments of this function
   outDir<-paste0(baseDir, paste("/Output", runName))
   if(!dir.exists(outDir)) dir.create(outDir)
 
-  #Make R objects to store analysis - keep all here?
-  modelTable<-list()
-  modelSelectTable<-list()
-  modFits<-list()
-  modPredVals<-list()
-  modIndexVals<-list()
-  residualTab<-list()
-  bestmod<-NULL
-  predbestmod<-list()
-  indexbestmod<-list()
-  allmods<-list()
-  allindex<-list()
-  modelFail<-matrix("-",numSp,length(modelTry),dimnames=list(common,modelTry))
-  rmsetab<-list()
-  metab<-list()
+  #Make R objects to store analysis - check use of each one of these objects
   strataSum<-list()
   yearSum<-list()
-  yearSumGraph<-list()
-  poolingSum<-list()
-  includePool<-list()
+
 
   #Make lists to keep output, which will also be output as .pdf and .csv files for use in reports.
   dirname<-list()
   dat<-list()
 
-  #Loop through all species and print data summary. Note that records with NA in either catch or effort are excluded automatically
+  #Loop through all species and print data summary and data checks. Note that records with NA in either catch or effort are excluded automatically
   for(run in 1:numSp) {
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
@@ -220,7 +173,7 @@ bycatchSetup_new <- function( #reorder arguments of this function
     if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
       tempvars<-c(allVarNames,"Effort","Catch")
 
-    if(!"Year" %in%  tempvars) tempvars<-c("Year",tempvars)
+    if(!"Year" %in%  tempvars) tempvars<-c("Year",tempvars) #hasn't this been done before?
 
     dat[[run]]<-obsdat %>%
       rename(Catch=!!obsCatch[run])%>%
@@ -232,186 +185,89 @@ bycatchSetup_new <- function( #reorder arguments of this function
 
     if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
 
-    #Make annual summary
+    #Make annual summary - should this be inside an if EstimateBycatch statement?
     yearSum[[run]]<-MakeSummary(
       obsdatval = dat[[run]],
       logdatval = logdat,
-      strataVars = "Year",
+      strataVars = "Year", #strataVars argument within MakeSummary function, not to be changed
       EstimateBycatch = EstimateBycatch,
       startYear = startYear
     )
-
-    if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) {
-      if(designPooling) {
-        temp<-getPooling(obsdatval= dat[[run]],
-                         logdatval=logdat,
-                         minStrataUnit=minStrataUnit,
-                         designVars=designVars,
-                         pooledVar=pooledVar,
-                         poolTypes=poolTypes,
-                         adjacentNum=adjacentNum)
-        poolingSum[[run]]<-temp[[1]]
-        write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
-        includePool[[run]]<-temp[[2]]
-      } else  {
-        poolingSum[[run]]<-NULL
-        includePool[[run]]<-NULL
-      }
-      temp<-getDesignEstimates(obsdatval = dat[[run]],
-                               logdatval = logdat,
-                               strataVars = "Year",
-                               designVars = designVars,
-                               designPooling = designPooling,
-                               minStrataUnit = minStrataUnit,
-                               startYear = startYear,
-                               poolingSum = poolingSum[[run]],
-                               includePool= includePool[[run]]
-      )
-      yearSum[[run]]<-left_join(yearSum[[run]],temp,by="Year")
-      write.csv(temp,
-                paste0(dirname[[run]],common[run],catchType[run],"DesignYear.csv"), row.names = FALSE)
-      #And design based stratification
-      temp<-getDesignEstimates(obsdatval = dat[[run]],
-                               logdatval = logdat,
-                               strataVars = designVars,
-                               designVars = designVars,
-                               designPooling = designPooling,
-                               minStrataUnit = minStrataUnit,
-                               startYear = startYear,
-                               poolingSum = poolingSum[[run]],
-                               includePool= includePool[[run]]
-      )
-      write.csv(temp,
-                paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
-    }
     write.csv(yearSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE)
+
     if(EstimateBycatch) {
-      x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
-      if("Ratio" %in% designMethods)  x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
-      if("Delta" %in% designMethods)  x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
-      yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
-        mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
-               Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
-        mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
       #Calculations at level of simple model
-      strataSum[[run]]<-MakeSummary(
+      strataSum[[run]]<-MakeSummary( #does this need to be inside if EstimateBycatch statement?
         obsdatval = dat[[run]],
         logdatval = logdat,
-        strataVars = unique(c("Year",requiredVarNames)),
+        strataVars = unique(c("Year",requiredVarNames)), #replace by factorVariables?
         EstimateBycatch = EstimateBycatch,
         startYear = startYear
       )
       write.csv(strataSum[[run]],
                 paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
     }
-  }
+  } #close loop for each sp
+
   #Create report
-  save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
+  #save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
   mkd<-tryCatch({
-    system.file("Markdown", "PrintDataSummary.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+    system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
   },
   error = function(c) NULL
   )
+
   if(!is.null( mkd)){
     rmarkdown::render(mkd,
                       params=list(outDir=outDir),
-                      output_file = "DataSummary.pdf",
+                      output_file = "Data checks (new).html",
                       output_dir=outDir,
                       quiet = TRUE)
   }
 
-  for(run in 1:numSp) { #move this code chunk to model fit?
-    residualTab[[run]]<-matrix(0,8,length(modelTry),dimnames=list(c("KS.D","KS.p", "Dispersion.ratio","Dispersion.p" ,
-                                                                    "ZeroInf.ratio" ,"ZeroInf.p","Outlier" , "Outlier.p"),
-                                                                  modelTry))
-    modelTable[[run]]<-data.frame(model=modelTry,
-                                  formula=rep("",length(modelTry)),
-                                  RMSE=rep(NA,length(modelTry)),
-                                  ME=rep(NA,length(modelTry)))
-    modPredVals[[run]]<-rep(list(NULL),length(modelTry))
-    names(modPredVals[[run]])<-modelTry
-    modIndexVals[[run]]<- modPredVals[[run]]
-    modFits[[run]]<- modPredVals[[run]]
-    modelSelectTable[[run]]<- modPredVals[[run]]
-  }
 
-  #Create output list - exclude outputs not needed for data setup?
+  #Create output list
   output<-list(
 
-    #Inputs to the model
+    #Inputs to bycatchDesign and bycatchFit
     bycatchInputs = list(
-      modelTry = modelTry,
       obsdat = obsdat,
       logdat = logdat,
       yearVar = yearVar,
       obsEffort = obsEffort,
       logEffort = logEffort,
+      obsCatch = obsCatch,
+      catchUnit = catchUnit,
+      catchType = catchType,
+      logNum = logNum,
+      sampleUnit = sampleUnit,
+      factorVariables = factorVariables,
+      numericVariables = numericVariables,
       logUnsampledEffort = logUnsampledEffort,
       includeObsCatch  = includeObsCatch,
       matchColumn = matchColumn,
-      factorNames = factorNames,
-      randomEffects = randomEffects,
-      randomEffects2 = randomEffects2,
       EstimateIndex = EstimateIndex,
       EstimateBycatch =EstimateBycatch,
-      logNum = logNum,
-      sampleUnit = sampleUnit,
-      complexModel = complexModel,
-      simpleModel = simpleModel,
-      indexModel = indexModel,
-      designMethods = designMethods,
-      designVars = designVars,
-      designPooling = designPooling,
-      poolTypes=poolTypes,
-      pooledVar=pooledVar,
-      adjacentNum=adjacentNum,
-      minStrataUnit = minStrataUnit,
       baseDir = baseDir,
       runName = runName,
       runDescription = runDescription,
       common = common,
-      sp = sp,
-      obsCatch = obsCatch,
-      catchUnit = catchUnit,
-      catchType = catchType
+      sp = sp
     ),
 
-    #Outputs from data processing
+    #Outputs from data processing - not sure about these
     bycatchOutputs = list(
-      numSp = numSp,
-      modelTable = modelTable,
-      modelSelectTable = modelSelectTable,
-      modFits = modFits,
-      modPredVals = modPredVals,
-      modIndexVals = modIndexVals,
-      indexDat = indexDat,
-      indexVarNames = indexVarNames,
-      residualTab = residualTab,
-      bestmod = bestmod,
-      predbestmod = predbestmod,
-      indexbestmod = indexbestmod,
-      allmods = allmods,
-      allindex = allindex,
-      modelFail = modelFail,
-      rmsetab = rmsetab,
-      metab = rmsetab,
       dat = dat,
       numSp = numSp,
       yearSum = yearSum,
-      yearSumGraph = yearSumGraph,
-      requiredVarNames = requiredVarNames,
       allVarNames = allVarNames,
       startYear = startYear,
-      strataSum = strataSum,
-      poolingSum = poolingSum,
-      includePool = includePool,
-      NumCores = NumCores
+      strataSum = strataSum
     )
   )
 
-  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchModelSpecification.rds"))
-  # add here dataCheck function?
+  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchSetupSpecification.rds"))
 
   return(output)
 
