@@ -1,65 +1,235 @@
 ---
-title: "Data checks (new)"
-date: " "
-output: html_document
+title: "Data summaries and checks (new)"
+date: ' '
+output:
+  pdf_document: default
+  html_document: default
 header-includes:
-    - \usepackage{caption}
-    - \usepackage{float}
+- \usepackage{caption}
+- \usepackage{float}
 ---
 
 ```{r setupsummary, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+  fig.pos = "H"       # place figures exactly "Here" instead of floating
+  #out.width = "80%"
+)
+
+# not sure if this chunk will be needed when testing package, because not be using a path locating this markdown file
+knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
+  fig.path = "figures/",   # Store plots in a subfolder
+  dev = "png"             # PNG is LaTeX-friendly
+)
 ```
 
-```{r load-libraries,  results=FALSE,  message=FALSE}
+```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
 library(tidyverse)
 library(kableExtra)
+theme_set(theme_bw())
+figurenum<-1
+tablenum<-1
 ```
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
-setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchModelSpecification.rds"))
+# change out.dir and setupObj while code testing
+#out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_newdatasetupfunction/"
+#setupObj<-readRDS(file=paste0(out.dir,"2025-04-29_BycatchSetupSpecification.rds"))
 
-#unpack setup obj - unpack in same order as new bycatchSetup, add new arguments
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
 
-obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-logUnsampledEffort<-
-    includeObsCatch<-matchColumn<-factorNames<-
-    EstimateIndex<-EstimateBycatch<-logNum<-sampleUnit<-
-    baseDir<-runName<-runDescription<-
-    common<-sp<-obsCatch<-catchUnit<-catchType<-NULL
+#unpack setup obj
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  logNum<-sampleUnit<-factorVariables<-numericVariables<-
+  logUnsampledEffort<-includeObsCatch<-matchColumn<-
+    EstimateIndex<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
 
-  numSp<-dat<-yearSum<-strataSum<-NumCores<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-run<-NULL
 
-  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element; could this function create each variable without needing the previous code (creating NULL objects)?
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
+```
+
+**Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
+
+```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if (is.na(numericVariables)){
+  numericVariables <- "Effort"
+}
+if (!is.na(numericVariables)){
+  numericVariables <- c("Effort",numericVariables)
+}
+
+
+obsdat<-mutate(obsdat,SampleUnits=1) # add SampleUnits column with value set to 1 for every row
+if(!"Year" %in% factorVariables) { #treat Year as numeric variable
+  obsdat$Year<-obsdat$Year+startYear
+  logdat$Year<-logdat$Year+startYear
+}
+
+#Compare observed and logbook  
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits"))),
+                  effort=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))), #allVarNames need to be the same in obsdat and logdat?
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+
+print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Sum of effort")))
+cat("\n Figure ",figurenum,". Total Effort by factor levels, observed and total. \n",sep="")
+figurenum<-figurenum+1
+
+cat("\n\n")
+
+print(ggplot(allData,aes(x=Level,weight=SampleUnits,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+cat("\n Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total. \n",sep="")
+figurenum<-figurenum+1
+
+logdatTemp<-logdat %>%
+  mutate(Effort=Effort/SampleUnits) %>%
+  uncount(SampleUnits)
+
+if(unique(!is.na(numericVariables))){
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
+                  effort=select(logdatTemp,all_of(c(allVarNames,"Effort")))),
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value")
+
+
+cat("\n\n")
+
+print(ggplot(allData,aes(x=Value,fill=Source))+
+  geom_histogram(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+cat("\n Figure ",figurenum,". Effort across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+}
+cat("\n")
 
 ```
 
 
-## Summary of input data for `r runName`
-`r Sys.Date()`
+\vspace{1cm}
+
+```{r table-effort, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,"", sep="")
+temp<-bind_rows(list(observer=select(obsdat,Effort),
+                  effort=select(logdat,Effort)),
+                  .id = "Source") %>% group_by(Source) %>%
+  summarize(`Sample units` = n(),
+            `Total effort`=sum(Effort))%>%
+  mutate(`Proportion units`=round(`Sample units`/sum(`Sample units`),3),
+         `Proportion effort`=round(`Total effort`/sum(`Total effort`),3)) 
+kbl(temp,format="simple")
+tablenum<-tablenum+1
+cat("\n")
+```
+
+\newpage
 
 ```{r tablesummary, results='asis'}
-# there is a similar table in PrintResults, copy info from there
-for(run in 1:numSp) {
-  headerText<-paste0("Data summary for ",common[[run]]," (",sp[[run]],")")
-  df1<-yearSum[[run]]
-  mutate_if(
-    is.numeric,
-    ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))
-  )
-  df1 %>%
-   remove_rownames() %>%
-   kbl(caption = headerText,format="latex",label=paste0("tablesummary",run)) %>%
-   kable_styling(font_size = 8,
-     latex_options = c("hold_position","basic","scale_down")) %>%
-    print()
+# Print data summary
+cat("Table ", tablenum,". Input data summary for each year. Columns are: Year, logbook effort (Eff), logbook sample units (Units), observed catch (OCat), observed effort (OEff), observed sample units (OUnit; ",sampleUnit,"), mean catch per unit effort (CPUE), standard error of CPUE (CPse), count of outliers (Out), number of sample units with positive observations (Pos), standard deviation of observed catch (OCatS), standard deviation of observed effort (OEffS), covariance (Cov), fraction of positive observations (PFrac), fraction of effort observed (EFrac), fraction of sample units observed (UFrac), estimated catch using ratio estimator (Cat), standard error of estimated catch (Cse)", sep="")
+tablenum<-tablenum+1
+
+temp <- yearSum[[run]] %>%
+  mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
+  remove_rownames()
+
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+# might need to add here an if statement depending on the output of the table
+if(output_format == "html"){
+  kbl(temp,format="simple")
 }
+
+if(output_format == "latex"){
+  kbl(temp, format="latex")%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position"))
+}
+cat("\n")
+
+```
+
+\newpage
+
+```{r functions-datachecks, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+###Plots by species
+## Show where species was caught in observer data
+obsdatTemp <-obsdat %>% rename(Catch=!!obsCatch[[run]]) %>%
+  mutate(Present=factor(ifelse(Catch>0,1,0)),
+         CPUE=Catch/Effort)
+
+# Presence/absence across years
+
+print(ggplot(obsdatTemp,aes(x=Year,fill=Present))+
+  geom_bar()+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " in each year. \n",sep="")
+figurenum<-figurenum+1
+
+# Presence/absence across all factors
+cat("\n\n") #adds new line
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,fill=Present))+
+  geom_bar()+
+  facet_wrap(Variable~.,scales="free")+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across factor variables. \n",sep="")
+figurenum<-figurenum+1
+
+if(unique(!is.na(numericVariables))){
+# Presence/absence across numerical variables and effort
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(c("Effort",numericVariables)),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,fill=Present))+
+  geom_histogram()+
+  facet_wrap(Variable~.,scales="free")+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+}
+
+#CPUE by factor variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=CPUE))+
+  geom_violin(fill="grey")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary())
+cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " by factor levels.\n",sep="")
+figurenum<-figurenum+1
+
+if(unique(!is.na(numericVariables))){
+#CPUE by numeric variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=CPUE))+
+  geom_point(alpha=0.3)+
+  stat_smooth()+
+  facet_wrap(Variable~.,scales="free"))
+cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+}
+cat("\n")
+
 ```
 
 
-```{r functions-datachecks, results=FALSE,  message=FALSE, echo=FALSE}
 
-```
+
 
 

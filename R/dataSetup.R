@@ -31,6 +31,7 @@
 #' @param runDescription Character. Brief summary of the run, which will be used to set up a directory for the outputs
 #' @param common Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.
 #' @param sp  Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time
+#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html or both.
 #' @import ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @importFrom stats median
 #' @export
@@ -50,17 +51,18 @@
 #' logNum = NA,
 #' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
-#' numericVariables = "Value",
+#' numericVariables = NA,
 #' logUnsampledEffort = NULL,
-#' includeObsCatch  = FALSE,
+#' includeObsCatch  = FALSE, #exclude
 #' matchColumn = NA,
-#' EstimateIndex = TRUE,
+#' EstimateIndex = FALSE, #exclude
 #' EstimateBycatch = TRUE,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
 #' sp = "Genus species",
+#' reportType = "html"
 #')}
 
 bycatchSetup_new <- function(
@@ -85,9 +87,11 @@ bycatchSetup_new <- function(
     runName,
     runDescription,
     common,
-    sp
+    sp,
+    reportType = "html"
 ){
 
+  # I think some of these variables are not needed?: OUnit, OEff, Eff, Units
   SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
     # drop_na: drops rows with missing values
 
@@ -106,7 +110,10 @@ bycatchSetup_new <- function(
   }
 
   # set up factor variables and numeric variables
-  allVarNames <- c(factorVariables,numericVariables)
+  if(!is.na(numericVariables)){
+    allVarNames <- c(factorVariables,numericVariables)}
+  else{
+    allVarNames <- c(factorVariables)}
   allVarNames <- unique(c("Year",allVarNames))
 
   if(!all(allVarNames %in% names(obsdat)))
@@ -129,14 +136,13 @@ bycatchSetup_new <- function(
     }
     logdat<-logdat %>%
       rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
-      mutate_at(vars(all_of(factorVariables)),factor) #same changes to do here
+      mutate_at(vars(all_of(factorVariables)),factor)
 
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
     }
-    # any renaming/reformatting to do on numerical variables?
 
   }
 
@@ -156,7 +162,7 @@ bycatchSetup_new <- function(
   outDir<-paste0(baseDir, paste("/Output", runName))
   if(!dir.exists(outDir)) dir.create(outDir)
 
-  #Make R objects to store analysis - check use of each one of these objects
+  #Make R objects to store analysis
   strataSum<-list()
   yearSum<-list()
 
@@ -173,8 +179,6 @@ bycatchSetup_new <- function(
     if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
       tempvars<-c(allVarNames,"Effort","Catch")
 
-    if(!"Year" %in%  tempvars) tempvars<-c("Year",tempvars) #hasn't this been done before?
-
     dat[[run]]<-obsdat %>%
       rename(Catch=!!obsCatch[run])%>%
       dplyr::select_at(all_of(tempvars)) %>%
@@ -185,7 +189,8 @@ bycatchSetup_new <- function(
 
     if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
 
-    #Make annual summary - should this be inside an if EstimateBycatch statement?
+    if(EstimateBycatch) {
+    #Make annual summary
     yearSum[[run]]<-MakeSummary(
       obsdatval = dat[[run]],
       logdatval = logdat,
@@ -194,38 +199,22 @@ bycatchSetup_new <- function(
       startYear = startYear
     )
     write.csv(yearSum[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE)
+              paste0(dirname[[run]],common[run],catchType[run]," DataSummary.csv"), row.names = FALSE)
 
-    if(EstimateBycatch) {
+
       #Calculations at level of simple model
-      strataSum[[run]]<-MakeSummary( #does this need to be inside if EstimateBycatch statement?
+      strataSum[[run]]<-MakeSummary(
         obsdatval = dat[[run]],
         logdatval = logdat,
-        strataVars = unique(c("Year",requiredVarNames)), #replace by factorVariables?
+        strataVars = unique(c("Year",factorVariables)),
         EstimateBycatch = EstimateBycatch,
         startYear = startYear
       )
       write.csv(strataSum[[run]],
-                paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
+                paste0(dirname[[run]],common[run],catchType[run]," StrataSummary.csv"), row.names = FALSE)
     }
-  } #close loop for each sp
 
-  #Create report
-  #save(list=c("numSp","yearSum","runName", "common", "sp"),file=paste0(outDir,"/","sumdatR"))
-  mkd<-tryCatch({
-    system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
-  },
-  error = function(c) NULL
-  )
-
-  if(!is.null( mkd)){
-    rmarkdown::render(mkd,
-                      params=list(outDir=outDir),
-                      output_file = "Data checks (new).html",
-                      output_dir=outDir,
-                      quiet = TRUE)
-  }
-
+  } #close loop for each spp
 
   #Create output list
   output<-list(
@@ -253,25 +242,66 @@ bycatchSetup_new <- function(
       runName = runName,
       runDescription = runDescription,
       common = common,
-      sp = sp
+      sp = sp,
+      reportType = reportType
     ),
 
-    #Outputs from data processing - not sure about these
+    #Outputs from data processing
     bycatchOutputs = list(
       dat = dat,
       numSp = numSp,
       yearSum = yearSum,
       allVarNames = allVarNames,
       startYear = startYear,
-      strataSum = strataSum
+      strataSum = strataSum,
+      run = run
     )
   )
 
   saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchSetupSpecification.rds"))
 
+  #Create report
+  for(run in 1:numSp) {
+    if(reportType == "html" || reportType == "both"){
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+        error = function(c) NULL
+        )
+
+      if(!is.null( mkd)){
+
+      rmarkdown::render(mkd,
+                      params=list(outDir=outDir),
+                      output_format = "html_document",
+                      output_file = paste0(common[run], " ",catchType[run], " Data checks (new).html"),
+                      output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                      quiet = TRUE)
+      }
+    }
+
+
+    if(reportType == "pdf" || reportType == "both"){
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+
+      rmarkdown::render(mkd,
+                      params=list(outDir=outDir),
+                      output_format = "pdf_document",
+                      output_file = paste0(common[run], " ",catchType[run], "Data checks (new).pdf"),
+                      output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                      quiet = TRUE)
+
+        }
+
+    }
+
   return(output)
-
-
 
 }
 

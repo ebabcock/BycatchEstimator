@@ -78,9 +78,17 @@ bycatchDesign_new <- function(
   baseDir = getwd()
 ){
 
-  #unpack setup object
+  #unpack setup obj
+  obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+    logNum<-sampleUnit<-factorVariables<-numericVariables<-
+    logUnsampledEffort<-includeObsCatch<-matchColumn<-
+    EstimateIndex<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
 
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-run<-NULL
 
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
   if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
 
@@ -89,9 +97,9 @@ bycatchDesign_new <- function(
   includePool<-list()
   yearSumGraph<-list()
 
-  # this needs to be inside a loop for each run/sp
+  # spp loop
   for(run in 1:numSp) {
-  #Make annual summary
+  #Make annual summary - don't think we need this because yearSum has been saved in data setup
   yearSum[[run]]<-MakeSummary(
     obsdatval = dat[[run]],
     logdatval = logdat,
@@ -100,8 +108,7 @@ bycatchDesign_new <- function(
     startYear = startYear
   )
 
-  # move this whole chunk to design function? yearSum needed for following chunk of code?
-  if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) {
+  if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) { #is EstimateBycatch needed?
     if(designPooling) {
       temp<-getPooling(obsdatval= dat[[run]],
                        logdatval=logdat,
@@ -150,7 +157,7 @@ bycatchDesign_new <- function(
   write.csv(yearSum[[run]],
             paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE) #does this contain design-based estimators as well?
 
-  if(EstimateBycatch) {
+  #if(EstimateBycatch) { #probably don't need this if statement
     x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
     if("Ratio" %in% designMethods)
       x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
@@ -162,7 +169,7 @@ bycatchDesign_new <- function(
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
 
-    #Calculations at level of simple model
+    #Calculations at level of simple model - isn't this being produced already in bycatchsetup?
     strataSum[[run]]<-MakeSummary(
       obsdatval = dat[[run]],
       logdatval = logdat,
@@ -172,25 +179,46 @@ bycatchDesign_new <- function(
     )
     write.csv(strataSum[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
-  }
+  #}
 
   } #close loop for each sp
 
 
+  # list of outputs to be saved in rds file - what inputs and outputs to save?
+  # any outputs from bycatchSetup to carry over here?
+
+  #Create output list
+  output<-list(
+
+    designInputs = list(
+      designMethods = designMethods,
+      designVars = designVars,
+      designPooling = designPooling,
+      poolTypes=poolTypes,
+      pooledVar=pooledVar,
+      adjacentNum=adjacentNum,
+      minStrataUnit = minStrataUnit,
+      baseDir
+    ),
+
+    designOutputs = list(
+      yearSum = yearSum,
+      yearSumGraph = yearSumGraph,
+      strataSum = strataSum,
+      poolingSum = poolingSum,
+      includePool = includePool
+    )
+
+  )
+
+
+  # markdown report with results
 
 
 
 
 
-
-  # list of outputs to be saved in rds file
-
-
-
-
-
-
-}
+} #close main function
 
 
 

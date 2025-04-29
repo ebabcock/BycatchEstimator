@@ -444,5 +444,5 @@ minStrataUnit<-
     }
     print(paste(run, common[run],"complete, ",Sys.time()))
 
-  }
-}
+  } #close loop for each spp
+} #close loop bycatchFit function
