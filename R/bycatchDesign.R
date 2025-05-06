@@ -250,17 +250,19 @@ bycatchDesign_new <- function(
                             output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.html"),
                             output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                             quiet = TRUE)
-        })
+          })
+        }
+
+
       }
+
+   }
 
       #Clean up: delete the figures/ directory after rendering
       fig_dir <- file.path(dirname(mkd), "figures")
       if (dir.exists(fig_dir)) {
         unlink(fig_dir, recursive = TRUE)
       }
-
-    }
-  }
 
   return(output)
 
