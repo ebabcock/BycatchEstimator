@@ -21,8 +21,8 @@
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
 #' @param factorVariables Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
 #' @param numericVariables Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}
-#' @param logUnsampledEffort Character. The name of the unsampled effort variable in in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
+#' @param logUnsampledEffort Character. The name of the unsampled effort variable in in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
 #' @param EstimateBycatch Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.
@@ -31,7 +31,7 @@
 #' @param runDescription Character. Brief summary of the run, which will be used to set up a directory for the outputs
 #' @param common Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.
 #' @param sp  Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time
-#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html or both.
+#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html (default) or both.
 #' @import ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @importFrom stats median
 #' @export
@@ -39,7 +39,7 @@
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)
-#'setupObj<-bycatchSetup_new( #do we need to include optional arguments in the example?
+#'setupObj<-bycatchSetup_new(
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
@@ -52,10 +52,9 @@
 #' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
+#' includeObsCatch  = FALSE,
 #' logUnsampledEffort = NULL,
-#' includeObsCatch  = FALSE, #exclude
 #' matchColumn = NA,
-#' EstimateIndex = FALSE, #exclude
 #' EstimateBycatch = TRUE,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
@@ -78,8 +77,8 @@ bycatchSetup_new <- function(
     sampleUnit,
     factorVariables,
     numericVariables,
-    logUnsampledEffort = NULL,
     includeObsCatch  = FALSE,
+    logUnsampledEffort = NULL,
     matchColumn = NA,
     EstimateIndex=FALSE,
     EstimateBycatch=TRUE,
@@ -91,7 +90,6 @@ bycatchSetup_new <- function(
     reportType = "html"
 ){
 
-  # I think some of these variables are not needed?: OUnit, OEff, Eff, Units
   SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
     # drop_na: drops rows with missing values
 
@@ -127,7 +125,7 @@ bycatchSetup_new <- function(
   #Set up data frames
   obsdat<-obsdat %>%
     rename(Effort=!!obsEffort) %>%
-    mutate_at(vars(all_of(factorVariables)),factor) #vars deprecated, replace by across; replace mutate_at by mutate
+    mutate(across(all_of(factorVariables),factor))
 
   if(EstimateBycatch) {
     if(is.na(logNum))   {
@@ -136,13 +134,13 @@ bycatchSetup_new <- function(
     }
     logdat<-logdat %>%
       rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
-      mutate_at(vars(all_of(factorVariables)),factor)
+      mutate(across(all_of(factorVariables),factor))
 
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
-    }
+    } #TO ADD: check if all trips in obsdat are in logdat, print error message if not
 
   }
 
@@ -173,8 +171,8 @@ bycatchSetup_new <- function(
 
   #Loop through all species and print data summary and data checks. Note that records with NA in either catch or effort are excluded automatically
   for(run in 1:numSp) {
-    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
-    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
+    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchSetup files/")
+    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
     if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
       tempvars<-c(allVarNames,"Effort","Catch")
@@ -199,7 +197,7 @@ bycatchSetup_new <- function(
       startYear = startYear
     )
     write.csv(yearSum[[run]],
-              paste0(dirname[[run]],common[run],catchType[run]," DataSummary.csv"), row.names = FALSE)
+              paste0(dirname[[run]],common[run]," ",catchType[run]," DataSummary.csv"), row.names = FALSE)
 
 
       #Calculations at level of simple model
@@ -211,7 +209,7 @@ bycatchSetup_new <- function(
         startYear = startYear
       )
       write.csv(strataSum[[run]],
-                paste0(dirname[[run]],common[run],catchType[run]," StrataSummary.csv"), row.names = FALSE)
+                paste0(dirname[[run]],common[run]," ",catchType[run]," StrataSummary.csv"), row.names = FALSE)
     }
 
   } #close loop for each spp
@@ -242,8 +240,7 @@ bycatchSetup_new <- function(
       runName = runName,
       runDescription = runDescription,
       common = common,
-      sp = sp,
-      reportType = reportType
+      sp = sp
     ),
 
     #Outputs from data processing
@@ -253,8 +250,7 @@ bycatchSetup_new <- function(
       yearSum = yearSum,
       allVarNames = allVarNames,
       startYear = startYear,
-      strataSum = strataSum,
-      run = run
+      strataSum = strataSum
     )
   )
 
@@ -273,14 +269,14 @@ bycatchSetup_new <- function(
       if(!is.null( mkd)){
 
       rmarkdown::render(mkd,
-                      params=list(outDir=outDir),
+                      params=list(outDir=outDir, run = run),
                       output_format = "html_document",
-                      output_file = paste0(common[run], " ",catchType[run], " Data checks (new).html"),
+                      output_file = paste0(common[run], " ",catchType[run], " Data checks.html"),
                       output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                       quiet = TRUE)
+
       }
     }
-
 
     if(reportType == "pdf" || reportType == "both"){
 
@@ -290,14 +286,35 @@ bycatchSetup_new <- function(
       error = function(c) NULL
       )
 
+      if(!is.null( mkd)){
+
+      tryCatch({
       rmarkdown::render(mkd,
-                      params=list(outDir=outDir),
+                      params=list(outDir=outDir, run = run),
                       output_format = "pdf_document",
-                      output_file = paste0(common[run], " ",catchType[run], "Data checks (new).pdf"),
+                      output_file = paste0(common[run], " ",catchType[run], " Data checks.pdf"),
                       output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                       quiet = TRUE)
+      },
+      error = function(e){
+        message("PDF rendering failed, reverting to html.")
+        rmarkdown::render(mkd,
+                          params=list(outDir=outDir, run = run),
+                          output_format = "html_document",
+                          output_file = paste0(common[run], " ",catchType[run], " Data checks.html"),
+                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          quiet = TRUE)
+          })
 
+      }
+
+        #Clean up: delete the figures/ directory after rendering
+        fig_dir <- file.path(dirname(mkd), "figures")
+        if (dir.exists(fig_dir)) {
+          unlink(fig_dir, recursive = TRUE)
         }
+
+      }
 
     }
 

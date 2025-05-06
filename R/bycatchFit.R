@@ -28,7 +28,7 @@
 #' @param plotValidation Logical. Validation. If you have true values of the total bycatch (for example in a simulation study). Make PlotValidation true and fill out the rest of the specification.
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
-#' @param doReport Logical. Create a markdown report of the analysis
+#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html or both.
 #' @import MuMIn ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @export
 #' @keywords Fitting functions
@@ -113,10 +113,15 @@ bycatchFit_new<-function(
 ){
 
   # unpack setup object
+#do we need all terms from data setup object? are terms in model fit that are named the same and will cause issues?
+#review if EstimateIndex and EstimateBycatch should actually be here or in data setup?
+
 
 
 
   NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
+  #Make sure there are multiple cores to use Parallel processing
+  if(NumCores<=1) useParallel=FALSE
 
   #Check that all models in modelTry are valid
   if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma", "TMBnbinom1","TMBlognormal",
@@ -198,6 +203,8 @@ bycatchFit_new<-function(
     }
   } else indexDat<-NULL
 
+  if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
+
   #Subtract first year if numeric to improve convergence
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
@@ -205,6 +212,15 @@ bycatchFit_new<-function(
     if(EstimateBycatch) logdat$Year<-logdat$Year-startYear
     if(EstimateIndex)  indexDat$Year<-indexDat$Year-startYear
   } else startYear<-min(as.numeric(as.character(obsdat$Year)))
+
+  #Setup directory naming
+  dirname<-list()
+  outDir<-paste0(baseDir, paste("/Output", runName))
+  if(!dir.exists(outDir)) dir.create(outDir)
+  for(run in 1:numSp) {
+    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
+    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
+  }
 
   #Make R objects to store analysis
   modelTable<-list()

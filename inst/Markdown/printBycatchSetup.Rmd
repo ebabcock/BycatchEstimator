@@ -20,7 +20,8 @@ knitr::opts_chunk$set(
 # not sure if this chunk will be needed when testing package, because not be using a path locating this markdown file
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
-  dev = "png"             # PNG is LaTeX-friendly
+  dev = "png",
+  dpi = 100
 )
 ```
 
@@ -33,7 +34,7 @@ tablenum<-1
 ```
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
-# change out.dir and setupObj while code testing
+# change out.dir, setupObj and run while code testing
 #out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_newdatasetupfunction/"
 #setupObj<-readRDS(file=paste0(out.dir,"2025-04-29_BycatchSetupSpecification.rds"))
 
@@ -46,7 +47,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
     EstimateIndex<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-run<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -148,7 +149,6 @@ temp <- yearSum[[run]] %>%
   remove_rownames()
 
 output_format <- if (knitr::is_html_output()) "html" else "latex"
-# might need to add here an if statement depending on the output of the table
 if(output_format == "html"){
   kbl(temp,format="simple")
 }

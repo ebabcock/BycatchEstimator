@@ -11,13 +11,14 @@
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup_new}.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
-#' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled
+#' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
 #' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "all", "pooledVar" and (currently for year only) "adjacent"
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
-#' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numberical vector in the same order as designVars. NA for anything other than year.
-#' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips)
+#' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.
+#' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
+#' @param reportType Character. Choose type of report with results to be produced. Options are pdf, html (default) or both.
 #' @import ggplot2 dplyr utils tidyverse
 #' @importFrom stats median
 #' @export
@@ -37,7 +38,7 @@
 #' includeObsCatch  = FALSE,
 #' matchColumn = NA,
 #' factorVariables = c("Year","season"),
-#' numericVariables = "Value",
+#' numericVariables = NA,
 #' EstimateIndex = TRUE,
 #' EstimateBycatch = TRUE,
 #' logNum = NA,
@@ -75,7 +76,8 @@ bycatchDesign_new <- function(
   pooledVar = NULL,
   adjacentNum = NULL,
   minStrataUnit = 1,
-  baseDir = getwd()
+  baseDir = getwd(),
+  reportType = "html"
 ){
 
   #unpack setup obj
@@ -85,30 +87,31 @@ bycatchDesign_new <- function(
     EstimateIndex<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-run<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
   if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
 
+  #Set up directory for output
+  outDir<-paste0(baseDir, paste("/Output", runName))
+  if(!dir.exists(outDir)) dir.create(outDir)
+
   #Make R objects to store analysis
   poolingSum<-list()
   includePool<-list()
   yearSumGraph<-list()
+  dirname <- list()
+  designyeardf <- list()
+  designstratadf<-list()
 
   # spp loop
   for(run in 1:numSp) {
-  #Make annual summary - don't think we need this because yearSum has been saved in data setup
-  yearSum[[run]]<-MakeSummary(
-    obsdatval = dat[[run]],
-    logdatval = logdat,
-    strataVars = "Year", #argument within MakeSummary function, not to be changed
-    EstimateBycatch = EstimateBycatch,
-    startYear = startYear
-  )
+    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchDesign files/")
+    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
-  if(("Ratio" %in% designMethods | "Delta" %in% designMethods) & EstimateBycatch) { #is EstimateBycatch needed?
+  if(("Ratio" %in% designMethods | "Delta" %in% designMethods)) {
     if(designPooling) {
       temp<-getPooling(obsdatval= dat[[run]],
                        logdatval=logdat,
@@ -118,14 +121,16 @@ bycatchDesign_new <- function(
                        poolTypes=poolTypes,
                        adjacentNum=adjacentNum)
       poolingSum[[run]]<-temp[[1]]
-      write.csv(poolingSum[[run]],paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
+      # exclude some of columns when saving csv: needs.pooling, poolnum, stratum
+      write.csv(poolingSum[[run]][,!(names(poolingSum[[run]]) %in% c("needs.pooling","stratum"))],
+                paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
       includePool[[run]]<-temp[[2]]
     } else  {
       poolingSum[[run]]<-NULL
       includePool[[run]]<-NULL
     }
 
-    temp<-getDesignEstimates(obsdatval = dat[[run]],
+    designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
                              strataVars = "Year",
                              designVars = designVars,
@@ -135,12 +140,11 @@ bycatchDesign_new <- function(
                              poolingSum = poolingSum[[run]],
                              includePool= includePool[[run]]
     )
-    yearSum[[run]]<-left_join(yearSum[[run]],temp,by="Year")
-    write.csv(temp,
+    write.csv(designyeardf[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DesignYear.csv"), row.names = FALSE)
 
     #And design based stratification
-    temp<-getDesignEstimates(obsdatval = dat[[run]],
+    designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
                              strataVars = designVars,
                              designVars = designVars,
@@ -150,42 +154,24 @@ bycatchDesign_new <- function(
                              poolingSum = poolingSum[[run]],
                              includePool= includePool[[run]]
     )
-    write.csv(temp,
+    write.csv(designstratadf[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
   }
 
-  write.csv(yearSum[[run]],
-            paste0(dirname[[run]],common[run],catchType[run],"DataSummary.csv"), row.names = FALSE) #does this contain design-based estimators as well?
 
-  #if(EstimateBycatch) { #probably don't need this if statement
     x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
     if("Ratio" %in% designMethods)
-      x=c(x,list("Ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+      x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
     if("Delta" %in% designMethods)
-      x=c(x,list("Design Delta"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+      x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
 
     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
-      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-
-    #Calculations at level of simple model - isn't this being produced already in bycatchsetup?
-    strataSum[[run]]<-MakeSummary(
-      obsdatval = dat[[run]],
-      logdatval = logdat,
-      strataVars = unique(c("Year",requiredVarNames)), #replace by factorVariables?
-      EstimateBycatch = EstimateBycatch,
-      startYear = startYear
-    )
-    write.csv(strataSum[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"StrataSummary.csv"), row.names = FALSE)
-  #}
+      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI)) #this is only being used to plot all bycatch estimation methods together in one plot
 
   } #close loop for each sp
 
-
-  # list of outputs to be saved in rds file - what inputs and outputs to save?
-  # any outputs from bycatchSetup to carry over here?
 
   #Create output list
   output<-list(
@@ -198,7 +184,7 @@ bycatchDesign_new <- function(
       pooledVar=pooledVar,
       adjacentNum=adjacentNum,
       minStrataUnit = minStrataUnit,
-      baseDir
+      baseDir = baseDir
     ),
 
     designOutputs = list(
@@ -206,17 +192,77 @@ bycatchDesign_new <- function(
       yearSumGraph = yearSumGraph,
       strataSum = strataSum,
       poolingSum = poolingSum,
-      includePool = includePool
+      includePool = includePool,
+      designyeardf = designyeardf,
+      designstratadf = designstratadf
     )
 
   )
 
-
-  # markdown report with results
-
+  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchDesignSpecification.rds"))
 
 
+  #Create report
+  for(run in 1:numSp) {
+    if(reportType == "html" || reportType == "both"){
 
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchDesign.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+
+      if(!is.null( mkd)){
+
+        rmarkdown::render(mkd,
+                          params=list(outDir=outDir, run = run),
+                          output_format = "html_document",
+                          output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.html"),
+                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          quiet = TRUE)
+      }
+    }
+
+    if(reportType == "pdf" || reportType == "both"){
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchDesign.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+
+      if(!is.null( mkd)){
+
+        tryCatch({
+        rmarkdown::render(mkd,
+                          params=list(outDir=outDir, run = run),
+                          output_format = "pdf_document",
+                          output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.pdf"),
+                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          quiet = TRUE)
+
+        },
+        error = function(e){
+          message("PDF rendering failed, reverting to html.")
+          rmarkdown::render(mkd,
+                            params=list(outDir=outDir, run = run),
+                            output_format = "html_document",
+                            output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.html"),
+                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            quiet = TRUE)
+        })
+      }
+
+      #Clean up: delete the figures/ directory after rendering
+      fig_dir <- file.path(dirname(mkd), "figures")
+      if (dir.exists(fig_dir)) {
+        unlink(fig_dir, recursive = TRUE)
+      }
+
+    }
+  }
+
+  return(output)
 
 } #close main function
 
