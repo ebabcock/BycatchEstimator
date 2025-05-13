@@ -1307,7 +1307,7 @@ getSimDeltaLN<-function(modfitBin,modfitLnorm, df1, nsim=10000) {
 #' @importFrom stats cor
 #' @keywords internal
 lo.se=function(x1,x1e,x2,x2e) {
-  if(length(x1[!is.na(x1) &!is.na(x2)])>1)
+  if(length(x1[!is.na(x1) &!is.na(x2)])>1 & length(unique(x1))>1 & length(unique(x2))>1 )
    cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
   (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
 }
