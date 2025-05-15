@@ -1,0 +1,213 @@
+---
+title: "Model fit estimation results"
+date: ' '
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+- \usepackage{longtable}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+  fig.pos = "H"       # place figures exactly "Here" instead of floating
+  #out.width = "80%"
+)
+
+# not sure if this chunk will be needed when testing package, because not be using a path locating this markdown file
+knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
+  fig.path = "figures/",   # Store plots in a subfolder
+  dev = "png",
+  dpi = 100
+)
+```
+
+
+```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(DHARMa)
+library(gridExtra)
+library(cplm)
+library(glmmTMB)
+library(MASS)
+library(tweedie)
+theme_set(theme_bw())
+fignum<-1
+tablenum<-1
+
+```
+
+```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
+# change out.dir, setupObj and run while code testing
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_new3functions/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchSetupSpecification.rds"))
+# designObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchDesignSpecification.rds"))
+# modelObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchFitSpecification.rds"))
+
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+if(!is.null(designObj)){
+designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesignSpecification.rds"))
+}
+modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFitSpecification.rds"))
+
+#unpack setupObj
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  logNum<-sampleUnit<-factorVariables<-numericVariables<-
+  logUnsampledEffort<-includeObsCatch<-matchColumn<-
+    EstimateIndex<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
+
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+  
+#unpack designObj - if is not NULL
+if(!is.null(designObj)){
+designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+
+yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
+
+  for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
+  for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
+}
+
+#unpack modelObj
+modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-plotValidation<-trueVals<-trueCols<-NULL
+
+modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-NULL
+
+ for(r in 1:NROW(modelObj$modelInputs)) assign(names(modelObj$modelInputs)[r], modelObj$modelInputs[[r]])
+ for(r in 1:NROW(modelObj$modelOutputs)) assign(names(modelObj$modelOutputs)[r],modelObj$modelOutputs[[r]])
+
+if(!"Year" %in% factorVariables) { #treat Year as numeric variable
+  obsdat$Year<-obsdat$Year+startYear
+  logdat$Year<-logdat$Year+startYear
+}
+
+varText<- ""
+if(VarCalc=="DeltaMethod") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by the delta method")
+if(VarCalc=="Simulate") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by Monte Carlo simulation") 
+obsText<-""
+if(includeObsCatch) obsText<-". Catches are predicted for unobserved effort and added to the observed catches"
+```
+
+**Results of model-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
+
+```{r print results,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+#, fig.height=4
+#run=1
+#source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
+#Print modelTable including ModelFail
+cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
+tablenum<-tablenum+1
+df1<-modelTable[[run]] %>%
+  mutate(Failure=modelFail[run,]) %>%
+   mutate_if(is.numeric,round,2)
+if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+if(output_format == "html"){
+  kbl(df1,format = "simple")%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df1, format="latex")%>%
+  kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+
+#Table residual summary
+cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. Tests are a Kolmogorov-Smirnov(KS) test on whether the scaled residuals are uniform, a dispersion test based on comparing the ratio of the observed and simulated residuals (>1 is overdispersed), a zero inflation test based on the ratio of observed to expected zeros, and the number of outliers, defined as data points outside the range of the simulations",sep="")
+tablenum<-tablenum+1
+df2 <- data.frame(residualTab[[run]])
+if(output_format == "html"){
+  kbl(df2,format = "simple",digits = 2)%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df2, format="latex",,digits = 2)%>%
+  kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+
+# Figures of All models together
+if(EstimateBycatch ) {
+ if(plotValidation)  plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit) else
+    plotSums(
+      yearpred = filter(allmods[[run]],Valid==1),
+      modType = "All",
+      fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+cat("\n Figure ",fignum,". Total bycatch estimates for all valid models and design-based methods, for ",common[run],varText,obsText,". \n",sep="")
+  fignum<-fignum+1
+  cat('\n')
+}
+
+if(EstimateIndex) if(any(allindex[[run]]$Valid==1)) {
+ plotIndex(dplyr::filter(allindex[[run]],Valid==1),"All", NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+ cat("\n Figure ",fignum,". Abundance indices from all valid models for ",common[run],", plus and minus one standard error. \n",sep="")
+ fignum<-fignum+1
+}
+
+#Show cross validation figures
+if(DoCrossValidation &!all(is.na(modelTable[[run]]$RMSE))) {
+ plotCrossVal(rmsetab[[run]],metab[[run]],NULL)
+ cat("\n Figure ",fignum,". Boxplots of Root Mean Square Error and Mean Error, across 10 cross- validation folds for ",common[run],". Lowest RMSE model is ",bestmod[run],".\n",sep="")
+ fignum<-fignum+1
+ cat('\n')
+}
+
+#Print for each model type
+for(mod in 1:length(modelTry)) {
+if(modelFail[run,mod]=="-") {
+  cat("\n Table ",tablenum,". Model selection table for ",modelTry[mod],". Weights are calculated based on ",selectCriteria,".",sep="")
+  tablenum<-tablenum+1
+  data.frame(modelSelectTable[[run]][[modelTry[mod]]]) %>%
+   mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2))) %>%
+   kbl(format="latex") %>%
+   kable_styling(latex_options = c("hold_position","scale_down","basic")) %>%
+    print()
+  
+   temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL)
+   cat("\n Figure ",fignum,". Residuals for the ",selectCriteria, " best model for ", modelTry[mod],", showing the ordinary residuals (a,b) and DHARMa scaled residuals (c,d). \n",sep="")
+   fignum<-fignum+1
+    cat('\n')
+    
+  lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
+  if(EstimateBycatch) {
+   if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit) else
+   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchType)
+  if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
+   cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText,lineText, ". \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+  }
+  
+ if(EstimateIndex) {
+   plotIndex(modIndexVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+   cat("\n Figure ",fignum,". Estimated relative index from ",modelTry[mod]," plus and minus one standard error. \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+ }
+
+}
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

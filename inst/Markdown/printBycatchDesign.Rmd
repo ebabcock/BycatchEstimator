@@ -35,10 +35,9 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-#out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_newdatasetupfunction/"
-#setupObj<-readRDS(file=paste0(out.dir,"2025-05-01_BycatchSetupSpecification.rds"))
-
-#designObj<-readRDS(file=paste0(out.dir,"2025-05-05_BycatchDesignSpecification.rds"))
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_new2functions/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchSetupSpecification.rds"))
+# designObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchDesignSpecification.rds"))
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
 designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesignSpecification.rds"))

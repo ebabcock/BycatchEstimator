@@ -311,9 +311,9 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
       if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
-      if(!is.null(anova1)) {
-        write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"), row.names = FALSE)
-      }
+      # if(!is.null(anova1)) {
+      #   write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"), row.names = FALSE)
+      # }
     }
     returnval=list(modfit3,modfit2)
   }
@@ -717,7 +717,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
   }  else  {     returnval=yearpred  }
-  if(printOutput) {
+  if(printOutput) { #remove Total.mean column from csv
     write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval

@@ -10,6 +10,7 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup_new}.
+#' @param designObj An object produced by \code{bycatchDesign_new}. Optional, specify as NULL if it does not exist.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables tha must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
@@ -18,8 +19,6 @@
 #' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param selectCriteria Character. Model selection criteria. Options are AICc, AIC and BIC
 #' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE). This may not work with a small or unbalanced dataset
-#' @param DredgeCrossValidation DredgeCrossValidation specifies whether to use information criteria to find the best model in cross validation, using the dredge function, or just keep the same model formula. Do not use dredge for very large datasets, as the run will be slow.
-#' @param ResidualTest Logical. Specify whether to exclude models that fail the DHARMa residuals test.
 #' @param CIval Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95%
 #' @param VarCalc Character. Options are: "Simulate","DeltaMethod", or "None". Variance calculation method. Simulate will not work with a large number of sample units in the logbook data. The delta method for variance calculation is not implemented for the delta-lognormal or delta-gamma methods.
 #' @param useParallel Logical. Whether to conduct the analysis using parallel processing. Only initialized when more that two cores are available.
@@ -28,7 +27,7 @@
 #' @param plotValidation Logical. Validation. If you have true values of the total bycatch (for example in a simulation study). Make PlotValidation true and fill out the rest of the specification.
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
-#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html or both.
+#' @param reportType Character. Choose type of report with results to be produced. Options are pdf, html (default) or both.
 #' @import MuMIn ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @export
 #' @keywords Fitting functions
@@ -37,35 +36,36 @@
 #' library(BycatchEstimator)
 #' #-------------------------------------------------
 #' #Step 1. Run the datasetup function and review data inputs
-#'setupObj<-bycatchSetup_new( #reorder arguments
+#'setupObj<-bycatchSetup_new(
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
-#' logUnsampledEffort = NULL,
-#' includeObsCatch  = FALSE,
-#' matchColumn = NA,
-#' factorVariables = c("Year","season"),
-#' numericVariables = "Value",
-#' EstimateIndex = TRUE,
-#' EstimateBycatch = TRUE,
+#' obsCatch = "Catch",
+#' catchUnit = "number",
+#' catchType = "dead discard"
 #' logNum = NA,
 #' sampleUnit = "trips",
+#' factorVariables = c("Year","season"),
+#' numericVariables = NA,
+#' includeObsCatch  = FALSE,
+#' logUnsampledEffort = NULL,
+#' matchColumn = NA,
+#' EstimateIndex = FALSE,
+#' EstimateBycatch = TRUE,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
 #' sp = "Genus species",
-#' obsCatch = "Catch",
-#' catchUnit = "number",
-#' catchType = "dead discard"
 #')
 #'
 #'-------------
 #' #Step 2. Model fitting
 #'bycatchFit(
 #' setupObj = setupObj,
+#' designObj = NULL,
 #' complexModel = formula(y~(Year+season)^2),
 #' simpleModel = formula(y~Year),
 #' indexModel = formula(y~Year),
@@ -74,8 +74,6 @@
 #' randomEffects2 = NULL,
 #' selectCriteria = "BIC",
 #' DoCrossValidation = TRUE,
-#' DredgeCrossValidation = FALSE,
-#' ResidualTest = FALSE,
 #' CIval = 0.05,
 #' VarCalc = "Simulate",
 #' useParallel = TRUE,
@@ -83,14 +81,14 @@
 #' baseDir = getwd(),
 #' plotValidation = FALSE,
 #' trueVals = NULL,
-#' trueCols = NULL,
-#' doReport = TRUE
+#' trueCols = NULL
 #')}
 #'
 
 
 bycatchFit_new<-function(
   setupObj,
+  designObj,
   complexModel,
   simpleModel,
   indexModel = NULL,
@@ -99,8 +97,6 @@ bycatchFit_new<-function(
   randomEffects2=NULL,
   selectCriteria = "BIC",
   DoCrossValidation = FALSE,
-  DredgeCrossValidation = FALSE,
-  ResidualTest = TRUE,
   CIval = 0.05,
   VarCalc = "Simulate",
   useParallel = TRUE,
@@ -109,15 +105,31 @@ bycatchFit_new<-function(
   plotValidation = FALSE,
   trueVals = NULL,
   trueCols = NULL,
-  doReport = TRUE
+  reportType = "html"
 ){
 
-  # unpack setup object
-#do we need all terms from data setup object? are terms in model fit that are named the same and will cause issues?
-#review if EstimateIndex and EstimateBycatch should actually be here or in data setup?
+  #unpack setup obj
+  obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+    logNum<-sampleUnit<-factorVariables<-numericVariables<-
+    logUnsampledEffort<-includeObsCatch<-matchColumn<-
+    EstimateIndex<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
 
+  # some of these will be rewritten along the code
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
 
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
+  #unpack designObj - if there is a designObj
+  if(!is.null(designObj)){
+  designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+
+  yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
+
+  for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
+  for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
+  }
 
   NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
   #Make sure there are multiple cores to use Parallel processing
@@ -173,19 +185,6 @@ bycatchFit_new<-function(
       names(x)[3]<-randomInteractions[i]
       logdat<-bind_cols(logdat,select(x,randomInteractions[i]))
     }
-    #Add stratum designation and check sample size in strata
-    if(length(requiredVarNames) > 1) {
-      logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
-    }
-    if(length(requiredVarNames)==1) {
-      logdat$strata <- pull(logdat,var=requiredVarNames)
-    }
-    if(length(requiredVarNames)==0) {
-      logdat$strata <- rep(1,nrow(logdat))
-    }
-    if(max(tapply(logdat$SampleUnits,logdat$strata,sum)) > 100000) {
-      print("Inadvisable to calculate variance of estimators for such large number of logbook sample units")
-    }
   }
 
   #indexDat for making index
@@ -218,8 +217,8 @@ bycatchFit_new<-function(
   outDir<-paste0(baseDir, paste("/Output", runName))
   if(!dir.exists(outDir)) dir.create(outDir)
   for(run in 1:numSp) {
-    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/")
-    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]])
+    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchFit files/")
+    if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
   }
 
   #Make R objects to store analysis
@@ -238,11 +237,9 @@ bycatchFit_new<-function(
   rmsetab<-list()
   metab<-list()
 
-
-
-
-
+  ############## This is the main analysis loop ##########################
   for(run in 1:numSp) {
+
     residualTab[[run]]<-matrix(0,8,length(modelTry),dimnames=list(c("KS.D","KS.p", "Dispersion.ratio","Dispersion.p" ,
                                                                     "ZeroInf.ratio" ,"ZeroInf.p","Outlier" , "Outlier.p"),
                                                                   modelTry))
@@ -255,39 +252,423 @@ bycatchFit_new<-function(
     modIndexVals[[run]]<- modPredVals[[run]]
     modFits[[run]]<- modPredVals[[run]]
     modelSelectTable[[run]]<- modPredVals[[run]]
+
+    datval<-dat[[run]]
+    outVal<-dirname[[run]]
+    varExclude<-NULL
+
+    #Fit all models except delta
+    for(mod in which(!grepl("delta",modelTry,ignore.case=TRUE))){
+      modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
+        obsdatval = datval,
+        modType = modelTry[mod],
+        printOutput=TRUE,
+        requiredVarNames = requiredVarNames,
+        allVarNames = allVarNames,
+        complexModel = complexModel,
+        common = common,
+        randomEffects = randomEffects,
+        useParallel = useParallel,
+        selectCriteria = selectCriteria,
+        catchType = catchType,
+        varExclude = varExclude,
+        dirname = dirname,
+        run = run
+      ))
+      modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
+      modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
+    }
+
+    #Fit delta models
+    if(any(grepl("delta",modelTry,ignore.case=TRUE))) {  #Delta models if requested
+      posdat<-filter(dat[[run]], .data$pres==1)
+      y<-unlist(lapply(posdat[,factorVariables],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
+      varExclude<-names(y)[y>0]
+      if(length(varExclude>0)) print(paste(common[run], "excluding variable",varExclude,"from delta models for positive catch"))
+      if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) &
+         (!is.null(modFits[[run]][["Binomial"]]) | !is.null(modFits[[run]][["TMBbinomial"]]))) { #If all years have at least one positive observation and binomial converged, carry on with delta models
+        for(mod in which(grepl("delta",modelTry,ignore.case=TRUE)))  {
+          modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
+            obsdatval = posdat,
+            modType = modelTry[mod],
+            requiredVarNames = requiredVarNames,
+            allVarNames = allVarNames,
+            complexModel = complexModel,
+            randomEffects = randomEffects2,
+            useParallel = useParallel,
+            selectCriteria = selectCriteria,
+            varExclude = varExclude,
+            printOutput=TRUE,
+            catchType = catchType,
+            common = common,
+            dirname = dirname,
+            run = run
+          ))
+          modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
+          modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
+        }
+      } else {
+        print("Not all years have positive observations, skipping delta models")
+        modelFail[run,c("Delta-Lognormal","Delta-Gamma")]<-"data"
+        modPredVals[[run]][[modelTry[mod]]]<-NULL
+        modIndexVals[[run]][[modelTry[mod]]]<-NULL
+      }
+    }
+
+    # If estimating bycatch, see if data set is large
+    if(EstimateBycatch) {
+      BigData<-ifelse(sum(logdat$SampleUnits)>10000, TRUE, FALSE)
+      #Add stratum designation and check sample size in strata
+      if(length(requiredVarNames)>1) {
+        logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
+      }
+      if(length(requiredVarNames)==1)   {
+        logdat$strata <- pull(logdat,var=requiredVarNames)
+      }
+      if(length(requiredVarNames)==0)   {
+        logdat$strata <- rep(1,nrow(logdat))
+      }
+      if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000) {
+        print("Cannot calculate variance for large number of logbook sample units")
+        VarCalc<-"None"
+      }
+    }
+    for(mod in 1:length(modelTry)) {
+      if(!is.null(modFits[[run]][[modelTry[mod]]])) {
+        if(grepl("delta",modelTry[mod],ignore.case = TRUE )) {
+          if(grepl("TMB",modelTry[mod])) modFit1=modFits[[run]][["TMBbinomial"]] else
+            modFit1=modFits[[run]][["Binomial"]]
+          modFit2<-modFits[[run]][[modelTry[mod]]]
+        }
+        if(!grepl("delta",modelTry[mod],ignore.case = TRUE )) {
+          modFit1<-modFits[[run]][[modelTry[mod]]]
+          modFit2<-NULL
+        }
+        if(EstimateBycatch) {
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-lognormal","TMBdelta-gamma")))
+            modPredVals[[run]][[modelTry[mod]]]<-
+              makePredictionsSimVarBig(
+                modfit1=modFit1,
+                modfit2=modFit2,
+                modtype=modelTry[mod],
+                newdat=logdat,
+                obsdatval=datval,
+                includeObsCatch = includeObsCatch,
+                nsim = nSims,
+                requiredVarNames = requiredVarNames,
+                CIval = CIval,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                run = run,
+                randomEffects=randomEffects,
+                randomEffects2=randomEffects2)
+          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
+            modPredVals[[run]][[modelTry[mod]]]<-
+              makePredictionsDeltaVar(
+                modfit1=modFit1,
+                modtype=modelTry[mod],
+                newdat=logdat,
+                obsdatval=datval,
+                includeObsCatch = includeObsCatch,
+                requiredVarNames = requiredVarNames,
+                CIval = CIval,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                run = run
+              )
+          if(VarCalc=="None") {
+            modPredVals[[run]][[modelTry[mod]]]<-
+              makePredictionsNoVar(
+                modfit1=modFit1,
+                modfit2=modFit2,
+                modtype=modelTry[mod],
+                newdat=logdat,
+                obsdatval=datval,
+                includeObsCatch = includeObsCatch,
+                nsims = nSims,
+                requiredVarNames = requiredVarNames,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                run = run
+              )
+          }
+        }
+        if(EstimateIndex) {
+          modIndexVals[[run]][[modelTry[mod]]]<-
+            makeIndexVar(
+              modfit1=modFit1,
+              modfit2=modFit2,
+              modType=modelTry[mod],
+              newdat = indexDat,
+              printOutput=TRUE,
+              nsims = nSims,
+              common = common,
+              catchType = catchType,
+              dirname = dirname,
+              run = run
+            )
+        }
+        modelTable[[run]]$formula[mod]<-paste(formula(modFits[[run]][[modelTry[mod]]]))[[3]]
+        #exclude code to print pdfs - turn fileName NULL?
+        #temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],paste0(outVal,"Residuals",modelTry[mod],".pdf"))
+        temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName = NULL) #no pdfs produced
+        if(!is.null(temp)) {
+          residualTab[[run]][,modelTry[mod]]<-temp
+          #if(residualTab[[run]]["KS.p",modelTry[mod]]<0.01 & ResidualTest) modelFail[run,modelTry[mod]]<-"resid"
+          # or exclude next line of code?
+          # if(residualTab[[run]]["KS.p",modelTry[mod]]<0.01) modelFail[run,modelTry[mod]]<-"resid"
+        }
+        if(is.null(modPredVals[[run]][[modelTry[mod]]]) & EstimateBycatch) modelFail[run,modelTry[mod]]<-"cv"
+      } else {
+        if(modelFail[run,modelTry[mod]]=="-") modelFail[run,modelTry[mod]]<-"fit"
+      }
+    }
+
+    #Combine all predictions, except Binomial
+    if(EstimateBycatch) {
+      if(is.factor(modPredVals[[run]][[1]]$Year))
+        if(!is.null(designObj)){
+        yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
+      allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+      allmods[[run]]<-bind_rows(allmods[[run]],yearSumGraph[[run]])
+      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source %in% c("Unstratified ratio","Ratio","Design Delta"),1,0)
+        }
+        if(is.null(designObj)){
+      allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-",1,0)
+        }
+    }
+
+    if(EstimateIndex) {
+      allindex[[run]]<-bind_rows(modIndexVals[[run]],.id="Source") %>%
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinonomial")
+      allindex[[run]]$Valid<-ifelse(modelFail[run,match(allindex[[run]]$Source,dimnames(modelFail)[[2]])]=="-" ,1,0)
+    }
+
+    #Print the diagnostic tables
+    write.csv(residualTab[[run]],paste0(outVal,"residualDiagnostics.csv"))
+    #write.csv(modelFail,paste0(outDir,"/modelFail.csv")) #exclude this output
+
+    ######## Cross validation 10 fold  ####################################
+    rmsetab[[run]]<-matrix(NA,10,length(modelTry),dimnames=list(1:10,modelTry))
+    rmsetab[[run]]<-rmsetab[[run]][,colnames(rmsetab[[run]])!="Binomial"]
+    metab[[run]]<-rmsetab[[run]]
+    if(DoCrossValidation & length(which(modelFail[run,!colnames(modelFail)%in%c("Binomial","TMBbinomial")]=="-"))>1) {  #Don't do unless at least one model worked
+      datval$cvsample<-sample(rep(1:10,length=dim(datval)[1]),replace=FALSE)
+      for(i in 1:10 ) {
+        datin<-datval[datval$cvsample!=i,]
+        datout<-datval[datval$cvsample==i,]
+        datout$SampleUnits<-rep(1,dim(datout)[1])
+        for(mod in which(!grepl("delta",modelTry,ignore.case = TRUE))) {
+          if(modelFail[run,modelTry[mod]]=="-") {
+            # if(DredgeCrossValidation) { #exclude DredgeCrossValidation, but need to understand code first
+            #   modFit1<-suppressWarnings(findBestModelFunc(
+            #     datin,
+            #     modelTry[mod],
+            #     requiredVarNames = requiredVarNames,
+            #     allVarNames = allVarNames,
+            #     complexModel = complexModel,
+            #     useParallel = useParallel,
+            #     selectCriteria = selectCriteria,
+            #     catchType = catchType,
+            #     varExclude = varExclude,
+            #     randomEffects=randomEffects
+            #   ))[[1]]
+            #} else {
+              modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),
+                                                       modType=modelTry[mod],obsdatval=datin))
+            #}
+
+            if(!modelTry[mod] %in% c("Binomial","TMBbinomial")) {
+              predcpue<-makePredictions(
+                modFit1,
+                modType=modelTry[mod],
+                newdat = datout
+              )
+              rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
+              metab[[run]][i,modelTry[mod]]<-getME(predcpue$est.cpue,datout$cpue)
+            } else {
+              if(modelTry[mod]=="Binomial")
+                binomial1<-modFit1
+              if(modelTry[mod]=="TMBbinomial")
+                tmbbin1<-modFit1
+            }
+          }
+        }
+        if(any(grepl("delta",modelTry,ignore.case = TRUE))) {
+          posdat<-filter(datin, .data$pres==1)
+          y<-unlist(lapply(posdat[,factorVariables],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
+          varExcludecv<-names(y)[y>0]
+          for(mod in which(grepl("delta",modelTry,ignore.case = TRUE))) {
+            if(modelFail[run,modelTry[mod]]=="-" & !(!is.numeric(posdat$Year) & min(table(posdat$Year))==0)) {
+              # if(DredgeCrossValidation) {
+              #   modFit1<-suppressWarnings(findBestModelFunc(
+              #     posdat,
+              #     modelTry[mod],
+              #     requiredVarNames = requiredVarNames,
+              #     allVarNames = allVarNames,
+              #     complexModel = complexModel,
+              #     useParallel = useParallel,
+              #     selectCriteria = selectCriteria,
+              #     catchType = catchType,
+              #     varExclude = varExcludecv,
+              #     randomEffects=randomEffects2
+              #   ))[[1]]
+              #} else {
+                if(length(varExcludecv)==0)
+                  modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",modelTable[[run]]$formula[mod])),modType=modelTry[mod],obsdatval=posdat)) else {
+                    temp<-strsplit(gsub(" ","",modelTable[[run]]$formula[mod]),"[+]")[[1]]
+                    temp<-paste(temp[!temp %in%  varExcludecv],collapse="+")
+                    modFit1<-suppressWarnings(FitModelFuncCV(formula(paste0("y~",temp)),modType=modelTry[mod],obsdatval=posdat))
+                  }
+              #}
+
+              if(grepl("TMB",modelTry[mod]))
+                bin1<-tmbbin1 else
+                  bin1<-binomial1
+                predcpue<-makePredictions(bin1,modFit1,modelTry[mod],datout)
+                rmsetab[[run]][i,modelTry[mod]]<-getRMSE(predcpue$est.cpue,datout$cpue)
+                metab[[run]][i,modelTry[mod]]<-getME(predcpue$est.cpue,datout$cpue)
+            }
+          }
+        }
+      } #close loop for each fold of the cross validation
+
+      # Calculate RMSE and ME
+      modelTable[[run]]$RMSE[modelTable[[run]]$model!="Binomial"]<-apply(rmsetab[[run]],2,mean,na.rm=TRUE)
+      modelTable[[run]]$ME[modelTable[[run]]$model!="Binomial"]<-apply(metab[[run]],2,mean,na.rm=TRUE)
+      write.csv(residualTab[[run]],paste0(outVal,"modelSummary.csv"))
+      write.csv(rmsetab[[run]],paste0(outVal,"rmse.csv"))
+      write.csv(metab[[run]],paste0(outVal,"me.csv"))
+      write.csv(modelTable[[run]],paste0(outVal,"crossvalSummary.csv"))
+      #Select best model based on cross validation
+      best<-which(!is.na( modelTable[[run]]$RMSE) &
+                    modelTable[[run]]$RMSE==min(modelTable[[run]]$RMSE,na.rm=TRUE))
+      if(length(best) >0 ) {
+        bestmod[run]<-modelTry[best]
+        predbestmod[[run]]<-modPredVals[[run]][[modelTry[best]]]
+        indexbestmod[[run]]<-modIndexVals[[run]][[modelTry[best]]]
+      } else {
+        bestmod[run]<-"None"
+      }
+    }
+
+    print(paste(run, common[run],"complete, ",Sys.time()))
+
+  } #close loop for each spp
+
+  # list of inputs/outputs to be saved in rds file
+  output <- list(
+    modelInputs = list(
+      modelTry = modelTry,
+      randomEffects = randomEffects,
+      randomEffects2 = randomEffects2,
+      complexModel = complexModel,
+      simpleModel = simpleModel,
+      indexModel = indexModel,
+      selectCriteria = selectCriteria,
+      DoCrossValidation = DoCrossValidation,
+      CIval = CIval,
+      VarCalc = VarCalc,
+      useParallel = useParallel,
+      nSims = nSims,
+      plotValidation = plotValidation,
+      trueVals = trueVals,
+      trueCols = trueCols
+    ),
+    modelOutputs = list(
+      modelTable = modelTable,
+      modelSelectTable = modelSelectTable,
+      modFits = modFits,
+      modPredVals = modPredVals,
+      modIndexVals = modIndexVals,
+      indexDat = indexDat,
+      indexVarNames = indexVarNames,
+      residualTab = residualTab,
+      bestmod = bestmod,
+      predbestmod = predbestmod,
+      indexbestmod = indexbestmod,
+      allmods = allmods,
+      allindex = allindex,
+      modelFail = modelFail,
+      rmsetab = rmsetab,
+      metab = rmsetab,
+      dat = dat,
+      requiredVarNames = requiredVarNames,
+      allVarNames = allVarNames,
+      startYear = startYear,
+      NumCores = NumCores
+    )
+  )
+
+  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchFitSpecification.rds"))
+
+  #Create report
+  for(run in 1:numSp) {
+    if(reportType == "html" || reportType == "both"){
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchFit.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+
+      if(!is.null( mkd)){
+
+        rmarkdown::render(mkd,
+                          params=list(outDir=outDir, run = run),
+                          output_format = "html_document",
+                          output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.html"),
+                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          quiet = TRUE)
+      }
+    }
+
+    if(reportType == "pdf" || reportType == "both"){
+
+      mkd<-tryCatch({
+        system.file("Markdown", "PrintBycatchFit.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+      },
+      error = function(c) NULL
+      )
+
+      if(!is.null( mkd)){
+
+        tryCatch({
+          rmarkdown::render(mkd,
+                            params=list(outDir=outDir, run = run),
+                            output_format = "pdf_document",
+                            output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.pdf"),
+                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            quiet = TRUE)
+
+        },
+        error = function(e){
+          message("PDF rendering failed, reverting to html.")
+          rmarkdown::render(mkd,
+                            params=list(outDir=outDir, run = run),
+                            output_format = "html_document",
+                            output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.html"),
+                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            quiet = TRUE)
+        })
+      }
+    }
   }
 
+  #Clean up: delete the figures/ directory after rendering
+  fig_dir <- file.path(dirname(mkd), "figures")
+  if (dir.exists(fig_dir)) {
+    unlink(fig_dir, recursive = TRUE)
+  }
+
+  return(output)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # list of outputs to be saved in rds file
-
-
-
-
-
-
-
-
-
-
-
-}
+} #close loop bycatchFit function
 
