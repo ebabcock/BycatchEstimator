@@ -10,7 +10,6 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup_new}.
-#' @param designObj An object produced by \code{bycatchDesign_new}. Optional, specify as NULL if it does not exist.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables tha must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
@@ -65,7 +64,6 @@
 #' #Step 2. Model fitting
 #'bycatchFit(
 #' setupObj = setupObj,
-#' designObj = NULL,
 #' complexModel = formula(y~(Year+season)^2),
 #' simpleModel = formula(y~Year),
 #' indexModel = formula(y~Year),
@@ -88,7 +86,6 @@
 
 bycatchFit_new<-function(
   setupObj,
-  designObj,
   complexModel,
   simpleModel,
   indexModel = NULL,
@@ -121,15 +118,15 @@ bycatchFit_new<-function(
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
-  #unpack designObj - if there is a designObj
-  if(!is.null(designObj)){
-  designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
-
-  yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
-
-  for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
-  for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
-  }
+  # #unpack designObj - if there is a designObj
+  # if(!is.null(designObj)){
+  # designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+  #
+  # yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
+  #
+  # for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
+  # for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
+  # }
 
   NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
   #Make sure there are multiple cores to use Parallel processing
@@ -402,6 +399,7 @@ bycatchFit_new<-function(
               modfit1=modFit1,
               modfit2=modFit2,
               modType=modelTry[mod],
+              indexVarNames = indexVarNames,
               newdat = indexDat,
               printOutput=TRUE,
               nsims = nSims,
@@ -430,18 +428,15 @@ bycatchFit_new<-function(
     #Combine all predictions, except Binomial
     if(EstimateBycatch) {
       if(is.factor(modPredVals[[run]][[1]]$Year))
-        if(!is.null(designObj)){
-        yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
-      allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
-        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
-      allmods[[run]]<-bind_rows(allmods[[run]],yearSumGraph[[run]])
-      allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source %in% c("Unstratified ratio","Ratio","Design Delta"),1,0)
-        }
-        if(is.null(designObj)){
+      #   yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
+      # allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
+      #   filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+      # allmods[[run]]<-bind_rows(allmods[[run]],yearSumGraph[[run]])
+      # allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-" | allmods[[run]]$Source %in% c("Unstratified ratio","Ratio","Design Delta"),1,0)
+
       allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
         filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
       allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-",1,0)
-        }
     }
 
     if(EstimateIndex) {

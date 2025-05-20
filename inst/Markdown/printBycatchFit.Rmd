@@ -45,15 +45,11 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_new3functions/"
-# setupObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchSetupSpecification.rds"))
-# designObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchDesignSpecification.rds"))
-# modelObj<-readRDS(file=paste0(out.dir,"2025-05-13_BycatchFitSpecification.rds"))
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_newfunctions/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-05-20_BycatchSetupSpecification.rds"))
+# modelObj<-readRDS(file=paste0(out.dir,"2025-05-20_BycatchFitSpecification.rds"))
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
-if(!is.null(designObj)){
-designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesignSpecification.rds"))
-}
 modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFitSpecification.rds"))
 
 #unpack setupObj
@@ -67,16 +63,6 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
-  
-#unpack designObj - if is not NULL
-if(!is.null(designObj)){
-designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
-
-yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
-
-  for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
-  for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
-}
 
 #unpack modelObj
 modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-plotValidation<-trueVals<-trueCols<-NULL
@@ -86,6 +72,7 @@ modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-inde
  for(r in 1:NROW(modelObj$modelInputs)) assign(names(modelObj$modelInputs)[r], modelObj$modelInputs[[r]])
  for(r in 1:NROW(modelObj$modelOutputs)) assign(names(modelObj$modelOutputs)[r],modelObj$modelOutputs[[r]])
 
+# is this piece of code necessary in here?
 if(!"Year" %in% factorVariables) { #treat Year as numeric variable
   obsdat$Year<-obsdat$Year+startYear
   logdat$Year<-logdat$Year+startYear
@@ -138,11 +125,13 @@ if(output_format == "latex"){
 
 # Figures of All models together
 if(EstimateBycatch ) {
- if(plotValidation)  plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit) else
+ if(plotValidation)  {
+   plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+  }else{
     plotSums(
       yearpred = filter(allmods[[run]],Valid==1),
       modType = "All",
-      fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+      fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit, VarCal = VarCalc)}
 cat("\n Figure ",fignum,". Total bycatch estimates for all valid models and design-based methods, for ",common[run],varText,obsText,". \n",sep="")
   fignum<-fignum+1
   cat('\n')

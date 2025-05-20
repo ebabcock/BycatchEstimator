@@ -90,7 +90,7 @@ cat("\n")
 
 
 ```{r plot-designestimator, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
-# what happens with this plot if only one of the two methods was chosen?
+# plot unstratified ratio estimator?
 yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Method") %>%
   mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
     Method=sub("Mean","",Method),

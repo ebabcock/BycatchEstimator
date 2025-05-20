@@ -718,7 +718,8 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     returnval=NULL
   }  else  {     returnval=yearpred  }
   if(printOutput) { #remove Total.mean column from csv
-    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
+    write.csv(yearpred[,!(names(yearpred) %in% c("Total.mean"))],
+              paste0(dirname[[run]],common[run],catchType[run],modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
 }
@@ -801,6 +802,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
       summarize(Total=sum(.data$Total,na.rm=TRUE)) %>%
       mutate(Total.mean=NA,TotalVar=NA,	TotalLCI=NA,	TotalUCI=NA,	Total.se=NA,
              Total.cv=NA)
+
     yearpred<-allpred%>% group_by(.data$Year) %>%
       summarize(Total=sum(.data$Total,na.rm=TRUE)) %>%
       mutate(Total.mean=NA,TotalVar=NA,	TotalLCI=NA,	TotalUCI=NA,	Total.se=NA,
@@ -830,7 +832,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
 #' @param dirname Value
 #' @param run Value
 #' @keywords internal
-makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
+makeIndexVar<-function(modfit1, modfit2=NULL, modType, indexVarNames,newdat, nsims, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
   returnval=NULL
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")    response1<-data.frame(cplm::predict(modfit1,newdata=newdat,type="response",se.fit=TRUE)) else
@@ -875,11 +877,15 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, newdat, nsims, printOutpu
         mutate(Index=lnorm.mean(.data$fit,.data$se.fit)-0.1,
                SE=lnorm.se(.data$fit,.data$se.fit))
     }
-    allpred=allpred %>% mutate(ymin=.data$Index-.data$SE,ymax=.data$Index+.data$SE)  %>%
-      mutate(ymin=ifelse(.data$ymin<0,0,.data$ymin))
+    allpred=allpred %>%
+      mutate(lowerCI=.data$Index-.data$SE,upperCI=.data$Index+.data$SE)  %>%
+      mutate(lowerCI=ifelse(.data$lowerCI<0,0,.data$lowerCI))
     returnval=allpred
     if(printOutput) {
-      write.csv(allpred,paste0(dirname[[run]],common[run],catchType[run],modType,"Index.csv"), row.names = FALSE)
+      indexVarNames <- indexVarNames[indexVarNames %in% colnames(allpred)]
+      colsToSave <- c(indexVarNames, "Index","SE","lowerCI","upperCI")
+      write.csv(allpred[, colsToSave, drop = FALSE],
+                paste0(dirname[[run]],common[run],catchType[run],modType,"Index.csv"), row.names = FALSE)
     }
   }
   returnval
@@ -1568,7 +1574,7 @@ goodman.var<-function(x,y) {
 #' @param catchUnit Value
 #' @import dplyr
 #' @keywords internal
-plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear, common, run, catchType, catchUnit) {
+plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear, common, run, catchType, catchUnit,VarCalc) {
   if(is.numeric(yearpred$Year) & "Year" %in% allVarNames)
     yearpred$Year[yearpred$Year<startYear]=yearpred$Year[yearpred$Year<startYear]+startYear
  #  yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
@@ -1578,12 +1584,19 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
     yearpred<-yearpred %>%
       mutate(Year=as.numeric(as.character(.data$Year)),ymin=.data$Total-.data$Total.se,ymax=.data$Total+.data$Total.se) %>%
       mutate(ymin=ifelse(.data$ymin>0,.data$ymin,0))
-    if(modType=="All") {
+    if(modType=="All") { #for plotting all models in 1 figure
+      if(VarCalc!="None") {
       g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,ymin=.data$TotalLCI,ymax=.data$TotalUCI, fill=.data$Source))+
         geom_line(aes(col=.data$Source))+ geom_ribbon(alpha=0.3)+xlab("Year")+
         #        geom_line(aes(y=Total.mean,col=Source),lty=2,lwd=2)+
+        ylab(ytitle)}
+      if(VarCalc=="None") {
+      g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,fill=.data$Source))+
+        geom_line(aes(col=.data$Source))+xlab("Year")+
         ylab(ytitle)
-    } else {
+      }
+
+    } else { #for plotting separately for each model
       if(all(is.na(yearpred$Total.mean))) {
         if(all(is.na(yearpred$Total.cv)))
           g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total))+
