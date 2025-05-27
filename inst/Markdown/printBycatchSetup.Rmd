@@ -57,13 +57,14 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 **Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
 
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
-if (is.na(numericVariables)){
+
+if(!is.null(logdat)){
+
+if (unique(!is.na(numericVariables))){
+  numericVariables <- c("Effort",numericVariables)
+}else{
   numericVariables <- "Effort"
 }
-if (!is.na(numericVariables)){
-  numericVariables <- c("Effort",numericVariables)
-}
-
 
 obsdat<-mutate(obsdat,SampleUnits=1) # add SampleUnits column with value set to 1 for every row
 if(!"Year" %in% factorVariables) { #treat Year as numeric variable
@@ -72,10 +73,17 @@ if(!"Year" %in% factorVariables) { #treat Year as numeric variable
 }
 
 #Compare observed and logbook  
+# add if statement if logdat is not NULL (for estimating CPUE only)
+if(!is.null(logdat)){
 allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits"))),
-                  effort=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))), #allVarNames need to be the same in obsdat and logdat?
+                  effort=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
                   .id = "Source")%>%
-  pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+  pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")}
+if(is.null(logdat)){
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
+                .id = "Source")%>%
+pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
+}
 
 print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
   geom_bar(position=position_dodge())+
@@ -117,6 +125,7 @@ cat("\n Figure ",figurenum,". Effort across numerical variables. \n",sep="")
 figurenum<-figurenum+1
 }
 cat("\n")
+}
 
 ```
 
@@ -124,6 +133,7 @@ cat("\n")
 \vspace{1cm}
 
 ```{r table-effort, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+if(!is.null(logdat)){
 cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,"", sep="")
 temp<-bind_rows(list(observer=select(obsdat,Effort),
                   effort=select(logdat,Effort)),
@@ -132,16 +142,18 @@ temp<-bind_rows(list(observer=select(obsdat,Effort),
             `Total effort`=sum(Effort))%>%
   mutate(`Proportion units`=round(`Sample units`/sum(`Sample units`),3),
          `Proportion effort`=round(`Total effort`/sum(`Total effort`),3)) 
-kbl(temp,format="simple")
+print(kbl(temp,format="simple"))
 tablenum<-tablenum+1
 cat("\n")
+}
 ```
 
 \newpage
 
 ```{r tablesummary, results='asis'}
+#if(!is.null(logdat)){
 # Print data summary
-cat("Table ", tablenum,". Input data summary for each year. Columns are: Year, logbook effort (Eff), logbook sample units (Units), observed catch (OCat), observed effort (OEff), observed sample units (OUnit; ",sampleUnit,"), mean catch per unit effort (CPUE), standard error of CPUE (CPse), count of outliers (Out), number of sample units with positive observations (Pos), standard deviation of observed catch (OCatS), standard deviation of observed effort (OEffS), covariance (Cov), fraction of positive observations (PFrac), fraction of effort observed (EFrac), fraction of sample units observed (UFrac), estimated catch using ratio estimator (Cat), standard error of estimated catch (Cse)", sep="")
+cat("Table ", tablenum,". Input data summary for each year. Columns are: Year, logbook effort (Eff), logbook sample units (Units), observed catch (OCat), observed effort (OEff), observed sample units (OUnit; ",sampleUnit,"), mean catch per unit effort (CPUE), standard error of CPUE (CPse), count of outliers (Out), number of sample units with positive observations (Pos), standard deviation of observed catch (OCatS), standard deviation of observed effort (OEffS), covariance (Cov), fraction of positive observations (PFrac), fraction of effort observed (EFrac), fraction of sample units observed (UFrac), estimated catch using unstratified ratio estimator (Cat), standard error of estimated catch (Cse)", sep="")
 tablenum<-tablenum+1
 
 temp <- yearSum[[run]] %>%
@@ -158,7 +170,7 @@ if(output_format == "latex"){
     kable_styling(latex_options = c("scale_down","simple","HOLD_position"))
 }
 cat("\n")
-
+#}
 ```
 
 \newpage

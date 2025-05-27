@@ -342,7 +342,7 @@ bycatchFit_new<-function(
           modFit2<-NULL
         }
         if(EstimateBycatch) {
-          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-lognormal","TMBdelta-gamma")))
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-Lognormal","TMBdelta-Gamma")))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsSimVarBig(
                 modfit1=modFit1,
@@ -446,7 +446,7 @@ bycatchFit_new<-function(
     }
 
     #Print the diagnostic tables
-    write.csv(residualTab[[run]],paste0(outVal,"residualDiagnostics.csv"))
+    #write.csv(residualTab[[run]],paste0(outVal,"residualDiagnostics.csv")) #being saved also as modelSummary.csv
     #write.csv(modelFail,paste0(outDir,"/modelFail.csv")) #exclude this output
 
     ######## Cross validation 10 fold  ####################################
@@ -592,7 +592,7 @@ bycatchFit_new<-function(
       allindex = allindex,
       modelFail = modelFail,
       rmsetab = rmsetab,
-      metab = rmsetab,
+      metab = metab,
       dat = dat,
       requiredVarNames = requiredVarNames,
       allVarNames = allVarNames,

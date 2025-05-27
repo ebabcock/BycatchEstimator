@@ -1670,28 +1670,44 @@ plotIndex<-function(yearpred, modType, fileName, subtext="", indexVarNames, allV
 #' @param catchUnit Value
 #' @import dplyr
 #' @keywords internal
-plotSumsValidate<-function(yearpred,trueval,fileName,colName, allVarNames, startYear, common, run, catchType, catchUnit) {
-  if(is.numeric(yearpred$Year)& "Year" %in% allVarNames) yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
+plotSumsValidate<-function(yearpred,trueval,fileName,colName, allVarNames, startYear, common, run, catchType, catchUnit,VarCalc) {
+  if(is.numeric(yearpred$Year) & "Year" %in% allVarNames)
+    #yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
+    yearpred$Year[yearpred$Year<startYear]=yearpred$Year[yearpred$Year<startYear]+startYear
+
   yearpred<-yearpred %>%
     mutate(Year=as.numeric(as.character(.data$Year)),ymin=.data$Total-.data$Total.se,ymax=.data$Total+.data$Total.se) %>%
     mutate(ymin=ifelse(.data$ymin>0,.data$ymin,0))
+
   trueval<-trueval %>% rename(Total=!!colName) %>%
     mutate(ymin=NA,ymax=NA,Source="Validation",
            Total.mean=NA,TotalLCI=NA,TotalUCI=NA)
   yearpred<-bind_rows(yearpred[,c("Year","Total","Total.mean","TotalLCI","TotalUCI","ymin","ymax","Source")],
                       trueval[,c("Year","Total","Total.mean","TotalLCI","TotalUCI","ymin","ymax","Source")])
-  if(all(is.na(yearpred$Total.mean)))
+
+  if(VarCalc == "None"){
+  g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,fill=.data$Source))+
+    geom_line(aes(color=.data$Source))+
+    xlab("Year")+
+    ylab(paste0(common[run]," ",catchType[run]," (",catchUnit[run],")"))+
+    geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)
+  }
+
+  if(VarCalc!="None"){
+  if(all(is.na(yearpred$Total.mean))){ #if varCalc is DeltaMethod (?)
     g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,ymin=.data$TotalLCI,ymax=.data$TotalUCI,fill=.data$Source))+
     geom_line(aes(color=.data$Source))+ geom_ribbon(alpha=0.3)+
     xlab("Year")+
     ylab(paste0(common[run]," ",catchType[run]," (",catchUnit[run],")"))+
-    geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2) else
-      g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,ymin=.data$TotalLCI,ymax=.data$TotalUCI,fill=.data$Source))+
+    geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)
+    }else{ #if VarCalc is Simulate
+    g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,ymin=.data$TotalLCI,ymax=.data$TotalUCI,fill=.data$Source))+
     geom_line(aes(color=.data$Source))+ geom_ribbon(alpha=0.3)+
     geom_line(aes(y=.data$Total.mean,color=.data$Source),lty=2)+
     xlab("Year")+
     ylab(paste0(common[run]," ",catchType[run]," (",catchUnit[run],")"))+
-    geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)
+    geom_point(data=yearpred[yearpred$Source=="Validation",],aes(x=.data$Year,y=.data$Total,color=.data$Source),size=2)}}
+
   suppressWarnings(print(g))
   if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
 }

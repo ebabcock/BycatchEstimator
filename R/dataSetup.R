@@ -20,7 +20,7 @@
 #' @param logNum Character vector. The name of the column in \code{logdat} that gives the number of sample units (e.g., trips or sets). If the logbook data is not aggregated (i.e. each row is a sample unit) set value to NA
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
 #' @param factorVariables Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
-#' @param numericVariables Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}
+#' @param numericVariables Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}. If there are no numeric variables, set numericVariables=NA.
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
 #' @param logUnsampledEffort Character. The name of the unsampled effort variable in in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
@@ -108,7 +108,7 @@ bycatchSetup_new <- function(
   }
 
   # set up factor variables and numeric variables
-  if(!is.na(numericVariables)){
+  if(unique(!is.na(numericVariables))){
     allVarNames <- c(factorVariables,numericVariables)}
   else{
     allVarNames <- c(factorVariables)}
@@ -140,9 +140,14 @@ bycatchSetup_new <- function(
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
-    } #TO ADD: check if all trips in obsdat are in logdat, print error message if not
 
-  }
+      missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
+      if(length(missing_trips)>0){
+        stop(paste("The following sample units are missing in the logbook data: "),
+                paste(missing_trips,collapse = ", "))}
+        }
+      }
+
 
   # define startYear
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
@@ -187,7 +192,7 @@ bycatchSetup_new <- function(
 
     if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
 
-    if(EstimateBycatch) {
+    #if(EstimateBycatch) { # move this if statement, because can do annual summary from observer data without EstimateBycatch
     #Make annual summary
     yearSum[[run]]<-MakeSummary(
       obsdatval = dat[[run]],
@@ -210,7 +215,7 @@ bycatchSetup_new <- function(
       )
       write.csv(strataSum[[run]],
                 paste0(dirname[[run]],common[run]," ",catchType[run]," StrataSummary.csv"), row.names = FALSE)
-    }
+    #}
 
   } #close loop for each spp
 
