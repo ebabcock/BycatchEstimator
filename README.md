@@ -4,6 +4,7 @@
 # BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 BycatchEstimator is used to estimate both total bycatch, calculated by
