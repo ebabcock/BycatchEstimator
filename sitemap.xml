@@ -1,213 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/404.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/BycatchEstimator-package.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/CheckForPositives.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/CheckForPositivesPlot.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/FitModelFunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/FitModelFuncCV.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/Gm.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/LLSIM_BUM_Example_logbook.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/LLSIM_BUM_Example_observer.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/MakeSummary.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/ResidualsFunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/areaDivide.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/areaGOM.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/areafunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchFit.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchSetup.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorMean.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorSE2.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/findBestModelFunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/fishTimeFunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getDesignEstimates.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getME.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getPooling.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getRMSE.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getRange.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getSimDeltaLN.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getSimSE.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getdatefunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/getdatefunc2.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/gettimefunc2.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/goodman.var.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/ilogit.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/length.unique.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/lnorm.mean.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/lnorm.se.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/lo.se.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/logdatExample.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makeIndexVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictions.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsDeltaVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsNoVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVarBig.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/mostfreqfunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/norm.mean.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/norm.se.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/obsdatExample.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/outlierCountFunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/plotCrossVal.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/plotIndex.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/plotSums.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/plotSumsValidate.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/ratio.func.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/ratioVar.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/seasonfunc.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateGammaDraw.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateNegBin1Draw.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateNegBinGam.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateTMBTweedieDraw.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateTweedie.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/standard.error.html</loc>
-  </url>
-  <url>
-    <loc>https://ebabcock.github.io/BycatchEstimator/reference/yearfunc.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/404.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/LICENSE-text.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/LICENSE.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/articles/index.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/authors.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/index.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/BycatchEstimator-package.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/CheckForPositives.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/CheckForPositivesPlot.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/FitModelFunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/FitModelFuncCV.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/Gm.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/LLSIM_BUM_Example_logbook.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/LLSIM_BUM_Example_observer.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/MakeSummary.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/ResidualsFunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/areaDivide.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/areaGOM.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/areafunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchFit.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/bycatchSetup.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/dataCheck.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorMean.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorSE2.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/deltaEstimatorVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/findBestModelFunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/fishTimeFunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getDesignEstimates.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getME.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getPooling.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getRMSE.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getRange.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getSimDeltaLN.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getSimSE.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getdatefunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/getdatefunc2.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/gettimefunc2.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/goodman.var.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/ilogit.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/index.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/length.unique.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/lnorm.mean.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/lnorm.se.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/lo.se.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/logdatExample.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makeIndexVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictions.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsDeltaVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsNoVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVarBig.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/mostfreqfunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/norm.mean.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/norm.se.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/obsdatExample.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/outlierCountFunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/plotCrossVal.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/plotIndex.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/plotSums.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/plotSumsValidate.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/ratio.func.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/ratioVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/seasonfunc.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateGammaDraw.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateNegBin1Draw.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateNegBinGam.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateTMBTweedieDraw.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/simulateTweedie.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/standard.error.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/yearfunc.html</loc></url>
 </urlset>
+
