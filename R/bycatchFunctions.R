@@ -306,6 +306,11 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       modfit2<-NULL
       modfit3<-NULL
     }
+    if(!is.null(modfit2)) {
+      if(is.na(sum(modfit2$weight))) {
+        modfit2$weight<-exp(-0.5*modfit2$delta)/sum(exp(-0.5*modfit2$delta),na.rm=TRUE)
+      }
+    }
     if(printOutput & !is.null(modfit2)) {
       write.csv(data.frame(modfit2),paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"), row.names = FALSE)
       if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
