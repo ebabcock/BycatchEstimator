@@ -28,6 +28,7 @@ knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths f
 ```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
 library(tidyverse)
 library(kableExtra)
+library(GGally)
 theme_set(theme_bw())
 figurenum<-1
 tablenum<-1
@@ -35,8 +36,10 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-#out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_newdatasetupfunction/"
-#setupObj<-readRDS(file=paste0(out.dir,"2025-04-29_BycatchSetupSpecification.rds"))
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample_tripmatching/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-05-20_BycatchSetupSpecification.rds"))
+# run=1
+# source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
 
@@ -57,7 +60,6 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 **Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
 
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
-
 if(!is.null(logdat)){
 
 if (unique(!is.na(numericVariables))){
@@ -126,6 +128,44 @@ figurenum<-figurenum+1
 }
 cat("\n")
 }
+
+```
+```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+## Code to be added to the dataCheck markdown effort comparison section
+nmax<-100000  #If there are more data points than this, subsample to avoid hanging R
+#Sampled 100000 if there were more than that so R won't hang
+allData<-bind_rows(list(Obs=obsdat[,unique(c(factorVariables,numericVariables))],
+                        Eff=logdat[,unique(c(factorVariables,numericVariables))]),
+                   .id="Source")%>%arrange(Source)
+if(nrow(allData)>nmax) allData<-allData[sort(sample(1:nrow(allData),nmax,replace=FALSE)),]
+#Convert factors with>15 levels to number so it will plot visibly
+temp<-allData %>%summarise(across(all_of(factorVariables), ~ n_distinct(.)))
+temp<-names(temp)[temp[1,]>15]
+allData<-allData %>%
+  mutate(across(all_of(temp),~as.numeric(factor(.))))
+#Make sure other factors are factors
+temp<-factorVariables[!factorVariables %in% temp]
+allData<-allData %>%
+  mutate(across(all_of(temp),~factor(.)))
+#Numerical pairs plot
+cat("\n")
+print(ggpairs(filter(allData),
+          aes(color=Source,fill=Source,alpha=0.2),
+          columns=numericVariables)+
+    scale_color_manual(values=c("grey","darkblue"))+
+    scale_fill_manual(values=c("grey","darkblue")))
+cat("\n Figure ",figurenum,". Effort across pairs of numeric variables. Grey: logbook data; Blue: observer data. Corr: correlation coefficient; Eff: effect size; Obs: observed difference. \n",sep="")
+
+figurenum<-figurenum+1
+#factor variables
+cat("\n")
+print(ggpairs(filter(allData),
+        aes(color=Source,fill=Source,alpha=0.2),
+        columns=factorVariables)+
+  scale_color_manual(values=c("grey","darkblue"))+
+  scale_fill_manual(values=c("grey","darkblue")))
+cat("\n Figure ",figurenum,". Effort across pairs of categorical variables. Grey: logbook data; Blue: observer data. \n",sep="")
+figurenum<-figurenum+1
 
 ```
 

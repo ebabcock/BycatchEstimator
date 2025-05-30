@@ -127,6 +127,11 @@ bycatchSetup_new <- function(
     rename(Effort=!!obsEffort) %>%
     mutate(across(all_of(factorVariables),factor))
 
+  # add here warning message about NAs in observer data
+  if(any(is.na(obsdat[,c(allVarNames,Effort)]))){
+    warning("There are NAs in observer data in either factor variables, numeric variables or effort. Check what to do with these before continuing.")
+  }
+
   if(EstimateBycatch) {
     if(is.na(logNum))   {
       logdat<-mutate(logdat,SampleUnits=1)
@@ -137,6 +142,12 @@ bycatchSetup_new <- function(
       mutate(across(all_of(factorVariables),factor))
 
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
+
+    # add here warning message about NAs in logbook data
+    if(any(is.na(logdat[,c(allVarNames,Effort)]))){
+      warning("There are NAs in logbok data in either factor variables, numeric variables or effort. Check what to do with these before continuing.")
+    }
+
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
@@ -146,6 +157,10 @@ bycatchSetup_new <- function(
         stop(paste("The following sample units are missing in the logbook data: "),
                 paste(missing_trips,collapse = ", "))}
         }
+
+    # add here warning message about missing factor levels
+    # add here warning message about ranges of numeric variables not matching between observer and logbook data
+
       }
 
 

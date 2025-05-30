@@ -423,6 +423,11 @@ bycatchFit_new<-function(
       } else {
         if(modelFail[run,modelTry[mod]]=="-") modelFail[run,modelTry[mod]]<-"fit"
       }
+
+      #if(length(which(modelFail[run,]=="-"))<1){
+      #warning("No models were able to converge")
+      #}
+
     }
 
     #Combine all predictions, except Binomial

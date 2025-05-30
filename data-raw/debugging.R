@@ -631,3 +631,295 @@ model_est <- bycatchFit_new(
   trueCols = NULL,
   reportType = "html"
 )
+
+
+### missing levels in observer data
+working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
+
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+#exclude one season and area from observer data
+obsdatTest2 <- filter(obsdatTest, season %in% c(1,2,3) & area == "N")
+
+setupObj<-bycatchSetup_new(
+  obsdat = obsdatTest2,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[1],
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = "lat",
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  baseDir = working.dir,
+  runName = "LLSIMBUMtripExample_missingobserverdata",
+  runDescription = "LLSIMBUMtripExample_missingobserverdata",
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "html"
+)
+
+design_est <- bycatchDesign_new(
+  setupObj = setupObj,
+  designMethods = c("Ratio", "Delta"),
+  designVars = c("Year"),
+  designPooling = FALSE,
+  poolTypes=c("adjacent","all"),
+  pooledVar=c(NA,NA),
+  adjacentNum=c(1,NA),
+  minStrataUnit = 1
+)
+
+model_est <- bycatchFit_new(
+  setupObj = setupObj,
+  complexModel = formula(y~Year+area+season),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBdelta-Lognormal","Delta-Lognormal","TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+
+### missing levels in logbook data
+working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
+
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+#exclude one season and area from logbook data
+logdatTest2 <- filter(logdatTest, season %in% c(1,2,3) & area == "N")
+
+setupObj<-bycatchSetup_new(
+  obsdat = obsdatTest,
+  logdat = logdatTest2,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[1],
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = "lat",
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  baseDir = working.dir,
+  runName = "LLSIMBUMtripExample_missinglogdata",
+  runDescription = "LLSIMBUMtripExample_missinglogdata",
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "html"
+)
+
+design_est <- bycatchDesign_new(
+  setupObj = setupObj,
+  designMethods = c("Ratio", "Delta"),
+  designVars = c("Year"),
+  designPooling = FALSE,
+  poolTypes=c("adjacent","all"),
+  pooledVar=c(NA,NA),
+  adjacentNum=c(1,NA),
+  minStrataUnit = 1
+)
+
+model_est <- bycatchFit_new(
+  setupObj = setupObj,
+  complexModel = formula(y~Year+area+season),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBdelta-Lognormal","Delta-Lognormal","TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+
+
+### NAs in observer data, not matching trips
+working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
+
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+#one season and area from observer data as NA
+obsdatTest2 <- obsdatTest
+obsdatTest2$season[obsdatTest2$season==4] <- NA
+obsdatTest2$area[obsdatTest2$area=="S"] <- NA
+
+setupObj<-bycatchSetup_new(
+  obsdat = obsdatTest2,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[1],
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = "lat",
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  baseDir = working.dir,
+  runName = "LLSIMBUMtripExample_missingobserverdataNA",
+  runDescription = "LLSIMBUMtripExample_missingobserverdataNA",
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "html"
+)
+
+design_est <- bycatchDesign_new(
+  setupObj = setupObj,
+  designMethods = c("Ratio", "Delta"),
+  designVars = c("Year"),
+  designPooling = FALSE,
+  poolTypes=c("adjacent","all"),
+  pooledVar=c(NA,NA),
+  adjacentNum=c(1,NA),
+  minStrataUnit = 1
+)
+
+model_est <- bycatchFit_new(
+  setupObj = setupObj,
+  complexModel = formula(y~Year+area+season),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBdelta-Lognormal","Delta-Lognormal","TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+
+
+## testing adding R-squared in findBestModelFunc
+working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
+
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+
+setupObj<-bycatchSetup_new(
+  obsdat = obsdatTest,
+  logdat = logdatTest,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[1],
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = "lat",
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  baseDir = working.dir,
+  runName = "LLSIMBUMtripExample_Rsquared",
+  runDescription = "LLSIMBUMtripExample_Rsquared",
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "html"
+)
+
+model_est <- bycatchFit_new(
+  setupObj = setupObj,
+  complexModel = formula(y~Year+area+season),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBdelta-Lognormal","Delta-Lognormal","TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+
+
+### testing NA warning messages
+working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
+
+obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
+logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
+#changing some trips to NAs
+natrips <- obsdatTest[5:10,]
+natrips$SWO <- natrips$area<- NA
+obsdatTest2 <- rbind(obsdatTest,natrips)
+natrips<-logdatTest[5:10,]
+natrips$SWO <- natrips$area<- NA
+logdatTest2 <- rbind(logdatTest,natrips)
+
+setupObj<-bycatchSetup_new(
+  obsdat = obsdatTest,
+  logdat = logdatTest2,
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[1],
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = "lat",
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
+  EstimateBycatch = TRUE,
+  baseDir = working.dir,
+  runName = "LLSIMBUMtripExample_NAmessage",
+  runDescription = "LLSIMBUMtripExample_NAmessage",
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "html"
+)
