@@ -1585,7 +1585,7 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
  #  yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
   if(!is.null(yearpred)) {
     if(modType=="Binomial") ytitle=paste0(common[run]," ","predicted total positive trips") else
-      ytitle=paste0("Total",common[run]," ",catchType[run]," (",catchUnit[run],")")
+      ytitle=paste0("Total ",common[run]," ",catchType[run]," (",catchUnit[run],")")
     yearpred<-yearpred %>%
       mutate(Year=as.numeric(as.character(.data$Year)),ymin=.data$Total-.data$Total.se,ymax=.data$Total+.data$Total.se) %>%
       mutate(ymin=ifelse(.data$ymin>0,.data$ymin,0))

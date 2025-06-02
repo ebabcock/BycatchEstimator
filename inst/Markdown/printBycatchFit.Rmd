@@ -179,7 +179,7 @@ if(modelFail[run,mod]=="-") {
   lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
   if(EstimateBycatch) {
    if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit,VarCalc = VarCalc) else
-   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchType)
+   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
   if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
    cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText,lineText, ". \n",sep="")
    fignum<-fignum+1
