@@ -174,7 +174,8 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
   randomEffects=NULL, useParallel, selectCriteria, varExclude, printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL) {
 
   offset<-TMBfamily<-NULL
-  keepVars=requiredVarNames[!requiredVarNames %in% varExclude]
+  requiredVarNames<-requiredVarNames[!requiredVarNames %in% varExclude]
+  if(length(requiredVarNames)>0) keepVars=requiredVarNames else keepVars=NULL
   extras=c("AICc","AIC", "BIC")
   if(!is.null(randomEffects)) randomEffects<-paste0("(1|",randomEffects,")")
   #Check if parallel is possible
@@ -239,19 +240,19 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
   }
   if(modType %in% c("TMBtweedie") ){
     TMBfamily=gsub("TMB","",modType)
-    keepVars=paste0("cond(",requiredVarNames,")")
+    if(length(requiredVarNames)>0) keepVars=paste0("cond(",requiredVarNames,")")
     args=c(args,list(family=TMBfamily))
   }
   if(modType %in% c("TMBnormal","TMBlognormal","TMBdelta-Lognormal")) {
     TMBfamily="gaussian"
-    keepVars=paste0("cond(",requiredVarNames,")")
+    if(length(requiredVarNames)>0) keepVars=paste0("cond(",requiredVarNames,")")
   }
   if(modType %in% c("TMBbinomial")){
     TMBfamily="binomial"
-    keepVars=paste0("cond(",requiredVarNames,")")
+    if(length(requiredVarNames)>0) keepVars=paste0("cond(",requiredVarNames,")")
   }
   if(modType %in% c("TMBgamma","TMBdelta-Gamma")) {
-    keepVars=paste0("cond(",requiredVarNames,")")
+    if(length(requiredVarNames)>0) keepVars=paste0("cond(",requiredVarNames,")")
   }
   allVarNames<-as.vector(getAllTerms(complexModel))
   allVarNames<-allVarNames[!allVarNames %in% varExclude]
@@ -306,13 +307,16 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       modfit2<-NULL
       modfit3<-NULL
     }
+    selTable<-data.frame(modfit2)
     if(!is.null(modfit2)) {
       if(is.na(sum(modfit2$weight))) {
-        modfit2$weight<-exp(-0.5*modfit2$delta)/sum(exp(-0.5*modfit2$delta),na.rm=TRUE)
+        selTable$delta<-selTable$selectCriteria-min(selTable$selectCriteria,na.rm=TRUE)
+        selTable$weight<-exp(-0.5*selTable$delta)/sum(exp(-0.5*selTable$delta),na.rm=TRUE)
       }
+      selTable$R2<-addR2(modfit2,obsdatval,funcName)
     }
     if(printOutput & !is.null(modfit2)) {
-      write.csv(data.frame(modfit2),paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"), row.names = FALSE)
+      write.csv(selTable,paste0(dirname[[run]],common[run],catchType[run],"ModelSelection",modType,".csv"), row.names = FALSE)
       if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
       if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
@@ -320,7 +324,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       #   write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"), row.names = FALSE)
       # }
     }
-    returnval=list(modfit3,modfit2)
+    returnval=list(modfit3,selTable)
   }
   returnval
 }
@@ -975,9 +979,11 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
           g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
             geom_point()+xlab("Model predictions (rank transformed)")+
             ylab("DHARMa scaled residuals")+ggtitle("d. Scaled residual vs. predicted")+
-            geom_hline(aes(yintercept=0.5),lty=2)+geom_hline(aes(yintercept=0.75),lty=2)+geom_hline(aes(yintercept=0.25),lty=2)+
-            geom_quantile(method = "rqss",col="red", formula=y ~ qss(x, lambda = 2))
-
+            geom_hline(aes(yintercept=0.5),lty=2)+
+            geom_hline(aes(yintercept=0.75),lty=2)+
+            geom_hline(aes(yintercept=0.25),lty=2)
+          if(class(try(rqss(Residual~qss(Rank.Predictor,lambda=2),data=df1),silent = TRUE))!="try-error")
+            g4<-g4+geom_quantile(method = "rqss",col="red", formula=y ~ qss(x, lambda = 2))
         } else {
           g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
             geom_point()+xlab("Model predictions (rank transformed)")+
@@ -2085,4 +2091,29 @@ ratioVar<-function(x,X,n,N,Rhat,sx2,sy2,sxy) {
   X^2*(1-n/N)/(x^2/n)*(sy2+Rhat^2*sx2-2*Rhat*sxy)
 }
 
+#' Return a column of R squared values from input of a MuMin dredge table
+#'
+#' @param dredgeTable dredge output from MuMin
+#' @param obsdatval observer data
+#' @param funcName function used in fitting (e.g. glm or glmmTMB)
+#' @keywords internal
+addR2<-function(dredgeTable,obsdatval,funcName) {
+  R2<-NA
+  for(i in 1:nrow(dredgeTable)) {
+    if(funcName=="cpglm") {
+      R2[i]=NA
+    } else {
+      mod1<-get.models(dredgeTable,subset=i)[[1]]
+      mod2<-try(do.call(funcName,args=list(formula= formula(mod1$call),
+                                           data=obsdatval)))
+      if(funcName=="glmmTMB") {
+        if(ncol(model.matrix(mod2))==length(fixef(mod2)[[1]]))
+          R2[i]=r.squaredGLMM(mod2)[1,"R2c"] else
+            R2[i]=NA
 
+      } else
+        R2[i]=r.squaredGLMM(mod2)[1,"R2c"]
+    }
+  }
+  R2
+}

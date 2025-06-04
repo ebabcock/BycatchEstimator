@@ -59,6 +59,38 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 
 **Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
 
+```{r dataWarnings,results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(length(factorVariables)>0 & !is.null(factorVariables)) {
+  cat("\n")
+  for(i in 1:length(factorVariables)) {
+    obsx<-levels(pull(obsdat,!!factorVariables[i]))
+    logx<-levels(pull(logdat,!!factorVariables[i]))
+    if(!all(obsx %in% logx)) cat(paste0("Variable ",factorVariables[i]), "levels: ",
+                                 obsx[!obsx %in% logx], "found in observer data but not logbook data; this may be a data error. ")
+    if(!all(logx %in% obsx)) cat(paste0("Variable ",factorVariables[i]), "levels:",
+                                 logx[!logx %in% obsx], "found in logbook data but not observer data; coefficients cannot be etimated for these levels. ")
+  }
+  cat("\n")
+}
+if(length(numericVariables)>0 & !is.null(numericVariables) &!is.na(numericVariables)) {
+  for(i in 1:length(numericVariables)) {
+    obsx<-pull(obsdat,!!numericVariables[i])
+    obsrange<-c(min(obsx)-0.05*abs(max(obsx)-min(obsx)),max(obsx)+0.05*abs(max(obsx)-min(obsx)))
+    logx<-pull(logdat,!!numericVariables[i])
+    logrange<-c(min(logx)-0.05*abs(max(logx)-min(logx)),max(logx)+0.05*abs(max(logx)-min(logx)))
+    numlog<-length(logx[logx<obsrange[1] | logx>obsrange[2]])
+    numobs<-length(obsx[obsx<logrange[1] | obsx>logrange[2]])
+    if(numobs>0) cat(paste0("Variable ",numericVariables[i]), "has",
+                               numobs, "points in the observer data more than 5% outside the range of the values in the logbook data; data are not consistent. ")
+    if(numlog>0) cat(paste0("Variable ",numericVariables[i]), "has",
+                   numlog, "points in the logbook data more than 5% outside the range of the values in the observer data; extrapolation may give spurious results. ")
+  } 
+  cat("\n")
+}
+
+```
+
+
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 if(!is.null(logdat)){
 
