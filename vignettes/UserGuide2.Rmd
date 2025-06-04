@@ -1,16 +1,13 @@
 ---
 title: "Bycatch-Estimator User Guide"
-vignette: >
-  %\VignetteIndexEntry{UserGuide}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-author: Elizabeth A. Babcock
+author: "Elizabeth A. Babcock"
 date: "`r Sys.Date()`"
+vignette: "%\\VignetteIndexEntry{UserGuide} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8}\n"
 bibliography: userguide.bib
 header-includes:
-    - \usepackage{caption}
-    - \usepackage{float}
-    - \usepackage{longtable}
+- \usepackage{caption}
+- \usepackage{float}
+- \usepackage{longtable}
 ---
 
 \captionsetup[table]{labelformat=empty}
@@ -176,6 +173,110 @@ The other output files are, where [model] refers to the name of the observation 
 ## Conclusions
 
 Although this code automates much of the process of model selection, it is not recommended that the final model be used without looking closely at the outputs. The selected model must have good fits and should be reasonably consistent with data according to the DHARMa residuals. The results should appear reasonable and be around the same scale as the ratio estimator results. The model should not be overly complex. Also, look at the model selection table to see if other models are also supported by the data.  
+
+## Appendix
+Descriptions of columns for outputs from each function.
+
+***bycatchSetup function***
+
+DataSummary/StrataSummary tables:
+
+- Year
+- Eff: effort in logbook data
+- Units: sample units in logbook data
+- OCat: observed catch (observer data)
+- OEff: observed effort (observer data)
+- Ounit: observed sample units (observer data)
+- CPUE: mean catch per unit effort
+- CPse: standard error of CPUE
+- Out: count of outliers defined as data points more than 8 SD from the mean
+- Pos: number of sample units with positive observations (presence)
+- OCatS: standard deviation of observed catch
+- OEffS: standard deviation of observer effort
+- Cov: covariance matrix
+- PFrac: fraction of positive observations (positive observations divided by observed sample units)
+- EFrac: fraction of effort observed (observed effort divided by logbook effort)
+- UFrac: fraction of sample units observed (observed sample units divided by logbook sample units)
+- Cat: estimated catch using ratio estimate (observed catch divided by observed effort raised by logbook effort)
+- Cse: standard error of estimated catch
+
+
+***bycatchDesign function***
+
+Pooling.csv file:
+
+- Year
+- totalUnits: sum of sample units in logbook data
+- totalEffort: sum of effort in logbook data
+- units: sum of sample units in observer data
+- effort: sum of effort in observer data
+- pooled.n: number of sample units that don’t need pooling (observer sample units > minStrataUnit)
+- poolnum: number of sample units where pooling occurred?
+- pooledTotalUnits: pooled total sample units (logbook data)
+- pooledTotalEffort: pooled total effort (logbook data)
+
+DesignYear/DesignStrata tables:
+
+- Year
+- ratioMean: mean bycatch calculated by the ratio estimator
+- ratioSE: standard deviation of the ratio estimator
+- deltaMean: mean bycatch calculated by the delta estimator
+- deltaSE: standard deviation of the delta estimator
+
+
+***bycatchFit function***
+
+AnnualSummary/StratumSummary tables:
+
+- Year
+- Total: estimated total bycatch
+- Totalvar: variance of estimated total bycatch
+- Total.mean: mean across simulations (only when VarCalc = Simulate)
+- TotalLCI: lower confidence interval bound
+- TotalUCI: upper confidence interval bound
+- Total.se: standard error of estimated total bycatch
+- Total.cv: coefficient of variation
+
+ModelSelection tables:
+
+- cond..Int: intercept of conditional model
+- disp..Int: intercept of dispersion model
+- AICc, AIC, BIC: model information criteria (lower is better)
+- df: degrees of freedom
+- logLik: log-likelihood of the model
+- selectCriteria: criteria actually used to rank the models
+- delta: difference in the selection criteria from the best model
+- weight: Akaike weights (relative support for each model)
+
+Index tables:
+
+- Index: mean cpue
+- SE: standard error of mean cpue
+- lowerCI: lower bound of confidence interval
+- upperCI: upper bound of confidence interval
+
+crossvalSummary table:
+
+- model: model type
+- formula: formula of BIC best model
+- RMSE: root mean square error
+- ME: mean error
+
+modelSummary table:
+
+- KS.D: value of Kolmogorov-Smirnov test of uniformity of residuals
+- KS.p: p-value of Kolmogorov-Smirnov test of uniformity of residuals
+- Dispersion.ratio: value of dispersion test (residuals variance), which compares the ratio between observed and simulated residuals
+- Dispersion.p: p-value of dispersion test
+- ZeroInf.ratio: value of zero inflation test which compared ratio of observed and expected zeros
+- ZeroInf.p: p-value of zero inflation test
+- Outlier: outlier test, number of residuals that are outside expected 95% confidence interval
+- Outlier.p: p-value for outlier test
+ 
+me and rmse tables:
+
+- values of mean error (ME) and mean square error (RMSE) for each fold of cross validation
+
 
 ## References
 

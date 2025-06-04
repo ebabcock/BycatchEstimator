@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
   dev = "png",
-  dpi = 100
+  dpi = 200
 )
 ```
 
@@ -58,6 +58,25 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 ```
 
 **Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
+
+
+```{r NA-checks, results=FALSE,  message=TRUE, echo=FALSE, warning=TRUE}
+if(any(is.na(obsdat[,c(allVarNames,"Effort")]))){
+  na_counts<- colSums(is.na(obsdat[,c(allVarNames,"Effort")]))
+  warning(paste0("NAs have been found in observer data in following columns:\n ",
+                 paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                "\nCheck what to do with these before continuing."))
+}
+
+if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
+  na_counts<- colSums(is.na(logdat[,c(allVarNames,"Effort")]))
+  warning(paste0("NAs have been found in logbook data in following columns:\n ",
+                 paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                 "\nCheck what to do with these before continuing."))    
+}
+
+```
+
 
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 if(!is.null(logdat)){
@@ -274,6 +293,29 @@ print(ggplot(temp,aes(x=Value,y=CPUE))+
   stat_smooth()+
   facet_wrap(Variable~.,scales="free"))
 cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+}
+cat("\n")
+
+#Catch by factor variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=Catch))+
+  geom_violin(fill="grey")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary())
+cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " by factor levels.\n",sep="")
+figurenum<-figurenum+1
+
+if(unique(!is.na(numericVariables))){
+#Catch by numeric variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=Catch))+
+  geom_point(alpha=0.3)+
+  stat_smooth()+
+  facet_wrap(Variable~.,scales="free"))
+cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " across numerical variables. \n",sep="")
 figurenum<-figurenum+1
 }
 cat("\n")

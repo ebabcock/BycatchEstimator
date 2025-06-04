@@ -128,8 +128,11 @@ bycatchSetup_new <- function(
     mutate(across(all_of(factorVariables),factor))
 
   # add here warning message about NAs in observer data
-  if(any(is.na(obsdat[,c(allVarNames,Effort)]))){
-    warning("There are NAs in observer data in either factor variables, numeric variables or effort. Check what to do with these before continuing.")
+  if(any(is.na(obsdat[,c(allVarNames,"Effort")]))){
+    na_counts<- colSums(is.na(obsdat[,c(allVarNames,"Effort")]))
+    warning(paste0("NAs have been found in observer data in following columns:\n ",
+                   paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                  "\nCheck what to do with these before continuing."))
   }
 
   if(EstimateBycatch) {
@@ -144,9 +147,11 @@ bycatchSetup_new <- function(
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
 
     # add here warning message about NAs in logbook data
-    if(any(is.na(logdat[,c(allVarNames,Effort)]))){
-      warning("There are NAs in logbok data in either factor variables, numeric variables or effort. Check what to do with these before continuing.")
-    }
+    if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
+      na_counts<- colSums(is.na(logdat[,c(allVarNames,"Effort")]))
+      warning(paste0("NAs have been found in logbook data in following columns:\n ",
+                     paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                     "\nCheck what to do with these before continuing."))    }
 
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)

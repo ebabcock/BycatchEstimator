@@ -565,15 +565,16 @@ setupObj<-bycatchSetup_new(
   report = "html"
 )
 
-### matching trips - logbook trips with NAs
+### logbook trips with NAs
 working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
 
 obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
 logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
 #changing some trips to NAs
 natrips <- logdatTest[5:10,]
-natrips$SWO <-NA
-logdatTest2 <- rbind(logdatTest,natrips)
+natrips$hooks <-NA
+logdatTest2<-logdatTest[-5:-10,]
+logdatTest2 <- rbind(logdatTest2,natrips)
 
 setupObj<-bycatchSetup_new(
   obsdat = obsdatTest,
@@ -581,24 +582,24 @@ setupObj<-bycatchSetup_new(
   yearVar = "Year",
   obsEffort = "hooks",
   logEffort = "hooks",
-  obsCatch = c("SWO","BUM"),
+  obsCatch = c("SWO","BUM")[1],
   catchUnit = "number",
   catchType = "catch",
   logNum = NA,
   sampleUnit = "trips",
   factorVariables = c("Year","area","season"),
   numericVariables = "lat",
-  logUnsampledEffort = "unsampledEffort",
-  includeObsCatch  = TRUE,
-  matchColumn = "trip",
-  EstimateIndex = TRUE,
+  logUnsampledEffort = NULL,
+  includeObsCatch  = FALSE,
+  matchColumn = NA,
+  EstimateIndex = FALSE,
   EstimateBycatch = TRUE,
   baseDir = working.dir,
   runName = "LLSIMBUMtripExample_logbookNA",
   runDescription = "LLSIMBUMtripExample_logbookNA",
-  common = c("Swordfish","Blue marlin"),
-  sp = c("Xiphias gladius","Makaira nigricans"),
-  report = "html"
+  common = c("Swordfish","Blue marlin")[1],
+  sp = c("Xiphias gladius","Makaira nigricans")[1],
+  report = "pdf"
 )
 
 design_est <- bycatchDesign_new(
@@ -625,7 +626,7 @@ model_est <- bycatchFit_new(
   CIval = 0.05,
   VarCalc = "DeltaMethod",
   useParallel = TRUE,
-  nSims = 1000,
+  nSims = 100,
   plotValidation = FALSE,
   trueVals = NULL,
   trueCols = NULL,
@@ -923,3 +924,29 @@ setupObj<-bycatchSetup_new(
   sp = c("Xiphias gladius","Makaira nigricans")[1],
   report = "html"
 )
+
+
+
+m1 <- glmmTMB(count ~ mined + (1|site),
+               zi=~mined,
+               family=poisson, data=Salamanders)
+# Null model: no fixed effect in conditional model
+m0 <- glmmTMB(count ~ 1 + (1|site),
+              zi = ~ mined,
+              family = poisson, data = Salamanders)
+summary(m1)
+r.squaredLR(m1)
+r.squaredGLMM(m1)
+r.squaredLR(m1, null = m0)
+
+
+# Fit full model
+m_full <- glmmTMB(count ~ spp + (1 | site), data = Salamanders, family = poisson)
+
+# Fit null model (only random effects, no fixed predictors)
+m_null <- glmmTMB(count ~ 1 + (1 | site), data = Salamanders, family = poisson)
+
+# Get R² using manually specified null model
+r.squaredLR(m_full, null = m_null)
+r.squaredGLMM(m_full)
+
