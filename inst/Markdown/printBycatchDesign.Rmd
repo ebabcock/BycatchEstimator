@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
   dev = "png",
-  dpi = 100
+  dpi = 150
 )
 ```
 
@@ -97,11 +97,11 @@ yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Meth
     Method=sub("SE","",Method)) %>%
   pivot_wider(names_from=parameter,values_from=value)
 
-print(ggplot(yearSumLong,aes(x=Year,y=Mean,ymin=Mean-SE,ymax=Mean+SE,color=Method,fill=Method))+
+print(ggplot(yearSumLong,aes(x=Year,y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,color=Method,fill=Method))+
   geom_line()+
   geom_point()+
   geom_ribbon(alpha=0.5))
-cat("\n Figure ", figurenum, ". Design-based bycatch estimates per year.",sep = "")
+cat("\n Figure ", figurenum, ". Design-based bycatch estimates per year with 95% confidence intervals.",sep = "")
 figurenum<-figurenum+1
 
 ```

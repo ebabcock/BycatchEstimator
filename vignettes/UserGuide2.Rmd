@@ -197,7 +197,7 @@ DataSummary/StrataSummary tables:
 - PFrac: fraction of positive observations (positive observations divided by observed sample units)
 - EFrac: fraction of effort observed (observed effort divided by logbook effort)
 - UFrac: fraction of sample units observed (observed sample units divided by logbook sample units)
-- Cat: estimated catch using ratio estimate (observed catch divided by observed effort raised by logbook effort)
+- Cat: estimated catch using unstratified ratio estimator (observed catch divided by observed effort raised by logbook effort)
 - Cse: standard error of estimated catch
 
 

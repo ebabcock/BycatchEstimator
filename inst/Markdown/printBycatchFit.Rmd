@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
   dev = "png",
-  dpi = 100
+  dpi = 150
 )
 ```
 
@@ -85,9 +85,11 @@ obsText<-""
 if(includeObsCatch) obsText<-". Catches are predicted for unobserved effort and added to the observed catches"
 ```
 
-**Results of model-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
+*Results of model-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` *
 
-```{r print results,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+**Model comparison** 
+
+```{r print results1,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
 #, fig.height=4
 #run=1
 #source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
@@ -110,7 +112,7 @@ if(output_format == "latex"){
 }
 
 #Table residual summary
-cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. Tests are a Kolmogorov-Smirnov(KS) test on whether the scaled residuals are uniform, a dispersion test based on comparing the ratio of the observed and simulated residuals (>1 is overdispersed), a zero inflation test based on the ratio of observed to expected zeros, and the number of outliers, defined as data points outside the range of the simulations",sep="")
+cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. For detailed information on each row see Appendix in User Guide.",sep="")
 tablenum<-tablenum+1
 df2 <- data.frame(residualTab[[run]])
 if(output_format == "html"){
@@ -151,6 +153,12 @@ if(DoCrossValidation &!all(is.na(modelTable[[run]]$RMSE))) {
  cat('\n')
 }
 
+```
+
+
+**Results for each model type**
+
+```{r print results2,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
 #Print for each model type
 for(mod in 1:length(modelTry)) {
 if(modelFail[run,mod]=="-") {
@@ -176,6 +184,31 @@ if(modelFail[run,mod]=="-") {
    fignum<-fignum+1
     cat('\n')
     
+    # plot fitted vs observed values
+    if(!modelTry[mod] %in% c("Binomial")){
+      if(modelTry[mod] %in% c("Tweedie")){
+            tempdf<-data.frame(Expected=cplm::predict(modFits[[run]][[modelTry[mod]]],type="response"),
+                       Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
+      } else {
+        if(any(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))<0)){
+            tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
+                       Observed=exp(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))))}
+        else{
+            tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
+                       Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
+        }
+    }
+    corr.coeff<-round(cor(tempdf$Observed,tempdf$Expected),2)
+    print(ggplot(tempdf, aes(x = Expected, y = Observed))+
+      geom_point(alpha=0.6)+
+      labs(title = paste0("Observed vs Predicted (correlation test = ",corr.coeff,")"),
+       x = "Predicted values",
+       y = "Observed values"))
+    }
+  cat("\n Figure ",fignum,". Observed vs predicted values for ", modelTry[mod],".\n",sep="")
+  fignum<-fignum+1
+  cat('\n')
+  
   lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
   if(EstimateBycatch) {
    if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit,VarCalc = VarCalc) else
