@@ -5,7 +5,7 @@ logdatExample <- logdatExample
 
 working.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/"
 
-setupObj_new <- bycatchSetup_new(
+setupObj_new <- bycatchSetup(
   obsdat = obsdatExample,
   logdat = logdatExample,
   yearVar = "Year",

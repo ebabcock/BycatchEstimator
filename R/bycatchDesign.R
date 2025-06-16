@@ -1,6 +1,6 @@
 
 #---------------------------------
-#Design-based estimators (new)
+#Design-based estimators
 #----------------------------------
 
 #Roxygen header
@@ -9,7 +9,7 @@
 #' Produces estimates of bycatch using design-based ratio estimator and delta estimator, with the option of pooling across stratification variables.
 #'
 #'
-#' @param setupObj  An object produced by \code{bycatchSetup_new}.
+#' @param setupObj  An object produced by \code{bycatchSetup}.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
 #' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
@@ -18,7 +18,7 @@
 #' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.
 #' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
-#' @param reportType Character. Choose type of report with results to be produced. Options are pdf, html (default) or both.
+#' @param reportType Character. Choose type of report to be produced. Options are pdf, html (default) or both.
 #' @import ggplot2 dplyr utils tidyverse
 #' @importFrom stats median
 #' @export
@@ -28,7 +28,7 @@
 #' library(BycatchEstimator)
 #' #-------------------------------------------------
 #' #Step 1. Run the datasetup function and review data inputs
-#'setupObj<-bycatchSetup_new( #reorder arguments
+#'setupObj<-bycatchSetup(
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
@@ -53,9 +53,9 @@
 #' catchType = "dead discard"
 #')
 #'
-#'-------------
+#' #-------------
 #' #Step 2. Design-based estimators (with pooling)
-#'bycatchDesign(
+#' designObj <- bycatchDesign(
 #' setupObj = setupObj,
 #' designMethods = c("Ratio", "Delta"),
 #' designVars = c("Year","season"),
@@ -67,7 +67,7 @@
 #')}
 
 
-bycatchDesign_new <- function(
+bycatchDesign <- function(
   setupObj = setupObj,
   designMethods = "Ratio",
   designVars = "Year",
@@ -121,7 +121,7 @@ bycatchDesign_new <- function(
                        poolTypes=poolTypes,
                        adjacentNum=adjacentNum)
       poolingSum[[run]]<-temp[[1]]
-      # exclude some of columns when saving csv: needs.pooling, poolnum, stratum
+      # excluding some of columns when saving csv: needs.pooling, poolnum, stratum
       write.csv(poolingSum[[run]][,!(names(poolingSum[[run]]) %in% c("needs.pooling","stratum"))],
                 paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
       includePool[[run]]<-temp[[2]]
@@ -168,7 +168,7 @@ bycatchDesign_new <- function(
     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
-      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI)) #this is only being used to plot all bycatch estimation methods together in one plot
+      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
 
   } #close loop for each sp
 
@@ -264,7 +264,7 @@ bycatchDesign_new <- function(
         unlink(fig_dir, recursive = TRUE)
       }
 
-  return(output)
+  #return(output)
 
 } #close main function
 

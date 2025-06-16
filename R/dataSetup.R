@@ -1,10 +1,10 @@
 
 #---------------------------------
-#Data setup (new)
+#Data setup
 #----------------------------------
 
 #Roxygen header
-#'Bycatch estimation data setup (new)
+#'Bycatch estimation data setup
 #'
 #'Sets global conditions, makes a preliminary data summary and data checks (make plots and tables of the data).
 #'
@@ -19,10 +19,10 @@
 #' @param catchType Character vector. Give type of catch (e.g., dead discards) to go in plot labels. Must be a vector of the same length as \code{sp}
 #' @param logNum Character vector. The name of the column in \code{logdat} that gives the number of sample units (e.g., trips or sets). If the logbook data is not aggregated (i.e. each row is a sample unit) set value to NA
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
-#' @param factorVariables Character vector. Specify which variables should be interpreted as categorical, ensuring imposes factor format on these variables. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
+#' @param factorVariables Character vector. Specify which variables should be interpreted as categorical, ensuring factor format on these variables. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
 #' @param numericVariables Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}. If there are no numeric variables, set numericVariables=NA.
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
-#' @param logUnsampledEffort Character. The name of the unsampled effort variable in in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
+#' @param logUnsampledEffort Character. The name of the unsampled effort variable in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
 #' @param EstimateBycatch Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.
@@ -31,7 +31,7 @@
 #' @param runDescription Character. Brief summary of the run, which will be used to set up a directory for the outputs
 #' @param common Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.
 #' @param sp  Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time
-#' @param reportType Character. Choose type of data checks report to be produced. Options are pdf, html (default) or both.
+#' @param reportType Character. Choose type of report to be produced. Options are html (default), pdf or both.
 #' @import ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @importFrom stats median
 #' @export
@@ -39,7 +39,7 @@
 #' @examples
 #' \dontrun{
 #' library(BycatchEstimator)
-#'setupObj<-bycatchSetup_new(
+#'setupObj<-bycatchSetup(
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
@@ -47,7 +47,7 @@
 #' logEffort = "sets",
 #' obsCatch = "Catch",
 #' catchUnit = "number",
-#' catchType = "dead discard"
+#' catchType = "dead discard",
 #' logNum = NA,
 #' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
@@ -64,7 +64,7 @@
 #' reportType = "html"
 #')}
 
-bycatchSetup_new <- function(
+bycatchSetup <- function(
     obsdat,
     logdat,
     yearVar,
@@ -163,9 +163,6 @@ bycatchSetup_new <- function(
                 paste(missing_trips,collapse = ", "))}
         }
 
-    # add here warning message about missing factor levels
-    # add here warning message about ranges of numeric variables not matching between observer and logbook data
-
       }
 
 
@@ -189,7 +186,6 @@ bycatchSetup_new <- function(
   strataSum<-list()
   yearSum<-list()
 
-
   #Make lists to keep output, which will also be output as .pdf and .csv files for use in reports.
   dirname<-list()
   dat<-list()
@@ -212,7 +208,6 @@ bycatchSetup_new <- function(
 
     if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
 
-    #if(EstimateBycatch) { # move this if statement, because can do annual summary from observer data without EstimateBycatch
     #Make annual summary
     yearSum[[run]]<-MakeSummary(
       obsdatval = dat[[run]],
@@ -225,17 +220,16 @@ bycatchSetup_new <- function(
               paste0(dirname[[run]],common[run]," ",catchType[run]," DataSummary.csv"), row.names = FALSE)
 
 
-      #Calculations at level of simple model
-      strataSum[[run]]<-MakeSummary(
-        obsdatval = dat[[run]],
-        logdatval = logdat,
-        strataVars = unique(c("Year",factorVariables)),
-        EstimateBycatch = EstimateBycatch,
-        startYear = startYear
-      )
-      write.csv(strataSum[[run]],
-                paste0(dirname[[run]],common[run]," ",catchType[run]," StrataSummary.csv"), row.names = FALSE)
-    #}
+    #Calculations at level of simple model
+    strataSum[[run]]<-MakeSummary(
+      obsdatval = dat[[run]],
+      logdatval = logdat,
+      strataVars = unique(c("Year",factorVariables)),
+      EstimateBycatch = EstimateBycatch,
+      startYear = startYear
+    )
+    write.csv(strataSum[[run]],
+              paste0(dirname[[run]],common[run]," ",catchType[run]," StrataSummary.csv"), row.names = FALSE)
 
   } #close loop for each spp
 
@@ -286,7 +280,7 @@ bycatchSetup_new <- function(
     if(reportType == "html" || reportType == "both"){
 
       mkd<-tryCatch({
-        system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+        system.file("Markdown", "printBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
       },
         error = function(c) NULL
         )
@@ -306,7 +300,7 @@ bycatchSetup_new <- function(
     if(reportType == "pdf" || reportType == "both"){
 
       mkd<-tryCatch({
-        system.file("Markdown", "PrintBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+        system.file("Markdown", "printBycatchSetup.Rmd", package = "BycatchEstimator", mustWork = TRUE)
       },
       error = function(c) NULL
       )

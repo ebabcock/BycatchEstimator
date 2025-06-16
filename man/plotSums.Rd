@@ -14,7 +14,8 @@ plotSums(
   common,
   run,
   catchType,
-  catchUnit
+  catchUnit,
+  VarCalc
 )
 }
 \arguments{

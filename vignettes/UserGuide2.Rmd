@@ -2,7 +2,10 @@
 title: "Bycatch-Estimator User Guide"
 author: "Elizabeth A. Babcock"
 date: "`r Sys.Date()`"
-vignette: "%\\VignetteIndexEntry{UserGuide} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8}\n"
+vignette: >
+  %\\VignetteIndexEntry{UserGuide} 
+  %\\VignetteEngine{knitr::rmarkdown} 
+  %\\VignetteEncoding{UTF-8}
 bibliography: userguide.bib
 header-includes:
 - \usepackage{caption}
@@ -19,7 +22,7 @@ ebabcock@miami.edu
 
 ## Introduction
 
-The BycatchEstimator tool runs a generic model-based bycatch estimation procedure,along with some common design-based bycatch estimation methods, after you first set up the data inputs and other specifications. The code can estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data. 
+The BycatchEstimator tool runs a generic model-based bycatch estimation procedure, along with some common design-based bycatch estimation methods, after you first set up the data inputs and other specifications. The code can estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data. 
 
 The code runs best in RStudio. Before running the code for the first time, install the latest versions of R (@R-base) and RStudio (@RStudio). The following libraries are used: tidyverse, ggplot2, MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra, pdftools, foreach, doParallel, reshape2, glmmTMB and quantreg (@tidyverse; @ggplot2; @MASS; @lme4; @cplm; @tweedie; @DHARMa; @tidyselect; @MuMIn; @gridExtra; @gtable; @gt; @pdftools;@foreach;@doParallel; @reshape2; @glmmTMB; @quantreg). The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex (@TinyTeX, @tinytex, @knitr). For a quick start guide with example data, see the GitHub page (https://github.com/ebabcock/BycatchEstimator). For more help with installation issues, see the Installation Guide  https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html.  
 

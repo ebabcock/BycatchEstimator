@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
   #out.width = "80%"
 )
 
-# not sure if this chunk will be needed when testing package, because not be using a path locating this markdown file
+# saving figures in separate folder for knitting (deleted afterwards)
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
   dev = "png",
-  dpi = 150
+  dpi = 100
 )
 ```
 
@@ -36,8 +36,8 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample_tripmatching/"
-# setupObj<-readRDS(file=paste0(out.dir,"2025-05-20_BycatchSetupSpecification.rds"))
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-06-11_BycatchSetupSpecification.rds"))
 # run=1
 # source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
 
@@ -59,6 +59,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 
 **Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
 
+If there are warnings, they will show up here:
 
 ```{r NA-checks, results=FALSE,  message=TRUE, echo=FALSE, warning=TRUE}
 if(any(is.na(obsdat[,c(allVarNames,"Effort")]))){
@@ -107,6 +108,7 @@ if(length(numericVariables)>0 & !is.null(numericVariables) &!is.na(numericVariab
   cat("\n")
 ```
 
+------------------------------------------
 
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 if(!is.null(logdat)){
@@ -146,6 +148,7 @@ cat("\n Figure ",figurenum,". Total Effort by factor levels, observed and total.
 figurenum<-figurenum+1
 
 cat("\n\n")
+cat('<div style="height:30px;"></div>\n') 
 
 print(ggplot(allData,aes(x=Level,weight=SampleUnits,fill=Source))+
   geom_bar(position=position_dodge())+
@@ -154,6 +157,7 @@ print(ggplot(allData,aes(x=Level,weight=SampleUnits,fill=Source))+
     ylab(paste0("Count of ",sampleUnit)))
 cat("\n Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 logdatTemp<-logdat %>%
   mutate(Effort=Effort/SampleUnits) %>%
@@ -177,12 +181,14 @@ cat("\n Figure ",figurenum,". Effort across numerical variables. \n",sep="")
 figurenum<-figurenum+1
 }
 cat("\n")
+cat('<div style="height:30px;"></div>\n') 
 }
 
 ```
 
 ```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
-## Code to be added to the dataCheck markdown effort comparison section
+#wrap this code in if statement in case logdat is NULL
+if(!is.null(logdat)){
 nmax<-100000  #If there are more data points than this, subsample to avoid hanging R
 #Sampled 100000 if there were more than that so R won't hang
 allData<-bind_rows(list(Obs=obsdat[,unique(c(factorVariables,numericVariables))],
@@ -206,6 +212,7 @@ print(ggpairs(filter(allData),
     scale_color_manual(values=c("grey","darkblue"))+
     scale_fill_manual(values=c("grey","darkblue")))
 cat("\n Figure ",figurenum,". Effort across pairs of numeric variables. Grey: logbook data; Blue: observer data. Corr: correlation coefficient; Eff: effect size; Obs: observed difference. \n",sep="")
+cat('<div style="height:30px;"></div>\n') 
 
 figurenum<-figurenum+1
 #factor variables
@@ -216,51 +223,70 @@ print(ggpairs(filter(allData),
   scale_color_manual(values=c("grey","darkblue"))+
   scale_fill_manual(values=c("grey","darkblue")))
 cat("\n Figure ",figurenum,". Effort across pairs of categorical variables. Grey: logbook data; Blue: observer data. \n",sep="")
+cat('<div style="height:30px;"></div>\n') 
 figurenum<-figurenum+1
-
+}
 ```
 
 
 \vspace{1cm}
 
-```{r table-effort, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+```{r tableeffort,  message=FALSE, echo=FALSE, warning=FALSE,results='asis'}
+#table_effort<-NULL
 if(!is.null(logdat)){
-cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,"", sep="")
-temp<-bind_rows(list(observer=select(obsdat,Effort),
-                  effort=select(logdat,Effort)),
-                  .id = "Source") %>% group_by(Source) %>%
+cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,".", sep="")
+tablenum<-tablenum+1
+temp_bind<-bind_rows(list(observer=select(obsdat,Effort),
+                  logbook=select(logdat,Effort)),
+                  .id = "Source")
+
+temp1 <- temp_bind  %>% group_by(Source) %>%
   summarize(`Sample units` = n(),
             `Total effort`=sum(Effort))%>%
   mutate(`Proportion units`=round(`Sample units`/sum(`Sample units`),3),
-         `Proportion effort`=round(`Total effort`/sum(`Total effort`),3)) 
-print(kbl(temp,format="simple"))
-tablenum<-tablenum+1
-cat("\n")
+         `Proportion effort`=round(`Total effort`/sum(`Total effort`),3))
+
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+
+if(output_format == "html"){
+  return(kbl(temp1,format="simple"))
 }
+if(output_format == "latex"){
+  return(kbl(temp1, format="latex")%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position")))
+}
+
+}
+cat("\n")
+cat('<div style="height:30px;"></div>\n') 
+#table_effort
 ```
+
 
 \newpage
 
-```{r tablesummary, results='asis'}
+```{r tablesummary,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results='asis'}
 #if(!is.null(logdat)){
 # Print data summary
 cat("Table ", tablenum,". Input data summary for each year. For detailed information on each column see Appendix in User Guide.", sep="")
-tablenum<-tablenum+1
-
-temp <- yearSum[[run]] %>%
+temp2 <- yearSum[[run]] %>%
   mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
   remove_rownames()
 
 output_format <- if (knitr::is_html_output()) "html" else "latex"
 if(output_format == "html"){
-  kbl(temp,format="simple")
+  kbl(temp2,format="simple")
+
 }
 
 if(output_format == "latex"){
-  kbl(temp, format="latex")%>%
+  kbl(temp2, format="latex")%>%
     kable_styling(latex_options = c("scale_down","simple","HOLD_position"))
+
 }
+tablenum<-tablenum+1
 cat("\n")
+cat('<div style="height:30px;"></div>\n') 
 #}
 ```
 
@@ -281,6 +307,7 @@ print(ggplot(obsdatTemp,aes(x=Year,fill=Present))+
     ylab(paste0("Count of observed ",sampleUnit)))
 cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " in each year. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 # Presence/absence across all factors
 cat("\n\n") #adds new line
@@ -292,6 +319,7 @@ print(ggplot(temp,aes(x=Level,fill=Present))+
     ylab(paste0("Count of observed ",sampleUnit)))
 cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across factor variables. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 if(unique(!is.na(numericVariables))){
 # Presence/absence across numerical variables and effort
@@ -304,6 +332,7 @@ print(ggplot(temp,aes(x=Value,fill=Present))+
     ylab(paste0("Count of observed ",sampleUnit)))
 cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across numerical variables. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 }
 
 #CPUE by factor variables
@@ -315,6 +344,7 @@ print(ggplot(temp,aes(x=Level,y=CPUE))+
   stat_summary())
 cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " by factor levels.\n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 if(unique(!is.na(numericVariables))){
 #CPUE by numeric variables
@@ -326,6 +356,7 @@ print(ggplot(temp,aes(x=Value,y=CPUE))+
   facet_wrap(Variable~.,scales="free"))
 cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " across numerical variables. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 }
 cat("\n")
 
@@ -338,6 +369,7 @@ print(ggplot(temp,aes(x=Level,y=Catch))+
   stat_summary())
 cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " by factor levels.\n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 if(unique(!is.na(numericVariables))){
 #Catch by numeric variables
@@ -349,6 +381,7 @@ print(ggplot(temp,aes(x=Value,y=Catch))+
   facet_wrap(Variable~.,scales="free"))
 cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " across numerical variables. \n",sep="")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 }
 cat("\n")
 

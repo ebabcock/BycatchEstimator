@@ -8,6 +8,7 @@ makeIndexVar(
   modfit1,
   modfit2 = NULL,
   modType,
+  indexVarNames,
   newdat,
   nsims,
   printOutput = FALSE,

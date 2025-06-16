@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
   #out.width = "80%"
 )
 
-# not sure if this chunk will be needed when testing package, because not be using a path locating this markdown file
+# saving figures in separate folder for knitting (deleted afterwards)
 knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
   fig.path = "figures/",   # Store plots in a subfolder
   dev = "png",
-  dpi = 150
+  dpi = 100
 )
 ```
 
@@ -75,7 +75,6 @@ if(!"Year" %in% factorVariables) { #treat Year as numeric variable
 cat("Table ",tablenum,". Design-based bycatch estimates for each year. Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
 tablenum<-tablenum+1
 
-# code to print designyeardf
 temp <- designyeardf[[run]] %>%
   mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
   remove_rownames()
@@ -83,14 +82,13 @@ temp <- designyeardf[[run]] %>%
 kbl(temp,format="simple")
 tablenum<-tablenum+1
 cat("\n")
-
+cat('<div style="height:30px;"></div>\n') 
 
 # any plot or print table for estimates stratified by other variables?
 ```
 
 
 ```{r plot-designestimator, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
-# plot unstratified ratio estimator?
 yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Method") %>%
   mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
     Method=sub("Mean","",Method),
@@ -103,6 +101,7 @@ print(ggplot(yearSumLong,aes(x=Year,y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,c
   geom_ribbon(alpha=0.5))
 cat("\n Figure ", figurenum, ". Design-based bycatch estimates per year with 95% confidence intervals.",sep = "")
 figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
 
 ```
 

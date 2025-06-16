@@ -665,7 +665,7 @@ setupObj<-bycatchSetup_new(
   runDescription = "LLSIMBUMtripExample_missingobserverdata",
   common = c("Swordfish","Blue marlin")[1],
   sp = c("Xiphias gladius","Makaira nigricans")[1],
-  report = "html"
+  report = "both"
 )
 
 design_est <- bycatchDesign_new(
@@ -730,7 +730,7 @@ setupObj<-bycatchSetup_new(
   runDescription = "LLSIMBUMtripExample_missinglogdata",
   common = c("Swordfish","Blue marlin")[1],
   sp = c("Xiphias gladius","Makaira nigricans")[1],
-  report = "html"
+  report = "both"
 )
 
 design_est <- bycatchDesign_new(
@@ -901,7 +901,7 @@ logdatTest2 <- rbind(logdatTest,natrips)
 
 setupObj<-bycatchSetup_new(
   obsdat = obsdatTest,
-  logdat = logdatTest2,
+  logdat = logdatTest,
   yearVar = "Year",
   obsEffort = "hooks",
   logEffort = "hooks",
@@ -918,35 +918,36 @@ setupObj<-bycatchSetup_new(
   EstimateIndex = FALSE,
   EstimateBycatch = TRUE,
   baseDir = working.dir,
-  runName = "LLSIMBUMtripExample_NAmessage",
-  runDescription = "LLSIMBUMtripExample_NAmessage",
+  runName = "LLSIMBUMtripExample_plotfitvsobs",
+  runDescription = "LLSIMBUMtripExample_plotfitvsobs",
   common = c("Swordfish","Blue marlin")[1],
   sp = c("Xiphias gladius","Makaira nigricans")[1],
   report = "html"
 )
 
+model_est <- bycatchFit_new(
+  setupObj = setupObj,
+  complexModel = formula(y~Year+area+season),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBdelta-Lognormal","Delta-Lognormal","TMBtweedie","Binomial","Tweedie","Normal","Lognormal","Delta-Gamma","NegBin",
+               "TMBnormal","TMBlognormal","TMBnbinom1"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "DeltaMethod",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "both"
+)
 
 
-m1 <- glmmTMB(count ~ mined + (1|site),
-               zi=~mined,
-               family=poisson, data=Salamanders)
-# Null model: no fixed effect in conditional model
-m0 <- glmmTMB(count ~ 1 + (1|site),
-              zi = ~ mined,
-              family = poisson, data = Salamanders)
-summary(m1)
-r.squaredLR(m1)
-r.squaredGLMM(m1)
-r.squaredLR(m1, null = m0)
 
 
-# Fit full model
-m_full <- glmmTMB(count ~ spp + (1 | site), data = Salamanders, family = poisson)
 
-# Fit null model (only random effects, no fixed predictors)
-m_null <- glmmTMB(count ~ 1 + (1 | site), data = Salamanders, family = poisson)
-
-# Get R² using manually specified null model
-r.squaredLR(m_full, null = m_null)
-r.squaredGLMM(m_full)
 
