@@ -38,6 +38,7 @@ library(glmmTMB)
 library(MASS)
 library(tweedie)
 theme_set(theme_bw())
+output_format <- if (knitr::is_html_output()) "html" else "latex"
 fignum<-1
 tablenum<-1
 
@@ -99,7 +100,6 @@ df1<-modelTable[[run]] %>%
   mutate(Failure=modelFail[run,]) %>%
    mutate_if(is.numeric,round,2)
 if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
-output_format <- if (knitr::is_html_output()) "html" else "latex"
 if(output_format == "html"){
   kbl(df1,format = "simple")%>%
     suppressWarnings(print())
@@ -171,7 +171,7 @@ cat("\n Table ",tablenum,". Model selection table for ",modelTry[mod],". Weights
 tablenum<-tablenum+1
 df3<-data.frame(modelSelectTable[[run]][[modelTry[mod]]]) %>%
 mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2)))
-output_format <- if (knitr::is_html_output()) "html" else "latex"
+#output_format <- if (knitr::is_html_output()) "html" else "latex"
   
   if(output_format == "html"){
   print(kbl(df3, format = "simple"))
