@@ -99,7 +99,7 @@ bycatchSetup <- function(
   defaultW <- 0 # allow code to run with warnings showing as they happen
   options(warn=defaultW)
 
-  # Set up variables
+  # Set up Year variables
   obsdat<-obsdat %>% ungroup() %>%
     rename(Year=!!yearVar) # !! unquotes variable and extracts value, not name of the variable
   if(EstimateBycatch) {

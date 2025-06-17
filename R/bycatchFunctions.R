@@ -1884,9 +1884,11 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
  obsdatval<-data.frame(obsdatval)
  logdatval<-data.frame(logdatval)
  poolingVars<-c(designVars,pooledVar[!is.na(pooledVar) &!pooledVar %in% designVars])
- if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
- if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
- if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
+ if("Year" %in% poolingVars) {
+   if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
+   if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
+   if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
+ }
  poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%
   summarize(totalUnits=sum(.data$SampleUnits),totalEffort=sum(.data$Effort))
  x<-obsdatval %>%group_by_at(all_of(poolingVars)) %>%
@@ -1957,9 +1959,11 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
   }
   includePool<-bind_rows(includePool,.id="stratum")
   poolingSum$stratum<-1:nrow(poolingSum)
-  if(yearFactor) {
-    poolingSum$Year<-factor(poolingSum$Year)
-    includePool$Year<-factor(includePool$Year)
+  if("Year" %in% poolingVars) {
+    if(yearFactor) {
+      poolingSum$Year<-factor(poolingSum$Year)
+      includePool$Year<-factor(includePool$Year)
+    }
   }
   list(poolingSum,includePool)
 }
@@ -2057,17 +2061,28 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
              deltaMean=.data$deltaMeanCPUE*.data$Eff,
              deltaSE=sqrt(.data$deltaSE2)*.data$Eff)
     returnval<-replace_na(poolVals,list(ratioMean=0,ratioSE=0,deltaMean=0,deltaSE=0))
-   }
+  }
+  if(all(is.na(strataVars))) {
+    returnval<-returnval %>%
+      ungroup() %>%
+      summarize(ratioMean=sum(.data$ratioMean,na.rm=TRUE),
+                ratioSE=sqrt(sum(.data$ratioSE^2,na.rm=TRUE)),
+                deltaMean=sum(.data$deltaMean,na.rm=TRUE),
+                deltaSE=sqrt(sum(.data$deltaSE^2,na.rm=TRUE)))
+  } else {
   returnval<-returnval %>%
-    ungroup() %>%
     group_by_at(all_of(strataVars)) %>%
     summarize(ratioMean=sum(.data$ratioMean,na.rm=TRUE),
               ratioSE=sqrt(sum(.data$ratioSE^2,na.rm=TRUE)),
               deltaMean=sum(.data$deltaMean,na.rm=TRUE),
               deltaSE=sqrt(sum(.data$deltaSE^2,na.rm=TRUE))) %>%
-    ungroup() %>%
-    mutate(Year=as.numeric(as.character(.data$Year))) %>%
-    mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
+    ungroup()
+  }
+    if("Year" %in% strataVars) {
+      returnval<-returnval %>%
+        mutate(Year=as.numeric(as.character(.data$Year))) %>%
+        mutate(Year=ifelse(.data$Year<startYear,.data$Year+startYear,.data$Year))
+  }
   returnval
 }
 

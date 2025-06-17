@@ -430,7 +430,7 @@ bycatchFit<-function(
 
     #Combine all predictions, except Binomial
     if(EstimateBycatch) {
-      if(is.factor(modPredVals[[run]][[1]]$Year))
+      #if(is.factor(modPredVals[[run]][[1]]$Year))
       #   yearSumGraph[[run]]$Year<-factor(yearSumGraph[[run]]$Year)
       # allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
       #   filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")

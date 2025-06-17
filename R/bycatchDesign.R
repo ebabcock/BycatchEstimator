@@ -12,6 +12,7 @@
 #' @param setupObj  An object produced by \code{bycatchSetup}.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
 #' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
+#' @param groupVar Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
 #' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "all", "pooledVar" and (currently for year only) "adjacent"
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
@@ -59,6 +60,7 @@
 #' setupObj = setupObj,
 #' designMethods = c("Ratio", "Delta"),
 #' designVars = c("Year","season"),
+#' groupVar = "Year",
 #' designPooling = TRUE,
 #' poolTypes=c("adjacent","all"),
 #' pooledVar=c(NA,NA),
@@ -71,6 +73,7 @@ bycatchDesign <- function(
   setupObj = setupObj,
   designMethods = "Ratio",
   designVars = "Year",
+  groupVar = "Year",
   designPooling = FALSE,
   poolTypes = NULL,
   pooledVar = NULL,
@@ -93,6 +96,9 @@ bycatchDesign <- function(
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
   if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
+
+  #make sure only one groupVar
+  groupVar<-groupVar[1]
 
   #Set up directory for output
   outDir<-paste0(baseDir, paste("/Output", runName))
@@ -132,7 +138,7 @@ bycatchDesign <- function(
 
     designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
-                             strataVars = "Year",
+                             strataVars = groupVar,
                              designVars = designVars,
                              designPooling = designPooling,
                              minStrataUnit = minStrataUnit,
@@ -157,13 +163,24 @@ bycatchDesign <- function(
     write.csv(designstratadf[[run]],
               paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
   }
-
-
-    x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
+  if(all(is.na(groupVar))) {
+    yearSum[[run]]$Year="All"
+    designyeardf[[run]]$Year="All"
+  }
+  if(groupVar!="Year" & !is.na(groupVar)) {
+    x<-NULL
     if("Ratio" %in% designMethods)
-      x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+      x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],!!groupVar,Total=.data$ratioMean,Total.se=.data$ratioSE)))
     if("Delta" %in% designMethods)
-      x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+      x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],!!groupVar,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+  }
+    if(groupVar=="Year") {
+      x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
+      if("Ratio" %in% designMethods)
+        x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+      if("Delta" %in% designMethods)
+        x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+    }
 
     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
