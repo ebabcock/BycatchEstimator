@@ -1911,10 +1911,14 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
    }
    includePool[[i]]<-obsdatval[bb,]
   }
-  for(var in 1:length(designVars))  {
-   keepVars<-designVars[(1:length(designVars))>var]
+  for(vari in 1:length(designVars))  {
+   keepVars<-designVars[(1:length(designVars))>vari]
    for(i in which(poolingSum$needs.pooling))  {
-    if(poolTypes[1]=="all") {
+     if(poolTypes[1]=="none") {
+       aa<-which(poolingSum[,designVars[1]] == poolingSum[i,designVars[1]])
+       bb<-which(obsdatval[,designVars[1]] == poolingSum[i,designVars[1]])
+     }
+     if(poolTypes[1]=="all") {
       aa<-1:nrow(poolingSum)
       bb<-1:nrow(obsdatval)
     }
@@ -1924,21 +1928,25 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
     }
     if(poolTypes[1]=="adjacent") {
       aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
-                                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
       bb<-which(obsdatval[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
                                   obsdatval[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
     }
-    if(var>1) {
-      for(var2 in 2:var) {
+    if(vari>1) {
+      for(var2 in 2:vari) {
+        if(poolTypes[var2]=="none") {
+          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+        }
         if(poolTypes[var2]=="pooledVar") {
           aa<-aa[aa %in% which(poolingSum[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
           bb<-bb[bb %in% which(obsdatval[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
         }
         if(poolTypes[var2]=="adjacent") {
-          aa<-which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
-          bb<-which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
+          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
+          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
         }
       }
     }
@@ -1955,7 +1963,7 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
      poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
     } else poolingSum$needs.pooling[i]<-TRUE
    }
-   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-var
+   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-vari
   }
   includePool<-bind_rows(includePool,.id="stratum")
   poolingSum$stratum<-1:nrow(poolingSum)

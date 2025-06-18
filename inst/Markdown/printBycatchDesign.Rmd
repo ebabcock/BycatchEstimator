@@ -55,7 +55,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
   
 #unpack designObj
-designMethods<-designVars<-groupVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+designMethods<-designVars<-groupVar<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
 
 yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
 
@@ -72,7 +72,7 @@ if(!"Year" %in% factorVariables) { #treat Year as numeric variable
 **Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
 
 ```{r table-results, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
-cat("Table ",tablenum,". Design-based bycatch estimates for each ", groupVar,". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
+cat("Table ",tablenum,". Design-based bycatch estimates for each ", tolower(groupVar),". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
 tablenum<-tablenum+1
 
 temp <- designyeardf[[run]] %>%
@@ -99,7 +99,7 @@ print(ggplot(yearSumLong,aes(x=!!sym(groupVar),y=Mean,ymin=Mean-1.96*SE,ymax=Mea
   geom_line()+
   geom_point()+
   geom_ribbon(alpha=0.5))
-cat("\n Figure ", figurenum, ". Design-based bycatch estimates per",groupVar, "with 95% confidence intervals.",sep = "")
+cat("\n Figure ", figurenum, ". Design-based bycatch estimates per ",tolower(groupVar), " with 95% confidence intervals.",sep = "")
 figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 
@@ -108,9 +108,12 @@ cat('<div style="height:30px;"></div>\n')
 
 ```{r plot-pooling, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 if(designPooling){
-print(ggplot(poolingSum[[run]],aes(x=!!sym(groupVar),fill=factor(poolnum)))+
-  geom_bar())
-cat("\n Figure ", figurenum, ". Count of strata per year with number of dimensions pooled.",sep = "")
+poolingSum[[run]]<-poolingSum[[run]] %>%
+  mutate(Pooling=as.character(poolnum)) %>%
+  mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))
+print(ggplot(poolingSum[[run]])+
+  geom_bar(aes(x=!!sym(groupVar),fill=Pooling)))
+cat("\n Figure ", figurenum, ". Count of strata per ",tolower(groupVar), " with number of dimensions pooled. ",sep = "")
 figurenum<-figurenum+1
 }
 

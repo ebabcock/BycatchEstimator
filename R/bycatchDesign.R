@@ -14,7 +14,7 @@
 #' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
 #' @param groupVar Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
-#' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "all", "pooledVar" and (currently for year only) "adjacent"
+#' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "none", where data will not be pooled over this variable, "all" where data will be pooled over all levels of the variable, "pooledVar" where the variable named in pooledVar will be used to pool, and (currently for year only) "adjacent" to pool over adjacent years.
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
 #' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.
 #' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
@@ -99,6 +99,9 @@ bycatchDesign <- function(
 
   #make sure only one groupVar
   groupVar<-groupVar[1]
+
+  #check variables
+  if(!all(designVars %in% factorVariables)) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object."))
 
   #Set up directory for output
   outDir<-paste0(baseDir, paste("/Output", runName))
@@ -196,6 +199,7 @@ bycatchDesign <- function(
     designInputs = list(
       designMethods = designMethods,
       designVars = designVars,
+      groupVar = groupVar,
       designPooling = designPooling,
       poolTypes=poolTypes,
       pooledVar=pooledVar,
