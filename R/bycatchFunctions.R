@@ -1207,6 +1207,12 @@ lnorm.se=function(x1,x1e) {
   ((exp(x1e^2)-1)*exp(2*x1+x1e^2))^0.5
 }
 
+#' as.numeric2
+#' @keywords internal
+as.numeric2<-function(x) {
+  as.numeric(as.character(x))
+}
+
 #' simulateNegBin1Draw
 #'
 #' @param modfit Value
@@ -2168,4 +2174,42 @@ getModelSummaryTable<-function(modfits,modTypes) {
     }
   }
   modSum
+}
+
+#' Read in all the R objects created during runs of the bycatchEstimator for further analysis
+#'
+#' @param baseDir The base directory for the runs, same as bycatchSetup.
+#' @param runName The run name, same as bycatchSetup.
+#' @param runDate  The date when the model was run. Defualts to current date, but can be set to read in models previously run.
+#' @param loadDesign  TRUE to read in design-based estimator results.
+#' @param loadModel TRUE to read in model-based estimator results.
+#' @keywords internal
+loadOutputs<-function(baseDir = getwd(),
+                      runName,
+                      runDate =  Sys.Date(),
+                      loadDesign = TRUE,
+                      loadModel = TRUE) {
+  #Check that setup file exists and read in.
+  outDir<-paste0(baseDir, paste("/Output", runName))
+  if(!dir.exists(outDir)) stop(paste("Directory",outDir,"not found."))
+  setupFile<-paste0(runDate,"_BycatchSetupSpecification.rds")
+  if(!file.exists(paste0(outDir,"/",setupFile))) stop(paste("Setup file",setupFile ,"not found in",outDir,"."))
+  setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+  list2env(setupObj$bycatchInputs, envir = .GlobalEnv)
+  list2env(setupObj$bycatchOutputs, envir = .GlobalEnv)
+  #If doing design based, check that design file exists and read in.
+  if(loadDesign) {
+    designFile<-paste0(runDate,"_BycatchDesignSpecification.rds")
+    if(!file.exists(paste0(outDir,"/",designFile))) stop(paste("Design file",designFile ,"not found in",outDir,"."))
+    designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesignSpecification.rds"))
+    list2env(designObj$designInputs, envir = .GlobalEnv)
+    list2env(designObj$designOutputs, envir = .GlobalEnv)
+  }
+  if(loadModel) {
+    modelFile<-paste0(runDate,"_BycatchFitSpecification.rds")
+    if(!file.exists(paste0(outDir,"/",modelFile))) stop(paste("Model file",modelFile ,"not found in",outDir,"."))
+    modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFitSpecification.rds"))
+    list2env(modelObj$modelInputs, envir = .GlobalEnv)
+    list2env(modelObj$modelOutputs, envir = .GlobalEnv)
+  }
 }

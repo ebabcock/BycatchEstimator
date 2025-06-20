@@ -86,7 +86,7 @@ if(nrow(temp)>0) {
  print(kbl(temp,format="simple"))
  cat("\n")
 }
-
+if(designPooling) {
 if(any(is.na(poolingSum[[run]]$poolnum))) {
   temp<-poolingSum[[run]]%>%
     filter(is.na(poolnum)) %>%
@@ -96,8 +96,9 @@ if(any(is.na(poolingSum[[run]]$poolnum))) {
   cat("The following strata have less than the minimum number of sample units (",minStrataUnit,"), even after pooling:",sep="")
   print(kbl(temp,format="simple"))
   cat("\n")
+  }
  }
-}
+}  
 ```
 
 ```{r table-results, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}

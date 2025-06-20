@@ -126,6 +126,9 @@ bycatchSetup <- function(
   obsdat<-obsdat %>%
     rename(Effort=!!obsEffort) %>%
     mutate(across(all_of(factorVariables),factor))
+   if(sum(!is.na(numericVariables))>0)
+        obsdat<-obsdat %>%
+        mutate(across(all_of(numericVariables),as.numeric2))
 
   # add here warning message about NAs in observer data
   if(any(is.na(obsdat[,c(allVarNames,"Effort")]))){
@@ -143,6 +146,10 @@ bycatchSetup <- function(
     logdat<-logdat %>%
       rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
       mutate(across(all_of(factorVariables),factor))
+    if(sum(!is.na(numericVariables))>0)
+      logdat<-logdat %>%
+      mutate(across(all_of(numericVariables),as.numeric2))
+
 
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
 
@@ -156,16 +163,16 @@ bycatchSetup <- function(
     if(includeObsCatch & EstimateBycatch) {
       obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
       logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
-
       missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
       if(length(missing_trips)>0){
         warning(paste("The following sample units from the observer data are missing in the logbook data: "),
                 paste(missing_trips,collapse = ", "),
-             "IncludeObsCatch=TRUE will not work.")}
-        }
-
+             ". IncludeObsCatch=TRUE will not work in model fitting.")}
+      if(any(logdat$unsampledEffort<0))  {
+        warning("Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
       }
-
+    }
+  }
 
   # define startYear
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {

@@ -144,9 +144,13 @@ if(includeObsCatch & EstimateBycatch) {
      if(length(missing_trips)>0){
        cat("\n")
        cat(paste("The following sample units from the observer data are missing in the logbook data: "),paste(missing_trips,collapse = ", "),
-             "IncludeObsCatch=TRUE will not work in model fitting.")
+             ". IncludeObsCatch=TRUE will not work in model fitting.")
+        noWarnings<-FALSE
      }
- noWarnings<-FALSE
+    if(any(logdat$unsampledEffort<0))  {
+      cat("Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
+      noWarnings<-FALSE
+    }
   cat("\n")
   }
 
@@ -164,15 +168,15 @@ if(noWarnings) cat("No NAs, missing levels, or mismatch in range of variables fo
 if(!is.null(logdat)){
 cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,".", sep="")
 tablenum<-tablenum+1
-temp_bind<-bind_rows(list(observer=select(obsdat,Effort),
-                  logbook=select(logdat,Effort)),
+temp_bind<-bind_rows(list(observer=select(dat[[run]],Effort),
+                  logbook=filter(select(logdat,Effort),!is.na(Effort))),
                   .id = "Source")
 
 temp1 <- temp_bind  %>% group_by(Source) %>%
   summarize(`Sample units` = n(),
             `Total effort`=sum(Effort))%>%
-  mutate(`Proportion units`=round(`Sample units`/sum(`Sample units`),3),
-         `Proportion effort`=round(`Total effort`/sum(`Total effort`),3))
+  mutate(`Proportion units`=round(`Sample units`/(`Sample units`[Source=="logbook"]),3),
+         `Proportion effort`=round(`Total effort`/(`Total effort`[Source=="logbook"]),3))
 
 output_format <- if (knitr::is_html_output()) "html" else "latex"
 
@@ -224,17 +228,19 @@ cat('<div style="height:30px;"></div>\n')
 if(!is.null(logdat)){
 
 if (unique(!is.na(numericVariables))){
-  numericVariables <- c("Effort",numericVariables)
+  numericVariables <- unique(c("Effort",numericVariables))
 }else{
   numericVariables <- "Effort"
 }
 
 obsdat<-mutate(obsdat,SampleUnits=1) # add SampleUnits column with value set to 1 for every row
-if(!"Year" %in% factorVariables) { #treat Year as numeric variable
+#If year is numeric and starts at zero, add startyear back on.
+if("Year" %in% numericVariables)  {
+  if(min(obsdat$Year)==0) { 
   obsdat$Year<-obsdat$Year+startYear
   logdat$Year<-logdat$Year+startYear
+ }
 }
-
 #Compare observed and logbook  
 # add if statement if logdat is not NULL (for estimating CPUE only)
 if(!is.null(logdat)){
@@ -401,12 +407,14 @@ figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 
 #Total catch by numeric variables
-temp<-obsdatTemp %>%
-  mutate_at(all_of(c(numericVariables,"Effort")),cut,breaks=30,labels=FALSE)
- cat("\n\n")
-  temp<-temp %>% pivot_longer(cols=all_of(c(numericVariables,"Effort")),names_to="Variable",values_to = "Value") 
-  print(ggplot(temp,aes(x=Value,y=Catch))+
-          geom_col(fill="darkblue")+
+cat("\n\n")
+temp<-obsdatTemp
+temp<-temp %>% pivot_longer(cols=all_of(c(numericVariables,"Effort")),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=Catch))+
+         stat_summary_bin(geom = "bar",
+         fun = "sum",     
+         bins = 30,
+         fill="darkblue")+
           facet_wrap(Variable~.,scales="free"))
   cat("\n Figure ",figurenum,". Observed total catch of ",common[[run]], " across numerical variables. \n",sep="")
   figurenum<-figurenum+1
@@ -424,7 +432,7 @@ print(ggplot(temp,aes(x=Level,y=Catch))+
   geom_violin(fill="grey")+
   facet_wrap(Variable~.,scales="free")+
   stat_summary())
-cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " by factor levels.\n",sep="")
+cat("\n Figure ",figurenum,". Observed Catch per ", sampleUnit, " of ",common[[run]], " by factor levels.\n",sep="")
 figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 
@@ -436,7 +444,7 @@ print(ggplot(temp,aes(x=Value,y=Catch))+
   geom_point(alpha=0.3)+
   stat_smooth()+
   facet_wrap(Variable~.,scales="free"))
-cat("\n Figure ",figurenum,". Observed Catch of ",common[[run]], " across numerical variables. \n",sep="")
+cat("\n Figure ",figurenum,". Observed Catch per ", sampleUnit, " of ",common[[run]], " across numerical variables. \n",sep="")
 figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 }

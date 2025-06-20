@@ -2,10 +2,8 @@
 title: "Bycatch-Estimator User Guide"
 author: "Elizabeth A. Babcock"
 date: "`r Sys.Date()`"
-vignette: >
-  %\\VignetteIndexEntry{UserGuide} 
-  %\\VignetteEngine{knitr::rmarkdown} 
-  %\\VignetteEncoding{UTF-8}
+vignette: "%\\\\VignetteIndexEntry{UserGuide}  %\\\\VignetteEngine{knitr::rmarkdown}
+  \ %\\\\VignetteEncoding{UTF-8}\n"
 bibliography: userguide.bib
 header-includes:
 - \usepackage{caption}
@@ -22,9 +20,65 @@ ebabcock@miami.edu
 
 ## Introduction
 
-The BycatchEstimator tool runs a generic model-based bycatch estimation procedure, along with some common design-based bycatch estimation methods, after you first set up the data inputs and other specifications. The code can estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data. 
+The BycatchEstimator tool estimates total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records. The tool can be used to run eitehr a generic model-based bycatch estimation procedure, or common design-based bycatch estimation methods, after you first set up the data inputs and other specifications. 
 
 The code runs best in RStudio. Before running the code for the first time, install the latest versions of R (@R-base) and RStudio (@RStudio). The following libraries are used: tidyverse, ggplot2, MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra, pdftools, foreach, doParallel, reshape2, glmmTMB and quantreg (@tidyverse; @ggplot2; @MASS; @lme4; @cplm; @tweedie; @DHARMa; @tidyselect; @MuMIn; @gridExtra; @gtable; @gt; @pdftools;@foreach;@doParallel; @reshape2; @glmmTMB; @quantreg). The output figures and tables are printed to a pdf file using R Markdown and the knitr library, which outputs a LaTex file; therefore, you must have a LaTex program installed, such as TinyTex (@TinyTeX, @tinytex, @knitr). For a quick start guide with example data, see the GitHub page (https://github.com/ebabcock/BycatchEstimator). For more help with installation issues, see the Installation Guide  https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html.  
+
+
+## Data specification
+
+This provides guidance and summarizes arguments of the function `bycatchSetup`. This function takes as input the observer and logbook data and provides warnings, summary tables and figures. This function must be run before runing either `bycatchDesign` or 'bycatchFit`, 
+
+The observer data should be aggregated to the appropriate sample unit, either trips or sets. Effort must be in the same units in both data sets (e.g. sets or hook-hours). The logbook data may be aggregated to sample units, or it may be aggregated further, as long as it includes data on all stratification or predictor variables. For example, the data can be aggregated by year, region and season if those are the stratification variables, or it can be aggregated by trip. If any environmental variables, such as depth, are included, the logbook data probably has to be entered at the set level. The observer data should have columns for year and the other predictor variables, the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. There should also be a column that reports how many sample units (i.e. trips) are included in each row in the logbook data if the data are aggregated. This is needed for the variance calculations. If there are any NA values in any of the variables, those rows will be deleted from the observor data set. 
+
+Any variables you intend to use in analysis should be entered in the character vectors as either factorVariables or numericVariables. Note that design-based methods only work for categorical variables. Year is interpreted as a factor in the design-based methods whether it is numerical or factor. For model-based methods, Year may be either a number or a factor. If year is a number, then a model such as *y ~ Year* will estimate a linear trend across years. Polynomial regression may be a useful way to estimate more complex trends across years in data sets where not all years have enough data to estimate Year as a categorical fixed effect. This can be specified as, for example *y ~ Year + I(Year^2) + I(Year^3).* 
+
+You must also specify the common and scientific names of the species being analyzed, the units of the bycatch estimates (e.g. kg, numbers), and the type of catch (e.g. retained catch, dead discards, live releases). If analyzing more than one species or disposition type, some of these inputs must be vectors with the same length as the number of species and/or disposition types. 
+
+To include the observed catches as known in the totals for model-based methods, it is necessary to include a column for unsampled effort in the logbook data (which can be zero in completely sampled trips) and a column in both the logbook and observer data that can be used to match  observed trips to logbook records. If you are not using this feature, set includeObsCatch to FALSE.  
+
+This function outputs the user's choice of an html or a pdf file, including summary figures and tables. There will be warning messages if there are any NA values in the data, or if levels of factor levels in logbook data are not present in the observer data. The following plots are produced.  
+
+- A barplot number of total effort in the whole fishery and the observed sample across the levels of each categorical and numerical variable.
+
+- A table showing the observer coverage level by sample unit and effort units.
+
+- Barplots of presence and absence of the bycatch species by year and by level of categorical and numerical variables.
+
+- CPUE of the bycatch species across categorical and numerical variables, including the effort variable.
+
+Model-based estimation methods work best of there are non-zero catches across all levels of each variable. Numerical variables can introduce bias if the observed data does not include the full range of values in the whole fishery. Also, check for instances of very high CPUE. This may happen if a catch occurs in a set/trip with low recorded effort, and these outliers may bias the results. 
+
+After running the function `bycatchSetup`, data summaries are output to directories named "output" followed by the specified run name. A pdf file with summaries for all species (DataSummary.pdf) is placed in the main output folder, and a csv file for each species is placed in an output file named for the species. Note that records with NA in the catch or effort variable are excluded from the analysis and not included in the estimated sample size. If there are any years with no data, or no positive observations, you may want to exclude those years from the analysis. The summary table also counts the number of outliers (defined as data points more than 8 standard deviations from the mean) because outliers cause problems with fitting in some models. For data-checking, this output file also includes columns with estimated bycatch and its variance using a simple unstratified ratio estimator by year (See BycatchFunctions.r for all the functions). You will get an error message if any of the variables in the specified models are not found in the data frame. 
+
+## Design-based estimators
+
+This section provides guidance on the function `bycatchDesign`.
+
+To use design-based estimators, specify them as a character vector. For example, designMethods =c("Ratio","Delta") would calculate both a stratified ratio estimator and a delta-lognormal estimator. The variables in designVar will be included in the stratified design. If pooling is requested, the strata will be pooled in the order of designVars. If pooling is requested, three additional vectors are needed to define how the pooling works: poolTypes, which says whether the variable should be pooled across adjacent levels (for Year only), all values, or a new variable (e.g. season rather than month); pooledVar which specifies the new variable for pooling for the last pooling method; and adjacentNum which specifies the number of adjacent years to include if the adjacent year method is used (e.g. 1 to include both the previous and following year). Each of these vectors must be the same length as designVars. You must also specify the minimum number of sample units in a stratum to require pooling. 
+
+This function produces the user's choice of a pdf or html file with bycatch estimates. They are also given in the columns called ratioMean, ratioSE, deltaMean and deltaSE in the file labelled DesignSummary and the file labelled DesignStrata. See details on model outputs below. See the function getPooling for details on how the pooling is set up for design-based estimation, and getDesignEstimates for the total bycatch calculations.
+
+The the design-based methods availabe are a stratified ratio estimator @Rao or the design based delta-lognormal estimator of @Pennington. These total bycatch estimates are made at the stratification variables defined by the user in the vector called designVars, which must be categorical variables. To deal with strata that have no observations or few observations, the user may request pooling (designPooling=TRUE), and specify the minimum number of sample units needed to avoid pooling. The specifics of the pooling scheme are defined by inputs described below. If pooling, the total bycatch is estimated for the observer and logbook data specified by the pooling scheme for each stratum (i.e. combination of variables) and then allocated to the stratum according to the fraction of the logbook effort in the pooled data that is in the stratum of interest. Unpooled estimates are used for strata with sufficient data. Variances are also allocated to the stratum of interest based on the fraction of total effort. See @Brown for details of one potential pooling scheme. The design-based estimates are calculated by the bycatchSetup function, and printed to .csv files with the word "design" in the title, one for the sums in each year, and one for the sums at the specified minimum level of stratification defined by the design variables.  
+
+
+## Model specification
+
+This provides guidance and summarizes arguments of the function `bycatchFit`
+
+First, specify the input data object generated by bycatchSetup. Then, specify which information criterion to use in narrowing down the predictor variables to use in each observation error model group. Model selection is done with dredge function in the MuMIn library(@MuMIn). Note that the model outputs should be the same whether using glmmTMB or other functions. The negative binomial 2 in TMB is the same as the negative binomial in glm.nb. To get faster results, use TMB only for model fitting. The other functions are included for comparison. 
+
+Give the formulas for the most complex and simplest model to be considered. If the simplest model requires stratification variables other than year, summaries of the predicted bycatch at the level of these stratification variables will be printed to .csv files, but will not be plotted automatically. Abundance indices will be calculated including all the variables requested in indexVars, to allow for different indices for different stratification variables if desired (e.g. different spatial areas). 
+
+Any desired random effects can be entered as a character vector (e.g. randomEffects="Year:area"). In the case that any delta models are used, there can be separate random effects for the binomial model (randomEffects) and abundance when present model (randomEffects2).
+
+Also, specify whether to do cross validation to choose between observation error models, and whether to use the dredge function to use information criteria to choose the best set of predictor variables for each fold in cross validation. If DredgeCrossValidation is FALSE, the same predictor variables will be used for each fold, as selected for the full data set. This saves time with large data sets. The variable ResidualsTest allows excluding from cross validation any model where the residuals have a P<0.01 for a Kolmogorov Smirnov test of whether the residuals are distributed as expected under the likelihood (testUniformity in DHARMa). This is useful for excluding poorly performing models. However, it may be too restrictive if none of the models perform well, and it only works for small datasets. Specify the confidence levels desired for the total bycatch calculations. 
+
+If the variable useParallel is true and your computer has multiple cores, the dredge function will be run in parallel. This greatly speeds up the calculations. If you have trouble getting this to work, set useParallel to FALSE. 
+
+Finally, if you have information on total bycatch in each year to validate your estimates, for example in a simulation study, fill out the arguments `plotValidation`, `trueVals`, `trueCols`. Otherwise, set these arguments to FALSE, NULL and NULL, respectively. To include validation data, `trueVals` should be set equal to a character string containing a filename (with complete path) for a file containing a column labelled "Year", and columns with the total bycatch in each year, with names specified in `trueCols`. For multiple species, `trueCols` can be a vector giving the names of all the column for each species in order. 
+
+### Details of model methods
 
 The R code estimates total bycatch from models as follows. First, mean catch per unit effort (CPUE) of observed sample units (e.g. trips or sets) is estimated from a linear model with predictor variables. The observation error models used are delta-lognormal (using either glm or glmmTMB), delta-gamma (from glm or glmmTMB), negative binomial (from either glm.nb in the MASS library or glmmTMB, nbinom1 and nbinom2) and Tweedie (from cpglm or glmmTMB). For comparison, simple normal and lognormal models (from lm or glmmTMB) are also available, although these methods are not expected to perform well with many zero bycatch observations. Binomial models from either glm or glmmTMB, are used in the delta-models, and can also be used independently.
 
@@ -46,60 +100,14 @@ bycatchFunctions.R for the details for each model type. This code is partly base
 
 If the logbook data is aggregated across multiple trips (e.g. by strata) the effort is allocated equally to all the trips in a row of the logbook data table for the purpose of simulating catches or estimating variances using the delta method. This allocation procedure is not needed to estimate the mean total bycatch, but it is necessary to estimate the variances correctly. When using aggregated effort, it is not yet possible to include the observed catches as known.  
 
-The model also calculates design-based total bycatch estimates if requested, using either a stratified ratio estimator @Rao or the design based delta-lognormal estimator of @Pennington. These total bycatch estimates are made at the the stratification variables defined by the user in the vector called designVars, which must be categorical variables. To deal with strata that have no observations or few observations, the user may request pooling (designPooling=TRUE), and specify the minimum number of sample units needed to avoid pooling. The specifics of the pooling scheme are defined by inputs described below. If pooling, the total bycatch is estimated for the observer and logbook data specified by the pooling scheme for each stratum (i.e. combination of variables) and then allocated to the stratum according to the fraction of the logbook effort in the pooled data that is in the stratum of interest. Unpooled estimates are used for strata with sufficient data. Variances are also allocated to the stratum of interest based on the fraction of total effort. See @Brown for details of one potential pooling scheme. The designed-based estimates are calculated by the bycatchSetup function, and printed to .csv files with the word "design" in the title, one for the sums in each year, and one for the sums at the specified minimum level of stratification defined by the design variables.  
 
 The model can estimate bycatch and abundance indices for multiple species or dispositions (e.g. dead discard, live release) from the same fishery simultaneously if they are all being estimated from the same data sets. 
 
 
 If a user requests an annual abundance index, this is calculated from the same models as were selected for bycatch estimation, with an option to specify the simplest model to be considered. Any random effects will be included in the index.
 
-## Data specification
 
-This provides guidance and summarizes arguments of the function `bycatchSetup`
-
-The observer data should be aggregated to the appropriate sample unit, either trips or sets. Effort must be in the same units in both data sets (e.g. sets or hook-hours). The logbook data may be aggregated to sample units, or it may be aggregated further, as long as it includes data on all stratification or predictor variables. For example, the data can be aggregated by year, region and season if those are the stratification variables, or it can be aggregated by trip. If any environmental variables, such as depth, are included, the logbook data probably has to be entered at the set level. The observer data should have columns for year and the other predictor variables, the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. There should also be a column that reports how many sample units (i.e. trips) are included in each row in the logbook data if the data are aggregated. This is needed to predict catches by trip for the variance calculations. If there are any NA values in any of the variables, those rows will be deleted from the data set. To include the observed catches as known in the totals, it is necessary to include a column for unsampled effort in the logbook data (which can be zero in completely sampled trips) and a column in both the logbook and observer data that can be used to match  observed trips to logbook records. 
-
-Next, give the names of the variables in the observer and (if estimating bycatch) logbook data files. You must also specify the common and scientific names of the species being analyzed, the units of the bycatch estimates (e.g. kg, numbers), and the type of catch (e.g. retained catch, dead discards, live releases). If analyzing more than one species or disposition type, some of these inputs must be vectors with the same length as the number of species and/or disposition types. If calculating catch as the sum of observed catch and predicted catch from unobserved effort (includeObsCatch=TRUE) then you must have columns for both total effort and unsampled effort in the logbook data, and a column to match observed trips to the logbook trips. 
-
-Give the formulas for the most complex and simplest model to be considered. If the simplest model requires stratification variables other than year, summaries of the predicted bycatch at the level of these stratification variables will be printed to .csv files, but will not be plotted automatically. Abundance indices will be calculated including all the variables requested in indexVars, to allow for different indices for different stratification variables if desired (e.g. different spatial areas). You may also specify which predictor variables should be interpreted as factor (categorical). The named variables will be converted to factor before analysis. Note that year may be either a number or a factor. If year is a number, then a model such as *y ~ Year* will estimate a linear trend across years. Polynomial regression may be a useful way to estimate more complex trends across years in data sets where not all years have enough data to estimate Year as a categorical fixed effect. This can be specified as, for example *y ~ Year + I(Year^2) + I(Year^3).* Any desired random effects can be entered as a character vector (e.g. randomEffects="Year:area"). In the case that any delta models are used, there can be separate random effects for the binomial model (randomEffects) and abundance when present model (randomEffects2).
-
-To use design-based estimators, specify them as a character vector. For example, designMethods =c("Ratio","Delta") would calculate both a stratified ratio estimator and a delta-lognormal estimator. The variables in designVar will be included in the stratified design. If pooling is requested, the strata will be pooled in the order of designVars. If pooling is requested, three additional vectors are needed to define how the pooling works: poolTypes, which says whether the variable should be pooled across adjacent levels (for Year only), all values, or a new variable (e.g. season rather than month); pooledVar which specifies the new variable for pooling for the last pooling method; and adjacentNum which specifies the number of adjacent years to include if the adjacent year method is used (e.g. 1 to include both the previous and following year). Each of these vectors must be the same length as designVars. You must also specify the minimum number of sample units in a stratum to require pooling. 
-
-The design-based estimators are calculated when bycatchSetup is run, so you may stop here if you only need the design based estimators. They are given in the columns called ratioMean, ratiaSE, deltaMean and deltaSE in the file labelled DesignSummary and the file labelled DesignStrata. See details on model outputs below. See the function getPooling for details on how the pooling is set up for design-based estimation, and getDesignEstimates for the total bycatch calculations.
-
-## Data checking
-
-This provides guidance and summarizes arguments of the function `dataCheck`
-
-The dataCheck function takes as input, the output from bycatchSetup.  It makes plots and summary tables including:
-
-- A barplot number of total effort in the whole fishery and the observed sample across the levels of each categorical and numerical variable.
-
-- A table showing the observer coverage level by sample unit and effort units.
-
-- Barplots of presence and absence of the bycatch species by year and by level of categorical and numerical variables.
-
-- CPUE of the bycatch species across categorical and numerical variables, including the effort variable.
-
-Model-based estimation methods work best of there are non-zero catches across all levels of each variable. Numerical variables can introduce bias if the observed data does not include the full range of values in the whole fishery. Also, check for instances of very high CPUE. This may happen if a catch occurs in a set/trip with low recorded effort, and these outliers may bias the results.  
-
-## Model specification
-
-This provides guidance and summarizes arguments of the function `bycatchFit`
-
-First, specify the input data object generated by bycatchSetup. Then, specify which information criterion to use in narrowing down the predictor variables to use in each observation error model group. Model selection is done with dredge function in the MuMIn library(@MuMIn). Note that the model outputs should be the same whether using glmmTMB or other functions. The negative binomial 2 in TMB is the same as the negative binomial in glm.nb. To get faster results, use TMB only for model fitting. The other functions are included for comparison. 
-
-Also, specify whether to do cross validation to choose between observation error models, and whether to use the dredge function to use information criteria to choose the best set of predictor variables for each fold in cross validation. If DredgeCrossValidation is FALSE, the same predictor variables will be used for each fold, as selected for the full data set. This saves time with large data sets. The variable ResidualsTest allows excluding from cross validation any model where the residuals have a P<0.01 for a Kolmogorov Smirnov test of whether the residuals are distributed as expected under the likelihood (testUniformity in DHARMa). This is useful for excluding poorly performing models. However, it may be too restrictive if none of the models perform well, and it only works for small datasets. Specify the confidence levels desired for the total bycatch calculations. 
-
-If the variable useParallel is true and your computer has multiple cores, the dredge function will be run in parallel. This greatly speeds up the calculations. If you have trouble getting this to work, set useParallel to FALSE. 
-
-Finally, if you have information on total bycatch in each year to validate your estimates, for example in a simulation study, fill out the arguments `plotValidation`, `trueVals`, `trueCols`. Otherwise, set these arguments to FALSE, NULL and NULL, respectively. To include validation data, `trueVals` should be set equal to a character string containing a filename (with complete path) for a file containing a column labelled "Year", and columns with the total bycatch in each year, with names specified in `trueCols`. For multiple species, `trueCols` can be a vector giving the names of all the column for each species in order. 
-
-## Reviewing the model setup
-
-After running the function `bycatchSetup`, data summaries are output to directories named "output" followed by the specified run name. A pdf file with summaries for all species (DataSummary.pdf) is placed in the main output folder, and a csv file for each species is placed in an output file named for the species. Note that records with NA in the catch or effort variable are excluded from the analysis and not included in the estimated sample size. If there are any years with no data, or no positive observations, you may want to exclude those years from the analysis. The summary table also counts the number of outliers (defined as data points more than 8 standard deviations from the mean) because outliers cause problems with fitting in some models. For data-checking, this output file also includes columns with estimated bycatch and its variance using a simple unstratified ratio estimator by year (See BycatchFunctions.r for all the functions). You will get an error message if any of the variables in the specified models are not found in the data frame. 
-
-## Main analysis 
+## Details on running models 
 
 This section explains the use of the function `bycatchFit` to run the CPUE models, estimate total bycatch and/or abundance indices, and do cross validation if requested. You can ignore the warnings and information about the models as long as the code keeps running. Most of these are information about which variables are being tried and which models have converged, which will be summarized in the output files. 
 

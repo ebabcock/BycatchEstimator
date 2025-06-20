@@ -48,6 +48,7 @@ At this point, try looking for the help files for the BycatchEstimator functions
 
 ```{r eval = FALSE}
 ?bycatchSetup
+?bycatchDesign
 ?bycatchFit
 ```
 
