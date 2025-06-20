@@ -47,8 +47,8 @@ tablenum<-1
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
 # out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
-# setupObj<-readRDS(file=paste0(out.dir,"2025-06-11_BycatchSetupSpecification.rds"))
-# modelObj<-readRDS(file=paste0(out.dir,"2025-06-11_BycatchFitSpecification.rds"))
+# setupObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchSetupSpecification.rds"))
+# modelObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchFitSpecification.rds"))
 # run=1
 # source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
 

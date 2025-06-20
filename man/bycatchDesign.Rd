@@ -8,6 +8,7 @@ bycatchDesign(
   setupObj = setupObj,
   designMethods = "Ratio",
   designVars = "Year",
+  groupVar = "Year",
   designPooling = FALSE,
   poolTypes = NULL,
   pooledVar = NULL,
@@ -23,6 +24,8 @@ bycatchDesign(
 \item{designMethods}{Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).}
 
 \item{designVars}{Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.}
+
+\item{groupVar}{Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset}
 
 \item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
 
@@ -73,10 +76,11 @@ catchType = "dead discard"
 
 #-------------
 #Step 2. Design-based estimators (with pooling)
-designObj <- bycatchDesign(
+bycatchDesign(
 setupObj = setupObj,
 designMethods = c("Ratio", "Delta"),
 designVars = c("Year","season"),
+groupVar = "Year",
 designPooling = TRUE,
 poolTypes=c("adjacent","all"),
 pooledVar=c(NA,NA),

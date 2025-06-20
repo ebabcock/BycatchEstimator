@@ -62,7 +62,7 @@
 #'
 #'-------------
 #' #Step 2. Model fitting
-#' modelObj <- bycatchFit(
+#' bycatchFit(
 #' setupObj = setupObj,
 #' complexModel = formula(y~(Year+season)^2),
 #' simpleModel = formula(y~Year),

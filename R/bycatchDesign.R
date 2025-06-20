@@ -56,7 +56,7 @@
 #'
 #' #-------------
 #' #Step 2. Design-based estimators (with pooling)
-#' designObj <- bycatchDesign(
+#' bycatchDesign(
 #' setupObj = setupObj,
 #' designMethods = c("Ratio", "Delta"),
 #' designVars = c("Year","season"),
