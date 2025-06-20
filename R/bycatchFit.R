@@ -201,6 +201,15 @@ bycatchFit<-function(
 
   if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
 
+  if(includeObsCatch & EstimateBycatch) {
+     missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
+     if(length(missing_trips)>0){
+        warning(paste("The following sample units from the observer data are missing in the logbook data: "),
+                paste(missing_trips,collapse = ", "),
+             " IncludeObsCatch=TRUE will not work in model fitting.")
+       }
+  }
+
   #Subtract first year if numeric to improve convergence
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
@@ -233,6 +242,7 @@ bycatchFit<-function(
   modelFail<-matrix("-",numSp,length(modelTry),dimnames=list(common,modelTry))
   rmsetab<-list()
   metab<-list()
+  modelSummaryTable<-list()
 
   ############## This is the main analysis loop ##########################
   for(run in 1:numSp) {
@@ -421,7 +431,7 @@ bycatchFit<-function(
       } else {
         if(modelFail[run,modelTry[mod]]=="-") modelFail[run,modelTry[mod]]<-"fit"
       }
-
+      modelSummaryTable[[run]]<-getModelSummaryTable(modFits[[run]][modelFail[run,]=="-"],modelTry[modelFail[run,]=="-"])
       if(length(which(modelFail[run,]=="-"))<1){
       warning("No models were able to converge.")
       }
@@ -582,6 +592,7 @@ bycatchFit<-function(
     modelOutputs = list(
       modelTable = modelTable,
       modelSelectTable = modelSelectTable,
+      modelSummaryTable = modelSummaryTable,
       modFits = modFits,
       modPredVals = modPredVals,
       modIndexVals = modIndexVals,

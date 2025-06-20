@@ -109,16 +109,16 @@ bycatchSetup <- function(
 
   # set up factor variables and numeric variables
   if(unique(!is.na(numericVariables))){
-    allVarNames <- c(factorVariables,numericVariables)}
-  else{
+    allVarNames <- c(factorVariables,numericVariables)
+  }else{
     allVarNames <- c(factorVariables)}
   allVarNames <- unique(c("Year",allVarNames))
 
   if(!all(allVarNames %in% names(obsdat)))
-    print(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
+    stop(paste0("Variable ", allVarNames[!allVarNames%in% names(obsdat) ], " not found in observer data"))
 
   if(!all(allVarNames %in% names(logdat)) & EstimateBycatch)
-    print(paste0("Variable ", allVarNames[!allVarNames%in% names(logdat) ], " not found in logbook data"))
+    stop(paste0("Variable ", allVarNames[!allVarNames%in% names(logdat) ], " not found in logbook data"))
   #It's all right not to see the variable name if it is a function of another variable that is present
 
 
@@ -132,7 +132,7 @@ bycatchSetup <- function(
     na_counts<- colSums(is.na(obsdat[,c(allVarNames,"Effort")]))
     warning(paste0("NAs have been found in observer data in following columns:\n ",
                    paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
-                  "\nCheck what to do with these before continuing."))
+                  "\nThese rows will be dropped from all analyses."))
   }
 
   if(EstimateBycatch) {
@@ -159,8 +159,9 @@ bycatchSetup <- function(
 
       missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
       if(length(missing_trips)>0){
-        stop(paste("The following sample units are missing in the logbook data: "),
-                paste(missing_trips,collapse = ", "))}
+        warning(paste("The following sample units from the observer data are missing in the logbook data: "),
+                paste(missing_trips,collapse = ", "),
+             "IncludeObsCatch=TRUE will not work.")}
         }
 
       }
@@ -206,7 +207,7 @@ bycatchSetup <- function(
              log.cpue=log(Catch/Effort),
              pres=ifelse(cpue>0,1,0))
 
-    if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
+#    if(dim(dat[[run]])[1]<dim(obsdat)[1]) print(paste0("Removed ",dim(obsdat)[1]-dim(dat[[run]])[1]," rows with NA values for ",common[run]))
 
     #Make annual summary
     yearSum[[run]]<-MakeSummary(

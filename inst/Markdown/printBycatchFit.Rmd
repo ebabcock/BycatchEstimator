@@ -70,7 +70,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 #unpack modelObj
 modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-plotValidation<-trueVals<-trueCols<-NULL
 
-modelTable<-modelSelectTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-NULL
+modelTable<-modelSelectTable<-modelSummaryTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-NULL
 
  for(r in 1:NROW(modelObj$modelInputs)) assign(names(modelObj$modelInputs)[r], modelObj$modelInputs[[r]])
  for(r in 1:NROW(modelObj$modelOutputs)) assign(names(modelObj$modelOutputs)[r],modelObj$modelOutputs[[r]])
@@ -125,6 +125,22 @@ if(output_format == "latex"){
     suppressWarnings(print())
 }
 cat('<div style="height:30px;"></div>\n') 
+
+#Table model parameter summary
+cat("Table ",tablenum,". Parameters from fitted models, along with loglikelihood and residual degrees of freedom. The scale parameter is the residual standard deviation for normal and lognormal models, and the scale parameter for gamma, negative binomial and tweedie models. See the user guide for detials.",sep="")
+tablenum<-tablenum+1
+df2 <- data.frame(modelSummaryTable[[run]])
+if(output_format == "html"){
+  kbl(df2,format = "simple",digits = 2)%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df2, format="latex",digits = 2)%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+cat('<div style="height:30px;"></div>\n') 
+
 
 # Figures of All models together
 if(EstimateBycatch ) {
@@ -194,7 +210,8 @@ cat('<div style="height:30px;"></div>\n')
   # plot fitted vs observed values
   if(!modelTry[mod] %in% c("Binomial")){
     if(modelTry[mod] %in% c("Tweedie")){
-          tempdf<-data.frame(Expected=cplm::predict(modFits[[run]][[modelTry[mod]]],type="response"),
+          tempdf<-data.frame(Expected=cplm::predict(modFits[[run]][[modelTry[mod]]],
+                                                    type="response"),
                      Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
     } else {
       if(any(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))<0)){
@@ -206,11 +223,15 @@ cat('<div style="height:30px;"></div>\n')
       }
   }
   corr.coeff<-round(cor(tempdf$Observed,tempdf$Expected),2)
-  print(ggplot(tempdf, aes(x = Expected, y = Observed))+
+   g1<- ggplot(tempdf, aes(x = Expected, y = Observed))+
     geom_point(alpha=0.6)+
+      geom_abline()+
     labs(title = paste0("Observed vs Predicted (correlation test = ",corr.coeff,")"),
      x = "Predicted values",
-     y = "Observed values"))
+     y = "Observed values")
+   if(!modelTry[mod] %in% c("Binomial","TMBbinomial"))   
+    g1<-g1+stat_smooth(se=FALSE,color="blue")
+  print(g1)
   }
   cat("\n Figure ",fignum,". Observed vs predicted values for ", modelTry[mod],".\n",sep="")
   fignum<-fignum+1

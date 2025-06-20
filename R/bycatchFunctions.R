@@ -1911,10 +1911,14 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
    }
    includePool[[i]]<-obsdatval[bb,]
   }
-  for(var in 1:length(designVars))  {
-   keepVars<-designVars[(1:length(designVars))>var]
+  for(vari in 1:length(designVars))  {
+   keepVars<-designVars[(1:length(designVars))>vari]
    for(i in which(poolingSum$needs.pooling))  {
-    if(poolTypes[1]=="all") {
+     if(poolTypes[1]=="none") {
+       aa<-which(poolingSum[,designVars[1]] == poolingSum[i,designVars[1]])
+       bb<-which(obsdatval[,designVars[1]] == poolingSum[i,designVars[1]])
+     }
+     if(poolTypes[1]=="all") {
       aa<-1:nrow(poolingSum)
       bb<-1:nrow(obsdatval)
     }
@@ -1924,21 +1928,25 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
     }
     if(poolTypes[1]=="adjacent") {
       aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
-                                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
       bb<-which(obsdatval[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
                                   obsdatval[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
     }
-    if(var>1) {
-      for(var2 in 2:var) {
+    if(vari>1) {
+      for(var2 in 2:vari) {
+        if(poolTypes[var2]=="none") {
+          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+        }
         if(poolTypes[var2]=="pooledVar") {
           aa<-aa[aa %in% which(poolingSum[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
           bb<-bb[bb %in% which(obsdatval[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
         }
         if(poolTypes[var2]=="adjacent") {
-          aa<-which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
-          bb<-which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])
+          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
+          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
         }
       }
     }
@@ -1955,7 +1963,7 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
      poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
     } else poolingSum$needs.pooling[i]<-TRUE
    }
-   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-var
+   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-vari
   }
   includePool<-bind_rows(includePool,.id="stratum")
   poolingSum$stratum<-1:nrow(poolingSum)
@@ -2131,4 +2139,33 @@ addR2<-function(dredgeTable,obsdatval,funcName) {
     }
   }
   R2
+}
+
+
+#' Return a table of model parameters and summaries
+#'
+#' @param modfits A list of fitted model objects
+#' @param modTypes A corresponding vector of the model types as specified in modelTry
+#' @keywords internal
+getModelSummaryTable<-function(modfits,modTypes) {
+  modSum<-data.frame(Model=modTypes,scale=NA,phi=NA,loglike=NA,df.resid=NA)
+  for(i in 1:length(modTypes)) {
+    mod1<-modfits[[i]]
+    modType<-modTypes[i]
+    modSum$loglike[i]<-as.vector(logLik(mod1))
+    modSum$df.resid[i]<-df.residual(mod1)
+    if(!grepl("binomial",modType,ignore.case = TRUE))
+      modSum$scale[i]<-sigma(mod1)
+    if(modType == "Tweedie") {
+      modSum$scale[i]=mod1$p
+      modSum$phi[i]=mod1$phi
+    }
+    if(modType == "NegBin" )  {
+      modSum$scale[i]<-mod1$theta
+    }
+    if(modType == "TMBtweedie" )  {
+      modSum$phi[i]<-glmmTMB::family_params(mod1)
+    }
+  }
+  modSum
 }
