@@ -2140,3 +2140,32 @@ addR2<-function(dredgeTable,obsdatval,funcName) {
   }
   R2
 }
+
+
+#' Return a table of model parameters and summaries
+#'
+#' @param modfits A list of fitted model objects
+#' @param modTypes A corresponding vector of the model types as specified in modelTry
+#' @keywords internal
+getModelSummaryTable<-function(modfits,modTypes) {
+  modSum<-data.frame(Model=modTypes,scale=NA,phi=NA,loglike=NA,df.resid=NA)
+  for(i in 1:length(modTypes)) {
+    mod1<-modfits[[i]]
+    modType<-modTypes[i]
+    modSum$loglike[i]<-as.vector(logLik(mod1))
+    modSum$df.resid[i]<-df.residual(mod1)
+    if(!grepl("binomial",modType,ignore.case = TRUE))
+      modSum$scale[i]<-sigma(mod1)
+    if(modType == "Tweedie") {
+      modSum$scale[i]=mod1$p
+      modSum$phi[i]=mod1$phi
+    }
+    if(modType == "NegBin" )  {
+      modSum$scale[i]<-mod1$theta
+    }
+    if(modType == "TMBtweedie" )  {
+      modSum$phi[i]<-glmmTMB::family_params(mod1)
+    }
+  }
+  modSum
+}

@@ -1,5 +1,5 @@
 ---
-title: "Design-based estimation results"
+title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()`"
 date: ' '
 output:
   pdf_document: default
@@ -69,7 +69,36 @@ if(!"Year" %in% factorVariables) { #treat Year as numeric variable
 
 ```
 
-**Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()` **
+
+```{r dataChecks, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+temp<-setdiff(select(logdat,all_of(designVars)),select(obsdat,all_of(designVars)))%>%
+  filter(!duplicated(.))
+if(nrow(temp)>0) {
+ cat("\n")
+ cat("The following strata are present in the logbook data but not the observer data:")
+ print(kbl(temp,format="simple"))
+}
+temp<-setdiff(select(obsdat,all_of(designVars)),select(logdat,all_of(designVars)))%>%
+  filter(!duplicated(.)) 
+if(nrow(temp)>0) {
+ cat("\n")
+ cat("The following strata are present in the observer data but not the logbook data:")
+ print(kbl(temp,format="simple"))
+ cat("\n")
+}
+
+if(any(is.na(poolingSum[[run]]$poolnum))) {
+  temp<-poolingSum[[run]]%>%
+    filter(is.na(poolnum)) %>%
+    select(all_of(designVars))
+ if(nrow(temp)>0) {
+  cat("\n")
+  cat("The following strata have less than the minimum number of sample units (",minStrataUnit,"), even after pooling:",sep="")
+  print(kbl(temp,format="simple"))
+  cat("\n")
+ }
+}
+```
 
 ```{r table-results, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
 cat("Table ",tablenum,". Design-based bycatch estimates for each ", tolower(groupVar),". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
@@ -113,7 +142,9 @@ poolingSum[[run]]<-poolingSum[[run]] %>%
   mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))
 print(ggplot(poolingSum[[run]])+
   geom_bar(aes(x=!!sym(groupVar),fill=Pooling)))
-cat("\n Figure ", figurenum, ". Count of strata per ",tolower(groupVar), " with number of dimensions pooled. ",sep = "")
+cat("\n Figure ", figurenum, ". Count of strata per ",tolower(groupVar), " with number of last design variable (")
+cat(designVars,sep=", ")
+cat(") pooled to achieve the minimum sample size.",sep = "")
 figurenum<-figurenum+1
 }
 
