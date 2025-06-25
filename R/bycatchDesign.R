@@ -10,6 +10,7 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup}.
+#' @param designScenario Short name, e.g. noPool, or Pool1, to distinguish outputs made with the same setupObj.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
 #' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
 #' @param groupVar Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset
@@ -58,6 +59,7 @@
 #' #Step 2. Design-based estimators (with pooling)
 #' bycatchDesign(
 #' setupObj = setupObj,
+#' designScenario = "noPool",
 #' designMethods = c("Ratio", "Delta"),
 #' designVars = c("Year","season"),
 #' groupVar = "Year",
@@ -71,6 +73,7 @@
 
 bycatchDesign <- function(
   setupObj = setupObj,
+  designScenario,
   designMethods = "Ratio",
   designVars = "Year",
   groupVar = "Year",
@@ -132,7 +135,7 @@ bycatchDesign <- function(
       poolingSum[[run]]<-temp[[1]]
       # excluding some of columns when saving csv: needs.pooling, poolnum, stratum
       write.csv(poolingSum[[run]][,!(names(poolingSum[[run]]) %in% c("needs.pooling","stratum"))],
-                paste0(dirname[[run]],common[run],catchType[run],"Pooling.csv"), row.names = FALSE)
+                paste0(dirname[[run]],common[run],catchType[run],designScenario,"Pooling.csv"), row.names = FALSE)
       includePool[[run]]<-temp[[2]]
     } else  {
       poolingSum[[run]]<-NULL
@@ -150,7 +153,7 @@ bycatchDesign <- function(
                              includePool= includePool[[run]]
     )
     write.csv(designyeardf[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"DesignYear.csv"), row.names = FALSE)
+              paste0(dirname[[run]],common[run],catchType[run],designScenario,"DesignYear.csv"), row.names = FALSE)
 
     #And design based stratification
     designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
@@ -164,7 +167,7 @@ bycatchDesign <- function(
                              includePool= includePool[[run]]
     )
     write.csv(designstratadf[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],"DesignStrata.csv"), row.names = FALSE)
+              paste0(dirname[[run]],common[run],catchType[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
   }
   if(all(is.na(groupVar))) {
     yearSum[[run]]$Year="All"
@@ -197,6 +200,7 @@ bycatchDesign <- function(
   output<-list(
 
     designInputs = list(
+      designScenario=designScenario,
       designMethods = designMethods,
       designVars = designVars,
       groupVar = groupVar,
@@ -220,7 +224,7 @@ bycatchDesign <- function(
 
   )
 
-  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchDesignSpecification.rds"))
+  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchDesign",designScenario,".rds"))
 
 
   #Create report
@@ -228,7 +232,8 @@ bycatchDesign <- function(
     if(reportType == "html" || reportType == "both"){
 
       mkd<-tryCatch({
-        system.file("Markdown", "PrintBycatchDesign.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+        system.file("Markdown", "PrintBycatchDesign.Rmd",
+                    package = "BycatchEstimator", mustWork = TRUE)
       },
       error = function(c) NULL
       )
@@ -236,9 +241,9 @@ bycatchDesign <- function(
       if(!is.null( mkd)){
 
         rmarkdown::render(mkd,
-                          params=list(outDir=outDir, run = run),
+                          params=list(outDir=outDir, run = run, designScenario=designScenario),
                           output_format = "html_document",
-                          output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.html"),
+                          output_file = paste0(common[run], " ",catchType[run]," ",designScenario ," Design results.html"),
                           output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                           quiet = TRUE)
       }
@@ -258,7 +263,7 @@ bycatchDesign <- function(
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run),
                           output_format = "pdf_document",
-                          output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.pdf"),
+                          output_file = paste0(common[run], " ",catchType[run]," ",designScenario , " Design results.pdf"),
                           output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                           quiet = TRUE)
 
@@ -268,7 +273,7 @@ bycatchDesign <- function(
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run),
                             output_format = "html_document",
-                            output_file = paste0(common[run], " ",catchType[run], " Design-based estimation results.html"),
+                            output_file = paste0(common[run], " ",catchType[run]," ",designScenario ," Design results.html"),
                             output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                             quiet = TRUE)
           })

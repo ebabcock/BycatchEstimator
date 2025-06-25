@@ -10,10 +10,10 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup}.
+#' @param modelScenario Short desriptor of model setup, eg. "s1", so output files will be different if you run more than one scenario with one setupObj.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find and compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables that must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
-#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.
 #' @param randomEffects Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param selectCriteria Character. Model selection criteria. Options are AICc, AIC and BIC
@@ -64,6 +64,7 @@
 #' #Step 2. Model fitting
 #' bycatchFit(
 #' setupObj = setupObj,
+#' modelScenario = "s1",
 #' complexModel = formula(y~(Year+season)^2),
 #' simpleModel = formula(y~Year),
 #' indexModel = formula(y~Year),
@@ -86,6 +87,7 @@
 
 bycatchFit<-function(
   setupObj,
+  modelScenario,
   complexModel,
   simpleModel,
   indexModel = NULL,
@@ -209,15 +211,19 @@ bycatchFit<-function(
              " IncludeObsCatch=TRUE will not work in model fitting.")
        }
   }
-
-  #Subtract first year if numeric to improve convergence
-  if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
-    startYear<-min(obsdat$Year)
-    obsdat$Year<-obsdat$Year-startYear
-    if(EstimateBycatch) logdat$Year<-logdat$Year-startYear
-    if(EstimateIndex)  indexDat$Year<-indexDat$Year-startYear
-  } else startYear<-min(as.numeric(as.character(obsdat$Year)))
-
+#Subtract first year if numeric to improve convergence
+if("Year" %in%numericVariables) {
+  if(is.numeric(obsdat$Year)) {
+     for(run in 1:numSp)
+       if(min(dat[[run]]$Year,na.rm=TRUE)>0) dat[[run]]$Year<-obsdat$Year-startYear
+     if(min(obsdat$Year,na.rm=TRUE)>0) obsdat$Year<-obsdat$Year-startYear
+     if(EstimateBycatch & min(logdat$Year,na.rm=TRUE)>0 ) logdat$Year<-logdat$Year-startYear
+     if(EstimateIndex & min(indexDat$Year,na.rm=TRUE)>0 )  indexDat$Year<-indexDat$Year-startYear
+  }
+}
+print(startYear)
+print(summary(logdat$Year))
+print(summary(dat[[run]]$Year))
   #Setup directory naming
   dirname<-list()
   outDir<-paste0(baseDir, paste("/Output", runName))
@@ -280,7 +286,8 @@ bycatchFit<-function(
         catchType = catchType,
         varExclude = varExclude,
         dirname = dirname,
-        run = run
+        run = run,
+        modelScenario=modelScenario
       ))
       modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
       modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
@@ -309,7 +316,8 @@ bycatchFit<-function(
             catchType = catchType,
             common = common,
             dirname = dirname,
-            run = run
+            run = run,
+            modelScenario=modelScenario
           ))
           modelSelectTable[[run]][[modelTry[mod]]]<-modFit[[2]]
           modFits[[run]][[modelTry[mod]]]<-modFit[[1]]
@@ -369,7 +377,8 @@ bycatchFit<-function(
                 dirname = dirname,
                 run = run,
                 randomEffects=randomEffects,
-                randomEffects2=randomEffects2)
+                randomEffects2=randomEffects2,
+                modelScenario=modelScenario)
           if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
@@ -383,7 +392,8 @@ bycatchFit<-function(
                 common = common,
                 catchType = catchType,
                 dirname = dirname,
-                run = run
+                run = run,
+                modelScenario=modelScenario
               )
           if(VarCalc=="None") {
             modPredVals[[run]][[modelTry[mod]]]<-
@@ -399,7 +409,8 @@ bycatchFit<-function(
                 common = common,
                 catchType = catchType,
                 dirname = dirname,
-                run = run
+                run = run,
+                modelScenario=modelScenario
               )
           }
         }
@@ -416,7 +427,8 @@ bycatchFit<-function(
               common = common,
               catchType = catchType,
               dirname = dirname,
-              run = run
+              run = run,
+              modelScenario=modelScenario
             )
         }
         modelTable[[run]]$formula[mod]<-paste(formula(modFits[[run]][[modelTry[mod]]]))[[3]]
@@ -550,10 +562,10 @@ bycatchFit<-function(
       # Calculate RMSE and ME
       modelTable[[run]]$RMSE[modelTable[[run]]$model!="Binomial"]<-apply(rmsetab[[run]],2,mean,na.rm=TRUE)
       modelTable[[run]]$ME[modelTable[[run]]$model!="Binomial"]<-apply(metab[[run]],2,mean,na.rm=TRUE)
-      write.csv(residualTab[[run]],paste0(outVal,"modelSummary.csv"))
-      write.csv(rmsetab[[run]],paste0(outVal,"rmse.csv"))
-      write.csv(metab[[run]],paste0(outVal,"me.csv"))
-      write.csv(modelTable[[run]],paste0(outVal,"crossvalSummary.csv"))
+      write.csv(residualTab[[run]],paste0(outVal,modelScenario,"modelSummary.csv"))
+      write.csv(rmsetab[[run]],paste0(outVal,modelScenario,"rmse.csv"))
+      write.csv(metab[[run]],paste0(outVal,modelScenario,"me.csv"))
+      write.csv(modelTable[[run]],paste0(outVal,modelScenario,"crossvalSummary.csv"))
       #Select best model based on cross validation
       best<-which(!is.na( modelTable[[run]]$RMSE) &
                     modelTable[[run]]$RMSE==min(modelTable[[run]]$RMSE,na.rm=TRUE))
@@ -573,6 +585,7 @@ bycatchFit<-function(
   # list of inputs/outputs to be saved in rds file
   output <- list(
     modelInputs = list(
+      modelScenario=modelScenario,
       modelTry = modelTry,
       randomEffects = randomEffects,
       randomEffects2 = randomEffects2,
@@ -615,7 +628,7 @@ bycatchFit<-function(
     )
   )
 
-  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchFitSpecification.rds"))
+  saveRDS(output, file=paste0(outDir,"/", Sys.Date(),"_BycatchFit",modelScenario,".rds"))
 
   #Create report
   for(run in 1:numSp) {
@@ -630,9 +643,9 @@ bycatchFit<-function(
       if(!is.null( mkd)){
 
         rmarkdown::render(mkd,
-                          params=list(outDir=outDir, run = run),
+                          params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                           output_format = "html_document",
-                          output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.html"),
+                          output_file = paste0(common[run], " ",catchType[run]," ",modelScenario," Model results.html"),
                           output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                           quiet = TRUE)
       }
@@ -650,9 +663,9 @@ bycatchFit<-function(
 
         tryCatch({
           rmarkdown::render(mkd,
-                            params=list(outDir=outDir, run = run),
+                            params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "pdf_document",
-                            output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.pdf"),
+                            output_file = paste0(common[run], " ",catchType[run]," ",modelScenario, " Model results.pdf"),
                             output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                             quiet = TRUE)
 
@@ -660,9 +673,9 @@ bycatchFit<-function(
         error = function(e){
           message("PDF rendering failed, reverting to html.")
           rmarkdown::render(mkd,
-                            params=list(outDir=outDir, run = run),
+                            params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "html_document",
-                            output_file = paste0(common[run], " ",catchType[run], " Model-based estimation results.html"),
+                            output_file = paste0(common[run], " ",catchType[run]," ",modelScenario, " Model results.html"),
                             output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
                             quiet = TRUE)
         })

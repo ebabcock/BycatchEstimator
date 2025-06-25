@@ -1,5 +1,5 @@
 ---
-title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()`"
+title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r designScenario`, `r Sys.Date()`"
 date: ' '
 output:
   pdf_document: default
@@ -40,7 +40,7 @@ tablenum<-1
 # designObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchDesignSpecification.rds"))
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
-designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesignSpecification.rds"))
+designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesign",designScenario,".rds"))
 
 #unpack setupObj
 obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
@@ -55,7 +55,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
   
 #unpack designObj
-designMethods<-designVars<-groupVar<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+designScenario<-designMethods<-designVars<-groupVar<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
 
 yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
 
