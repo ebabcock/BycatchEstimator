@@ -10,27 +10,36 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,eval=FALSE)
 ```
 
 ## Before you install BycatchEstimator
 
-The BycatchEstimator package prints output figures to pdf files, so you must have a LaTeX package installed on your computer. If you don't have this, you can install TinyTex (https://yihui.org/tinytex/), which works and takes up less disk space than other LaTeX options. Try the test code from the TinyTex installation guide to make sure you can print to a pdf before trying to install BycatchEstimator.
+The BycatchEstimator package prints output figures to either html or pdf files. I you select pdf output, you must have a LaTeX package installed on your computer. If you don't have this, you can install TinyTex (https://yihui.org/tinytex/), which works and takes up less disk space than other LaTeX options. Try the test code from the TinyTex installation guide to make sure you can print to a pdf before trying to install BycatchEstimator.
 
-BycatchEstimator requires recent versions of R and all the libraries that it uses. If you have an older version of R, you may want to update R and all your libraries to the current version before you try to install BycatchEstimator.
+BycatchEstimator requires recent versions of R and all the libraries that it uses. If you have an older version of R, update R and all your libraries to the current version before you try to install BycatchEstimator.
 
-RStudio will need to have authority to make changes on your computer so that you can install new libraries. You may need to run RStudio with administrator priveleges, and/or give permission for the installation files to make changes on your computer.  
+RStudio will need to have authority to make changes on your computer so that you can install new libraries. You may need to run RStudio with administrator privileges, and/or give permission for the installation files to make changes on your computer. If you can't install on your own computer, bycatchEstimator works fine in RStudio cloud (https://rstudio.cloud).
 
 
 ## Installation
 
 To install BycatchEstimator from GitHub, you must have the devtools package installed. 
-You can then install the development version of BycatchEstimator from [GitHub](https://github.com/) with:
+You can then install the development version of BycatchEstimator from [GitHub](https://github.com/). To install the current version, use this:
 
-``` r
+```{r install}
 # install.packages("devtools")
 devtools::install_github("ebabcock/BycatchEstimator")
 ```
+
+To install the version from 2024, use this. The current version is recommended because it has some new features:
+
+```{r installOld}
+# install.packages("devtools")
+devtools::install_github("ebabcock/BycatchEstimator@v0.0.9")
+
+```
+
 
 When you install BycatchEstimator, it will install and/or update many other files. Try to install all of these. When it asks whether you want to install packages that require compilation, try saying yes, and if that doesn't work try saying no. If any of the package installations or updates fail, you can try again to install those packages one at a time. Don't worry if you get a message saying that some of your packages are out of date. 
 
