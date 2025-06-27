@@ -6,6 +6,7 @@
 \usage{
 bycatchFit(
   setupObj,
+  modelScenario,
   complexModel,
   simpleModel,
   indexModel = NULL,
@@ -17,6 +18,9 @@ bycatchFit(
   DoCrossValidation = FALSE,
   CIval = 0.05,
   VarCalc = "Simulate",
+  includeObsCatch = FALSE,
+  matchColumn = NULL,
+  EstimateIndex = FALSE,
   useParallel = TRUE,
   nSims = 10,
   baseDir = getwd(),
@@ -28,6 +32,8 @@ bycatchFit(
 }
 \arguments{
 \item{setupObj}{An object produced by \code{bycatchSetup}.}
+
+\item{modelScenario}{Short descriptor of model setup, eg. "s1", so output files will be different if you run more than one scenario with one setupObj.}
 
 \item{complexModel}{Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find and compare all intermediate models using information criteria. Include only fixed effects.}
 
@@ -48,6 +54,12 @@ bycatchFit(
 \item{CIval}{Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95\%}
 
 \item{VarCalc}{Character. Variance calculation method. Options are: "Simulate","DeltaMethod", or "None".  Simulate will not work with a large number of sample units in the logbook data. The delta method for variance calculation is not implemented for the delta-lognormal or delta-gamma methods.}
+
+\item{includeObsCatch}{Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.}
+
+\item{matchColumn}{Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA}
+
+\item{EstimateIndex}{Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.}
 
 \item{useParallel}{Logical. Whether to conduct the analysis using parallel processing. Only initialized when more that two cores are available.}
 
@@ -79,27 +91,25 @@ obsEffort = "sampled.sets",
 logEffort = "sets",
 obsCatch = "Catch",
 catchUnit = "number",
-catchType = "dead discard"
+catchType = "dead discard",
 logNum = NA,
 sampleUnit = "trips",
 factorVariables = c("Year","season"),
 numericVariables = NA,
-includeObsCatch  = FALSE,
-logUnsampledEffort = NULL,
-matchColumn = NA,
-EstimateIndex = FALSE,
 EstimateBycatch = TRUE,
 baseDir = getwd(),
 runName = "SimulatedExample",
 runDescription = "Example with simulated data",
 common = "Simulated species",
 sp = "Genus species",
+reportType = "html"
 )
 
 -------------
 #Step 2. Model fitting
 bycatchFit(
 setupObj = setupObj,
+modelScenario = "s1",
 complexModel = formula(y~(Year+season)^2),
 simpleModel = formula(y~Year),
 indexModel = formula(y~Year),
@@ -110,8 +120,11 @@ selectCriteria = "BIC",
 DoCrossValidation = TRUE,
 CIval = 0.05,
 VarCalc = "Simulate",
+includeObsCatch=FALSE,
+matchColumn=NULL,
+EstimateIndex=FALSE,
 useParallel = TRUE,
-nSims = 1000,
+nSims = 100,
 baseDir = getwd(),
 plotValidation = FALSE,
 trueVals = NULL,

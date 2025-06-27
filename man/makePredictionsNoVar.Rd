@@ -17,7 +17,8 @@ makePredictionsNoVar(
   catchType,
   common,
   dirname,
-  run
+  run,
+  modelScenario
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ makePredictionsNoVar(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{modelScenario}{Value}
 }
 \description{
 Generate predictions without estimating variance

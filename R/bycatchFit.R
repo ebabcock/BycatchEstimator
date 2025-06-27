@@ -47,20 +47,18 @@
 #' logEffort = "sets",
 #' obsCatch = "Catch",
 #' catchUnit = "number",
-#' catchType = "dead discard"
+#' catchType = "dead discard",
 #' logNum = NA,
 #' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
-#' includeObsCatch  = FALSE,
-#' matchColumn = NA,
-#' EstimateIndex = FALSE,
 #' EstimateBycatch = TRUE,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
 #' sp = "Genus species",
+#' reportType = "html"
 #')
 #'
 #'-------------
@@ -82,7 +80,7 @@
 #' matchColumn=NULL,
 #' EstimateIndex=FALSE,
 #' useParallel = TRUE,
-#' nSims = 1000,
+#' nSims = 100,
 #' baseDir = getwd(),
 #' plotValidation = FALSE,
 #' trueVals = NULL,

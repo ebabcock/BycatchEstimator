@@ -36,19 +36,20 @@
 #' yearVar = "Year",
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
+#' obsCatch = "Catch",
+#' catchUnit = "number",
+#' catchType = "dead discard",
+#' logNum = NA,
+#' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
 #' EstimateBycatch = TRUE,
-#' logNum = NA,
-#' sampleUnit = "trips",
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
 #' sp = "Genus species",
-#' obsCatch = "Catch",
-#' catchUnit = "number",
-#' catchType = "dead discard"
+#' reportType = "html"
 #')
 #'
 #' #-------------

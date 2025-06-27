@@ -6,6 +6,7 @@
 \usage{
 bycatchDesign(
   setupObj = setupObj,
+  designScenario,
   designMethods = "Ratio",
   designVars = "Year",
   groupVar = "Year",
@@ -21,6 +22,8 @@ bycatchDesign(
 \arguments{
 \item{setupObj}{An object produced by \code{bycatchSetup}.}
 
+\item{designScenario}{Short name, e.g. noPool, or Pool1, to distinguish outputs made with the same setupObj.}
+
 \item{designMethods}{Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).}
 
 \item{designVars}{Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.}
@@ -29,7 +32,7 @@ bycatchDesign(
 
 \item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
 
-\item{poolTypes}{Type of pooling for each variable in designVars, as a character vector in the same order. Options are "all", "pooledVar" and (currently for year only) "adjacent"}
+\item{poolTypes}{Type of pooling for each variable in designVars, as a character vector in the same order. Options are "none", where data will not be pooled over this variable, "all" where data will be pooled over all levels of the variable, "pooledVar" where the variable named in pooledVar will be used to pool, and (currently for year only) "adjacent" to pool over adjacent years.}
 
 \item{pooledVar}{Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.}
 
@@ -55,29 +58,27 @@ logdat = logdatExample,
 yearVar = "Year",
 obsEffort = "sampled.sets",
 logEffort = "sets",
-logUnsampledEffort = NULL,
-includeObsCatch  = FALSE,
-matchColumn = NA,
-factorVariables = c("Year","season"),
-numericVariables = NA,
-EstimateIndex = TRUE,
-EstimateBycatch = TRUE,
+obsCatch = "Catch",
+catchUnit = "number",
+catchType = "dead discard",
 logNum = NA,
 sampleUnit = "trips",
+factorVariables = c("Year","season"),
+numericVariables = NA,
+EstimateBycatch = TRUE,
 baseDir = getwd(),
 runName = "SimulatedExample",
 runDescription = "Example with simulated data",
 common = "Simulated species",
 sp = "Genus species",
-obsCatch = "Catch",
-catchUnit = "number",
-catchType = "dead discard"
+reportType = "html"
 )
 
 #-------------
 #Step 2. Design-based estimators (with pooling)
 bycatchDesign(
 setupObj = setupObj,
+designScenario = "noPool",
 designMethods = c("Ratio", "Delta"),
 designVars = c("Year","season"),
 groupVar = "Year",

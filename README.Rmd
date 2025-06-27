@@ -86,7 +86,7 @@ setupObj<-bycatchSetup(
   runName = "LLSIMBUMtripExample",
   runDescription = "LLSIMBUM by trip",
   common = c("Swordfish","Blue marlin")[2], # selecting Blue marlin
-  sp = c("Xiphias gladius","Makaira nigricans")[2] # selecting Blue marlin
+  sp = c("Xiphias gladius","Makaira nigricans")[2], # selecting Blue marlin
   reportType = "html"
 )
 ```
@@ -98,7 +98,7 @@ Estimation of bycatch using design-based estimators is done with `bycatchDesign`
 ```{r example5, eval = FALSE}
 designObj <- bycatchDesign(
   setupObj = setupObj,
-  designMethods = "noPool",
+  designScenario = "noPool",
   designMethods = c("Ratio", "Delta"),
   designVars = c("Year","area","season"),
   designPooling = FALSE,
@@ -118,6 +118,7 @@ Estimation of bycatch and/or index of abundance is carried out by using the func
 ```{r example6, eval = FALSE}
 bycatchFit(
   setupObj = setupObj,
+  modelScenario = "s1",
   complexModel = formula(y~Year+area),
   simpleModel = formula(y~Year),
   indexModel = formula(y~Year),
@@ -132,7 +133,7 @@ bycatchFit(
   nSims = 100,
   plotValidation = FALSE,
   trueVals = NULL,
-  trueCols = NULL
+  trueCols = NULL,
   reportType = "html"
 )
 ```

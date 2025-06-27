@@ -17,10 +17,6 @@ bycatchSetup(
   sampleUnit,
   factorVariables,
   numericVariables,
-  includeObsCatch = FALSE,
-  logUnsampledEffort = NULL,
-  matchColumn = NA,
-  EstimateIndex = FALSE,
   EstimateBycatch = TRUE,
   baseDir = getwd(),
   runName,
@@ -55,15 +51,7 @@ bycatchSetup(
 
 \item{numericVariables}{Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}. If there are no numeric variables, set numericVariables=NA.}
 
-\item{includeObsCatch}{Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.}
-
-\item{logUnsampledEffort}{Character. The name of the unsampled effort variable in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100\% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE}
-
-\item{matchColumn}{Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA}
-
-\item{EstimateIndex}{Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.}
-
-\item{EstimateBycatch}{Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.}
+\item{EstimateBycatch}{Logical. Defaults to TRUE. If TRUE, you must provide logbook data or some other source of total effort to \code{logdat}. FALSE will produced data summaries of \code{obsdat} only.}
 
 \item{baseDir}{Character. A directory to save output. Defaults to current working directory.}
 
@@ -71,9 +59,9 @@ bycatchSetup(
 
 \item{runDescription}{Character. Brief summary of the run, which will be used to set up a directory for the outputs}
 
-\item{common}{Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.}
+\item{common}{Character vector. Provide a common name for the species used in output filess. Can be a vector of names to do multiple species at the same time.}
 
-\item{sp}{Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time}
+\item{sp}{Character vector. Provide a scientific name for the species used in output files. Can be a vector of names to do multiple species at the same time}
 
 \item{reportType}{Character. Choose type of report to be produced. Options are html (default), pdf or both.}
 }
@@ -96,9 +84,6 @@ logNum = NA,
 sampleUnit = "trips",
 factorVariables = c("Year","season"),
 numericVariables = NA,
-includeObsCatch  = FALSE,
-logUnsampledEffort = NULL,
-matchColumn = NA,
 EstimateBycatch = TRUE,
 baseDir = getwd(),
 runName = "SimulatedExample",
