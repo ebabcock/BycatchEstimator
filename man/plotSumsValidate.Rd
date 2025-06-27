@@ -14,7 +14,8 @@ plotSumsValidate(
   common,
   run,
   catchType,
-  catchUnit
+  catchUnit,
+  VarCalc
 )
 }
 \arguments{

@@ -8,13 +8,15 @@ makeIndexVar(
   modfit1,
   modfit2 = NULL,
   modType,
+  indexVarNames,
   newdat,
   nsims,
   printOutput = FALSE,
   catchType = NULL,
   common = NULL,
   dirname = NULL,
-  run = NULL
+  run = NULL,
+  modelScenario
 )
 }
 \arguments{
@@ -37,6 +39,8 @@ makeIndexVar(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{modelScenario}{Value}
 }
 \description{
 Function to get an abundance index with SE

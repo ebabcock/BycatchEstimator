@@ -1,0 +1,177 @@
+---
+title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r designScenario`"
+date: '`r Sys.Date()`'
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+  fig.pos = "H"       # place figures exactly "Here" instead of floating
+  #out.width = "80%"
+)
+
+# saving figures in separate folder for knitting (deleted afterwards)
+knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
+  fig.path = "figures/",   # Store plots in a subfolder
+  dev = "png",
+  dpi = 100
+)
+```
+
+```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+theme_set(theme_bw())
+figurenum<-1
+tablenum<-1
+```
+
+```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
+# change out.dir, setupObj and run while code testing
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_new2functions/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchSetupSpecification.rds"))
+# designObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchDesignSpecification.rds"))
+
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesign",designScenario,".rds"))
+
+#unpack setupObj
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  logNum<-sampleUnit<-factorVariables<-numericVariables<-
+  logUnsampledEffort<-includeObsCatch<-matchColumn<-
+    EstimateIndex<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
+
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+  
+#unpack designObj
+designScenario<-designMethods<-designVars<-groupVar<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
+
+yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
+
+  for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
+  for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
+
+if(!"Year" %in% factorVariables) { #treat Year as numeric variable
+  obsdat$Year<-obsdat$Year+startYear
+  logdat$Year<-logdat$Year+startYear
+}
+
+```
+
+
+```{r dataChecks, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+cat("The input settings for model-based estimation applied to",common[run],"(",sp[run],") ",catchType[run], "were as follows.")
+cat("\n")
+cat("\n")
+cat("- Design-based methods used were ", designMethods,".")
+cat("\n")
+cat("\n")
+cat("- Stratification variables were",designVars,",")
+cat("\n")
+cat("\n")
+if(designPooling) {
+ cat("- Strata were pooled to acheive a minimum of",minStrataUnit, "sample units. Variables were pooled in this order if necessary:")
+ for(i in 1:length(designVars)) {
+   if(poolTypes[i]=="none") cat("(",i,")",designVars[i],"not pooled, ")
+   if(poolTypes[i]=="all")  cat("(",i,")",designVars[i],"pooled across all levels, ")
+   if(poolTypes[i]=="adjacent")  cat("(",i,")",designVars[i],"pooled across",adjacentNum[i],"years before and after, ")
+   if(poolTypes[i]=="pooledVar")  cat("(",i,")",designVars[i],"pooled within",pooledVar[i],", ")
+ }  
+ if(any(is.na(poolingSum[[run]]$poolnum))) 
+   cat("but",sum(is.na(poolingSum[[run]]$poolnum)),"strata remained below the minimum number of sample units after pooling.") else cat("and with pooling, all strata met minimum sample size requirement.") 
+} else
+  cat("- No pooling of strata")
+cat("\n")
+temp<-setdiff(select(logdat,all_of(designVars)),select(obsdat,all_of(designVars)))%>%
+  filter(!duplicated(.))
+if(nrow(temp)>0) {
+ cat("\n")
+ cat("The following strata are present in the logbook data but not the observer data:")
+ print(kbl(temp,format="simple"))
+}
+temp<-setdiff(select(obsdat,all_of(designVars)),select(logdat,all_of(designVars)))%>%
+  filter(!duplicated(.)) 
+if(nrow(temp)>0) {
+ cat("\n")
+ cat("The following strata are present in the observer data but not the logbook data:")
+ print(kbl(temp,format="simple"))
+ cat("\n")
+}
+if(designPooling) {
+if(any(is.na(poolingSum[[run]]$poolnum))) {
+  temp<-poolingSum[[run]]%>%
+    filter(is.na(poolnum)) %>%
+    select(all_of(designVars))
+ if(nrow(temp)>0) {
+  cat("\n")
+  cat("The following strata have less than the minimum number of sample units (",minStrataUnit,"), even after pooling:",sep="")
+  print(kbl(temp,format="simple"))
+  cat("\n")
+  }
+ }
+}  
+```
+
+```{r table-results, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+cat("Table ",tablenum,". Design-based bycatch estimates for each ", tolower(groupVar),". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
+tablenum<-tablenum+1
+
+temp <- designyeardf[[run]] %>%
+  mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
+  remove_rownames()
+
+kbl(temp,format="simple")
+tablenum<-tablenum+1
+cat("\n")
+cat('<div style="height:30px;"></div>\n') 
+
+# any plot or print table for estimates stratified by other variables?
+```
+
+
+```{r plot-designestimator, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Method") %>%
+  mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
+    Method=sub("Mean","",Method),
+    Method=sub("SE","",Method)) %>%
+  pivot_wider(names_from=parameter,values_from=value)
+
+print(ggplot(yearSumLong,aes(x=!!sym(groupVar),y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,color=Method,fill=Method))+
+  geom_line()+
+  geom_point()+
+  geom_ribbon(alpha=0.5))
+cat("\n Figure ", figurenum, ". Design-based bycatch estimates per ",tolower(groupVar), " with 95% confidence intervals.",sep = "")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+```
+
+
+```{r plot-pooling, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(designPooling){
+poolingSum[[run]]<-poolingSum[[run]] %>%
+  mutate(Pooling=as.character(poolnum)) %>%
+  mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))
+print(ggplot(poolingSum[[run]])+
+  geom_bar(aes(x=!!sym(groupVar),fill=Pooling)))
+cat("\n Figure ", figurenum, ". Count of strata per ",tolower(groupVar), " with number of last design variable (")
+cat(designVars,sep=", ")
+cat(") pooled to achieve the minimum sample size.",sep = "")
+figurenum<-figurenum+1
+}
+
+```
+
+
+

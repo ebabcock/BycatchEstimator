@@ -1,0 +1,343 @@
+---
+title: "Results of model-based estimation for `r runDescription` for  `r common[run]`, scenario `r modelScenario`"
+date: '`r Sys.Date()`'
+output:
+  html_document: default
+  pdf_document: default
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+- \usepackage{longtable}
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+  fig.pos = "H"       # place figures exactly "Here" instead of floating
+  #out.width = "80%"
+)
+
+# saving figures in separate folder for knitting (deleted afterwards)
+knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
+  fig.path = "figures/",   # Store plots in a subfolder
+  dev = "png",
+  dpi = 100
+)
+```
+
+
+```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(DHARMa)
+library(gridExtra)
+library(cplm)
+library(glmmTMB)
+library(MASS)
+library(tweedie)
+theme_set(theme_bw())
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+fignum<-1
+tablenum<-1
+
+```
+
+```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
+# change out.dir, setupObj and run while code testing
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchSetupSpecification.rds"))
+# modelObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchFitSpecification.rds"))
+# run=1
+# source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
+
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFit",modelScenario,".rds"))
+
+#unpack setupObj
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
+
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+
+#unpack modelObj
+modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-plotValidation<-trueVals<-trueCols<-logUnsampledEffort<-includeObsCatch<-matchColumn<-EstimateIndex<-NULL
+
+
+modelScenario<-modelTable<-modelSelectTable<-modelSummaryTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-NULL
+
+ for(r in 1:NROW(modelObj$modelInputs)) assign(names(modelObj$modelInputs)[r], modelObj$modelInputs[[r]])
+ for(r in 1:NROW(modelObj$modelOutputs)) assign(names(modelObj$modelOutputs)[r],modelObj$modelOutputs[[r]])
+
+if("Year" %in% numericVariables) { #treat Year as numeric variable
+  if(min(obsdat$Year,na.rm=TRUE)==0) {
+   obsdat$Year<-obsdat$Year+startYear
+   logdat$Year<-logdat$Year+startYear
+  }
+}
+
+varText<- ""
+if(VarCalc=="DeltaMethod") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by the delta method")
+if(VarCalc=="Simulate") varText<-paste0(", with ",100*(1-CIval),"% confidence interval calculated by Monte Carlo simulation") 
+obsText<-""
+if(includeObsCatch) obsText<-". Catches are predicted for unobserved effort and added to the observed catches"
+
+if(includeObsCatch & EstimateBycatch) {
+    obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
+    logdat<-logdat %>% rename(matchColumn=!!matchColumn)
+    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
+    if(length(missing_trips)>0){
+      cat(paste("- The following sample units from the observer data are missing in the logbook data: "),
+           paste(missing_trips,collapse = ", "),
+           ". IncludeObsCatch=TRUE will not work in model fitting.")}
+    if("unsampledEffort" %in% names(logdat))      
+      logdat<-rename(logdat,unsampledEffort.Original=unsampledEffort)
+  logdat<-left_join(logdat,select(obsdat,matchColumn,obsEffort=Effort),by="matchColumn")%>%
+      mutate(obsEffort=ifelse(is.na(obsEffort),0,obsEffort),
+        unsampledEffort=Effort-obsEffort)
+    if(any(logdat$unsampledEffort<0))  {
+      cat("- Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
+    }
+  }
+
+```
+
+```{r repeatInputs,results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+cat("The input settings for model-based estimation applied to",common[run],"(",sp[run],") ",catchType[run], "were as follows.")
+cat("\n")
+cat("\n")
+cat("- Most complex model considered", as.character(complexModel)[c(2,1,3)])
+cat("\n")
+cat("\n")
+cat("- Simplest model considered",as.character(simpleModel)[c(2,1,3)])
+cat("\n")
+cat("\n")
+if(any(modelFail[run,]=="-")) 
+  cat("- Models fit successfuly using ",colnames(modelFail)[modelFail[run,]=="-"]) 
+cat("\n")
+cat("\n")
+if(any(modelFail[run,]!="-")) 
+  cat("- Models using ",colnames(modelFail)[modelFail[run,]!="-"],"failed")
+cat("\n")
+cat("\n")
+if(!is.null(randomEffects)) {
+ cat("- Random effects in all models on:", cat(randomEffects,sep=","))
+cat("\n")
+cat("\n")
+}
+cat("- Best predictor variable in each model group selected with",selectCriteria = "BIC")
+cat("\n")
+cat("\n")
+if(DoCrossValidation & !is.null(rmsetab[[run]])) cat("- Cross-validation results generated")
+if(DoCrossValidation & is.null(rmsetab[[run]])) cat("- Cross-validation failed")
+if(!DoCrossValidation) cat("- No cross-validation requested")
+cat("\n")
+cat("\n")
+if(VarCalc=="None") cat("- No variance calculations.") else
+  cat("- Variance calculated by",VarCalc)
+  cat("\n")
+  cat("\n")
+if(includeObsCatch) 
+  cat("- Observed ", catchType," included as a known constant. Model predictions used for unobserved effort only") else
+      cat("- All ", catchType," predicted by the models") 
+cat("\n")
+cat("\n")
+if(EstimateIndex) {
+  cat("- Annual abundance index generated for strata",as.character(indexModel)[c(2,1,3)])
+  cat("\n\n")
+}
+  cat("\n")
+if(plotValidation) cat("- Total catch plots included true values for validation")
+
+```
+
+### Model comparison 
+
+```{r print results1,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+#Print modelTable including ModelFail
+cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
+tablenum<-tablenum+1
+df1<-modelTable[[run]] %>%
+  mutate(Failure=modelFail[run,]) %>%
+   mutate_if(is.numeric,round,2)
+if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
+if(output_format == "html"){
+  kbl(df1,format = "simple")%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df1, format="latex")%>%
+  kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+cat('<div style="height:30px;"></div>\n') 
+
+#Table residual summary
+cat("Table ",tablenum,". DHARMa residual tests, where significant P values may indicate poor model specification. For detailed information on each row see Appendix in User Guide.",sep="")
+tablenum<-tablenum+1
+df2 <- data.frame(residualTab[[run]])
+if(output_format == "html"){
+  kbl(df2,format = "simple",digits = 2)%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df2, format="latex",digits = 2)%>%
+  kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+cat('<div style="height:30px;"></div>\n') 
+
+#Table model parameter summary
+cat("Table ",tablenum,". Parameters from fitted models, along with loglikelihood and residual degrees of freedom. The scale parameter is the residual standard deviation for normal and lognormal models, and the scale parameter for gamma, negative binomial and tweedie models. See the user guide for detials.",sep="")
+tablenum<-tablenum+1
+df2 <- data.frame(modelSummaryTable[[run]])
+if(output_format == "html"){
+  kbl(df2,format = "simple",digits = 2)%>%
+    suppressWarnings(print())
+}
+if(output_format == "latex"){
+  kbl(df2, format="latex",digits = 2)%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position"))%>%
+    suppressWarnings(print())
+}
+cat('<div style="height:30px;"></div>\n') 
+
+
+# Figures of All models together
+if(EstimateBycatch ) {
+ if(plotValidation)  {
+   plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit,VarCalc = VarCalc)
+  }else{
+    plotSums(
+      yearpred = filter(allmods[[run]],Valid==1),
+      modType = "All",
+      fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit, VarCal = VarCalc)}
+cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, for ",common[run],varText,obsText,". \n",sep="")
+  fignum<-fignum+1
+  cat('\n')
+}
+cat('<div style="height:30px;"></div>\n') 
+
+if(EstimateIndex) if(any(allindex[[run]]$Valid==1)) {
+ plotIndex(dplyr::filter(allindex[[run]],Valid==1),"All", NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+ cat("\n Figure ",fignum,". Abundance indices from all valid models for ",common[run],", plus and minus one standard error. \n",sep="")
+ fignum<-fignum+1
+ cat('<div style="height:30px;"></div>\n') 
+}
+
+#Show cross validation figures
+if(DoCrossValidation &!all(is.na(modelTable[[run]]$RMSE))) {
+ plotCrossVal(rmsetab[[run]],metab[[run]],NULL)
+ cat("\n Figure ",fignum,". Boxplots of Root Mean Square Error and Mean Error, across 10 cross- validation folds for ",common[run],". Lowest RMSE model is ",bestmod[run],".\n",sep="")
+ fignum<-fignum+1
+ cat('\n')
+ cat('<div style="height:30px;"></div>\n') 
+}
+
+```
+
+
+## Results for each model type
+
+```{r print results2,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
+#Print for each model type
+for(mod in 1:length(modelTry)) {
+if(modelFail[run,mod]=="-") {
+
+cat("\n Table ",tablenum,". Model selection table for ",modelTry[mod],". Weights are calculated based on ",selectCriteria,".",sep="")
+tablenum<-tablenum+1
+df3<-data.frame(modelSelectTable[[run]][[modelTry[mod]]]) %>%
+mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2)))
+#output_format <- if (knitr::is_html_output()) "html" else "latex"
+  
+  if(output_format == "html"){
+  print(kbl(df3, format = "simple"))
+  
+  }
+  if(output_format == "latex"){
+  print(kbl(df3, format="latex")%>%
+      kable_styling(latex_options = c("scale_down","simple","HOLD_position")))
+  
+  }
+
+cat('\n')
+cat('<div style="height:30px;"></div>\n') 
+
+   temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL)
+   cat("\n Figure ",fignum,". Residuals for the ",selectCriteria, " best model for ", modelTry[mod],", showing the ordinary residuals (a,b) and DHARMa scaled residuals (c,d). \n",sep="")
+   fignum<-fignum+1
+    cat('\n')
+    
+  # plot fitted vs observed values
+  if(!modelTry[mod] %in% c("Binomial")){
+    if(modelTry[mod] %in% c("Tweedie")){
+          tempdf<-data.frame(Expected=cplm::predict(modFits[[run]][[modelTry[mod]]],
+                                                    type="response"),
+                     Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
+    } else {
+      if(any(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))<0)){
+          tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
+                     Observed=exp(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))))}
+      else{
+          tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
+                     Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
+      }
+  }
+  corr.coeff<-round(cor(tempdf$Observed,tempdf$Expected),2)
+   g1<- ggplot(tempdf, aes(x = Expected, y = Observed))+
+    geom_point(alpha=0.6)+
+      geom_abline()+
+    labs(title = paste0("Observed vs Predicted (correlation test = ",corr.coeff,")"),
+     x = "Predicted values",
+     y = "Observed values")
+   if(!modelTry[mod] %in% c("Binomial","TMBbinomial"))   
+    g1<-g1+stat_smooth(se=FALSE,color="blue")
+  print(g1)
+  }
+  cat("\n Figure ",fignum,". Observed vs predicted values for ", modelTry[mod],".\n",sep="")
+  fignum<-fignum+1
+  cat('\n')
+  cat('<div style="height:30px;"></div>\n') 
+  
+  lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
+  if(EstimateBycatch) {
+   if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit,VarCalc = VarCalc) else
+   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+  if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
+   cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText,lineText, ". \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+   cat('<div style="height:30px;"></div>\n') 
+  }
+  
+ if(EstimateIndex) {
+   plotIndex(modIndexVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
+   cat("\n Figure ",fignum,". Estimated relative index from ",modelTry[mod]," plus and minus one standard error. \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+   cat('<div style="height:30px;"></div>\n') 
+ }
+
+}
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

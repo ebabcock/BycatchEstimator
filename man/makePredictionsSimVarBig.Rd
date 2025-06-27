@@ -20,7 +20,8 @@ makePredictionsSimVarBig(
   dirname,
   run,
   randomEffects,
-  randomEffects2
+  randomEffects2,
+  modelScenario
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ makePredictionsSimVarBig(
 \item{randomEffects}{Value}
 
 \item{randomEffects2}{Value}
+
+\item{modelScenario}{Value}
 }
 \description{
 Generate standard errors and confidence intervals of predictions from simulation from regression coefficients and their var/covar matrix

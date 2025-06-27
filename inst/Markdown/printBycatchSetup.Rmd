@@ -1,0 +1,475 @@
+---
+title: " Summary of data for `r runDescription` for  `r common[run]` (`r sp[run]`), `r Sys.Date()`"
+date: ' '
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+---
+
+```{r setupsummary, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+  fig.pos = "H"       # place figures exactly "Here" instead of floating
+  #out.width = "80%"
+)
+
+# saving figures in separate folder for knitting (deleted afterwards)
+knitr::opts_chunk$set( #forces knitr to use forward slashes and relative paths for figure output when rendering in pdf
+  fig.path = "figures/",   # Store plots in a subfolder
+  dev = "png",
+  dpi = 100
+)
+```
+
+```{r load-libraries,  results=FALSE,  message=FALSE,echo=FALSE,warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(GGally)
+theme_set(theme_bw())
+figurenum<-1
+tablenum<-1
+```
+
+```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
+# change out.dir, setupObj and run while code testing
+# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
+# setupObj<-readRDS(file=paste0(out.dir,"2025-06-11_BycatchSetupSpecification.rds"))
+# run=1
+# source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
+
+setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+
+#unpack setup obj
+obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
+    baseDir<-runName<-runDescription<-common<-sp<-NULL
+
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+
+  for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
+  for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
+
+```
+
+### Data warnings ###
+
+```{r NA-checks, results="asis",  message=TRUE, echo=FALSE, warning=TRUE}
+noWarnings<-TRUE
+if(any(is.na(obsdat[,c(allVarNames,"Effort",obsCatch[run])]))){
+  na_counts<- colSums(is.na(obsdat[,c(allVarNames,"Effort",obsCatch[run])]))
+  cat("NAs have been found in observer data in following columns:\n ",
+                 paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                "\nThese rows will be dropped from all analyses.")
+noWarnings<-FALSE
+}
+cat("\n")
+if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
+  na_counts<- colSums(is.na(logdat[,c(allVarNames,"Effort")]))
+  cat("\n")
+cat("NAs have been found in logbook data in following columns:\n ",
+                 paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
+                 "\nCheck what to do with these before continuing.")
+noWarnings<-FALSE
+}    
+
+```
+
+```{r dataWarnings,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(length(factorVariables)>0 & !is.null(factorVariables)) {
+  cat("\n")
+  for(i in 1:length(factorVariables)) {
+    obsx<-levels(pull(obsdat,!!factorVariables[i]))
+    logx<-levels(pull(logdat,!!factorVariables[i]))
+    if(!all(obsx %in% logx)) {
+      cat(paste0("Variable ",factorVariables[i]), "levels: ",
+                                 obsx[!obsx %in% logx],
+                                 "found in observer data but not logbook data; this may be a data error.\n ")
+noWarnings<-FALSE
+    }
+    
+    if(!all(logx %in% obsx)) {
+    cat("\n")
+    cat(paste0("Variable ",factorVariables[i]), "levels:",
+                                 logx[!logx %in% obsx],
+                                 "found in logbook data but not observer data; coefficients cannot be estimated for these levels.\n ")
+     noWarnings<-FALSE
+    }
+  }
+  cat("\n")
+temp<-setdiff(select(logdat,all_of(factorVariables)),select(obsdat,all_of(factorVariables)))%>%
+  filter(!duplicated(.)) 
+if(nrow(temp)>0) {
+  cat("\n")
+ cat("The following combinations of factors are present in the logbook data but not the observer data:")
+ print(kbl(temp,format="simple"))
+  cat("\n")
+}
+temp<-setdiff(select(obsdat,all_of(factorVariables)),select(logdat,all_of(factorVariables)))%>%
+  filter(!duplicated(.)) 
+if(nrow(temp)>0) {
+  cat("\n")
+ cat("The following combinations of factors are present in the observer data but not the logbook data:")
+ print(kbl(temp,format="simple"))
+  cat("\n")
+}
+}
+if(length(numericVariables)>0 & !is.null(numericVariables) &all(!is.na(numericVariables))) {
+  for(i in 1:length(numericVariables)) {
+    obsx<-pull(obsdat,!!numericVariables[i])
+    obsrange<-c(min(obsx)-0.05*abs(max(obsx)-min(obsx)),max(obsx)+0.05*abs(max(obsx)-min(obsx)))
+    logx<-pull(logdat,!!numericVariables[i])
+    logrange<-c(min(logx)-0.05*abs(max(logx)-min(logx)),max(logx)+0.05*abs(max(logx)-min(logx)))
+    numlog<-length(logx[logx<obsrange[1] | logx>obsrange[2]])
+    numobs<-length(obsx[obsx<logrange[1] | obsx>logrange[2]])
+    if(numobs>0) {
+    cat(paste0("Variable ",numericVariables[i]), "has",
+                               numobs, "points in the observer data more than 5% outside the range of the values in the logbook data; data are not consistent.\n ")
+      noWarnings<-FALSE
+    }
+    if(numlog>0) {
+    cat(paste0("Variable ",numericVariables[i]), "has",
+                   numlog, "points in the logbook data more than 5% outside the range of the values in the observer data; extrapolation may give spurious results.\n ")
+          noWarnings<-FALSE
+    }
+    }
+} 
+
+if(noWarnings) cat("No NAs, missing levels, or mismatch in range of variables found.")
+  cat("\n")
+```
+
+------------------------------------------
+
+### Summary Tables ###
+
+
+```{r tableeffort,  message=FALSE, echo=FALSE, warning=FALSE,results='asis'}
+#table_effort<-NULL
+if(!is.null(logdat)){
+cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,".", sep="")
+tablenum<-tablenum+1
+temp_bind<-bind_rows(list(observer=select(dat[[run]],Effort),
+                  logbook=filter(select(logdat,Effort),!is.na(Effort))),
+                  .id = "Source")
+
+temp1 <- temp_bind  %>% group_by(Source) %>%
+  summarize(`Sample units` = n(),
+            `Total effort`=sum(Effort))%>%
+  mutate(`Proportion units`=round(`Sample units`/(`Sample units`[Source=="logbook"]),3),
+         `Proportion effort`=round(`Total effort`/(`Total effort`[Source=="logbook"]),3))
+
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+
+if(output_format == "html"){
+  return(kbl(temp1,format="simple"))
+}
+if(output_format == "latex"){
+  return(kbl(temp1, format="latex")%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position")))
+}
+
+}
+cat("\n")
+cat('<div style="height:30px;"></div>\n') 
+#table_effort
+```
+
+\newpage
+
+```{r tablesummary,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results='asis'}
+#if(!is.null(logdat)){
+# Print data summary
+cat("Table ", tablenum,". Input data summary for each year. For detailed information on each column see Appendix in User Guide.", sep="")
+temp2 <- yearSum[[run]] %>%
+  mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
+  remove_rownames()
+
+output_format <- if (knitr::is_html_output()) "html" else "latex"
+if(output_format == "html"){
+  kbl(temp2,format="simple")
+
+}
+
+if(output_format == "latex"){
+  kbl(temp2, format="latex")%>%
+    kable_styling(latex_options = c("scale_down","simple","HOLD_position"))
+
+}
+tablenum<-tablenum+1
+cat("\n")
+cat('<div style="height:30px;"></div>\n') 
+#}
+```
+
+
+### Logbook vs. observer effort figures ###
+
+```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(!is.null(logdat)){
+
+if (unique(!is.na(numericVariables))){
+  numericVariables <- unique(c("Effort",numericVariables))
+}else{
+  numericVariables <- "Effort"
+}
+
+obsdat<-mutate(obsdat,SampleUnits=1) # add SampleUnits column with value set to 1 for every row
+#If year is numeric and starts at zero, add startyear back on.
+if("Year" %in% numericVariables)  {
+  if(min(obsdat$Year)==0) { 
+  obsdat$Year<-obsdat$Year+startYear
+  logdat$Year<-logdat$Year+startYear
+ }
+}
+#Compare observed and logbook  
+# add if statement if logdat is not NULL (for estimating CPUE only)
+if(!is.null(logdat)){
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits"))),
+                  logbook=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
+}
+if(is.null(logdat)){
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
+                .id = "Source")%>%
+pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
+}
+
+print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Sum of effort")))
+cat("\n Figure ",figurenum,". Total Effort by factor levels, observed and total. \n",sep="")
+figurenum<-figurenum+1
+
+cat("\n\n")
+cat('<div style="height:30px;"></div>\n') 
+
+print(ggplot(allData,aes(x=Level,weight=SampleUnits,fill=Source))+
+  geom_bar(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+cat("\n Figure ",figurenum,". Count of ",sampleUnit," by factor levels, observed and total. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+logdatTemp<-logdat %>%
+  mutate(Effort=Effort/SampleUnits) %>%
+  uncount(SampleUnits)
+
+if(unique(!is.na(numericVariables))){
+allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort"))),
+                  logbook=select(logdatTemp,all_of(c(allVarNames,"Effort")))),
+                  .id = "Source")%>%
+  pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value")
+
+
+cat("\n\n")
+
+print(ggplot(allData,aes(x=Value,fill=Source))+
+  geom_histogram(position=position_dodge())+
+  facet_wrap(Variable~.,ncol=2,scales="free")+
+  scale_fill_manual(values=c("grey","black"))+
+    ylab(paste0("Count of ",sampleUnit)))
+cat("\n Figure ",figurenum,". Effort across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+}
+cat("\n")
+cat('<div style="height:30px;"></div>\n') 
+}
+
+```
+
+```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+#wrap this code in if statement in case logdat is NULL
+if(!is.null(logdat)){
+nmax<-100000  #If there are more data points than this, subsample to avoid hanging R
+allData<-bind_rows(list(Obs=obsdat[,unique(c(factorVariables,numericVariables))],
+                        Eff=logdat[,unique(c(factorVariables,numericVariables))]),
+                   .id="Source")%>%arrange(Source)
+if(nrow(allData)>nmax) allData<-allData[sort(sample(1:nrow(allData),nmax,replace=FALSE)),]
+#uncomment to convert factors with>15 levels to number so it will plot visibly
+# temp<-allData %>%summarise(across(all_of(factorVariables), ~ n_distinct(.)))
+# temp<-names(temp)[temp[1,]>15]
+# allData<-allData %>%
+#   mutate(across(all_of(temp),~as.numeric(factor(.))))
+# #Make sure other factors are factors
+# temp<-factorVariables[!factorVariables %in% temp]
+# allData<-allData %>%
+#   mutate(across(all_of(temp),~factor(.)))
+allData<-allData %>%
+   mutate(across(all_of(factorVariables),~factor(.)))
+#Numerical pairs plot
+cat("\n")
+print(ggpairs(filter(allData),
+          aes(color=Source,fill=Source,alpha=0.2),
+          columns=numericVariables)+
+    scale_color_manual(values=c("grey","darkblue"))+
+    scale_fill_manual(values=c("grey","darkblue")))
+cat("\n Figure ",figurenum,". Effort across pairs of numeric variables. Grey: logbook data; Blue: observer data. Corr: correlation coefficient; Eff: effect size; Obs: observed difference. \n",sep="")
+cat('<div style="height:30px;"></div>\n') 
+
+figurenum<-figurenum+1
+#factor variables
+cat("\n")
+print(ggpairs(filter(allData),
+        aes(color=Source,fill=Source,alpha=0.2),
+        columns=factorVariables)+
+  scale_color_manual(values=c("grey","darkblue"))+
+  scale_fill_manual(values=c("grey","darkblue")))
+cat("\n Figure ",figurenum,". Effort across pairs of categorical variables. Grey: logbook data; Blue: observer data. \n",sep="")
+cat('<div style="height:30px;"></div>\n') 
+figurenum<-figurenum+1
+}
+```
+
+\newpage
+
+### Presence and absence of `r common[run]` in observer data ##
+
+```{r presenceplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+###Plots by species
+## Show where species was caught in observer data
+obsdatTemp <-obsdat %>% rename(Catch=!!obsCatch[[run]]) %>%
+  mutate(Present=factor(ifelse(Catch>0,1,0)),
+         CPUE=Catch/Effort)
+
+# Presence/absence across years
+
+print(ggplot(obsdatTemp,aes(x=Year,fill=Present))+
+  geom_bar()+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " in each year. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+# Presence/absence across all factors
+cat("\n\n") #adds new line
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,fill=Present))+
+  geom_bar()+
+  facet_wrap(Variable~.,scales="free")+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across factor variables. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+if(unique(!is.na(numericVariables))){
+# Presence/absence across numerical variables and effort
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(c("Effort",numericVariables)),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,fill=Present))+
+  geom_histogram()+
+  facet_wrap(Variable~.,scales="free")+
+  scale_fill_manual(values=c("grey","red"))+
+    ylab(paste0("Count of observed ",sampleUnit)))
+cat("\n Figure ", figurenum,". Presence and absence of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+}
+```
+
+### Total catch of `r common[run]` in observer data ##
+
+```{r totalcatchplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+#Total catch by factor variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=Catch))+
+  geom_col(fill="darkblue")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary())
+cat("\n Figure ",figurenum,". Observed total catch of ",common[[run]], " by factor levels.\n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+#Total catch by numeric variables
+cat("\n\n")
+temp<-obsdatTemp
+temp<-temp %>% pivot_longer(cols=all_of(c(numericVariables,"Effort")),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=Catch))+
+         stat_summary_bin(geom = "bar",
+         fun = "sum",     
+         bins = 30,
+         fill="darkblue")+
+          facet_wrap(Variable~.,scales="free"))
+  cat("\n Figure ",figurenum,". Observed total catch of ",common[[run]], " across numerical variables. \n",sep="")
+  figurenum<-figurenum+1
+  cat('<div style="height:30px;"></div>\n') 
+cat("\n")
+```
+
+### Catch per sample unit of `r common[run]` in observer data ##
+
+```{r catchplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+#Catch per sample unit by factor variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=Catch))+
+  geom_violin(fill="grey")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary())
+cat("\n Figure ",figurenum,". Observed Catch per ", sampleUnit, " of ",common[[run]], " by factor levels.\n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+if(unique(!is.na(numericVariables))){
+#Catch by numeric variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=Catch))+
+  geom_point(alpha=0.3)+
+  stat_smooth()+
+  facet_wrap(Variable~.,scales="free"))
+cat("\n Figure ",figurenum,". Observed Catch per ", sampleUnit, " of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+}
+cat("\n")
+
+
+```
+
+### CPUE of `r common[run]` in observer data ##
+
+```{r cpueplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+#CPUE by factor variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
+print(ggplot(temp,aes(x=Level,y=CPUE))+
+  geom_violin(fill="grey")+
+  facet_wrap(Variable~.,scales="free")+
+  stat_summary())
+cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " by factor levels.\n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+
+if(unique(!is.na(numericVariables))){
+#CPUE by numeric variables
+cat("\n\n")
+temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+print(ggplot(temp,aes(x=Value,y=CPUE))+
+  geom_point(alpha=0.3)+
+  stat_smooth()+
+  facet_wrap(Variable~.,scales="free"))
+cat("\n Figure ",figurenum,". Observed CPUE of ",common[[run]], " across numerical variables. \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+}
+cat("\n")
+
+```
+
+
+
+
+
+

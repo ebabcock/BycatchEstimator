@@ -18,7 +18,8 @@ findBestModelFunc(
   catchType = NULL,
   common = NULL,
   dirname = NULL,
-  run = NULL
+  run = NULL,
+  modelScenario = NULL
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ findBestModelFunc(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{modelScenario}{Value}
 }
 \description{
 Function to find best model by information criteria, by model type

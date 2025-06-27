@@ -16,7 +16,8 @@ makePredictionsDeltaVar(
   catchType,
   common,
   dirname,
-  run
+  run,
+  modelScenario
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ makePredictionsDeltaVar(
 \item{dirname}{Value}
 
 \item{run}{Value}
+
+\item{modelScenario}{Value}
 }
 \description{
 Generate standard errors and confidence intervals of predictions with delta-method separately by year
