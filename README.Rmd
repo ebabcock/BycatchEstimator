@@ -98,6 +98,7 @@ Estimation of bycatch using design-based estimators is done with `bycatchDesign`
 ```{r example5, eval = FALSE}
 designObj <- bycatchDesign(
   setupObj = setupObj,
+  designMethods = "noPool",
   designMethods = c("Ratio", "Delta"),
   designVars = c("Year","area","season"),
   designPooling = FALSE,

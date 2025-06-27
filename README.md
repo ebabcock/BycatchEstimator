@@ -4,37 +4,27 @@
 # BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 BycatchEstimator uses both model-based and design-based procedures to
 estimate total annual bycatch by expanding a sample, such as an observer
-database, in relation to total effort from logbooks or landings records.
-The model framework can also be used to estimate an annual index of
-abundance, calculated only from the observer data. Using this tool,
-bycatch estimation is carried out by running linear models based on
-user-defined statistical distributions of observation error models
-(e.g. delta-lognormal, and negative binomial) with predictor variables
-(e.g., year, season, depth). The task of identifying a best
-approximating model is addressed through a semi-automated model
-selection process based on the user’s choice of information criteria
-(AICc, AIC or BIC) and cross validation. Once a best approximating model
-is identified, the standardized CPUE model is used to predict total
-bycatch in all logbook trips and summing across trips. Design-based
-estimates are made using a ratio estimator or a delta-lognormal
-estimator with stratification variables specified by the user. This
-bycatch estimation tool has been developed as an accessible R package.
-See the User’s Guide under articles at
-<https://ebabcock.github.io/BycatchEstimator/> for details.
+database to the total effort from logbooks or landings records. The
+model framework can also be used to estimate an annual index of
+abundance, calculated only from the observer data. See the User’s Guide
+under articles at <https://ebabcock.github.io/BycatchEstimator/> for
+details.
 
 ## Installation
 
 The code runs best in R studio. Before running the code for the first
 time, install the latest versions of R and RStudio. The output figures
-and tables can be printed to a pdf file using R Markdown and the knitr
-library, which outputs a LaTex file. If you want to have the results in
-a pdf format, you must have a LaTex program installed, such as TinyTex
-(<https://yihui.org/tinytex/>). The default is to have the results
-printed to a html file, from which you can extract figures and tables.
+and tables can be printed to an html or pdf file using R Markdown and
+the knitr library, which outputs a LaTex file. If you want to have the
+results in a pdf format, you must have a LaTex program installed, such
+as TinyTex (<https://yihui.org/tinytex/>). The default is to have the
+results printed to a html file, from which you can extract figures and
+tables.
 
 You can install the development version of BycatchEstimator from
 [GitHub](https://github.com/) with:
@@ -103,9 +93,9 @@ LLSIM_BUM_Example_observer
 
 ### Data setup
 
-The first step in bycatch estimation is setup the input file and review
-the data. Notice that the returned value from `bycatchSetup` is assigned
-as an object that will be used in subsequent steps. This first step also
+The first step in bycatch estimation is to set up the input file and
+review the data. The returned value from `bycatchSetup` is assigned as
+an object that will be used in subsequent steps. This first step also
 produces an html output (default) that is saved to the working directory
 for the user to review. This html output contains summary figures and
 tables showing the sample size and presence/absence of the bycatch
@@ -126,51 +116,41 @@ setupObj<-bycatchSetup(
   catchType = "catch",
   logNum = NA,
   sampleUnit = "trips",
-  factorVariables = c("Year","area"),
+  factorVariables = c("Year","area","season"),
   numericVariables = NA,
-  logUnsampledEffort = "unsampledEffort",
-  includeObsCatch  = TRUE,
-  matchColumn = "trip",
   EstimateBycatch = TRUE,
   baseDir = getwd(),
   runName = "LLSIMBUMtripExample",
-  runDescription = "LLSIMBUM by trip, including observed catch in totals",
+  runDescription = "LLSIMBUM by trip",
   common = c("Swordfish","Blue marlin")[2], # selecting Blue marlin
   sp = c("Xiphias gladius","Makaira nigricans")[2] # selecting Blue marlin
+  reportType = "html"
 )
-```
-
-### Optional step
-
-The output produced in step one includes the object returned by
-`bycatchSetup`. The naming convention for this object ends
-`_BycatchSetupSpecification.rds`, as shown below. Thus, any data setup
-can be stored and later retrieved for analysis.
-
-``` r
-setupObj<-readRDS(file=paste0(getwd(), paste("/Output", "LLSIMBUMtripExample"),"/", Sys.Date(),"_BycatchSetupSpecification.rds"))
 ```
 
 ### Design-based estimators
 
 Estimation of bycatch using design-based estimators is done with
-`bycatchDesign`. This uses a stratified ratio estimator and stratified
-delta-lognormal estimator, with stratification variables defined by the
-user. To deal with strata that have no observations or few observations,
-the user may request pooling, and specify the minimum number of sample
-units needed to avoid pooling. `bycatchDesign` also produces an html
-output with results to the working directory.
+`bycatchDesign`, requiring the output of `bycatchSet` and other inputs.
+This uses a stratified ratio estimator or stratified delta-lognormal
+estimator, with stratification variables defined by the user. To deal
+with strata that have no observations or few observations, the user may
+request pooling, and specify the minimum number of sample units needed
+to avoid pooling. `bycatchDesign` also produces an html or pdf output
+with results to the specified directory.
 
 ``` r
 designObj <- bycatchDesign(
   setupObj = setupObj,
+  designMethods = "noPool",
   designMethods = c("Ratio", "Delta"),
-  designVars = c("Year"),
+  designVars = c("Year","area","season"),
   designPooling = FALSE,
-  poolTypes=c("adjacent","all"),
+  poolTypes=c("adjacent","all","none"),
   pooledVar=c(NA,NA),
   adjacentNum=c(1,NA),
-  minStrataUnit = 1
+  minStrataUnit = 1,
+  reportType="html"
 )
 ```
 
@@ -178,13 +158,21 @@ designObj <- bycatchDesign(
 
 Estimation of bycatch and/or index of abundance is carried out by using
 the function `bycatchFit`. This function requires an object produced by
-`bycatchSetup` as well as several other arguments. The user needs to
+`bycatchSetup`. Bycatch estimation is carried out by running linear
+models based on user-defined statistical distributions of observation
+error models (e.g. delta-lognormal, and negative binomial) with
+predictor variables (e.g., year, season, depth). The task of identifying
+a best approximating model is addressed through a semi-automated model
+selection process based on the user’s choice of information criteria
+(AICc, AIC or BIC) and cross validation. Once a best approximating model
+is identified, the standardized CPUE model is used to predict total
+bycatch in all logbook trips and summing across trips. The user needs to
 define the most complex model configuration and simple model
-configuration, and the toolkit will fit all models in between. Random
+configuration, and the function will fit all models in between. Random
 effects can also be specified, and the user needs to opt-in for doing
 cross validation. The default method for variance calculation is the
 simulation method, but other options are available. `bycatchFit` also
-produces an html output with results to the working directory.
+produces an html or pdf output with results to the specified directory.
 
 ``` r
 bycatchFit(
@@ -204,6 +192,7 @@ bycatchFit(
   plotValidation = FALSE,
   trueVals = NULL,
   trueCols = NULL
+  reportType = "html"
 )
 ```
 

@@ -10,7 +10,8 @@
 #'
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup}.
-#' @param modelScenario Short desriptor of model setup, eg. "s1", so output files will be different if you run more than one scenario with one setupObj.
+#' @param modelScenario Short descriptor of model setup, eg. "s1", so output files will be different if you run more than one scenario with one setupObj.
+#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find and compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables that must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
@@ -20,6 +21,9 @@
 #' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE). This may not work with a small or unbalanced dataset
 #' @param CIval Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95%
 #' @param VarCalc Character. Variance calculation method. Options are: "Simulate","DeltaMethod", or "None".  Simulate will not work with a large number of sample units in the logbook data. The delta method for variance calculation is not implemented for the delta-lognormal or delta-gamma methods.
+#' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
+#' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
+#' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
 #' @param useParallel Logical. Whether to conduct the analysis using parallel processing. Only initialized when more that two cores are available.
 #' @param nSims Number of simulations used to calculate confidence intervals. Ignored if \code{VarCalc} set to "None"
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
@@ -49,7 +53,6 @@
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
 #' includeObsCatch  = FALSE,
-#' logUnsampledEffort = NULL,
 #' matchColumn = NA,
 #' EstimateIndex = FALSE,
 #' EstimateBycatch = TRUE,
@@ -75,6 +78,9 @@
 #' DoCrossValidation = TRUE,
 #' CIval = 0.05,
 #' VarCalc = "Simulate",
+#' includeObsCatch=FALSE,
+#' matchColumn=NULL,
+#' EstimateIndex=FALSE,
 #' useParallel = TRUE,
 #' nSims = 1000,
 #' baseDir = getwd(),
@@ -98,6 +104,9 @@ bycatchFit<-function(
   DoCrossValidation = FALSE,
   CIval = 0.05,
   VarCalc = "Simulate",
+  includeObsCatch=FALSE,
+  matchColumn=NULL,
+  EstimateIndex=FALSE,
   useParallel = TRUE,
   nSims = 10,
   baseDir = getwd(),
@@ -109,9 +118,7 @@ bycatchFit<-function(
 
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
-    logNum<-sampleUnit<-factorVariables<-numericVariables<-
-    logUnsampledEffort<-includeObsCatch<-matchColumn<-
-    EstimateIndex<-EstimateBycatch<-
+    logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
   # some of these will be rewritten along the code
@@ -203,14 +210,44 @@ bycatchFit<-function(
 
   if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
 
+  # if(includeObsCatch & EstimateBycatch) {
+  #    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
+  #    if(length(missing_trips)>0){
+  #       warning(paste("The following sample units from the observer data are missing in the logbook data: "),
+  #               paste(missing_trips,collapse = ", "),
+  #            " IncludeObsCatch=TRUE will not work in model fitting.")
+  #      }
+  # }
+
   if(includeObsCatch & EstimateBycatch) {
-     missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
-     if(length(missing_trips)>0){
-        warning(paste("The following sample units from the observer data are missing in the logbook data: "),
-                paste(missing_trips,collapse = ", "),
-             " IncludeObsCatch=TRUE will not work in model fitting.")
-       }
+    if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
+      tempvars<-c(allVarNames,"Effort","Catch")
+    obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
+    for(run in 1:numSp) {
+      dat[[run]]<-obsdat %>%
+        rename(Catch=!!obsCatch[run])%>%
+        dplyr::select_at(all_of(tempvars)) %>%
+        drop_na()   %>%
+        mutate(cpue=Catch/Effort,
+               log.cpue=log(Catch/Effort),
+               pres=ifelse(cpue>0,1,0))
+    }
+    logdat<-logdat %>% rename(matchColumn=!!matchColumn)
+    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
+    if(length(missing_trips)>0){
+      stop(paste("The following sample units from the observer data are missing in the logbook data: "),
+           paste(missing_trips,collapse = ", "),
+           ". IncludeObsCatch=TRUE will not work in model fitting.")}
+    if("unsampledEffort" %in% names(logdat))
+      logdat<-rename(logdat,unsampledEffort.Original=unsampledEffort)
+    logdat<-left_join(logdat,select(obsdat,matchColumn,obsEffort=Effort),by="matchColumn")%>%
+      mutate(obsEffort=ifelse(is.na(obsEffort),0,obsEffort),
+             unsampledEffort=Effort-obsEffort)
+    if(any(logdat$unsampledEffort<0))  {
+      stop("Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
+    }
   }
+
 #Subtract first year if numeric to improve convergence
 if("Year" %in%numericVariables) {
   if(is.numeric(obsdat$Year)) {
@@ -221,9 +258,6 @@ if("Year" %in%numericVariables) {
      if(EstimateIndex & min(indexDat$Year,na.rm=TRUE)>0 )  indexDat$Year<-indexDat$Year-startYear
   }
 }
-print(startYear)
-print(summary(logdat$Year))
-print(summary(dat[[run]]$Year))
   #Setup directory naming
   dirname<-list()
   outDir<-paste0(baseDir, paste("/Output", runName))
@@ -296,7 +330,8 @@ print(summary(dat[[run]]$Year))
     #Fit delta models
     if(any(grepl("delta",modelTry,ignore.case=TRUE))) {  #Delta models if requested
       posdat<-filter(dat[[run]], .data$pres==1)
-      y<-unlist(lapply(posdat[,factorVariables],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
+      y<-unlist(lapply(posdat[,factorVariables[factorVariables %in% allVarNames]],
+                       function(x) length(setdiff(levels(x),x)))) #See if all levels are included
       varExclude<-names(y)[y>0]
       if(length(varExclude>0)) print(paste(common[run], "excluding variable",varExclude,"from delta models for positive catch"))
       if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) &
@@ -522,7 +557,7 @@ print(summary(dat[[run]]$Year))
         }
         if(any(grepl("delta",modelTry,ignore.case = TRUE))) {
           posdat<-filter(datin, .data$pres==1)
-          y<-unlist(lapply(posdat[,factorVariables],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
+          y<-unlist(lapply(posdat[,factorVariables[factorVariables %in% allVarNames ]],function(x) length(setdiff(levels(x),x)))) #See if all levels are included
           varExcludecv<-names(y)[y>0]
           for(mod in which(grepl("delta",modelTry,ignore.case = TRUE))) {
             if(modelFail[run,modelTry[mod]]=="-" & !(!is.numeric(posdat$Year) & min(table(posdat$Year))==0)) {
@@ -596,6 +631,9 @@ print(summary(dat[[run]]$Year))
       DoCrossValidation = DoCrossValidation,
       CIval = CIval,
       VarCalc = VarCalc,
+      includeObsCatch = includeObsCatch,
+      matchColumn = matchColumn,
+      EstimateIndex = EstimateIndex,
       useParallel = useParallel,
       nSims = nSims,
       plotValidation = plotValidation,

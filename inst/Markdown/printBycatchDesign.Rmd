@@ -1,6 +1,6 @@
 ---
-title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r designScenario`, `r Sys.Date()`"
-date: ' '
+title: "Results of design-based estimation for `r runDescription` for  `r common[run]` (`r sp[run]`), `r designScenario`"
+date: '`r Sys.Date()`'
 output:
   pdf_document: default
   html_document: default
@@ -71,6 +71,28 @@ if(!"Year" %in% factorVariables) { #treat Year as numeric variable
 
 
 ```{r dataChecks, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
+cat("The input settings for model-based estimation applied to",common[run],"(",sp[run],") ",catchType[run], "were as follows.")
+cat("\n")
+cat("\n")
+cat("- Design-based methods used were ", designMethods,".")
+cat("\n")
+cat("\n")
+cat("- Stratification variables were",designVars,",")
+cat("\n")
+cat("\n")
+if(designPooling) {
+ cat("- Strata were pooled to acheive a minimum of",minStrataUnit, "sample units. Variables were pooled in this order if necessary:")
+ for(i in 1:length(designVars)) {
+   if(poolTypes[i]=="none") cat("(",i,")",designVars[i],"not pooled, ")
+   if(poolTypes[i]=="all")  cat("(",i,")",designVars[i],"pooled across all levels, ")
+   if(poolTypes[i]=="adjacent")  cat("(",i,")",designVars[i],"pooled across",adjacentNum[i],"years before and after, ")
+   if(poolTypes[i]=="pooledVar")  cat("(",i,")",designVars[i],"pooled within",pooledVar[i],", ")
+ }  
+ if(any(is.na(poolingSum[[run]]$poolnum))) 
+   cat("but",sum(is.na(poolingSum[[run]]$poolnum)),"strata remained below the minimum number of sample units after pooling.") else cat("and with pooling, all strata met minimum sample size requirement.") 
+} else
+  cat("- No pooling of strata")
+cat("\n")
 temp<-setdiff(select(logdat,all_of(designVars)),select(obsdat,all_of(designVars)))%>%
   filter(!duplicated(.))
 if(nrow(temp)>0) {

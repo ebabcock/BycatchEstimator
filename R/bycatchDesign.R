@@ -36,12 +36,8 @@
 #' yearVar = "Year",
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
-#' logUnsampledEffort = NULL,
-#' includeObsCatch  = FALSE,
-#' matchColumn = NA,
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
-#' EstimateIndex = TRUE,
 #' EstimateBycatch = TRUE,
 #' logNum = NA,
 #' sampleUnit = "trips",
@@ -88,9 +84,7 @@ bycatchDesign <- function(
 
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
-    logNum<-sampleUnit<-factorVariables<-numericVariables<-
-    logUnsampledEffort<-includeObsCatch<-matchColumn<-
-    EstimateIndex<-EstimateBycatch<-
+    logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
   dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
@@ -105,6 +99,7 @@ bycatchDesign <- function(
 
   #check variables
   if(!all(designVars %in% c(factorVariables,"Year"))) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
+
 
   #Set up directory for output
   outDir<-paste0(baseDir, paste("/Output", runName))

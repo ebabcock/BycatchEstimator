@@ -460,7 +460,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         allpred<-cbind(newdat,response1)   %>%
           mutate(Total=.data$Effort*(.data$fit-0.1),
                  TotalVar=.data$Effort^2*(.data$se.fit^2+.data$fit*shapepar))
-        sim=replicate(nsim,newdat$Effort*(simulateGammaDraw(modfit1,nObs,a)-0.1+NewRandomVals) )
+        sim=replicate(nsim,newdat$Effort*(simulateGammaDraw(modfit1,nObs,a,NewRandomVals)-0.1) )
       }
       if(modtype %in% c("Delta-Lognormal","TMBdelta-Lognormal")) {
         allpred<-cbind(newdat,response1,response2) %>%

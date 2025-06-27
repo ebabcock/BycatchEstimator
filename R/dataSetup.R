@@ -21,16 +21,12 @@
 #' @param sampleUnit Character. What is the sample unit in \code{logdat}? e.g. sets or trips.
 #' @param factorVariables Character vector. Specify which variables should be interpreted as categorical, ensuring factor format on these variables. These variables must have identical names and factor levels in \code{obsdat} and \code{logdat}
 #' @param numericVariables Character vector. Specify which variables should be interpreted as numeric. These variables must have identical names in \code{obsdat} and \code{logdat}. If there are no numeric variables, set numericVariables=NA.
-#' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
-#' @param logUnsampledEffort Character. The name of the unsampled effort variable in \code{logdat}. Optional and used to specify a column for effort that is not sampled, in trips with observers. This can be zero in all cases if observers sample 100% of effort in sampled trips. Only used when \code{includeObsCatch} is TRUE
-#' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
-#' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
-#' @param EstimateBycatch Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both. If you want total bycatch, you must provide logbook data or some other source of total effort to \code{logdat}.
+#' @param EstimateBycatch Logical. Defaults to TRUE. If TRUE, you must provide logbook data or some other source of total effort to \code{logdat}. FALSE will produced data summaries of \code{obsdat} only.
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
 #' @param runName Characer. Give a name to the run, which will be used to set up a directory for the outputs
 #' @param runDescription Character. Brief summary of the run, which will be used to set up a directory for the outputs
-#' @param common Character vector. Provide a common name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time.
-#' @param sp  Character vector. Provide a scientific name for the species used in bycatch and index estimation. Can be a vector of names to do multiple species at the same time
+#' @param common Character vector. Provide a common name for the species used in output filess. Can be a vector of names to do multiple species at the same time.
+#' @param sp  Character vector. Provide a scientific name for the species used in output files. Can be a vector of names to do multiple species at the same time
 #' @param reportType Character. Choose type of report to be produced. Options are html (default), pdf or both.
 #' @import ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @importFrom stats median
@@ -52,9 +48,6 @@
 #' sampleUnit = "trips",
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
-#' includeObsCatch  = FALSE,
-#' logUnsampledEffort = NULL,
-#' matchColumn = NA,
 #' EstimateBycatch = TRUE,
 #' baseDir = getwd(),
 #' runName = "SimulatedExample",
@@ -77,10 +70,6 @@ bycatchSetup <- function(
     sampleUnit,
     factorVariables,
     numericVariables,
-    includeObsCatch  = FALSE,
-    logUnsampledEffort = NULL,
-    matchColumn = NA,
-    EstimateIndex=FALSE,
     EstimateBycatch=TRUE,
     baseDir = getwd(),
     runName,
@@ -89,6 +78,8 @@ bycatchSetup <- function(
     sp,
     reportType = "html"
 ){
+
+  if(!dir.exists(baseDir)) stop(paste("Directory",baseDir,"does not exist."))
 
   SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
     # drop_na: drops rows with missing values
@@ -160,20 +151,7 @@ bycatchSetup <- function(
                      paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
                      "\nCheck what to do with these before continuing."))    }
 
-    if(includeObsCatch & EstimateBycatch) {
-      obsdat<-obsdat %>% rename(matchColumn=!!matchColumn)
-      logdat<-logdat %>% rename(matchColumn=!!matchColumn,unsampledEffort=!!logUnsampledEffort)
-      missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
-      if(length(missing_trips)>0){
-        warning(paste("The following sample units from the observer data are missing in the logbook data: "),
-                paste(missing_trips,collapse = ", "),
-             ". IncludeObsCatch=TRUE will not work in model fitting.")}
-      if(any(logdat$unsampledEffort<0))  {
-        warning("Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
-      }
-    }
   }
-
   # define startYear
   if(is.numeric(obsdat$Year) & "Year" %in% allVarNames) {
     startYear<-min(obsdat$Year)
@@ -203,7 +181,6 @@ bycatchSetup <- function(
     dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchSetup files/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
-    if(includeObsCatch & EstimateBycatch) tempvars<-c(allVarNames,"Effort","Catch","matchColumn") else
       tempvars<-c(allVarNames,"Effort","Catch")
 
     dat[[run]]<-obsdat %>%
@@ -258,10 +235,6 @@ bycatchSetup <- function(
       sampleUnit = sampleUnit,
       factorVariables = factorVariables,
       numericVariables = numericVariables,
-      logUnsampledEffort = logUnsampledEffort,
-      includeObsCatch  = includeObsCatch,
-      matchColumn = matchColumn,
-      EstimateIndex = EstimateIndex,
       EstimateBycatch =EstimateBycatch,
       baseDir = baseDir,
       runName = runName,
