@@ -4,7 +4,6 @@
 # BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 BycatchEstimator uses both model-based and design-based procedures to
@@ -123,7 +122,7 @@ setupObj<-bycatchSetup(
   runName = "LLSIMBUMtripExample",
   runDescription = "LLSIMBUM by trip",
   common = c("Swordfish","Blue marlin")[2], # selecting Blue marlin
-  sp = c("Xiphias gladius","Makaira nigricans")[2] # selecting Blue marlin
+  sp = c("Xiphias gladius","Makaira nigricans")[2], # selecting Blue marlin
   reportType = "html"
 )
 ```
@@ -142,7 +141,7 @@ with results to the specified directory.
 ``` r
 designObj <- bycatchDesign(
   setupObj = setupObj,
-  designMethods = "noPool",
+  designScenario = "noPool",
   designMethods = c("Ratio", "Delta"),
   designVars = c("Year","area","season"),
   designPooling = FALSE,
@@ -177,6 +176,7 @@ produces an html or pdf output with results to the specified directory.
 ``` r
 bycatchFit(
   setupObj = setupObj,
+  modelScenario = "s1",
   complexModel = formula(y~Year+area),
   simpleModel = formula(y~Year),
   indexModel = formula(y~Year),
@@ -191,7 +191,7 @@ bycatchFit(
   nSims = 100,
   plotValidation = FALSE,
   trueVals = NULL,
-  trueCols = NULL
+  trueCols = NULL,
   reportType = "html"
 )
 ```
