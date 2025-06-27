@@ -59,7 +59,7 @@
                         <h4 data-toc-skip class="author">Beth
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-05-29</h4>
+            <h4 data-toc-skip class="date">2025-06-27</h4>
       
 
       <div class="d-none name"><code>InstallationGuide.Rmd</code></div>
@@ -70,30 +70,38 @@ Babcock</h4>
 <div class="section level2">
 <h2 id="before-you-install-bycatchestimator">Before you install BycatchEstimator<a class="anchor" aria-label="anchor" href="#before-you-install-bycatchestimator"></a>
 </h2>
-<p>The BycatchEstimator package prints output figures to pdf files, so
-you must have a LaTeX package installed on your computer. If you don’t
-have this, you can install TinyTex (<a href="https://yihui.org/tinytex/" class="external-link uri">https://yihui.org/tinytex/</a>), which works and takes up
+<p>The BycatchEstimator package prints output figures to either html or
+pdf files. I you select pdf output, you must have a LaTeX package
+installed on your computer. If you don’t have this, you can install
+TinyTex (<a href="https://yihui.org/tinytex/" class="external-link uri">https://yihui.org/tinytex/</a>), which works and takes up
 less disk space than other LaTeX options. Try the test code from the
 TinyTex installation guide to make sure you can print to a pdf before
 trying to install BycatchEstimator.</p>
 <p>BycatchEstimator requires recent versions of R and all the libraries
-that it uses. If you have an older version of R, you may want to update
-R and all your libraries to the current version before you try to
-install BycatchEstimator.</p>
+that it uses. If you have an older version of R, update R and all your
+libraries to the current version before you try to install
+BycatchEstimator.</p>
 <p>RStudio will need to have authority to make changes on your computer
 so that you can install new libraries. You may need to run RStudio with
-administrator priveleges, and/or give permission for the installation
-files to make changes on your computer.</p>
+administrator privileges, and/or give permission for the installation
+files to make changes on your computer. If you can’t install on your own
+computer, bycatchEstimator works fine in RStudio cloud (<a href="https://rstudio.cloud" class="external-link uri">https://rstudio.cloud</a>).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>To install BycatchEstimator from GitHub, you must have the devtools
 package installed. You can then install the development version of
-BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a>. To
+install the current version, use this:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span></code></pre></div>
+<p>To install the version from 2024, use this. The current version is
+recommended because it has some new features:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator@v0.0.9"</span><span class="op">)</span></span></code></pre></div>
 <p>When you install BycatchEstimator, it will install and/or update many
 other files. Try to install all of these. When it asks whether you want
 to install packages that require compilation, try saying yes, and if
@@ -108,13 +116,14 @@ out of date.</p>
 <p>Due to a complication in coding, the user must load
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(MuMIn)</a></code> in addition to
 <code><a href="https://ebabcock.github.io/BycatchEstimator/">library(BycatchEstimator)</a></code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span></code></pre></div>
 <p>At this point, try looking for the help files for the
 BycatchEstimator functions to make sure the library is loaded.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">bycatchSetup</span></span>
+<span><span class="op">?</span><span class="va">bycatchDesign</span></span>
 <span><span class="op">?</span><span class="va">bycatchFit</span></span></code></pre></div>
 <p>You should now be able to run the functions. Try running the example
 data here <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a> to make
