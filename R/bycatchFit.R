@@ -252,8 +252,8 @@ if("Year" %in%numericVariables) {
      for(run in 1:numSp)
        if(min(dat[[run]]$Year,na.rm=TRUE)>0) dat[[run]]$Year<-obsdat$Year-startYear
      if(min(obsdat$Year,na.rm=TRUE)>0) obsdat$Year<-obsdat$Year-startYear
-     if(EstimateBycatch & min(logdat$Year,na.rm=TRUE)>0 ) logdat$Year<-logdat$Year-startYear
-     if(EstimateIndex & min(indexDat$Year,na.rm=TRUE)>0 )  indexDat$Year<-indexDat$Year-startYear
+     if(EstimateBycatch) if(min(logdat$Year,na.rm=TRUE)>0 ) logdat$Year<-logdat$Year-startYear
+     if(EstimateIndex) if(min(indexDat$Year,na.rm=TRUE)>0 )  indexDat$Year<-indexDat$Year-startYear
   }
 }
   #Setup directory naming

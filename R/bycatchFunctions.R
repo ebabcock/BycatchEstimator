@@ -2194,9 +2194,11 @@ getModelSummaryTable<-function(modfits,modTypes) {
 #'
 #' @param baseDir The base directory for the runs, same as bycatchSetup.
 #' @param runName The run name, same as bycatchSetup.
-#' @param runDate  The date when the model was run. Defualts to current date, but can be set to read in models previously run.
+#' @param runDate  The date when the model was run. Defaults to current date, but can be set to read in models previously run.
 #' @param loadDesign  TRUE to read in design-based estimator results.
+#' @param designScenario Value of designScenario from original run.
 #' @param loadModel TRUE to read in model-based estimator results.
+#' @param modelScenario Value of designScenario form original run.
 #' @keywords internal
 loadOutputs<-function(baseDir = getwd(),
                       runName,
@@ -2215,16 +2217,16 @@ loadOutputs<-function(baseDir = getwd(),
   list2env(setupObj$bycatchOutputs, envir = .GlobalEnv)
   #If doing design based, check that design file exists and read in.
   if(loadDesign) {
-    designFile<-paste0(runDate,"_BycatchDesign",designScnenario,".rds")
+    designFile<-paste0(runDate,"_BycatchDesign",designScenario,".rds")
     if(!file.exists(paste0(outDir,"/",designFile))) stop(paste("Design file",designFile ,"not found in",outDir,"."))
-    designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesign",designFile,".rds"))
+    designObj<-readRDS(file=paste0(outDir,"/",designFile))
     list2env(designObj$designInputs, envir = .GlobalEnv)
     list2env(designObj$designOutputs, envir = .GlobalEnv)
   }
   if(loadModel) {
     modelFile<-paste0(runDate,"_BycatchFit",modelScenario,".rds")
     if(!file.exists(paste0(outDir,"/",modelFile))) stop(paste("Model file",modelFile ,"not found in",outDir,"."))
-    modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFit",modelScenario,".rds"))
+    modelObj<-readRDS(file=paste0(outDir,"/",modelFile))
     list2env(modelObj$modelInputs, envir = .GlobalEnv)
     list2env(modelObj$modelOutputs, envir = .GlobalEnv)
   }
