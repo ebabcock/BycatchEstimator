@@ -19,11 +19,15 @@ loadOutputs(
 
 \item{runName}{The run name, same as bycatchSetup.}
 
-\item{runDate}{The date when the model was run. Defualts to current date, but can be set to read in models previously run.}
+\item{runDate}{The date when the model was run. Defaults to current date, but can be set to read in models previously run.}
 
 \item{loadDesign}{TRUE to read in design-based estimator results.}
 
+\item{designScenario}{Value of designScenario from original run.}
+
 \item{loadModel}{TRUE to read in model-based estimator results.}
+
+\item{modelScenario}{Value of designScenario form original run.}
 }
 \description{
 Read in all the R objects created during runs of the bycatchEstimator for further analysis

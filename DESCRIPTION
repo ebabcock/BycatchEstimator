@@ -3,13 +3,14 @@ Title: Generic Model-Based Bycatch Estimation Procedure
 Version: 1.0.0.000
 Authors@R: c(
     person(given = "Elizabeth", family = "Babcock", email = "ebabcock@rsmas.miami.edu", role = c("aut", "cre")),
-    person(given = "William", family = "Harford", email = "bill@natureanalytics.ca", role = c("ctb")))
+    person(given = "William", family = "Harford", email = "bill@natureanalytics.ca", role = c("ctb")),
+        person(given = "Ana", family = "Adao", email = "aadao@natureanalytics.ca", role = c("ctb")))
 Description: BycatchEstimator is used to estimate both total bycatch, calculated by expanding a sample, such as an observer database, to total effort from logbooks or landings records, and an annual index of abundance, calculated only from the observer data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports: stats, utils, generics, grDevices, tidyverse, tidyr, dplyr, stringr, rmarkdown, ggplot2, MASS, DHARMa, quantreg, tidyselect, MuMIn, foreach, doParallel, pdftools, tweedie, reshape2, parallel, cplm, glmmTMB, gridExtra, parallelly, kableExtra
+Imports: stats, utils, generics, grDevices, tidyverse, tidyr, dplyr, stringr, rmarkdown, ggplot2, MASS, DHARMa, quantreg, tidyselect, MuMIn, foreach, doParallel, pdftools, tweedie, reshape2, parallel, cplm, glmmTMB, gridExtra, parallelly, kableExtra, GGally
 Depends: 
     R (>= 4.0)
 LazyData: true

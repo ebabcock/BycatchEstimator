@@ -37,7 +37,8 @@ devtools::install_github("ebabcock/BycatchEstimator")
 For more help with installation, see the Installation Guide
 <https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html>
 Also, see the video tutorial at
-<https://miami.box.com/s/sjqwj3c1v1tcv4y3n169u3x5bs18rir2>
+<https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000>
+Passcode: gZ!tK8!n
 
 ## Getting started
 

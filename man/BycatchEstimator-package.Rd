@@ -24,6 +24,7 @@ Useful links:
 Other contributors:
 \itemize{
   \item William Harford \email{bill@natureanalytics.ca} [contributor]
+  \item Ana Adao \email{aadao@natureanalytics.ca} [contributor]
 }
 
 }

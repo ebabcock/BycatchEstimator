@@ -21,7 +21,7 @@
 #' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
 #' @param baseDir Character. A directory to save output. Defaults to current working directory.
 #' @param reportType Character. Choose type of report to be produced. Options are pdf, html (default) or both.
-#' @import ggplot2 dplyr utils tidyverse
+#' @import ggplot2 dplyr utils tidyverse GGally
 #' @importFrom stats median
 #' @export
 #' @keywords Fitting functions
