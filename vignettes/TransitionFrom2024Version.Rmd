@@ -1,0 +1,116 @@
+---
+title: "Transitioning to the new version of bycatchEstimator in 2025"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+For details of the current version of the code see the current user guide. This page is intended to help those who are using the previous version (version 1) from 2024 translate their old code into the new format. If you wish to keep using version 1, you can install it using the following code. This is not recommended, as the new versions has corrections and new features:
+
+```{r,eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("ebabcock/BycatchEstimator@v0.0.9")
+```
+
+
+The improvements made in 2025 include the following.
+
+1. `bycatchSetup` was revised to provides a report (html or pdf) with data warnings, plots and summaries to check whether the data are appropriate for bycatch estimation, replacing dataCheck. You no longer need to need to include any specifications for the model-based or design-based estimation in this function call. 
+
+2. `bycatchDesign` is a new function that does design-based estimation only. The inputs are all the specifications for design-based methods, including pooling, and outputs include a report (html or pdf) with warnings, results and a summary of the pooling. It allows for a designScenario designation so that multiple scenarios (e.g. pooling choices) can be run from the same setupObj.
+
+3. `bycatchFit` now includes all the model specifications such as modelTry, simpleModel and complexModel, and produces a report for the model results only. It allows for a model Scenario designation so that multiple scenarios can be run from the same setupObj.
+
+4. `loadInputs` allows the user to load all the R objects from `bycatchDesign` or `bycatchFit` for further analysis if desired. 
+
+The following shows the old `bycatchSetup` example, with the necessary changes in comments. The new output file includes data warnings and summaries
+
+```{r,eval = FALSE}
+library(BycatchEstimator)
+library(MuMIn)
+setupObj<-bycatchSetup(
+#  modelTry = c("TMBnbinom1"),              #Moved to bycatchFit
+  obsdat = droplevels(LLSIM_BUM_Example_observer[LLSIM_BUM_Example_observer$Year>2010 &LLSIM_BUM_Example_observer$fleet==2,]),
+  logdat = droplevels(LLSIM_BUM_Example_logbook[LLSIM_BUM_Example_logbook$Year>2010 & LLSIM_BUM_Example_logbook$fleet==2,]),
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+#  logUnsampledEffort = "unsampledEffort",  #Delete, this is no longer used
+#  factorNames = c("Year","area"),          #replaced with factorVariables
+  factorVariables = c("Year","area"),       #NEW, replaces factorNames
+  numericVariables = NA, # NEW
+  EstimateBycatch = TRUE,
+#  EstimateIndex = FALSE                    #Moved to bycatchFit
+  logNum = NA,
+  sampleUnit = "trips",
+#  complexModel = formula(y~Year+area),     #Moved to bycatchFit
+#  simpleModel = formula(y~Year),           #Moved to bycatchFit
+#  indexModel = formula(y~Year),            #Moved to bycatchFit
+ # designMethods = c("Ratio", "Delta"),     #Moved to bycatchDesign
+# designVars = c("Year","area"),          #Moved to bycatchDesign
+# designPooling = TRUE,                     #Moved to bycatchDesign
+# poolTypes=c("adjacent","all"),            #Moved to bycatchDesign
+# pooledVar=c(NA,NA),                       #Moved to bycatchDesign
+# adjacentNum=c(1,NA),                      #Moved to bycatchDesign
+  baseDir = getwd(),
+  runName = "LLSIMBUMtripExample",
+  runDescription = "LLSIm BUM by trip",
+  common = "Blue marlin",
+  sp = "Makaira nigricans",
+  obsCatch ="BUM",
+  catchUnit = "number",
+  catchType = "catch",
+  reportType = "html"                       #NEW: specify html or pdf 
+)
+```
+
+The new `bycatchDesign` takes setupObj as an input, as well as all the specifications for design-based estimators. There is a new pooling option "none" for variables that should never by pooled. 
+
+```{r,eval = FALSE}
+bycatchDesign(
+setupObj = setupObj,
+designScenario = "noPool",                  #NEW:Name for output files 
+designMethods = c("Ratio", "Delta"),        #Moved here
+designVars = c("Year","area"),              #Moved here
+groupVar = "Year",                          #NEW:For plotting by a variable other than Year
+designPooling = TRUE,                       #Moved here
+poolTypes=c("adjacent","all"),              #Moved here
+pooledVar=c(NA,NA),                         #Moved here
+adjacentNum=c(1,NA),                        #Moved here
+minStrataUnit = 1,                          #Moved here
+reportType = "html"                         #NEW
+)
+```
+
+The new `bycatchFit` takes setupObj as an input, as well as all the specifications for model-based estimators. 
+
+```{r,eval = FALSE}
+bycatchFit(
+setupObj = setupObj, 
+modelScenario = "s1",                       #NEW. Name included in output files
+complexModel = formula(y~(Year+area)^2),    #Moved here
+simpleModel = formula(y~Year),              #Moved here
+indexModel = formula(y~Year),               #Moved here
+modelTry = c("Delta-Lognormal","TMBnbinom2"),     #Moved here
+randomEffects = NULL,                       #Moved here
+randomEffects2 = NULL,                      #Moved here
+selectCriteria = "BIC",                     
+DoCrossValidation = TRUE,                   
+#dredgeCrossValidation =FALSE,              #Option deleted
+#ResidualTest = FALSE,                      #Option deleted
+CIval = 0.05,                               
+VarCalc = "Simulate",                       
+includeObsCatch=FALSE,                      #Moved here
+matchColumn=NULL,                           #Moved here
+EstimateIndex=FALSE,                        #Moved here
+useParallel = TRUE,          
+nSims = 100,
+baseDir = getwd(),
+plotValidation = FALSE,
+trueVals = NULL,
+trueCols = NULL,
+reportType = "html"                         #NEW
+)
+```
+
+Some minor corrections have been made, along with new options, so the new version of the code is recommended. 

@@ -4,7 +4,6 @@
 # BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 BycatchEstimator uses both model-based and design-based procedures to
@@ -39,6 +38,10 @@ For more help with installation, see the Installation Guide
 Also, see the video tutorial at
 <https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000>
 Passcode: gZ!tK8!n
+
+If you have used older versions of this tool, see the the article on how
+to adjust your code to use the new version at
+<https://ebabcock.github.io/BycatchEstimator/>
 
 ## Getting started
 
