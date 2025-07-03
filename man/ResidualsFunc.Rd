@@ -4,7 +4,13 @@
 \alias{ResidualsFunc}
 \title{Function plots residuals with both R and Dharma library and calculate residual diagnostics.}
 \usage{
-ResidualsFunc(modfit1, modType, fileName = NULL, nsim = 250)
+ResidualsFunc(
+  modfit1,
+  modType,
+  fileName = NULL,
+  nsim = 250,
+  plotResiduals = TRUE
+)
 }
 \arguments{
 \item{modfit1}{Value}
