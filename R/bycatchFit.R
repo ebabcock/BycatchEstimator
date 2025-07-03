@@ -170,8 +170,10 @@ bycatchFit<-function(
   allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)] #filter out interaction terms (terms that contain colon :)
   allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)] #filter out transformed terms like polynomials (I means interpret as is)
   allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
+  if(!all(allVarNames %in% c(numericVariables,factorVariables)))
+    stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
 
-  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
+    if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
   if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
 
   if(EstimateIndex) {
@@ -205,7 +207,7 @@ bycatchFit<-function(
       }
     }
   } else indexDat<-NULL
-
+  if(is.null(VarCalc)) VarCalc="None"
   if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
 
   # if(includeObsCatch & EstimateBycatch) {
@@ -245,7 +247,6 @@ bycatchFit<-function(
       stop("Unsampled effort values must be non-negative, ",sum(logdat$unsampledEffort<0)," are negative. IncludeObsCatch=TRUE will not work in model fitting.")
     }
   }
-
 #Subtract first year if numeric to improve convergence
 if("Year" %in%numericVariables) {
   if(is.numeric(obsdat$Year)) {
@@ -467,7 +468,7 @@ if("Year" %in%numericVariables) {
         modelTable[[run]]$formula[mod]<-paste(formula(modFits[[run]][[modelTry[mod]]]))[[3]]
         #exclude code to print pdfs - turn fileName NULL
         #temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],paste0(outVal,"Residuals",modelTry[mod],".pdf"))
-        temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName = NULL) #no pdfs produced
+        temp<-ResidualsFunc(modFits[[run]][[modelTry[mod]]],modelTry[mod],fileName = NULL,plotResiduals=FALSE) #no pdfs produced
         if(!is.null(temp)) {
           residualTab[[run]][,modelTry[mod]]<-temp
           #if(residualTab[[run]]["KS.p",modelTry[mod]]<0.01 & ResidualTest) modelFail[run,modelTry[mod]]<-"resid"

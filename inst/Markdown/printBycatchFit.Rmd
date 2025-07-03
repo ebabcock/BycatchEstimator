@@ -128,7 +128,7 @@ if(any(modelFail[run,]!="-"))
 cat("\n")
 cat("\n")
 if(!is.null(randomEffects)) {
- cat("- Random effects in all models on:", cat(randomEffects,sep=","))
+ cat("- Random effects in all models on:", randomEffects)
 cat("\n")
 cat("\n")
 }
@@ -140,21 +140,23 @@ if(DoCrossValidation & is.null(rmsetab[[run]])) cat("- Cross-validation failed")
 if(!DoCrossValidation) cat("- No cross-validation requested")
 cat("\n")
 cat("\n")
-if(VarCalc=="None") cat("- No variance calculations.") else
+if(EstimateBycatch) {
+ if(VarCalc=="None") cat("- No variance calculations.") else
   cat("- Variance calculated by",VarCalc)
   cat("\n")
   cat("\n")
-if(includeObsCatch) 
+ if(includeObsCatch) 
   cat("- Observed ", catchType," included as a known constant. Model predictions used for unobserved effort only") else
       cat("- All ", catchType," predicted by the models") 
-cat("\n")
-cat("\n")
+ cat("\n")
+ cat("\n")
+}
 if(EstimateIndex) {
   cat("- Annual abundance index generated for strata",as.character(indexModel)[c(2,1,3)])
   cat("\n\n")
 }
   cat("\n")
-if(plotValidation) cat("- Total catch plots included true values for validation")
+if(plotValidation & EstimateBycatch) cat("- Total catch plots included true values for validation")
 
 ```
 

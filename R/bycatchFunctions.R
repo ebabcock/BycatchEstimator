@@ -923,7 +923,7 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, indexVarNames,newdat, nsi
 #' @importFrom stats residuals qunif
 #' @importFrom gridExtra grid.arrange
 #' @keywords internal
-ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
+ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250,plotResiduals=TRUE) {
   if(!is.null(fileName))   pdf(fileName,height=5,width=7)
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")  dfcheck<-data.frame(Expected=cplm::predict(modfit1),Residuals=residuals(modfit1)) else
@@ -1003,7 +1003,7 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250) {
             ylab("DHARMa scaled residuals")+ggtitle("d. Scaled residual vs. predicted")+
             geom_hline(aes(yintercept=0.5),lty=2)+geom_hline(aes(yintercept=0.75),lty=2)+geom_hline(aes(yintercept=0.25),lty=2)
         }
-        grid.arrange(g1,g2,g3,g4,ncol=2)
+        if(plotResiduals) grid.arrange(g1,g2,g3,g4,ncol=2)
         test1=testUniformity(simulationOutput,plot=FALSE)
         test2=testDispersion(simulationOutput,plot=FALSE)
         test3=testZeroInflation(simulationOutput,plot=FALSE)

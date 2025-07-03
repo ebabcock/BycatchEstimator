@@ -67,7 +67,8 @@ if(any(is.na(obsdat[,c(allVarNames,"Effort",obsCatch[run])]))){
 noWarnings<-FALSE
 }
 cat("\n")
-if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
+if(!is.null(logdat)) {
+  if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
   na_counts<- colSums(is.na(logdat[,c(allVarNames,"Effort")]))
   cat("\n")
 cat("NAs have been found in logbook data in following columns:\n ",
@@ -76,9 +77,12 @@ cat("NAs have been found in logbook data in following columns:\n ",
 noWarnings<-FALSE
 }    
 
+
+}
 ```
 
 ```{r dataWarnings,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(!is.null(logdat)) {
 if(length(factorVariables)>0 & !is.null(factorVariables)) {
   cat("\n")
   for(i in 1:length(factorVariables)) {
@@ -136,9 +140,11 @@ if(length(numericVariables)>0 & !is.null(numericVariables) &all(!is.na(numericVa
           noWarnings<-FALSE
     }
     }
-} 
-
-if(noWarnings) cat("No NAs, missing levels, or mismatch in range of variables found.")
+}
+  if(noWarnings) cat("No NAs, missing levels, or mismatch in range of variables found.")
+  cat("\n")
+}
+if(is.null(logdat)) cat("Logbook data not entered")
   cat("\n")
 ```
 
@@ -209,6 +215,10 @@ cat('<div style="height:30px;"></div>\n')
 ### Logbook vs. observer effort figures ###
 
 ```{r effort-plot1, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+if(is.null(logdat)) {
+  cat("No logbook data entered")
+  cat("\n")
+}  
 if(!is.null(logdat)){
 
 if (unique(!is.na(numericVariables))){
@@ -227,17 +237,13 @@ if("Year" %in% numericVariables)  {
 }
 #Compare observed and logbook  
 # add if statement if logdat is not NULL (for estimating CPUE only)
-if(!is.null(logdat)){
 allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits"))),
                   logbook=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
                   .id = "Source")%>%
   pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
-}
-if(is.null(logdat)){
 allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
                 .id = "Source")%>%
 pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
-}
 
 print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
   geom_bar(position=position_dodge())+
@@ -282,8 +288,8 @@ figurenum<-figurenum+1
 }
 cat("\n")
 cat('<div style="height:30px;"></div>\n') 
-}
 
+}
 ```
 
 ```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
@@ -295,16 +301,16 @@ allData<-bind_rows(list(Obs=obsdat[,unique(c(factorVariables,numericVariables))]
                    .id="Source")%>%arrange(Source)
 if(nrow(allData)>nmax) allData<-allData[sort(sample(1:nrow(allData),nmax,replace=FALSE)),]
 #uncomment to convert factors with>15 levels to number so it will plot visibly
-# temp<-allData %>%summarise(across(all_of(factorVariables), ~ n_distinct(.)))
-# temp<-names(temp)[temp[1,]>15]
-# allData<-allData %>%
-#   mutate(across(all_of(temp),~as.numeric(factor(.))))
-# #Make sure other factors are factors
-# temp<-factorVariables[!factorVariables %in% temp]
-# allData<-allData %>%
-#   mutate(across(all_of(temp),~factor(.)))
+temp<-allData %>%summarise(across(all_of(factorVariables), ~ n_distinct(.)))
+temp<-names(temp)[temp[1,]>15]
 allData<-allData %>%
-   mutate(across(all_of(factorVariables),~factor(.)))
+  mutate(across(all_of(temp),~as.numeric(factor(.))))
+#Make sure other factors are factors
+temp<-factorVariables[!factorVariables %in% temp]
+allData<-allData %>%
+  mutate(across(all_of(temp),~factor(.)))
+# allData<-allData %>%
+#    mutate(across(all_of(factorVariables),~factor(.)))
 #Numerical pairs plot
 cat("\n")
 print(ggpairs(filter(allData),
@@ -392,6 +398,7 @@ figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 
 #Total catch by numeric variables
+if(any(!is.na(numeric()))) {
 cat("\n\n")
 temp<-obsdatTemp
 temp<-temp %>% pivot_longer(cols=all_of(c(numericVariables,"Effort")),names_to="Variable",values_to = "Value") 
@@ -405,6 +412,8 @@ print(ggplot(temp,aes(x=Value,y=Catch))+
   figurenum<-figurenum+1
   cat('<div style="height:30px;"></div>\n') 
 cat("\n")
+  
+}
 ```
 
 ### Catch per sample unit of `r common[run]` in observer data ##

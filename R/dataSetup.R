@@ -99,6 +99,7 @@ bycatchSetup <- function(
   }
 
   # set up factor variables and numeric variables
+  if(is.null(numericVariables)) numericVariables<-NA
   if(unique(!is.na(numericVariables))){
     allVarNames <- c(factorVariables,numericVariables)
   }else{
@@ -110,7 +111,6 @@ bycatchSetup <- function(
 
   if(!all(allVarNames %in% names(logdat)) & EstimateBycatch)
     stop(paste0("Variable ", allVarNames[!allVarNames%in% names(logdat) ], " not found in logbook data"))
-  #It's all right not to see the variable name if it is a function of another variable that is present
 
 
   #Set up data frames
