@@ -13,7 +13,7 @@ bycatchSetup(
   obsCatch,
   catchUnit,
   catchType,
-  logNum,
+  logNum = NA,
   sampleUnit,
   factorVariables,
   numericVariables,
