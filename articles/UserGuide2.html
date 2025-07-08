@@ -77,10 +77,28 @@ expanding a sample, such as an observer data set, to total effort from
 logbooks or landings records. The bycatch estimates are made with either
 a generic model-based bycatch estimation procedure, or common
 design-based bycatch estimation methods (e.g. stratified ratio
-estimator), after you first set up the data inputs and other
-specifications. The workflow for using BycatchEstimator is:</p>
+estimator)..</p>
+<p>All bycatch estimation methods essentially estimate total bycatch as
+the sum over all the strata (<em>i</em>, e.g. years, areas, seasons), of
+the bycatch rate (<em>r</em>) estimated from a sample of the fishery
+(e.g. observer data), times the total effort <em>E</em> estimated
+estimated from fish landings records or logbook data:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>r</mi><mi>i</mi></msub><msub><mi>E</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">B=\sum_{i}r_i E_i</annotation></semantics></math>
+Design-based methods calculate the bycatch rate directly from the
+observer data with a formula (See below), while model-based estimators
+use a generalized linear model (GLM) to estimate a predicted bycatch
+rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>r</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{r}</annotation></semantics></math>
+to use in the expansion. Models can allow for more variables to be
+included, such as, for example, information about the habitat of the
+bycatch species, which may improve precision of bycatch estimates.
+However, model-based and design-based estimators often produce similar
+estimates, so that the model-based estimates are sufficient in many
+cases.</p>
+<p>The workflow for using BycatchEstimator is:</p>
 <ol style="list-style-type: decimal">
-<li>Install the code and test that everything works properly.</li>
+<li>Install the code and test that everything works properly by running
+an example.</li>
 <li>Run the bycatchSetup function to produce data summaries and plots,
 to make sure that your data are appropriate for bycatch estimation.</li>
 <li>Run either bycatchDesign for design-based estimators, or bycatchFit
@@ -89,6 +107,8 @@ for model-based estimators, or both.</li>
 loadResults function to input the model runs back into R for more
 advanced analysis.</li>
 </ol>
+<p>This user guide provides both detailed information on how to use the
+tool, and some general guidance on bycatch estimation.</p>
 </div>
 <div class="section level2">
 <h2 id="installing-the-code">Installing the code<a class="anchor" aria-label="anchor" href="#installing-the-code"></a>
@@ -99,18 +119,21 @@ Team (2020)</span>) and RStudio (<span class="citation">RStudio Team
 (2020)</span>). The following libraries are used: tidyverse, ggplot2,
 MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra,
 pdftools (if pdf output is selected), foreach, doParallel, reshape2,
-glmmTMB and quantreg (<span class="citation">Wickham et al.
+glmmTMB, GGally and quantreg (<span class="citation">Wickham et al.
 (2019)</span>; <span class="citation">Wickham (2016)</span>; <span class="citation">Venables and Ripley (2002)</span>; <span class="citation">Bates et al. (2015)</span>; <span class="citation">Zhang (2013)</span>; <span class="citation">Dunn and
 Smyth (2005)</span>; <span class="citation">Hartig (2020)</span>; <span class="citation">Henry and Wickham (2020)</span>; <span class="citation">Barton (2020)</span>; <span class="citation">Auguie
 (2017)</span>; <span class="citation">Wickham and Pedersen
 (2019)</span>; <span class="citation">Iannone, Cheng, and Schloerke
 (2020)</span>; <span class="citation">Ooms (2020)</span>;<span class="citation">Microsoft and Weston (2020)</span>;<span class="citation">Corporation and Weston (2020)</span>; <span class="citation">Wickham (2007)</span>; <span class="citation">Brooks et
-al. (2017)</span>; <span class="citation">Koenker (2021)</span>). The
-output figures and tables are printed to the user’s choice of an html or
-pdf file using RMarkdown and the knitr library. TO use pdf outputs, you
-must have a LaTex program installed, such as TinyTex (<span class="citation">Xie (2019)</span>, <span class="citation">Xie
-(2021)</span>, <span class="citation">Xie (2015)</span>). For a quick
-start guide with example data, see the GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
+al. (2017)</span>;<span class="citation">Schloerke et al. (2024)</span>;
+<span class="citation">Koenker (2021)</span>). The output figures and
+tables are printed to the user’s choice of an html or pdf file using
+RMarkdown and the knitr library(<span class="citation">Xie
+(2025)</span>). TO use pdf outputs, you must have a LaTex program
+installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
+<span class="citation">Xie (2021)</span>, <span class="citation">Xie
+(2025)</span>). For a quick start guide with example data, see the
+GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
 help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.</p>
 </div>
 <div class="section level2">
@@ -122,7 +145,7 @@ input a sample from the fishery, hereafter referred to as observer data
 although it could come from some other source, and a data set of total
 effort, hereafter referred to as logbook data, although it could be from
 any source as long as there are records of all fishing effort in the
-fishery.This function must be run before running either
+fishery. This function must be run before running either
 <code>bycatchDesign</code> or <code>bycatchFit</code>.</p>
 <p>The observer data should be aggregated to the appropriate sample
 unit, such as trips or sets, so that each row corresponds to one sample
@@ -161,7 +184,8 @@ as a categorical fixed effect. This can be specified as, for example
 this variable will be renamed as Year (with a captial Y) in the code. If
 Year is not a predictor variable in your analysis, you must still input
 a value for yearVar in <code>dataSetup</code>, but you don’t have to use
-it the analysis functions.</p>
+it the analysis functions. Year should be be spelled “Year” in
+numericVariables, factorVariables, and all other model inputs.</p>
 <p>The code can be used to analyze multiple species, or disposition
 types (e.g. retained catch, dead discards, live releases) at the same
 time. This is specified by inputting a vector rather than a single value
@@ -191,7 +215,7 @@ the catch (See Appendix for details).</p></li>
 </ul>
 <p>Figures comparing logbook and observer effort are:</p>
 <ul>
-<li><p>Barplots and histograms of number of total effort in the whole
+<li><p>Barplots and histograms of sum of total effort in the whole
 fishery and the observed sample across the levels of each categorical
 and numerical variable.</p></li>
 <li><p>Pairs plots showing the overlap of observer and total (logbook)
@@ -221,11 +245,29 @@ introduce bias if the observed data does not include the full range of
 values in the whole fishery. Also, check for instances of very high
 CPUE. This may happen if a catch occurs in a set/trip with low recorded
 effort, and these outliers may bias the results.</p>
-<p>Note that records with NA in the catch or effort variable are
-excluded from the analysis and not included in the estimated sample
-size. If there are any years (or other levels of factor variables) with
-no data, or no positive observations, you may want to exclude those
-portions of the fishery from the analysis.</p>
+<p>Note that records with NA in the catch or effort variable in the
+observer data are excluded from the analysis and not included in the
+estimated sample size. If there are any years (or other levels of factor
+variables) with no data, or no positive observations, you may want to
+exclude those portions of the fishery from the analysis.</p>
+<p>NA values in the logbook data cause the model to stop with a with an
+error message. Values of effort and all predictor variables are needed
+for the entire fishery so that the estimated total bycatch will be
+estimated correctly. If your total effort (logbook) logbook data are
+missing values of some variables for a component of the fishery (e.g. a
+gear type or year range), consider excluding that part of the fishery
+from the bycatch calculations, and reporting bycatch only for the part
+of the fishery with complete effort data. If missing values are
+scattered throughout the dataset, consider filling in the missing values
+with reasonable numbers. For example, if some sets are missing data on
+the effort in number of hook-hours, you could replace the NAs with the
+mean number of hook-hours per set. Imputing the missing values is
+preferable to excluding effort from the fishery, because deleting the
+missing records implies that those sample units have no bycatch.
+Similarly, if the value of a categorical variable like gear type is
+missing, the NAs could be filled with the most common gear type, or with
+a random choice of gear type. These imputation methods will not cause
+bias if they number of imputed values is fairly small.</p>
 </div>
 <div class="section level2">
 <h2 id="design-based-estimators">Design-based estimators<a class="anchor" aria-label="anchor" href="#design-based-estimators"></a>
@@ -286,6 +328,25 @@ the file labelled DesignStrata (by stata). If pooling was requested, a
 csv labelled “pooling” gives the number of sample units in the strata
 with and without pooling, etc. See details on outputs in the
 appendix.</p>
+<p>In general, if there are any combinations of the stratification
+variables (designVars) which do not exist in the observer data but do
+exist in the logbook data, you should consider at least some pooling.
+Without pooling, the model will assume there is no bycatch in the
+unsampled strata, so that, if there are many stratification variables,
+the total bycatch could be under-estimated substantially. You can
+experiment with different pooling schemes and see if they give
+substantially different results.</p>
+<p>Note that leaving out a variable from the list of designVars is
+equivalent to pooling over all levels of that variable for any sample
+size. If the observer program allocates observer sampling effort by a
+stratified random design, in which the observer coverage level varies by
+strata, it is usually necessary to include all the stratification
+variables in the design. For example, if observers are allocated to have
+roughly equal numbers of sets covered in each stratum defined by gear,
+year, area and season, then strata with more fishing effort will have
+lower observer coverage rates. In this case, all the stratification
+variables should be inlcuded in the design-based estimators, so that
+pooling can be used only where needed.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
@@ -572,11 +633,11 @@ species, but are included for comparison.</p>
 <h4 id="model-selection-with-information-criteria">Model selection with information criteria<a class="anchor" aria-label="anchor" href="#model-selection-with-information-criteria"></a>
 </h4>
 <p>Within each observation error model group, the information criteria
-are used to find the best model. The MuMin dredge function produces does
-this by fitting all nested modles between the most complex and the
-simplest. The MuMin summary table (in both the model summary file and a
-separate CSV) includes all the information criteria for each model that
-was considered, as well as model weights calculated for the information
+are used to find the best model. The MuMin dredge function does this by
+fitting all nested modles between the most complex and the simplest. The
+MuMin summary table (in both the model summary file and a separate CSV)
+includes all the information criteria for each model that was
+considered, as well as model weights calculated for the information
 criterion the user specified, which sum to one and indicate the degree
 of support for the model in the data. The best model will have the
 highest weight. But, in some cases other models may also have strong
@@ -592,7 +653,7 @@ in the model output table. This is calculated using the
 (2020)</span>), and can be interpreted as a rough measure of the
 variance explained by the model. However, note that high
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
-values may not be needed for bycach estimation;
+values may not be needed for bycatch estimation;
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
 measures how accurately each sample unit’s bycatch can be predicted, but
 the total bycatch is summed over many sample units, and may be quite
@@ -1017,6 +1078,11 @@ Edition.</em> Chapman; Hall/CRC.
 RStudio Team. 2020. <em>RStudio: Integrated Development Environment for
 r</em>. Boston, MA: RStudio, PBC. <a href="http://www.rstudio.com/" class="external-link">http://www.rstudio.com/</a>.
 </div>
+<div id="ref-GGally" class="csl-entry">
+Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz
+Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. <em>GGally:
+Extension to ’Ggplot2’</em>. <a href="https://doi.org/10.32614/CRAN.package.GGally" class="external-link">https://doi.org/10.32614/CRAN.package.GGally</a>.
+</div>
 <div id="ref-MASS" class="csl-entry">
 Venables, W. N., and B. D. Ripley. 2002. <em>Modern Applied Statistics
 with s</em>. Fourth. New York: Springer. <a href="http://www.stats.ox.ac.uk/pub/MASS4" class="external-link">http://www.stats.ox.ac.uk/pub/MASS4</a>.
@@ -1039,18 +1105,18 @@ D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
 Wickham, Hadley, and Thomas Lin Pedersen. 2019. <em>Gtable: Arrange
 ’Grobs’ in Tables</em>. <a href="https://CRAN.R-project.org/package=gtable" class="external-link">https://CRAN.R-project.org/package=gtable</a>.
 </div>
-<div id="ref-knitr" class="csl-entry">
-Xie, Yihui. 2015. <em>Dynamic Documents with r and Knitr</em>. Second.
-Chapman; Hall/CRC.
-</div>
 <div id="ref-TinyTeX" class="csl-entry">
-———. 2019. <span>“TinyTeX: A Lightweight, Cross-Platform, and
+Xie, Yihui. 2019. <span>“TinyTeX: A Lightweight, Cross-Platform, and
 Easy-to-Maintain LaTeX Distribution Based on TeX Live.”</span>
 <em>TUGboat</em>, no. 1: 30–32. <a href="http://tug.org/TUGboat/Contents/contents40-1.html" class="external-link">http://tug.org/TUGboat/Contents/contents40-1.html</a>.
 </div>
 <div id="ref-tinytex" class="csl-entry">
 ———. 2021. <em>Tinytex: Helper Functions to Install and Maintain TeX
 Live, and Compile LaTeX Documents</em>. <a href="https://github.com/yihui/tinytex" class="external-link">https://github.com/yihui/tinytex</a>.
+</div>
+<div id="ref-knitr" class="csl-entry">
+———. 2025. <em>Knitr: A General-Purpose Package for Dynamic Report
+Generation in <span>R</span></em>. <a href="https://yihui.org/knitr/" class="external-link">https://yihui.org/knitr/</a>.
 </div>
 <div id="ref-cplm" class="csl-entry">
 Zhang, Yanwei. 2013. <span>“Likelihood-Based and Bayesian Methods for
