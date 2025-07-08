@@ -61,8 +61,7 @@
 <span>  matchColumn <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  EstimateIndex <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  nSims <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  nSims <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -142,10 +141,6 @@
 <dd><p>Number of simulations used to calculate confidence intervals. Ignored if <code>VarCalc</code> set to "None"</p></dd>
 
 
-<dt id="arg-basedir">baseDir<a class="anchor" aria-label="anchor" href="#arg-basedir"></a></dt>
-<dd><p>Character. A directory to save output. Defaults to current working directory.</p></dd>
-
-
 <dt id="arg-plotvalidation">plotValidation<a class="anchor" aria-label="anchor" href="#arg-plotvalidation"></a></dt>
 <dd><p>Logical. If you have true values of the total bycatch (for example in a simulation study), make plotValidation = TRUE and fill out the rest of the specification (trueVals and trueCols).</p></dd>
 
@@ -211,7 +206,6 @@
 <span class="r-in"><span>EstimateIndex<span class="op">=</span><span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>nSims <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>trueCols <span class="op">=</span> <span class="cn">NULL</span></span></span>
