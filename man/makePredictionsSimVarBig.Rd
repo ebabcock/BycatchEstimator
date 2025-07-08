@@ -17,6 +17,7 @@ makePredictionsSimVarBig(
   printOutput = TRUE,
   catchType,
   common,
+  shortName,
   dirname,
   run,
   randomEffects,
@@ -48,6 +49,8 @@ makePredictionsSimVarBig(
 \item{catchType}{Value}
 
 \item{common}{Value}
+
+\item{shortName}{Value}
 
 \item{dirname}{Value}
 

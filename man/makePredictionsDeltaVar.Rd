@@ -15,6 +15,7 @@ makePredictionsDeltaVar(
   printOutput = TRUE,
   catchType,
   common,
+  shortName,
   dirname,
   run,
   modelScenario
@@ -40,6 +41,8 @@ makePredictionsDeltaVar(
 \item{catchType}{Value}
 
 \item{common}{Value}
+
+\item{shortName}{value}
 
 \item{dirname}{Value}
 

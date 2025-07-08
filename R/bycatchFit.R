@@ -26,7 +26,6 @@
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
 #' @param useParallel Logical. Whether to conduct the analysis using parallel processing. Only initialized when more that two cores are available.
 #' @param nSims Number of simulations used to calculate confidence intervals. Ignored if \code{VarCalc} set to "None"
-#' @param baseDir Character. A directory to save output. Defaults to current working directory.
 #' @param plotValidation Logical. If you have true values of the total bycatch (for example in a simulation study), make plotValidation = TRUE and fill out the rest of the specification (trueVals and trueCols).
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
@@ -81,7 +80,6 @@
 #' EstimateIndex=FALSE,
 #' useParallel = TRUE,
 #' nSims = 100,
-#' baseDir = getwd(),
 #' plotValidation = FALSE,
 #' trueVals = NULL,
 #' trueCols = NULL
@@ -106,8 +104,7 @@ bycatchFit<-function(
   matchColumn=NULL,
   EstimateIndex=FALSE,
   useParallel = TRUE,
-  nSims = 10,
-  baseDir = getwd(),
+  nSims = 1000,
   plotValidation = FALSE,
   trueVals = NULL,
   trueCols = NULL,
@@ -117,10 +114,10 @@ bycatchFit<-function(
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
     logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
-    baseDir<-runName<-runDescription<-common<-sp<-NULL
+    baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
   # some of these will be rewritten along the code
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -257,11 +254,11 @@ if("Year" %in%numericVariables) {
   }
 }
   #Setup directory naming
-  dirname<-list()
-  outDir<-paste0(baseDir, paste("/Output", runName))
-  if(!dir.exists(outDir)) dir.create(outDir)
+#  dirname<-list()
+#  outDir<-paste0(baseDir, paste("/Output", runName))
+#  if(!dir.exists(outDir)) dir.create(outDir)
   for(run in 1:numSp) {
-    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchFit files/")
+    dirname[[run]]<-gsub("Setup files","Fit files",dirname[run])
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
   }
 
@@ -318,6 +315,7 @@ if("Year" %in%numericVariables) {
         catchType = catchType,
         varExclude = varExclude,
         dirname = dirname,
+        shortName = shortName,
         run = run,
         modelScenario=modelScenario
       ))
@@ -348,6 +346,7 @@ if("Year" %in%numericVariables) {
             printOutput=TRUE,
             catchType = catchType,
             common = common,
+            shortName = shortName,
             dirname = dirname,
             run = run,
             modelScenario=modelScenario
@@ -408,6 +407,7 @@ if("Year" %in%numericVariables) {
                 common = common,
                 catchType = catchType,
                 dirname = dirname,
+                shortName = shortName,
                 run = run,
                 randomEffects=randomEffects,
                 randomEffects2=randomEffects2,
@@ -423,6 +423,7 @@ if("Year" %in%numericVariables) {
                 requiredVarNames = requiredVarNames,
                 CIval = CIval,
                 common = common,
+                shortName = shortName,
                 catchType = catchType,
                 dirname = dirname,
                 run = run,
@@ -441,6 +442,7 @@ if("Year" %in%numericVariables) {
                 requiredVarNames = requiredVarNames,
                 common = common,
                 catchType = catchType,
+                shortName = shortName,
                 dirname = dirname,
                 run = run,
                 modelScenario=modelScenario
@@ -459,6 +461,7 @@ if("Year" %in%numericVariables) {
               nsims = nSims,
               common = common,
               catchType = catchType,
+              shortName = shortName,
               dirname = dirname,
               run = run,
               modelScenario=modelScenario
@@ -611,7 +614,7 @@ if("Year" %in%numericVariables) {
       }
     }
 
-    print(paste(run, common[run],"complete, ",Sys.time()))
+    print(paste0(run," " ,common[run],", ",catchType[run],", complete, ",Sys.time()))
 
   } #close loop for each spp
 
@@ -681,8 +684,8 @@ if("Year" %in%numericVariables) {
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                           output_format = "html_document",
-                          output_file = paste0(common[run], " ",catchType[run]," ",modelScenario," Model results.html"),
-                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          output_file = paste0(shortName[run],modelScenario," Model results.html"),
+                          output_dir=paste0(outDir,"/",shortName[run],"/"),
                           quiet = TRUE)
       }
     }
@@ -701,8 +704,8 @@ if("Year" %in%numericVariables) {
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "pdf_document",
-                            output_file = paste0(common[run], " ",catchType[run]," ",modelScenario, " Model results.pdf"),
-                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            output_file = paste0(shortName[run],modelScenario, " Model results.pdf"),
+                            output_dir=paste0(outDir,"/",shortName[run],"/"),
                             quiet = TRUE)
 
         },
@@ -711,8 +714,8 @@ if("Year" %in%numericVariables) {
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "html_document",
-                            output_file = paste0(common[run], " ",catchType[run]," ",modelScenario, " Model results.html"),
-                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            output_file = paste0(shortName[run],modelScenario, " Model results.html"),
+                            output_dir=paste0(outDir,"/",shortName[run],"/"),
                             quiet = TRUE)
         })
       }

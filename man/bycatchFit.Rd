@@ -22,8 +22,7 @@ bycatchFit(
   matchColumn = NULL,
   EstimateIndex = FALSE,
   useParallel = TRUE,
-  nSims = 10,
-  baseDir = getwd(),
+  nSims = 1000,
   plotValidation = FALSE,
   trueVals = NULL,
   trueCols = NULL,
@@ -64,8 +63,6 @@ bycatchFit(
 \item{useParallel}{Logical. Whether to conduct the analysis using parallel processing. Only initialized when more that two cores are available.}
 
 \item{nSims}{Number of simulations used to calculate confidence intervals. Ignored if \code{VarCalc} set to "None"}
-
-\item{baseDir}{Character. A directory to save output. Defaults to current working directory.}
 
 \item{plotValidation}{Logical. If you have true values of the total bycatch (for example in a simulation study), make plotValidation = TRUE and fill out the rest of the specification (trueVals and trueCols).}
 
@@ -125,7 +122,6 @@ matchColumn=NULL,
 EstimateIndex=FALSE,
 useParallel = TRUE,
 nSims = 100,
-baseDir = getwd(),
 plotValidation = FALSE,
 trueVals = NULL,
 trueCols = NULL

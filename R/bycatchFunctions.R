@@ -163,6 +163,7 @@ standard.error<-function(x) {
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value
+#' @param shortName Value
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
@@ -173,7 +174,7 @@ standard.error<-function(x) {
 #' @keywords internal
 findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,
   randomEffects=NULL, useParallel, selectCriteria, varExclude, printOutput=FALSE,
-  catchType = NULL, common = NULL, dirname = NULL, run = NULL,modelScenario=NULL) {
+  catchType = NULL, common = NULL, dirname = NULL, run = NULL,modelScenario=NULL,shortName=NULL) {
 
   offset<-TMBfamily<-NULL
   requiredVarNames<-requiredVarNames[!requiredVarNames %in% varExclude]
@@ -318,12 +319,12 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
       selTable$R2<-addR2(modfit2,obsdatval,funcName)
     }
     if(printOutput & !is.null(modfit2)) {
-      write.csv(selTable,paste0(dirname[[run]],common[run],catchType[run],modelScenario,"ModelSelection",modType,".csv"), row.names = FALSE)
+      write.csv(selTable,paste0(dirname[[run]],shortName[run],modelScenario,"ModelSelection",modType,".csv"), row.names = FALSE)
       #if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
       #if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       #if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
       # if(!is.null(anova1)) {
-      #   write.csv(anova1,paste0(dirname[[run]],common[run],catchType[run],modType,"Anova.csv"), row.names = FALSE)
+      #   write.csv(anova1,paste0(dirname[[run]],shortName[run],modType,"Anova.csv"), row.names = FALSE)
       # }
     }
     returnval=list(modfit3,selTable)
@@ -345,6 +346,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @param CIval Value
 #' @param printOutput Value
 #' @param catchType Value
+#' @param shortName Value
 #' @param common Value
 #' @param dirname Value
 #' @param run Value
@@ -357,7 +359,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @keywords internal
 makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval,
                                    includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE,
-                                   catchType, common, dirname, run,randomEffects,randomEffects2,modelScenario) {
+                                   catchType, common, shortName,dirname, run,randomEffects,randomEffects2,modelScenario) {
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -578,8 +580,8 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
     returnval=NULL
   }  else  {     returnval=yearpred  }
   if(printOutput) {
-    write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
-    write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
+    write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
+    write.csv(yearpred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
 }
@@ -596,13 +598,15 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value
+#' @param shortName value
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch,
-                                  requiredVarNames, CIval, printOutput=TRUE, catchType, common, dirname, run,
+                                  requiredVarNames, CIval, printOutput=TRUE, catchType, common,
+                                  shortName,dirname, run,
                                   modelScenario) {
   if(modtype %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma")) stop("No delta-method variance available, use simulute")
   #Separate out sample units
@@ -720,7 +724,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
              TotalLCI=.data$Total-qnorm(1-CIval/2)*.data$Total.se,
              TotalUCI=.data$Total+qnorm(1-CIval/2)*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-    if(printOutput)  write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
+    if(printOutput)  write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
 
   }
   yearpred<-yearpred %>%
@@ -736,7 +740,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
   }  else  {     returnval=yearpred  }
   if(printOutput) { #remove Total.mean column from csv
     write.csv(yearpred[,!(names(yearpred) %in% c("Total.mean"))],
-              paste0(dirname[[run]],common[run],catchType[run],modelScenario,
+              paste0(dirname[[run]],shortName[run],modelScenario,
                      modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
@@ -755,6 +759,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value
+#' @param shortName Value
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
@@ -762,7 +767,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @keywords internal
 makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL,
                                nsims, includeObsCatch, requiredVarNames, printOutput=TRUE,
-                               catchType, common, dirname, run,modelScenario) {
+                               catchType, common, shortName,dirname, run,modelScenario) {
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat,.data$SampleUnits)
@@ -828,8 +833,8 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
              Total.cv=NA)
     returnval=yearpred
     if(printOutput) {
-      write.csv(stratapred,paste0(dirname[[run]],common[run],catchType[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
-      write.csv(yearpred,paste0(dirname[[run]],common[run],catchType[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
+      write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
+      write.csv(yearpred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
     }
   } else {
     returnval=NULL
@@ -848,12 +853,13 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value
+#' @param shortName Value
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
 #' @keywords internal
 makeIndexVar<-function(modfit1, modfit2=NULL, modType, indexVarNames,newdat, nsims,
-                       printOutput=FALSE, catchType = NULL, common = NULL, dirname = NULL, run = NULL,
+                       printOutput=FALSE, catchType = NULL, common = NULL, shortName=NULL,dirname = NULL, run = NULL,
                        modelScenario) {
   returnval=NULL
   if(!is.null(modfit1)) {
@@ -907,7 +913,7 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, indexVarNames,newdat, nsi
       indexVarNames <- indexVarNames[indexVarNames %in% colnames(allpred)]
       colsToSave <- c(indexVarNames, "Index","SE","lowerCI","upperCI")
       write.csv(allpred[, colsToSave, drop = FALSE],
-                paste0(dirname[[run]],common[run],catchType[run],modelScenario,modType,"Index.csv"), row.names = FALSE)
+                paste0(dirname[[run]],shortName[run],modelScenario,modType,"Index.csv"), row.names = FALSE)
     }
   }
   returnval

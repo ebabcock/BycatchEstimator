@@ -60,9 +60,9 @@ modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFit",modelScenario,
 #unpack setupObj
 obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
   logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
-    baseDir<-runName<-runDescription<-common<-sp<-NULL
+    baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName[run]<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -253,17 +253,26 @@ if(modelFail[run,mod]=="-") {
 
 cat("\n Table ",tablenum,". Model selection table for ",modelTry[mod],". Weights are calculated based on ",selectCriteria,".",sep="")
 tablenum<-tablenum+1
-df3<-data.frame(modelSelectTable[[run]][[modelTry[mod]]]) %>%
-mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2)))
-#output_format <- if (knitr::is_html_output()) "html" else "latex"
-  
-  if(output_format == "html"){
-  print(kbl(df3, format = "simple"))
-  
+cat("\n\n")
+df3<-modelSelectTable[[run]][[modelTry[mod]]]
+temp<-which(names(df3) %in% c("disp..Int..","cond.offset.log.Effort..."))
+if(length(temp)>0) df3<-df3[,-temp]
+if(any(grepl("cond..",names(df3)))) {
+  names(df3)<-gsub("cond","",names(df3))
+  names(df3)<-gsub("[.]","",names(df3))
+}
+  df3<-df3 %>%
+ mutate_if(is.numeric,~ ifelse(abs(.x) > 1, round(.x,1), round(.x, 2)))
+ if(output_format == "html"){
+    tbl<-kbl(df3, format = "simple")
+    cat(paste(tbl, collapse = "\n"))
+    cat("\n\n")
   }
   if(output_format == "latex"){
-  print(kbl(df3, format="latex")%>%
-      kable_styling(latex_options = c("scale_down","simple","HOLD_position")))
+    tbl<-kbl(df3, format="latex")%>%
+      kable_styling(latex_options = c("scale_down","simple","HOLD_position"))
+    cat(paste(tbl, collapse = "\n"))
+    cat("\n\n")
   
   }
 

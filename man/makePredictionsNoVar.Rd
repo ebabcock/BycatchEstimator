@@ -16,6 +16,7 @@ makePredictionsNoVar(
   printOutput = TRUE,
   catchType,
   common,
+  shortName,
   dirname,
   run,
   modelScenario
@@ -41,6 +42,8 @@ makePredictionsNoVar(
 \item{catchType}{Value}
 
 \item{common}{Value}
+
+\item{shortName}{Value}
 
 \item{dirname}{Value}
 

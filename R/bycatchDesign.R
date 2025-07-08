@@ -19,7 +19,6 @@
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
 #' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.
 #' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
-#' @param baseDir Character. A directory to save output. Defaults to current working directory.
 #' @param reportType Character. Choose type of report to be produced. Options are pdf, html (default) or both.
 #' @import ggplot2 dplyr utils tidyverse GGally
 #' @importFrom stats median
@@ -44,7 +43,6 @@
 #' factorVariables = c("Year","season"),
 #' numericVariables = NA,
 #' EstimateBycatch = TRUE,
-#' baseDir = getwd(),
 #' runName = "SimulatedExample",
 #' runDescription = "Example with simulated data",
 #' common = "Simulated species",
@@ -79,16 +77,15 @@ bycatchDesign <- function(
   pooledVar = NULL,
   adjacentNum = NULL,
   minStrataUnit = 1,
-  baseDir = getwd(),
   reportType = "html"
 ){
 
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
     logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
-    baseDir<-runName<-runDescription<-common<-sp<-NULL
+    baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -103,20 +100,19 @@ bycatchDesign <- function(
 
 
   #Set up directory for output
-  outDir<-paste0(baseDir, paste("/Output", runName))
-  if(!dir.exists(outDir)) dir.create(outDir)
+ #outDir<-paste0(baseDir, paste("/Output", runName))
+#  if(!dir.exists(outDir)) dir.create(outDir)
 
   #Make R objects to store analysis
   poolingSum<-list()
   includePool<-list()
   yearSumGraph<-list()
-  dirname <- list()
   designyeardf <- list()
   designstratadf<-list()
 
   # spp loop
   for(run in 1:numSp) {
-    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchDesign files/")
+    dirname[[run]]<-gsub("Setup files","Design files",dirname[[run]])
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
   if(("Ratio" %in% designMethods | "Delta" %in% designMethods)) {
@@ -131,7 +127,8 @@ bycatchDesign <- function(
       poolingSum[[run]]<-temp[[1]]
       # excluding some of columns when saving csv: needs.pooling, poolnum, stratum
       write.csv(poolingSum[[run]][,!(names(poolingSum[[run]]) %in% c("needs.pooling","stratum"))],
-                paste0(dirname[[run]],common[run],catchType[run],designScenario,"Pooling.csv"), row.names = FALSE)
+                paste0(dirname[[run]],shortName[run],designScenario,"Pooling.csv"),
+                row.names = FALSE)
       includePool[[run]]<-temp[[2]]
     } else  {
       poolingSum[[run]]<-NULL
@@ -149,7 +146,8 @@ bycatchDesign <- function(
                              includePool= includePool[[run]]
     )
     write.csv(designyeardf[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],designScenario,"DesignYear.csv"), row.names = FALSE)
+              paste0(dirname[[run]],shortName[run],designScenario,"DesignYear.csv"),
+              row.names = FALSE)
 
     #And design based stratification
     designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
@@ -163,7 +161,7 @@ bycatchDesign <- function(
                              includePool= includePool[[run]]
     )
     write.csv(designstratadf[[run]],
-              paste0(dirname[[run]],common[run],catchType[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
+              paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
   }
   if(all(is.na(groupVar))) {
     yearSum[[run]]$Year="All"
@@ -239,8 +237,8 @@ bycatchDesign <- function(
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run, designScenario=designScenario),
                           output_format = "html_document",
-                          output_file = paste0(common[run], " ",catchType[run]," ",designScenario ," Design results.html"),
-                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          output_file = paste0(shortName[run],designScenario ,"DesignResults.html"),
+                          output_dir=paste0(outDir,"/",shortName[run],"/"),
                           quiet = TRUE)
       }
     }
@@ -259,8 +257,8 @@ bycatchDesign <- function(
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run),
                           output_format = "pdf_document",
-                          output_file = paste0(common[run], " ",catchType[run]," ",designScenario , " Design results.pdf"),
-                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          output_file = paste0(shortName[run],designScenario , "DesignResults.pdf"),
+                          output_dir=paste0(outDir,"/",shortName[run],"/"),
                           quiet = TRUE)
 
         },
@@ -269,8 +267,8 @@ bycatchDesign <- function(
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run),
                             output_format = "html_document",
-                            output_file = paste0(common[run], " ",catchType[run]," ",designScenario ," Design results.html"),
-                            output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                            output_file = paste0(shortName[run],designScenario ,"DesignResults.html"),
+                            output_dir=paste0(outDir,"/",shortName[run],"/"),
                             quiet = TRUE)
           })
         }

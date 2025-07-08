@@ -46,7 +46,7 @@ setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.
 #unpack setup obj
 obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
   logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
-    baseDir<-runName<-runDescription<-common<-sp<-NULL
+    baseDir<-outDir<-dirname<-runName<-runDescription<-common<-sp<-NULL
 
   dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
 

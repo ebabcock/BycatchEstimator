@@ -49,7 +49,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
     EstimateIndex<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName[run]<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])

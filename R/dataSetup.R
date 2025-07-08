@@ -165,7 +165,8 @@ bycatchSetup <- function(
   }
 
   #Set up directory for output
-  outDir<-paste0(baseDir, paste("/Output", runName))
+  tempRunName<-abbreviate(runName,minlength=10)
+  outDir<-paste0(baseDir, paste0("/Output", tempRunName))
   if(!dir.exists(outDir)) dir.create(outDir)
 
   #Make R objects to store analysis
@@ -175,10 +176,12 @@ bycatchSetup <- function(
   #Make lists to keep output, which will also be output as .pdf and .csv files for use in reports.
   dirname<-list()
   dat<-list()
+  shortName<-list()
 
   #Loop through all species and print data summary and data checks. Note that records with NA in either catch or effort are excluded automatically
   for(run in 1:numSp) {
-    dirname[[run]]<-paste0(outDir,"/",common[run]," ",catchType[run],"/","bycatchSetup files/")
+    shortName[run]<-paste0(abbreviate(common[run],minlength = 7),abbreviate(toupper(catchType[run]),minlength = 3))
+    dirname[[run]]<-paste0(outDir,"/",shortName[run],"/","Setup files/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
       tempvars<-c(allVarNames,"Effort","Catch")
@@ -202,7 +205,7 @@ bycatchSetup <- function(
       startYear = startYear
     )
     write.csv(yearSum[[run]],
-              paste0(dirname[[run]],common[run]," ",catchType[run]," DataSummary.csv"), row.names = FALSE)
+              paste0(dirname[[run]],shortName[run],"DataSummary.csv"), row.names = FALSE)
 
 
     #Calculations at level of simple model
@@ -214,7 +217,7 @@ bycatchSetup <- function(
       startYear = startYear
     )
     write.csv(strataSum[[run]],
-              paste0(dirname[[run]],common[run]," ",catchType[run]," StrataSummary.csv"), row.names = FALSE)
+              paste0(dirname[[run]],shortName[run],"StrataSummary.csv"), row.names = FALSE)
 
   } #close loop for each spp
 
@@ -237,6 +240,8 @@ bycatchSetup <- function(
       numericVariables = numericVariables,
       EstimateBycatch =EstimateBycatch,
       baseDir = baseDir,
+      outDir = outDir,
+      dirname = dirname,
       runName = runName,
       runDescription = runDescription,
       common = common,
@@ -246,6 +251,7 @@ bycatchSetup <- function(
     #Outputs from data processing
     bycatchOutputs = list(
       dat = dat,
+      shortName = shortName,
       numSp = numSp,
       yearSum = yearSum,
       allVarNames = allVarNames,
@@ -271,8 +277,8 @@ bycatchSetup <- function(
       rmarkdown::render(mkd,
                       params=list(outDir=outDir, run = run),
                       output_format = "html_document",
-                      output_file = paste0(common[run], " ",catchType[run], " Data checks.html"),
-                      output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                      output_file = paste0(shortName[run], "DataChecks.html"),
+                      output_dir=paste0(outDir,"/",shortName[run],"/"),
                       quiet = TRUE)
 
       }
@@ -292,8 +298,8 @@ bycatchSetup <- function(
       rmarkdown::render(mkd,
                       params=list(outDir=outDir, run = run),
                       output_format = "pdf_document",
-                      output_file = paste0(common[run], " ",catchType[run], " Data checks.pdf"),
-                      output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                      output_file = paste0(shortName[run], "DataChecks.pdf"),
+                      output_dir=paste0(outDir,"/",shortName[run],"/"),
                       quiet = TRUE)
       },
       error = function(e){
@@ -301,8 +307,8 @@ bycatchSetup <- function(
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run),
                           output_format = "html_document",
-                          output_file = paste0(common[run], " ",catchType[run], " Data checks.html"),
-                          output_dir=paste0(outDir,"/",common[run]," ",catchType[run],"/"),
+                          output_file = paste0(shortName[run], " Data checks.html"),
+                          output_dir=paste0(outDir,"/",shortName[run],"/"),
                           quiet = TRUE)
            })
 

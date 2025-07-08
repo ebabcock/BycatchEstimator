@@ -14,6 +14,7 @@ makeIndexVar(
   printOutput = FALSE,
   catchType = NULL,
   common = NULL,
+  shortName = NULL,
   dirname = NULL,
   run = NULL,
   modelScenario
@@ -35,6 +36,8 @@ makeIndexVar(
 \item{catchType}{Value}
 
 \item{common}{Value}
+
+\item{shortName}{Value}
 
 \item{dirname}{Value}
 

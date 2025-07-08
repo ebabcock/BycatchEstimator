@@ -19,7 +19,8 @@ findBestModelFunc(
   common = NULL,
   dirname = NULL,
   run = NULL,
-  modelScenario = NULL
+  modelScenario = NULL,
+  shortName = NULL
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ findBestModelFunc(
 \item{run}{Value}
 
 \item{modelScenario}{Value}
+
+\item{shortName}{Value}
 }
 \description{
 Function to find best model by information criteria, by model type

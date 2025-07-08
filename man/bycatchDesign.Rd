@@ -15,7 +15,6 @@ bycatchDesign(
   pooledVar = NULL,
   adjacentNum = NULL,
   minStrataUnit = 1,
-  baseDir = getwd(),
   reportType = "html"
 )
 }
@@ -39,8 +38,6 @@ bycatchDesign(
 \item{adjacentNum}{Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.}
 
 \item{minStrataUnit}{The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.}
-
-\item{baseDir}{Character. A directory to save output. Defaults to current working directory.}
 
 \item{reportType}{Character. Choose type of report to be produced. Options are pdf, html (default) or both.}
 }
@@ -66,7 +63,6 @@ sampleUnit = "trips",
 factorVariables = c("Year","season"),
 numericVariables = NA,
 EstimateBycatch = TRUE,
-baseDir = getwd(),
 runName = "SimulatedExample",
 runDescription = "Example with simulated data",
 common = "Simulated species",
