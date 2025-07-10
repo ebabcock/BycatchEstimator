@@ -134,7 +134,14 @@ installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
 <span class="citation">Xie (2021)</span>, <span class="citation">Xie
 (2025)</span>). For a quick start guide with example data, see the
 GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
-help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.</p>
+help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.
+The following code will load the libary from GitHub using devtools
+(<span class="citation">Wickham et al. (2022)</span>).</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="data-specification">Data specification<a class="anchor" aria-label="anchor" href="#data-specification"></a>
@@ -147,6 +154,28 @@ effort, hereafter referred to as logbook data, although it could be from
 any source as long as there are records of all fishing effort in the
 fishery. This function must be run before running either
 <code>bycatchDesign</code> or <code>bycatchFit</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
+<span>  obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span>
+<span>  logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span>
+<span>  yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
+<span>  obsEffort <span class="op">=</span> <span class="st">"sampled.sets"</span>,</span>
+<span>  logEffort <span class="op">=</span> <span class="st">"sets"</span>,</span>
+<span>  obsCatch <span class="op">=</span> <span class="st">"Catch"</span>,</span>
+<span>  catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span>
+<span>  catchType <span class="op">=</span> <span class="st">"catch"</span>,</span>
+<span>  logNum <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  sampleUnit <span class="op">=</span> <span class="st">"trips"</span>,</span>
+<span>  factorVariables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"EW"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
+<span>  numericVariables <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  EstimateBycatch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  runName <span class="op">=</span> <span class="st">"Simulated"</span>,</span>
+<span>  runDescription <span class="op">=</span> <span class="st">"Simulated example species"</span>,</span>
+<span>  common <span class="op">=</span> <span class="st">"Simulated species"</span>,</span>
+<span>  sp <span class="op">=</span> <span class="st">"Genus species"</span>,</span>
+<span>  reportType <span class="op">=</span> <span class="st">"html"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The observer data should be aggregated to the appropriate sample
 unit, such as trips or sets, so that each row corresponds to one sample
 unit. Effort must be in the same units in both data sets (e.g. sets or
@@ -275,6 +304,18 @@ values is fairly small.</p>
 </h2>
 <p>This section provides guidance on the function
 <code>bycatchDesign</code> and using design-based estimators.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
+<span>setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
+<span>designScenario <span class="op">=</span> <span class="st">"withPooling"</span>,</span>
+<span>designMethods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ratio"</span>, <span class="st">"Delta"</span><span class="op">)</span>,</span>
+<span>designVars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
+<span>designPooling <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>poolTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"adjacent"</span>,<span class="st">"all"</span><span class="op">)</span>,</span>
+<span>pooledVar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
+<span>adjacentNum<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
+<span>minStrataUnit <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The function takes the output of <code>bycatchSetup</code>
 (e.g. setupObj) as an input, which must have been run on the same day,
 along with specifications for the design-based estimators. You may run
@@ -353,17 +394,38 @@ only where needed.</p>
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
 </h2>
 <p>Model-based analysis to estimate total bycatch and/or to generate an
-abundance index is done with the function <code>bycatchFit</code> The
-user specifies which potential predictor variables to use and what
-potential error distribution models (e.g. negative binomial,
+abundance index is done with the function <code>bycatchFit</code></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
+<span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
+<span>  modelScenario <span class="op">=</span> <span class="st">"s1"</span>,</span>
+<span>  complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
+<span>  simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
+<span>  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
+<span>  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TMBnbinom1"</span>,<span class="st">"TMBtweedie"</span><span class="op">)</span>,</span>
+<span>  randomEffects <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  randomEffects2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
+<span>  DoCrossValidation <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  CIval <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,</span>
+<span>  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  nSims <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  trueVals <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  reportType <span class="op">=</span> <span class="st">"html"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The user specifies which potential predictor variables to use and
+what potential error distribution models (e.g. negative binomial,
 delta-lognormal) to use. The function uses information criteria to pick
-the best set of predictor variables for each error distribution models
+the best set of predictor variables for each error distribution model
 automatically using the information criterion. For the best model in
 each group, total bycatch estimates and model diagnostics are generated.
 To provide guidance on choosing between observation error model groups,
 cross-validation is available. This section explains how to run the
 model and interpret the results. The following section gives more
-technical details.</p>
+technical details and guidance on model selection.</p>
 <p>To use this function, specify the input data object generated by
 <code>bycatchSetup</code>. You may run more than one scenario from the
 same setupObj, by specifying “modelScenario”. The character vector
@@ -551,42 +613,115 @@ model fit and selection works, with guidance for selecting models.</p>
 data will be 0 and 1 (binomial), counts (negative binomial), or real
 numbers (all others), how they model the mean and how they model the
 variance of the predictions.</p>
-<p>For the binomial, the mean is modeled with a logit link, meaning that
-the log of the odds of a positive observation are predicted by the
-linear model. The negative binomial, Tweedie, gamma and lognormal models
-have a log link, meaning that the log of the mean is predicted by the
-linear model.</p>
-<p>The variance is an estimated constant for the normal and lognormal.
-The negative binomial using the glm.nb function from the MASS library
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Distribution</th>
+<th align="left">Response(y)</th>
+<th align="left">Link</th>
+<th align="left">Mean</th>
+<th align="left">Variance</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">normal</annotation></semantics></math></td>
+<td align="left">CPUE,real</td>
+<td align="left">identity</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">lognormal</annotation></semantics></math></td>
+<td align="left">CPUE,real,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt;0</annotation></semantics></math>
+</td>
+<td align="left">log transformed</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">exp(\mu+\sigma^2/2)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(exp(\sigma ^2)-1)(exp(2\mu +\sigma ^2)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mi>a</mi><mi>m</mi><mi>m</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">gamma</annotation></semantics></math></td>
+<td align="left">CPUE,real,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt;0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>w</mi><mi>e</mi><mi>e</mi><mi>d</mi><mi>i</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">Tweedie</annotation></semantics></math></td>
+<td align="left">CPUE,real,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>ϕ</mi><msup><mi>μ</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">\sigma^2=\phi \mu^p</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">binomial</annotation></semantics></math></td>
+<td align="left">presence/absence (0,1)</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mi>i</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">logit</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mi>α</mi></mrow><annotation encoding="application/x-tex">\mu\alpha</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>e</mi><mi>g</mi><mi>B</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">NegBinomial1</annotation></semantics></math></td>
+<td align="left">Catch,integer,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu(1+\alpha)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>e</mi><mi>g</mi><mi>B</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">NegBinomial2</annotation></semantics></math></td>
+<td align="left">Catch,integer,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>+</mo><mi>m</mi><msup><mi>u</mi><mn>2</mn></msup><mi>/</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\mu+mu^2/\theta</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>The binomial models presence/absence data, so it is only used to
+estimate the probability of presence, not the expected CPUE. For
+binomial, the mean probability of a positive observation is modeled with
+a logit link, meaning that the log of the odds of a positive observation
+is predicted by the linear model. This model may be used on its own to
+estimate bycatch of very rare species where only one is ever caught at a
+time, and it is also used to model positive versus zero observations in
+the delta models (see below).</p>
+<p>The negative binomial using the glm.nb function from the MASS library
 (<span class="citation">Venables and Ripley (2002)</span>) or nbinom2
 from the glmmTMB library(<span class="citation">Brooks et al.
 (2017)</span>) are the ordinary negative binomial, in which the variance
 is:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mo>+</mo><msup><mi>μ</mi><mn>2</mn></msup><mi>/</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\sigma^2=\mu+\mu^2/\theta</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mo>+</mo><msup><mi>μ</mi><mn>2</mn></msup><mi>/</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\sigma^2=\mu+\mu^2/\theta</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is an estimated parameter. For nbinom1, the variance is defined as:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma^2= \mu(1+\alpha)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma^2= \mu(1+\alpha)</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
 is an estimated parameter. This version of the negative binomial model,
 which is equivalent to a quasi-Poisson model, gives somewhat different
 results from the other negative binomial models. The estimated values of
-theta and alpha are given in the “scale” column in the parameter summary
-table.</p>
-<p>The negative binomial predicts integer counts, so it is appropriate
-for predicting bycatch in numbers per trip for all the trips in the
-logbook data. To allow this model to also be used with catch or bycatch
-measured in weight, the code rounds the catches to integers before
-running this model. If any of the catches are less than 0.5, they will
-be rounded to 0, so you might want to consider changing the scale if
-using negative binomial models (ex, multiply by 10). To predict CPUE it
-is necessary to include an offset in the model. We use a log link for
-all three negative binomial models, so that the model predicts:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+are given in the “scale” column in the parameter summary table.</p>
+<p>The negative binomial models predict integer counts, so they are
+appropriate for modeling bycatch in numbers per sample unit. To model
+catch per unit effort (CPUE) when each sample unit(e.g. set) might have
+a different amount of effort (e.g. hook-hours) it is necessary to
+include an offset in the model. We use a log link for all negative
+binomial models, so that the model predicts:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>o</mi><mi>f</mi><mi>f</mi><mi>s</mi><mi>e</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(C_i)=b_0+ b_1x_1+offset(log(E_i))</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mi>i</mi></msub><annotation encoding="application/x-tex">C_i</annotation></semantics></math>
-is the catch in trip
+is the catch in sample unit
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
 in the observer data,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">b_0+ b_1x_1</annotation></semantics></math>
@@ -594,60 +729,113 @@ is an example linear predictor with an intercept and a slope, and the
 offset is the log of the effort
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>i</mi></msub><annotation encoding="application/x-tex">E_i</annotation></semantics></math>
 in each trip. This is algebraically equivalent to modeling CPUE as a
-function of the same linear predictor. Negative binomial models work
-well, even for very rare species, if the data are counts of the numbers
-of animals caught, because the model can handle large numbers of zero
-observation with a low estimated mean.</p>
+function of the same linear predictors,
+e.g. <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mi>/</mi><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">log(C_i/E_i)=b_0+ b_1x_1</annotation></semantics></math>
+Negative binomial models work well, even for very rare species, if the
+data are counts of the numbers of animals caught, because the model can
+handle large numbers of zero observation with a low estimated mean. To
+allow negative binomial models to also be used with catch or bycatch
+measured in weight (i.e. non-integer values), the code rounds the
+catches to integers before running this model. If any of the catches are
+less than 0.5, they will be rounded to 0, so you might want to consider
+changing the scale if using negative binomial models (e.g., multiply by
+10).</p>
 <p>The Tweedie distribution (“Tweedie” or “TMBtweedie” in modelTry) is a
 generalized function that estimates a distribution similar to a gamma
 distribution, except that it allows extra probability mass at zero. It
-is thus appropriate for continuous data with extra zeros. It uses a log
-link, and, in addition to the linear predictor for the log(mean) of the
-CPUE it estimates an index parameter
+is thus appropriate for either continuous or integer data with extra
+zeros. It uses a log link, and, in addition to the linear predictor for
+the log(mean) of the CPUE it estimates an index parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
 and dispersion parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
-which together determine the shape of the distribution. The variance is:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>ϕ</mi><msup><mi>μ</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">\sigma^2=\phi \mu^p</annotation></semantics></math></p>
+which together determine the shape of the distribution. The variance is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>ϕ</mi><msup><mi>μ</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">\sigma^2=\phi \mu^p</annotation></semantics></math>.</p>
 <p>Delta-lognormal models work by applying a binomial model to the
 presence or absence (0,1) of the bycatch species in the each sample unit
 to estimate the probability of presence. Then, the mean CPUE conditional
-on the species being present is calculuated by fitting a lognormal or
-gamma model to the postive observerations only. For the delta lognormal
+on the species being present is calculutated by fitting a lognormal or
+gamma model to the positive observations only. For the delta lognormal
 models, the CPUE is log transformed, and the mean CPUE for positive
 observations is modeled for positive data only. For the delta-gamma
 method, the log link is used to model the positive CPUE values. Because
-the the lognormal or gamma component is fitted to the postive CPUE
+the the lognormal or gamma component is fitted to the positive CPUE
 observations, it is possible to have some levels of the factors that do
-not have any data. In this case, you will see a warning and some
-variables may be dropped from the model. If some years don’t have data
-and year is a predictor variable, the delta-models will not be fit.
-These models do not work for very rare species because they require at
+not have any data (i.e the species was never observed in some strata).
+In this case, you will see a warning and some variables may be dropped
+from the model. If some years don’t have data and year is a predictor
+variable, the delta-models will not be applied. Delta models do not work
+for very rare species and small sample sizes because they require at
 least some positive observations across the range of variables for the
-lognormal or gamma models to apply to.</p>
-<p>The lognormal and gamma modelTry options are similar, except that
-they are run on all the CPUE data, including zeros, after adding a
-constant of 0.1. These models are unlikely to work will with rare
-species, but are included for comparison.</p>
+lognormal or gamma models to be meaningful.</p>
+<p>Simple normal, lognormal and gamma options are also available.
+Lognormal and gamma models are run on all the CPUE data, including
+zeros, after adding a constant of 0.1. These models are unlikely to work
+will with rare species, but are included for comparison.</p>
 </div>
 <div class="section level4">
 <h4 id="model-selection-with-information-criteria">Model selection with information criteria<a class="anchor" aria-label="anchor" href="#model-selection-with-information-criteria"></a>
 </h4>
 <p>Within each observation error model group, the information criteria
-are used to find the best model. The MuMin dredge function does this by
-fitting all nested modles between the most complex and the simplest. The
-MuMin summary table (in both the model summary file and a separate CSV)
-includes all the information criteria for each model that was
-considered, as well as model weights calculated for the information
-criterion the user specified, which sum to one and indicate the degree
-of support for the model in the data. The best model will have the
-highest weight. But, in some cases other models may also have strong
-support, and should perhaps be considered, particularly if they are
-simpler. The current version of the code does not use MuMIn’s model
-averaging function, but this may be worth considering if several models
-have similar weights. This table also includes the other information
-criteria, so you can see if they are consistent. We also provide a value
-of pseudo
+are used to find the best model. The MuMin <code>dredge</code> function
+does this by fitting all nested models between the most complex and the
+simplest. For example, if complexModel was
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>*</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">y\sim Year*season</annotation></semantics></math>,
+which is the model with Year, season and their interaction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>+</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi><mo>+</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>:</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">y\sim Year+season+Year:season</annotation></semantics></math>,
+and simpleModel was the Null model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y\sim 1</annotation></semantics></math>,
+then the models included would be:</p>
+<ol style="list-style-type: decimal">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>+</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi><mo>+</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>:</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">y\sim Year+season+Year:season</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>+</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">y\sim Year+season</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">y\sim Year</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>s</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">y\sim season</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y\sim 1</annotation></semantics></math></p></li>
+</ol>
+<p>The recommended model selection criterion is BIC because BIC is less
+likely to prefer overly complex models when the sample size is large
+(<span class="citation">Burnham and Anderson (2004)</span>). Information
+criteria work by weighing the tradeoff between model fit and model
+complexity. The AIC is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mo>−</mo><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2log(L)-2k</annotation></semantics></math>
+where L is likelihood,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">-2log(L)</annotation></semantics></math>
+is model deviance, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+is the number of parameters. A lower deviance (higher likelihood)
+implies better model fit. However, the complexity penalty
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">2k</annotation></semantics></math>
+means that an added parameter (e.g. another predictor variable
+coefficient) must reduce deviance by more than 2 units to improve the
+fit enough to be worth the extra parameters. BIC is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mo>−</mo><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>n</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">BIC=-2log(L)-nk</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is total sample size. Thus, the complexity penalty increases with sample
+size. This is desirable for large datasets where, with AIC, the most
+complex proposed model would almost always be preferred even if it
+explained very little of the model deviance.</p>
+<p>The MuMin summary table (in both the model summary file and a
+separate CSV) includes all the information criteria for each model that
+was considered, as well as model weights calculated for the information
+criterion the user specified,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mo>−</mo><mn>0.5</mn><msub><mi>Δ</mi><mi>i</mi></msub><mi>/</mi><mo>∑</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mn>0.5</mn><msub><mi>Δ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">w_i=-0.5\Delta_i/\sum(-0.5\Delta_i)</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Δ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Delta_i</annotation></semantics></math>
+is the difference in information criteria between model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and the best model. Model weights sum to one and indicate the degree of
+support for the model in the data (<span class="citation">Barton
+(2020)</span>). The best model will have the highest weight and the
+lowest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>.
+But, in some cases other models may also have strong support, and should
+perhaps be considered, particularly if they are simpler. The current
+version of the code does not use MuMIn’s model averaging function, but
+this may be worth considering if several models have similar weights.
+The model selection table also includes the other information criteria,
+so you can see if they are consistent. We also provide a value of pseudo
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
 in the model output table. This is calculated using the
 <code>r.squaredGLMM</code> function (<span class="citation">Barton
@@ -664,18 +852,16 @@ explained.</p>
 <div class="section level4">
 <h4 id="model-residuals-and-residual-diagnostics">Model residuals and residual diagnostics<a class="anchor" aria-label="anchor" href="#model-residuals-and-residual-diagnostics"></a>
 </h4>
-<p>Residuals diagnostics are calculated from the DHARMa library (<span class="citation">Hartig (2020)</span>), and, if requested, calculations
-of the total bycatch and an index of abundance.</p>
 <p>For the best model (according to the information criterion) in each
 observation error model group, both ordinary residuals and DHARMa scaled
 residuals are plotted (also called quantile or PIT probability integral
-transform residuals), and the DHARMa diagnostics are calculated. The
-DHARMa library uses simulation to generate quantile residuals based on
-the specified observation error model so that the results are more
-clearly interprettable than ordinary residuals for non-normal models.
-DHARMA draws random predicted values from the fitted model to generate
-an empirical predictive density for each data point and then calculates
-the fraction of the empirical density that is greater than the true data
+transform residuals), and the DHARMa diagnostics are calculated(<span class="citation">Hartig (2020)</span>). The DHARMa library uses
+simulation to generate quantile residuals based on the specified
+observation error model so that the results are more clearly
+interprettable than ordinary residuals for non-normal models. DHARMA
+draws random predicted values from the fitted model to generate an
+empirical predictive density for each data point and then calculates the
+fraction of the empirical density that is greater than the true data
 point. Values of 0.5 are expected, and values near 0 or 1 indicate a
 mismatch between the data and the model. Particularly for the binomial
 and negative binomial models, in which the ordinary residuals are not
@@ -1022,6 +1208,12 @@ Discards by the u.s. Atlantic Pelagic Longline Fleet, 1992-1999.”</span>
 Journal Article. <em>ICCAT Collective Volume of Scientific Papers</em>
 52 (3): 1007–21.
 </div>
+<div id="ref-BurnhamAnderson" class="csl-entry">
+Burnham, K. P., and D. R. Anderson. 2004. <span>“Multimodel Inference -
+Understanding AIC and BIC in Model Selection.”</span> Journal Article.
+<em>Sociological Methods &amp; Research</em> 33 (2): 261–304. <a href="https://doi.org/Doi%2010.1177/0049124104268644" class="external-link">https://doi.org/Doi
+10.1177/0049124104268644</a>.
+</div>
 <div id="ref-doParallel" class="csl-entry">
 Corporation, Microsoft, and Steve Weston. 2020. <em>doParallel: Foreach
 Parallel Adaptor for the ’Parallel’ Package</em>. <a href="https://CRAN.R-project.org/package=doParallel" class="external-link">https://CRAN.R-project.org/package=doParallel</a>.
@@ -1101,6 +1293,10 @@ Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
 D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
 <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
 <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686" class="external-link">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-devtools" class="csl-entry">
+Wickham, Hadley, Jim Hester, Winston Chang, and Jennifer Bryan. 2022.
+<em>Devtools: Tools to Make Developing r Packages Easier</em>. <a href="https://doi.org/10.32614/CRAN.package.devtools" class="external-link">https://doi.org/10.32614/CRAN.package.devtools</a>.
 </div>
 <div id="ref-gtable" class="csl-entry">
 Wickham, Hadley, and Thomas Lin Pedersen. 2019. <em>Gtable: Arrange
