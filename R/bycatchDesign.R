@@ -226,7 +226,7 @@ bycatchDesign <- function(
     if(reportType == "html" || reportType == "both"){
 
       mkd<-tryCatch({
-        system.file("Markdown", "PrintBycatchDesign.Rmd",
+        system.file("Markdown", "printBycatchDesign.Rmd",
                     package = "BycatchEstimator", mustWork = TRUE)
       },
       error = function(c) NULL
@@ -246,7 +246,7 @@ bycatchDesign <- function(
     if(reportType == "pdf" || reportType == "both"){
 
       mkd<-tryCatch({
-        system.file("Markdown", "PrintBycatchDesign.Rmd", package = "BycatchEstimator", mustWork = TRUE)
+        system.file("Markdown", "printBycatchDesign.Rmd", package = "BycatchEstimator", mustWork = TRUE)
       },
       error = function(c) NULL
       )

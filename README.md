@@ -4,7 +4,6 @@
 # BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 BycatchEstimator uses both model-based and design-based procedures to
