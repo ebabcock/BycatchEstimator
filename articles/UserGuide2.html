@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-07-08</h4>
+            <h4 data-toc-skip class="date">2025-07-10</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -253,21 +253,22 @@ exclude those portions of the fishery from the analysis.</p>
 <p>NA values in the logbook data cause the model to stop with a with an
 error message. Values of effort and all predictor variables are needed
 for the entire fishery so that the estimated total bycatch will be
-estimated correctly. If your total effort (logbook) logbook data are
-missing values of some variables for a component of the fishery (e.g. a
-gear type or year range), consider excluding that part of the fishery
-from the bycatch calculations, and reporting bycatch only for the part
-of the fishery with complete effort data. If missing values are
-scattered throughout the dataset, consider filling in the missing values
-with reasonable numbers. For example, if some sets are missing data on
-the effort in number of hook-hours, you could replace the NAs with the
-mean number of hook-hours per set. Imputing the missing values is
-preferable to excluding effort from the fishery, because deleting the
-missing records implies that those sample units have no bycatch.
-Similarly, if the value of a categorical variable like gear type is
-missing, the NAs could be filled with the most common gear type, or with
-a random choice of gear type. These imputation methods will not cause
-bias if they number of imputed values is fairly small.</p>
+estimated correctly. If your total effort (logbook) data are missing
+values of some variables for a component of the fishery (e.g. a gear
+type or some years), consider excluding that part of the fishery from
+the bycatch calculations, and reporting bycatch only for the part of the
+fishery with complete effort data. If missing values are scattered
+throughout the dataset, consider filling in the missing values with
+reasonable numbers. For example, if some sets are missing data on the
+effort in number of hook-hours, you could replace the NAs with the mean
+effort (e.g. mean number of hook-hours per set if that is the unit of
+effort). Imputing the missing values is preferable to excluding effort
+from the fishery, because deleting the missing records implies that
+those sample units have no bycatch. Similarly, if the value of a
+categorical variable like gear type is missing, the NAs could be filled
+with the most common gear type, or with a random choice of gear type.
+These imputation methods will not cause bias if they number of imputed
+values is fairly small.</p>
 </div>
 <div class="section level2">
 <h2 id="design-based-estimators">Design-based estimators<a class="anchor" aria-label="anchor" href="#design-based-estimators"></a>
@@ -334,19 +335,19 @@ exist in the logbook data, you should consider at least some pooling.
 Without pooling, the model will assume there is no bycatch in the
 unsampled strata, so that, if there are many stratification variables,
 the total bycatch could be under-estimated substantially. You can
-experiment with different pooling schemes and see if they give
-substantially different results.</p>
+experiment with different pooling schemes and see if they give very
+different results.</p>
 <p>Note that leaving out a variable from the list of designVars is
-equivalent to pooling over all levels of that variable for any sample
-size. If the observer program allocates observer sampling effort by a
-stratified random design, in which the observer coverage level varies by
-strata, it is usually necessary to include all the stratification
-variables in the design. For example, if observers are allocated to have
-roughly equal numbers of sets covered in each stratum defined by gear,
-year, area and season, then strata with more fishing effort will have
-lower observer coverage rates. In this case, all the stratification
-variables should be inlcuded in the design-based estimators, so that
-pooling can be used only where needed.</p>
+equivalent to always pooling over all levels of that variable. If the
+observer program allocates observer sampling effort by a stratified
+random design, in which the observer coverage level varies by strata, it
+is usually necessary to include all the stratification variables in the
+design. For example, if observers are allocated to have roughly equal
+numbers of sets covered in each stratum defined by gear, year, area and
+season, then strata with more fishing effort will have lower observer
+coverage rates. In this case, all the stratification variables should be
+included in the design-based estimators, so that pooling can be used
+only where needed.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
