@@ -79,7 +79,7 @@ if(!is.null(logdat)) {
   if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
   na_counts<- colSums(is.na(logdat[,c(allVarNames,"Effort")]))
   cat("\n")
-cat("NAs have been found in logbook data in following columns:\n ",
+cat("- NAs have been found in logbook data in following columns:\n ",
                  paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
                  "\nCheck what to do with these before continuing.")
 noWarnings<-FALSE
@@ -249,9 +249,6 @@ allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","Sa
                   logbook=select(logdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
                   .id = "Source")%>%
   pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
-allData<-bind_rows(list(observer=select(obsdat,all_of(c(allVarNames,"Effort","SampleUnits")))),
-                .id = "Source")%>%
-pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level")
 
 print(ggplot(allData,aes(x=Level,weight=Effort,fill=Source))+
   geom_bar(position=position_dodge())+
