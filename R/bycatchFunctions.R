@@ -2205,7 +2205,7 @@ getModelSummaryTable<-function(modfits,modTypes) {
 #' @param designScenario Value of designScenario from original run.
 #' @param loadModel TRUE to read in model-based estimator results.
 #' @param modelScenario Value of designScenario form original run.
-#' @keywords internal
+#' @keywords reload outputs
 loadOutputs<-function(baseDir = getwd(),
                       runName,
                       runDate =  Sys.Date(),
@@ -2214,7 +2214,8 @@ loadOutputs<-function(baseDir = getwd(),
                       loadModel = TRUE,
                       modelScenario = NULL) {
   #Check that setup file exists and read in.
-  outDir<-paste0(baseDir, paste("/Output", runName))
+  tempRunName<-abbreviate(runName,minlength=10)
+  outDir<-paste0(baseDir, paste0("/Output", tempRunName))
   if(!dir.exists(outDir)) stop(paste("Directory",outDir,"not found."))
   setupFile<-paste0(runDate,"_BycatchSetupSpecification.rds")
   if(!file.exists(paste0(outDir,"/",setupFile))) stop(paste("Setup file",setupFile ,"not found in",outDir,"."))
@@ -2237,3 +2238,4 @@ loadOutputs<-function(baseDir = getwd(),
     list2env(modelObj$modelOutputs, envir = .GlobalEnv)
   }
 }
+

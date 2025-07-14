@@ -60,11 +60,19 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 ```{r NA-checks, results="asis",  message=TRUE, echo=FALSE, warning=TRUE}
 noWarnings<-TRUE
 if(any(is.na(obsdat[,c(allVarNames,"Effort",obsCatch[run])]))){
+ cat("\n")
   na_counts<- colSums(is.na(obsdat[,c(allVarNames,"Effort",obsCatch[run])]))
-  cat("NAs have been found in observer data in following columns:\n ",
+  cat("- NAs have been found in observer data in following columns:\n ",
                  paste(names(na_counts), na_counts, sep = ": ", collapse = ", "),
                 "\nThese rows will be dropped from all analyses.")
+ cat("\n")
 noWarnings<-FALSE
+}
+if(any(obsdat$Effort==0 & !is.na(obsdat$Effort))) {
+ cat("\n")
+ cat("- Effort in ", sum(obsdat$Effort==0 & !is.na(obsdat$Effort))," rows of the observer data is zero. This should be corrected if using model-based estimators.",sep="")
+ cat("\n")
+ noWarnings<-FALSE
 }
 cat("\n")
 if(!is.null(logdat)) {
@@ -89,7 +97,7 @@ if(length(factorVariables)>0 & !is.null(factorVariables)) {
     obsx<-levels(pull(obsdat,!!factorVariables[i]))
     logx<-levels(pull(logdat,!!factorVariables[i]))
     if(!all(obsx %in% logx)) {
-      cat(paste0("Variable ",factorVariables[i]), "levels: ",
+      cat(paste0("- Variable ",factorVariables[i]), "levels: ",
                                  obsx[!obsx %in% logx],
                                  "found in observer data but not logbook data; this may be a data error.\n ")
 noWarnings<-FALSE
@@ -97,7 +105,7 @@ noWarnings<-FALSE
     
     if(!all(logx %in% obsx)) {
     cat("\n")
-    cat(paste0("Variable ",factorVariables[i]), "levels:",
+    cat(paste0("- Variable ",factorVariables[i]), "levels:",
                                  logx[!logx %in% obsx],
                                  "found in logbook data but not observer data; coefficients cannot be estimated for these levels.\n ")
      noWarnings<-FALSE
@@ -108,7 +116,7 @@ temp<-setdiff(select(logdat,all_of(factorVariables)),select(obsdat,all_of(factor
   filter(!duplicated(.)) 
 if(nrow(temp)>0) {
   cat("\n")
- cat("The following combinations of factors are present in the logbook data but not the observer data:")
+ cat("- The following combinations of factors are present in the logbook data but not the observer data:")
  print(kbl(temp,format="simple"))
   cat("\n")
 }
@@ -116,7 +124,7 @@ temp<-setdiff(select(obsdat,all_of(factorVariables)),select(logdat,all_of(factor
   filter(!duplicated(.)) 
 if(nrow(temp)>0) {
   cat("\n")
- cat("The following combinations of factors are present in the observer data but not the logbook data:")
+ cat("- The following combinations of factors are present in the observer data but not the logbook data:")
  print(kbl(temp,format="simple"))
   cat("\n")
 }
@@ -130,21 +138,21 @@ if(length(numericVariables)>0 & !is.null(numericVariables) &all(!is.na(numericVa
     numlog<-length(logx[logx<obsrange[1] | logx>obsrange[2]])
     numobs<-length(obsx[obsx<logrange[1] | obsx>logrange[2]])
     if(numobs>0) {
-    cat(paste0("Variable ",numericVariables[i]), "has",
+    cat(paste0("- Variable ",numericVariables[i]), "has",
                                numobs, "points in the observer data more than 5% outside the range of the values in the logbook data; data are not consistent.\n ")
       noWarnings<-FALSE
     }
     if(numlog>0) {
-    cat(paste0("Variable ",numericVariables[i]), "has",
+    cat(paste0("- Variable ",numericVariables[i]), "has",
                    numlog, "points in the logbook data more than 5% outside the range of the values in the observer data; extrapolation may give spurious results.\n ")
           noWarnings<-FALSE
     }
     }
 }
-  if(noWarnings) cat("No NAs, missing levels, or mismatch in range of variables found.")
+  if(noWarnings) cat("- No NAs, missing levels, or mismatch in range of variables found.")
   cat("\n")
 }
-if(is.null(logdat)) cat("Logbook data not entered")
+if(is.null(logdat)) cat("- Logbook data not entered")
   cat("\n")
 ```
 
@@ -419,6 +427,14 @@ cat("\n")
 ### Catch per sample unit of `r common[run]` in observer data ##
 
 ```{r catchplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+# Catch histogram
+cat("\n\n")
+cat("\n Figure ",figurenum,". Observed Catch histogram for ",common[[run]], ".\n",sep="")
+figurenum<-figurenum+1
+ggplot(obsdatTemp,aes(x=Catch)) +
+  geom_histogram(bins=30,fill="darkblue")+
+  labs(x=paste0(common[run],catchType[run]," (",catchUnit[run],")"),
+       y=paste0("Sample units(",sampleUnit[run],")"))
 #Catch per sample unit by factor variables
 cat("\n\n")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
@@ -450,6 +466,22 @@ cat("\n")
 ### CPUE of `r common[run]` in observer data ##
 
 ```{r cpueplot, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
+# CPUE histogram
+cat("\n\n")
+cat("\n Figure ",figurenum,". Observed CPUE histogram for ",common[[run]], ".\n",sep="")
+figurenum<-figurenum+1
+ggplot(obsdatTemp,aes(x=Catch/Effort)) +
+  geom_histogram(bins=30,fill="darkblue")+
+  labs(x=paste0("CPUE of ",common[run]),
+       y=paste0("Sample units(",sampleUnit[run],")"))
+# log CPUE histogram
+cat("\n\n")
+cat("\n Figure ",figurenum,". Lof of Observed CPUE plus a constant histogram for ",common[[run]], ".\n",sep="")
+figurenum<-figurenum+1
+ggplot(obsdatTemp,aes(x=log(Catch/Effort+0.001))) +
+  geom_histogram(bins=30,fill="darkblue")+
+  labs(x=paste0("Log(CPUE) of ",common[run]),
+       y=paste0("Sample units(",sampleUnit[run],")"))
 #CPUE by factor variables
 cat("\n\n")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 

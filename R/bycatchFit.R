@@ -122,16 +122,7 @@ bycatchFit<-function(
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
-  # #unpack designObj - if there is a designObj
-  # if(!is.null(designObj)){
-  # designMethods<-designVars<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
-  #
-  # yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
-  #
-  # for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
-  # for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
-  # }
-
+  if(any(obsdat$Effort==0 & !is.na(obsdat$Effort))) stop("Zero values found observer effort data. Correct and re-run bycatchSetup before running models.")
   NumCores<-parallelly::availableCores()  #Check if machine has multiple cores for parallel processing
   #Make sure there are multiple cores to use Parallel processing
   if(NumCores<=1) useParallel=FALSE
@@ -480,11 +471,11 @@ if("Year" %in%numericVariables) {
       } else {
         if(modelFail[run,modelTry[mod]]=="-") modelFail[run,modelTry[mod]]<-"fit"
       }
-      modelSummaryTable[[run]]<-getModelSummaryTable(modFits[[run]][modelFail[run,]=="-"],modelTry[modelFail[run,]=="-"])
       if(length(which(modelFail[run,]=="-"))<1){
-      warning("No models were able to converge.")
+       stop("No models were able to converge.")
+      } else {
+        modelSummaryTable[[run]]<-getModelSummaryTable(modFits[[run]][modelFail[run,]=="-"],modelTry[modelFail[run,]=="-"])
       }
-
     }
 
     #Combine all predictions, except Binomial
@@ -685,7 +676,7 @@ if("Year" %in%numericVariables) {
         rmarkdown::render(mkd,
                           params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                           output_format = "html_document",
-                          output_file = paste0(shortName[run],modelScenario," Model results.html"),
+                          output_file = paste0(shortName[run],modelScenario,"ModelResults.html"),
                           output_dir=paste0(outDir,"/",shortName[run],"/"),
                           quiet = TRUE)
       }
@@ -705,7 +696,7 @@ if("Year" %in%numericVariables) {
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "pdf_document",
-                            output_file = paste0(shortName[run],modelScenario, " Model results.pdf"),
+                            output_file = paste0(shortName[run],modelScenario, "ModelResults.pdf"),
                             output_dir=paste0(outDir,"/",shortName[run],"/"),
                             quiet = TRUE)
 
@@ -715,7 +706,7 @@ if("Year" %in%numericVariables) {
           rmarkdown::render(mkd,
                             params=list(outDir=outDir, run = run,modelScenario=modelScenario),
                             output_format = "html_document",
-                            output_file = paste0(shortName[run],modelScenario, " Model results.html"),
+                            output_file = paste0(shortName[run],modelScenario, "ModelResults.html"),
                             output_dir=paste0(outDir,"/",shortName[run],"/"),
                             quiet = TRUE)
         })

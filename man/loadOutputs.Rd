@@ -32,4 +32,5 @@ loadOutputs(
 \description{
 Read in all the R objects created during runs of the bycatchEstimator for further analysis
 }
-\keyword{internal}
+\keyword{outputs}
+\keyword{reload}

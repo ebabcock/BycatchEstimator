@@ -180,7 +180,7 @@ bycatchSetup <- function(
 
   #Loop through all species and print data summary and data checks. Note that records with NA in either catch or effort are excluded automatically
   for(run in 1:numSp) {
-    shortName[run]<-paste0(abbreviate(common[run],minlength = 7),abbreviate(toupper(catchType[run]),minlength = 3))
+    shortName[run]<-paste0(abbreviate(common[run],minlength = 10),abbreviate(catchType[run],minlength = 5))
     dirname[[run]]<-paste0(outDir,"/",shortName[run],"/","Setup files/")
     if(!dir.exists(dirname[[run]])) dir.create(dirname[[run]],recursive = TRUE)
 
