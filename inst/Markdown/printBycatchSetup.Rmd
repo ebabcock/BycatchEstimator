@@ -396,8 +396,7 @@ cat("\n\n")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
 print(ggplot(temp,aes(x=Level,y=Catch))+
   geom_col(fill="darkblue")+
-  facet_wrap(Variable~.,scales="free")+
-  stat_summary())
+  facet_wrap(Variable~.,scales="free"))
 cat("\n Figure ",figurenum,". Observed total catch of ",common[[run]], " by factor levels.\n",sep="")
 figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
