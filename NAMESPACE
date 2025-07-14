@@ -3,6 +3,7 @@
 export(bycatchDesign)
 export(bycatchFit)
 export(bycatchSetup)
+export(loadOutputs)
 import(DHARMa)
 import(MuMIn)
 import(doParallel)

@@ -15,6 +15,7 @@
 #' @param designScenario Value of designScenario from original run.
 #' @param loadModel TRUE to read in model-based estimator results.
 #' @param modelScenario Value of designScenario from original run.
+#' @export
 #' @keywords reload outputs
 loadOutputs<-function(baseDir = getwd(),
                       runName,
