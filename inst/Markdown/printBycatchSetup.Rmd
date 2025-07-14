@@ -430,7 +430,7 @@ figurenum<-figurenum+1
 ggplot(obsdatTemp,aes(x=Catch)) +
   geom_histogram(bins=30,fill="darkblue")+
   labs(x=paste0(common[run],catchType[run]," (",catchUnit[run],")"),
-       y=paste0("Sample units(",sampleUnit[run],")"))
+       y=paste0("Sample units(",sampleUnit,")"))
 #Catch per sample unit by factor variables
 cat("\n\n")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
@@ -477,7 +477,7 @@ figurenum<-figurenum+1
 ggplot(obsdatTemp,aes(x=log(Catch/Effort+0.001))) +
   geom_histogram(bins=30,fill="darkblue")+
   labs(x=paste0("Log(CPUE) of ",common[run]),
-       y=paste0("Sample units(",sampleUnit[run],")"))
+       y=paste0("Sample units(",sampleUnit,")"))
 #CPUE by factor variables
 cat("\n\n")
 temp<-obsdatTemp %>% pivot_longer(cols=all_of(factorVariables),names_to="Variable",values_to = "Level") 
