@@ -30,7 +30,7 @@
 #' @param trueVals The data set that contains the true simulated total catches by year.
 #' @param trueCols The column of the true simulated catches that contains true bycatch by year
 #' @param reportType Character. Choose type of report to be produced. Options are pdf, html (default) or both.
-#' @import MuMIn ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly GGally
+#' @import MuMIn ggplot2 parallel dplyr doParallel foreach utils tidyverse parallelly
 #' @export
 #' @keywords Fitting functions
 #' @examples

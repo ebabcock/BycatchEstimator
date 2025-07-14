@@ -15,7 +15,6 @@ header-includes:
 
 ```{r setup1, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,error=FALSE,message=FALSE)
-library(tidyverse)
 evalOption<-FALSE
 ```
 ebabcock@miami.edu
@@ -369,7 +368,7 @@ One solution to this problem is to put vessel or vessel-trip in the model as a r
 
 If a user requests an annual abundance index, this is also calculated from the best model in each model group. The annual abundance index is calculated by setting all variables other than year, and any variables required to be included in the index (e.g. region or fleet) to a reference level, which is the mean for numerical variables or the most common value for categorical variables. The index is calculated by predicting the mean CPUE in each year, and its standard error is calculated as the standard error of the mean prediction. For delta-lognormal and delta-Gamma models the standard error of the prediction is calculated from the means and standard errors of the binomial and positive catch models using the method of @Lo.  
 
-If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE, bycatchFit can estimate a CPUE abundance index from any dataset. The dataset to be used for the index should be estimated as "obsdat" even if it is a logbook dataset, because the model is applied to the dataset labelled "obsdat". For CPUE standardization, see papers by @OrtizAroch, @MaunderStarr and @Hoyle.
+If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE, bycatchFit can estimate a CPUE abundance index from any dataset. The dataset to be used for the index should be estimated as "obsdat" even if it is a logbook dataset, because the model is applied to the dataset labelled "obsdat". For CPUE standardization, see papers by @OrtizArocha, @MaunderStarr and @Hoyle.
 
 
 ### Loading outputs for futher plotting and analysis

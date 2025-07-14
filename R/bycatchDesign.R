@@ -20,7 +20,7 @@
 #' @param adjacentNum Number of adjacent years to include for adjacent pooling, as a numerical vector in the same order as designVars. NA for anything other than year, in the same order as designVars.
 #' @param minStrataUnit The smallest sample size in the strata defined by designVars that is acceptable, in sample units (e.g. trips); below that pooling will occur.
 #' @param reportType Character. Choose type of report to be produced. Options are pdf, html (default) or both.
-#' @import ggplot2 dplyr utils tidyverse GGally
+#' @import ggplot2 dplyr utils tidyverse
 #' @importFrom stats median
 #' @export
 #' @keywords Fitting functions
