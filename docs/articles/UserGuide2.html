@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-07-13</h4>
+            <h4 data-toc-skip class="date">2025-07-15</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -688,7 +688,7 @@ variables, offsets) as explained here.</p>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(exp(\sigma ^2)-1)(exp(2\mu +\sigma ^2)</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mi>a</mi><mi>m</mi><mi>m</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">gamma</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>a</mi><mi>m</mi><mi>m</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">Gamma</annotation></semantics></math></td>
 <td align="left">CPUE,real,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt;0</annotation></semantics></math>
 </td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
@@ -853,7 +853,7 @@ likely to prefer overly complex models when the sample size is large
 (<span class="citation">Burnham and Anderson (2004)</span>). Information
 criteria work by weighing the tradeoff between model fit and model
 complexity. The AIC is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2log(L)-2k</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2log(L)+2k</annotation></semantics></math>
 where L is likelihood,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">-2log(L)</annotation></semantics></math>
 is model deviance, and
@@ -864,7 +864,7 @@ implies better model fit. However, the complexity penalty
 means that an added parameter (e.g. another predictor variable
 coefficient) must reduce deviance by more than 2 units to improve the
 fit enough to be worth the extra parameters. BIC is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>n</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">BIC=-2log(L)-nk</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>n</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">BIC=-2log(L)+nk</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
 is total sample size. Thus, the complexity penalty increases with sample
@@ -1175,8 +1175,8 @@ have to be included at the set level, such as, for example, if depth
 zone is a stratification variable and vessel-trips may fish in more than
 one depth-zone. If only a few trips fish in multiple depth-zones (or
 other variable) then the most common one can be assigned to the trip
-without much loss of information. See (<span class="citation">Elizabeth
-A. Babcock et al. (2018)</span>) for an example where this method was
+without much loss of information. See <span class="citation">Elizabeth
+A. Babcock et al. (2018)</span> for an example where this method was
 used for sea turtle bycatch in shrimp trawls.</p>
 </div>
 <div class="section level4">
@@ -1197,7 +1197,7 @@ binomial and positive catch models using the method of <span class="citation">Lo
 bycatchFit can estimate a CPUE abundance index from any dataset. The
 dataset to be used for the index should be estimated as “obsdat” even if
 it is a logbook dataset, because the model is applied to the dataset
-labelled “obsdat”. For CPUE standardization, see papers by <span class="citation">Ortiz and Arocha (2004)</span>, <span class="citation">Maunder and Starr (2003)</span> and <span class="citation">Hoyle et al. (2024)</span>.</p>
+labelled “obsdat”. For CPUE standardization, see papers by <span class="citation">Ortiz and Arocha (2004)</span>, <span class="citation">Maunder and Punt (2004)</span> and <span class="citation">Hoyle et al. (2024)</span>.</p>
 </div>
 <div class="section level3">
 <h3 id="loading-outputs-for-futher-plotting-and-analysis">Loading outputs for futher plotting and analysis<a class="anchor" aria-label="anchor" href="#loading-outputs-for-futher-plotting-and-analysis"></a>
@@ -1523,10 +1523,10 @@ Models.”</span> Journal Article. <em>Canadian Journal of Fisheries and
 Aquatic Sciences</em> 49 (12): 2515–26. <a href="https://doi.org/Doi%2010.1139/F92-278" class="external-link">https://doi.org/Doi
 10.1139/F92-278</a>.
 </div>
-<div id="ref-MaunderStarr" class="csl-entry">
-Maunder, MN, and PJ Starr. 2003. <span>“Fitting Fisheries Models to
-Standardised CPUE Abundance Indices.”</span> Journal Article.
-<em>Fisheries Research</em> 63 (1): 43–50. <a href="https://doi.org/10.1016/S0165-7836(03)00002-X" class="external-link">https://doi.org/10.1016/S0165-7836(03)00002-X</a>.
+<div id="ref-MaunderPunt" class="csl-entry">
+Maunder, MN, and AE Punt. 2004. <span>“Standardizing Catch and Effort
+Data: A Review of Recent Approaches.”</span> <em>FISHERIES RESEARCH</em>
+70 (2-3): 141–59. <a href="https://doi.org/10.1016/j.fishres.2004.08.002" class="external-link">https://doi.org/10.1016/j.fishres.2004.08.002</a>.
 </div>
 <div id="ref-foreach" class="csl-entry">
 Microsoft, and Steve Weston. 2020. <em>Foreach: Provides Foreach Looping

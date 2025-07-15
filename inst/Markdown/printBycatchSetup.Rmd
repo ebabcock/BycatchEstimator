@@ -469,7 +469,7 @@ figurenum<-figurenum+1
 ggplot(obsdatTemp,aes(x=Catch/Effort)) +
   geom_histogram(bins=30,fill="darkblue")+
   labs(x=paste0("CPUE of ",common[run]),
-       y=paste0("Sample units(",sampleUnit[run],")"))
+       y=paste0("Sample units(",sampleUnit,")"))
 # log CPUE histogram
 cat("\n\n")
 cat("\n Figure ",figurenum,". Lof of Observed CPUE plus a constant histogram for ",common[[run]], ".\n",sep="")
