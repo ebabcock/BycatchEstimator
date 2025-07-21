@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-07-20</h4>
+            <h4 data-toc-skip class="date">2025-07-21</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -447,7 +447,7 @@ abundance index is done with the function <code>bycatchFit</code></p>
 <span>  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
 <span>  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Tweedie"</span>,<span class="st">"Lognormal"</span>,<span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>, <span class="st">"TMBnbinom1"</span>,<span class="st">"TMBlognormal"</span>,</span>
 <span>                          <span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span>,<span class="st">"Normal"</span>,<span class="st">"Binomial"</span>,<span class="st">"NegBin"</span>, <span class="st">"TMBgamma"</span>,<span class="st">"Gamma"</span>,</span>
-<span>                          <span class="st">"TMBbinomial"</span>,<span class="st">"TMBnormal"</span>,<span class="st">"TMBdelta-Lognormal"</span>,<span class="st">"TMBdelta-Gamma"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>,<span class="fl">8</span>,<span class="fl">16</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>                          <span class="st">"TMBbinomial"</span>,<span class="st">"TMBnormal"</span>,<span class="st">"TMBdelta-Lognormal"</span>,<span class="st">"TMBdelta-Gamma"</span>,<span class="st">"Poisson"</span>,<span class="st">"TMBpoisson"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>,<span class="fl">8</span>,<span class="fl">16</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  randomEffects <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  randomEffects2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
@@ -477,18 +477,19 @@ same setupObj, by specifying “modelScenario”. The character vector
 “modelTry” indicates both the potential observation error distributions
 to try and which functions to use in the fitting. Options are: “Tweedie”
 from the cplm
-library,“Lognormal”,“Delta-Lognormal”,“Delta-Gamma”,“Normal”,“Binomial”,and
-“Gamma” from the ordinary <code>glm</code> and <code>lm</code>
+library,“Lognormal”,“Delta-Lognormal”,“Delta-Gamma”,“Normal”,“Binomial”,“Poisson”
+and “Gamma” from the ordinary <code>glm</code> and <code>lm</code>
 functions, “NegBin” from the MASS library’s <code>glm.nb</code>
 function, and “TMBnbinom1”,“TMBlognormal”, “TMBnbinom2”,“TMBtweedie”,
-“TMBgamma”, “TMBbinomial”, “TMBnormal”, “TMBdelta-Lognormal” and
-“TMBdelta-Gamma” from glmmTMB). A binomial model will be tried if it was
-requested, or if either a delta-lognormal or delta-Gamma model were
-requested, since delta models have a binomial component. Note that the
-model outputs with the same funtional form (e.g. Tweedie) should be the
-same whether using glmmTMB or other functions. The negative binomial 2
-in TMB is the same as the negative binomial in glm.nb. To get faster
-results, use glmmTMB for all model fitting.</p>
+“TMBgamma”, “TMBbinomial”, “TMBnormal”, “TMBpoisson”,
+“TMBdelta-Lognormal” and “TMBdelta-Gamma” from glmmTMB). A binomial
+model will be tried if it was requested, or if either a delta-lognormal
+or delta-Gamma model were requested, since delta models have a binomial
+component. Note that the model outputs with the same funtional form
+(e.g. Tweedie) should be the same whether using glmmTMB or other
+functions. The negative binomial 2 in TMB is the same as the negative
+binomial in glm.nb. To get faster results, use glmmTMB for all model
+fitting.</p>
 <p>Give the formulas for the most complex and simplest set of predictor
 variables to be considered within each model group. These should be in
 the format of R formulas (e.g. <em>formula(y~Year)</em>), with y on the
@@ -646,8 +647,8 @@ simpleModel.</p></li>
 </h2>
 <p>The <code>bycatchFit</code> function provides many options for the
 observation error model groups (modelTry) to allow users flexibility in
-setting up models. However, many of these models (e.g. normal) are
-unlikely to be effective. In practice, negative binomial (1 or 2),
+setting up models. However, many of these models (e.g. normal, Poisson)
+are unlikely to be effective. In practice, negative binomial (1 or 2),
 delta-lognormal or Tweedie work for most applications, and the glmmTMB
 versions run quickly. This section provides more details on how the
 model fit and selection works, with guidance for selecting models.</p>
@@ -715,6 +716,14 @@ variables, offsets) as explained here.</p>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">np(1-p)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">Poisson</annotation></semantics></math></td>
+<td align="left">Catch,integer,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>e</mi><mi>g</mi><mi>B</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">NegBinomial1</annotation></semantics></math></td>
 <td align="left">Catch,integer,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
 </td>
@@ -722,7 +731,7 @@ variables, offsets) as explained here.</p>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu(1+\alpha)</annotation></semantics></math></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>e</mi><mi>g</mi><mi>B</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">NegBinomial2</annotation></semantics></math></td>
 <td align="left">Catch,integer,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\geq0</annotation></semantics></math>
 </td>
@@ -798,6 +807,16 @@ models to also be used with catch or bycatch measured in weight
 before running this model. If any of the catches are less than 0.5, they
 will be rounded to 0, so you might want to change the scale if using
 negative binomial models (e.g., multiply by 10).</p>
+<p>The Poisson distribution, available from modelTry = “Poisson” or
+“TMBpoisson” works the same as the negative binomial except that it does
+not have an estimated scale parameter, and it defines the variance as
+equal to the mean. The Poisson is appropriate for completely random
+count data that are not either clumped or overdispersed. It generally
+does not work as well as the Negative Binomial, but it is included for
+comparison. It may be worth using if the scale parameter in negative
+binomal 1 or 2 implies that the variance is similar to the mean (i.e. a
+large value of the scale parameter in nbinom2, or a small value near
+zero in nbinom1 implies the variance is close to the mean).</p>
 <p>The Tweedie distribution (“Tweedie” or “TMBtweedie” in modelTry) is a
 generalized function that estimates a distribution similar to a Gamma
 distribution, except that it allows extra probability mass at zero. It

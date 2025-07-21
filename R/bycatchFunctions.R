@@ -201,7 +201,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
   #Set up input data
   if(modType %in% c("Binomial","TMBbinomial"))
     obsdatval$y=ifelse(obsdatval$Catch>0,1,0)
-  if(modType %in% c("NegBin","TMBnbinom1","TMBnbinom2"))
+  if(modType %in% c("NegBin","TMBnbinom1","TMBnbinom2","Poisson","TMBpoisson"))
     obsdatval$y=round(obsdatval$Catch)
   if(modType %in% c("Tweedie","TMBtweedie","Normal","TMBnormal"))
     obsdatval$y=obsdatval$cpue
@@ -218,7 +218,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     obsdatval=obsdatval[obsdatval$cpue>0,]
   }
   funcName=case_when(modType %in% c("Normal","Lognormal","Delta-Lognormal")~"lm",
-                     modType %in% c("Binomial","Gamma","Delta-Gamma")~"glm",
+                     modType %in% c("Binomial","Gamma","Delta-Gamma","Poisson")~"glm",
                      modType %in% c("NegBin")~"glm.nb",
                      modType %in% c("Tweedie") ~"cpglm",
                      grepl("TMB",modType)~"glmmTMB")
@@ -231,11 +231,11 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     args=c(args,list(family=Gamma(link="log")))
     TMBfamily=Gamma(link="log")
   }
-  if(modType %in% c("NegBin")) {
+  if(modType %in% c("NegBin","Poisson")) {
     offset="+offset(log(Effort))"
     keepVars=c(requiredVarNames,"offset(log(Effort))")
   }
-  if(modType %in% c("TMBnbinom1","TMBnbinom2") ){
+  if(modType %in% c("TMBnbinom1","TMBnbinom2","TMBpoisson") ){
     TMBfamily=gsub("TMB","",modType)
     offset="+offset(log(Effort))"
     keepVars=paste0("cond(",c(requiredVarNames,"offset(log(Effort))"),")")
@@ -289,11 +289,18 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     returnval=NULL
     print(paste(common[run],modType,"failed to converge"))
   } else {
-    if(modType=="Binomial") modfit1<-glm(formula(modfit1),data=obsdatval,family="binomial",control=list(epsilon = 1e-6,maxit=100),na.action=na.fail)
-    if(modType %in% c("Normal","Lognormal","Delta-Lognormal")) modfit1<-lm(formula(modfit1),data=obsdatval,na.action=na.fail)
-    if(modType %in% c("Gamma","Delta-Gamma")) modfit1<-glm(formula(modfit1),data=obsdatval,family=Gamma(link="log"),na.action=na.fail)
-    if(modType=="NegBin") modfit1<-glm.nb(formula(modfit1),data=obsdatval,control=glm.control(epsilon=1E-6,maxit=30),na.action=na.fail)
-    if(modType=="Tweedie") modfit1<-cplm::cpglm(formula(modfit1),data=obsdatval,na.action=na.fail)
+    if(modType=="Binomial")
+      modfit1<-glm(formula(modfit1),data=obsdatval,family="binomial",control=list(epsilon = 1e-6,maxit=100),na.action=na.fail)
+    if(modType=="Poisson")
+      modfit1<-glm(formula(modfit1),data=obsdatval,family="poisson",control=list(epsilon = 1e-6,maxit=100),na.action=na.fail)
+    if(modType %in% c("Normal","Lognormal","Delta-Lognormal"))
+      modfit1<-lm(formula(modfit1),data=obsdatval,na.action=na.fail)
+    if(modType %in% c("Gamma","Delta-Gamma"))
+      modfit1<-glm(formula(modfit1),data=obsdatval,family=Gamma(link="log"),na.action=na.fail)
+    if(modType=="NegBin")
+      modfit1<-glm.nb(formula(modfit1),data=obsdatval,control=glm.control(epsilon=1E-6,maxit=30),na.action=na.fail)
+    if(modType=="Tweedie")
+      modfit1<-cplm::cpglm(formula(modfit1),data=obsdatval,na.action=na.fail)
     if(grepl("TMB",modType) )
       modfit1<-glmmTMB(formula(modfit1),family=TMBfamily,data=obsdatval,na.action=na.fail)
     if(useParallel) {
@@ -320,7 +327,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     }
     if(printOutput & !is.null(modfit2)) {
       write.csv(selTable,paste0(dirname[[run]],shortName[run],modelScenario,"ModelSelection",modType,".csv"), row.names = FALSE)
-      #if(modType %in% c("Binomial","NegBin")) anova1=anova(modfit3,test="Chi")
+      #if(modType %in% c("Binomial","NegBin","Poisson")) anova1=anova(modfit3,test="Chi")
       #if(modType =="Tweedie" | grepl("TMB",modType)) anova1=NULL
       #if(modType %in% c("Normal","Lognormal","Gamma","Delta-Lognormal","Delta-Gamma")) anova1=anova(modfit3,test="F")
       # if(!is.null(anova1)) {
@@ -494,6 +501,11 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,coefvals1,vcovvals1))*newdat$Effort,
                                      size=modfit1$theta))  #Simulate negative binomial data
       }
+      if(modtype=="Poisson") {
+        allpred<-cbind(newdat,response1)   %>%
+          mutate(Total=.data$fit,TotalVar=.data$se.fit^2+.data$fit)
+        sim = replicate(nsim,rpois(nObs,lambda=exp(a %*% mvrnorm(1,coefvals1,vcovvals1))*newdat$Effort))  #Simulate Poison data
+      }
       if(modtype=="Tweedie") {
         allpred=cbind(newdat,response1)   %>%
           mutate(Total=.data$Effort*.data$fit,
@@ -501,6 +513,13 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         sim=replicate(nsim,rtweedie(nObs,power=modfit1$p,
                                     mu=as.vector(exp(a %*% mvrnorm(1,coef(modfit1),modfit1$vcov))),
                                     phi=modfit1$phi))*newdat$Effort
+      }
+      if(modtype=="TMBpoisson") {
+        allpred<-cbind(newdat,response1)  %>%
+          mutate(Total=.data$fit,
+                 TotalVar=.data$se.fit^2+.data$fit)
+        sim = replicate(nsim,rpois(nObs,lambda=exp(a %*% mvrnorm(1,fixef(modfit1)[[1]],
+                                                               vcov(modfit1)[[1]])+NewRandomVals)*newdat$Effort))
       }
       if(modtype=="TMBnbinom1") {
         allpred<-cbind(newdat,response1)  %>%
@@ -671,6 +690,10 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       residvar =  predval+predval^2/modfit1$theta
       deriv =  predval  #derivative of exp(x) is exp(x)
     }
+    if(modtype %in% c("TMBpoisson","Poisson") ) {
+      residvar =  predval
+      deriv =  predval  #derivative of exp(x) is exp(x)
+    }
     if(modtype %in% c("TMBnbinom1") ) {
       residvar =  predval+predval*sigma(modfit1)
       deriv =  predval  #derivative of exp(x) is exp(x)
@@ -809,7 +832,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
       allpred<-cbind(newdat,response1,response2) %>%
         mutate(Total=.data$Effort*.data$fit*.data$fit2)
     }
-    if(modtype %in% c("NegBin","TMBnbinom1","TMBnbinom2")) {
+    if(modtype %in% c("NegBin","TMBnbinom1","TMBnbinom2","Poisson","TMBpoisson")) {
       allpred<-cbind(newdat,response1)   %>%
         mutate(Total=.data$fit)
     }
@@ -892,7 +915,8 @@ makeIndexVar<-function(modfit1, modfit2=NULL, modType, indexVarNames,newdat, nsi
         mutate(Index=.data$fit*.data$fit2,
                SE=lo.se(.data$fit,.data$prob.se,.data$fit2,.data$pos.cpue.se))
     }
-    if(modType %in% c("Binomial","NegBin","Tweedie","TMBnbinom1","TMBnbinom2","Normal","TMBtweedie","TMBbinomial","TMBnormal")) {
+    if(modType %in% c("Binomial","NegBin","Tweedie","TMBnbinom1","TMBnbinom2","Normal",
+                      "TMBtweedie","TMBbinomial","TMBnormal","Poisson","TMBpoisson")) {
       allpred<-cbind(newdat,response1)   %>%
         mutate(Index=.data$fit, SE=.data$se.fit)
     }

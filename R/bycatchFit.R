@@ -11,7 +11,7 @@
 #'
 #' @param setupObj  An object produced by \code{bycatchSetup}.
 #' @param modelScenario Short descriptor of model setup, eg. "s1", so output files will be different if you run more than one scenario with one setupObj.
-#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal", "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.
+#' @param modelTry  Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal","Poisson", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal","TMBpoisson" , "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find and compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables that must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
@@ -130,7 +130,7 @@ bycatchFit<-function(
   #Check that all models in modelTry are valid
   if(!all(modelTry %in% c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma", "TMBnbinom1","TMBlognormal",
                           "TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin", "TMBgamma","Gamma",
-                          "TMBbinomial","TMBnormal","TMBdelta-Lognormal","TMBdelta-Gamma") ))
+                          "TMBbinomial","TMBnormal","TMBdelta-Lognormal","TMBdelta-Gamma","Poisson","TMBpoisson") ))
     stop(paste("Model requested in modelTry not available"))
 
   #Make sure binomial is included if either of the delta models is
@@ -143,6 +143,7 @@ bycatchFit<-function(
   if(!is.null(randomEffects) | !is.null(randomEffects2)) {
     modelTry<-case_when(modelTry=="Binomial" ~"TMBbinomial",
                         modelTry=="Normal" ~"TMBnormal",
+                        modelTry=="Poisson" ~"TMBpoisson",
                         modelTry=="Tweedie" ~"TMBtweedie",
                         modelTry=="Gamma"~"TMBgamma",
                         modelTry=="Delta-Lognormal"~"TMBdelta-Lognormal",
