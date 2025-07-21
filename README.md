@@ -13,7 +13,10 @@ database to the total effort from logbooks or landings records. The
 model framework can also be used to estimate an annual index of
 abundance, calculated only from the observer data. See the User’s Guide
 under articles at <https://ebabcock.github.io/BycatchEstimator/> for
-details.
+details. The source code is at
+<https://github.com/ebabcock/BycatchEstimator>. For a development
+version of a Shiny app that runs the data checks described below, go to
+<https://natureanalytics.shinyapps.io/BycatchEstimator/>
 
 ## Installation
 
@@ -35,13 +38,13 @@ devtools::install_github("ebabcock/BycatchEstimator")
 ```
 
 For more help with installation, see the Installation Guide
-<https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html>
-Also, see the video tutorial at
+<https://ebabcock.github.io/BycatchEstimator/> Also, see the video
+tutorial at
 <https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000>
 Passcode: gZ!tK8!n
 
 If you have used older versions of this tool, see the the article on how
-to adjust your code to use the new version at
+to adjust your code to use the new version under articles at
 <https://ebabcock.github.io/BycatchEstimator/>
 
 ## Getting started
@@ -215,3 +218,7 @@ of Scientific Papers, 78(5): 179-189.
 Babcock E. A., W. J. Harford, T. Gedamke, D. Soto, and C. P. Goodyear.
 2022. Efficacy of a bycatch estimation tool. ICCAT Collective Volume of
 Scientific Papers 79(5): 304-339
+
+Babcock, E. A., W. J. Harford, T. Gedamke, S. Anderson, and C. P.
+Goodyear. 2023. Simulation-Testing Model-Based and Design-Based Bycatch
+Estimators. ICCAT Collective Volume of Scientific Papers 80 (6): 51–79.

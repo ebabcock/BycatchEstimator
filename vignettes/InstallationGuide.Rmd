@@ -1,5 +1,5 @@
 ---
-title: "Installing bycatch estimator"
+title: "Installing BycatchEstimator"
 vignette: >
   %\VignetteIndexEntry{InstallationGuide}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE,eval=FALSE)
 
 ## Before you install BycatchEstimator
 
-The BycatchEstimator package prints output figures to either html or pdf files. I you select pdf output, you must have a LaTeX package installed on your computer. If you don't have this, you can install TinyTex (https://yihui.org/tinytex/), which works and takes up less disk space than other LaTeX options. Try the test code from the TinyTex installation guide to make sure you can print to a pdf before trying to install BycatchEstimator.
+The BycatchEstimator package prints output figures to either html or pdf files. If you select pdf output, you must have a LaTeX package installed on your computer. If you don't have this, you can install TinyTex (https://yihui.org/tinytex/), which works and takes up less disk space than other LaTeX options. Try the test code from the TinyTex installation guide to make sure you can print to a pdf before trying to install BycatchEstimator.
 
 BycatchEstimator requires recent versions of R and all the libraries that it uses. If you have an older version of R, update R and all your libraries to the current version before you try to install BycatchEstimator.
 

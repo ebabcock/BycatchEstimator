@@ -35,9 +35,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/InstallationGuide.html">Installing bycatch estimator</a></li>
+<li><a class="dropdown-item" href="articles/InstallationGuide.html">Installing BycatchEstimator</a></li>
     <li><a class="dropdown-item" href="articles/TransitionFrom2024Version.html">Transitioning to the new version of bycatchEstimator in 2025</a></li>
-    <li><a class="dropdown-item" href="articles/UserGuide2.html">Bycatch-Estimator User Guide</a></li>
+    <li><a class="dropdown-item" href="articles/UserGuide2.html">BycatchEstimator User Guide</a></li>
   </ul>
 </li>
       </ul>
@@ -57,7 +57,7 @@
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>BycatchEstimator uses both model-based and design-based procedures to estimate total annual bycatch by expanding a sample, such as an observer database to the total effort from logbooks or landings records. The model framework can also be used to estimate an annual index of abundance, calculated only from the observer data. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details.</p>
+<p>BycatchEstimator uses both model-based and design-based procedures to estimate total annual bycatch by expanding a sample, such as an observer database to the total effort from logbooks or landings records. The model framework can also be used to estimate an annual index of abundance, calculated only from the observer data. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details. The source code is at <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>. For a development version of a Shiny app that runs the data checks described below, go to <a href="https://natureanalytics.shinyapps.io/BycatchEstimator/" class="external-link uri">https://natureanalytics.shinyapps.io/BycatchEstimator/</a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -66,8 +66,8 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span></code></pre></div>
-<p>For more help with installation, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a> Also, see the video tutorial at <a href="https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000" class="external-link uri">https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000</a> Passcode: gZ!tK8!n</p>
-<p>If you have used older versions of this tool, see the the article on how to adjust your code to use the new version at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a></p>
+<p>For more help with installation, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> Also, see the video tutorial at <a href="https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000" class="external-link uri">https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000</a> Passcode: gZ!tK8!n</p>
+<p>If you have used older versions of this tool, see the the article on how to adjust your code to use the new version under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a></p>
 </div>
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
@@ -173,6 +173,7 @@
 <p>Goodyear, C.P. 2021. Development of new model fisheries for simulating longline catch data with LLSIM. Collect. Vol. Sci. Pap. ICCAT, 78(5): 53-62</p>
 <p>Babcock, E.A. and C. P. Goodyear. 2021. Testing a bycatch estimation tool using simulated blue marlin longline data. ICCAT Collective Volume of Scientific Papers, 78(5): 179-189.</p>
 <p>Babcock E. A., W. J. Harford, T. Gedamke, D. Soto, and C. P. Goodyear. 2022. Efficacy of a bycatch estimation tool. ICCAT Collective Volume of Scientific Papers 79(5): 304-339</p>
+<p>Babcock, E. A., W. J. Harford, T. Gedamke, S. Anderson, and C. P. Goodyear. 2023. Simulation-Testing Model-Based and Design-Based Bycatch Estimators. ICCAT Collective Volume of Scientific Papers 80 (6): 51–79.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">

@@ -1,5 +1,5 @@
 ---
-title: "Bycatch-Estimator User Guide"
+title: "BycatchEstimator User Guide"
 author: "Elizabeth A. Babcock"
 date: "`r Sys.Date()`"
 vignette: "%\\\\VignetteIndexEntry{UserGuide}  %\\\\VignetteEngine{knitr::rmarkdown}
@@ -22,19 +22,19 @@ ebabcock@miami.edu
 
 ## Introduction
 
-The BycatchEstimator tool estimates total bycatch, calculated by expanding a sample, such as an observer data set, to total effort from logbooks or landings records. The bycatch estimates are made with either a generic model-based bycatch estimation procedure, or common design-based bycatch estimation methods (e.g. stratified ratio estimator). 
+The `BycatchEstimator` tool estimates total bycatch, calculated by expanding a sample, such as an observer data set, to total effort from logbooks or landings records. The bycatch estimates are made with either a generic model-based bycatch estimation procedure, or common design-based bycatch estimation methods (e.g. stratified ratio estimator). 
 
 All bycatch estimation methods essentially estimate total bycatch as the sum over all the strata (*i*, e.g. years, areas, seasons), of the bycatch rate *r* estimated from a sample of the fishery (e.g. observer data), times the total effort *E* estimated from fish landings records or logbook data:
 
 $$B=\sum_{i}r_i E_i$$
 Design-based methods calculate the bycatch rate directly from the observer data with a formula (See below), while model-based estimators use a generalized linear model (GLM) to estimate a predicted bycatch rate $\hat{r}$ to use in the expansion. Models can allow for more variables to be included, such as, for example, information about the habitat of the bycatch species, which may improve precision of bycatch estimates. However, model-based and design-based estimators often produce similar estimates, so that the simpler design-based estimates are sufficient in many cases.  
 
-The workflow for using BycatchEstimator is: 
+The workflow for using `BycatchEstimator` is: 
 
 1. Install the code and test that everything works properly by running an example.
-2. Run the bycatchSetup function to produce data summaries and plots, to make sure that your data are appropriate for bycatch estimation.
-3. Run either bycatchDesign for design-based estimators, or bycatchFit for model-based estimators, or both. 
-4. Use the output figures and tables directly, or if desired, use the loadResults function to input the model runs back into R for more advanced analysis.
+2. Run the `bycatchSetup` function to produce data summaries and plots, to make sure that your data are appropriate for bycatch estimation.
+3. Run either `bycatchDesign` for design-based estimators, or `bycatchFit` for model-based estimators, or both. 
+4. Use the output figures and tables directly, or if desired, use the `loadOutputs` function to input the model runs back into R for more advanced analysis.
 5. Validate results if possible.
 
 This user guide provides both detailed information on how to use the tool, and some general guidance on bycatch estimation. 
@@ -80,13 +80,15 @@ setupObj<-bycatchSetup(
 
 The observer data should be aggregated to the appropriate sample unit, such as trips or sets, so that each row corresponds to one sample unit. Effort must be in the same units in both data sets (e.g. sets or hook-hours). The logbook data may be aggregated to sample units, or it may be aggregated further, as long as it includes data on all stratification or predictor variables. For example, the logbook data can be aggregated by year, region and season if those are the stratification variables, or each row can be one sample unit. If the logbook data are aggregated, there must be a column, with a name specified in logNum, giving the number of sample units per row in the logbook data (logNum=NA means all rows on the logbook data are one sample unit). This information on the number of sample units is needed for the variance calculations. If any environmental variables, such as depth, are included, the observed and logbook data probably both have to be entered at the set level. 
 
-The observer data should have columns for year and the other predictor (for models) or stratification (for design-based) variables, the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have Year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. If there are any NA values in any of the variables, those rows will be deleted from the observer data set. Any NA values in the logbook dataset will cause the function to stop with an error message. There should be no NA values in the logbook data, because this dataset should be a complete accounting of all effort. 
+The observer data should have columns for year and the other predictor (for models) or stratification (for design-based) variables, the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have columns for Year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. If there are any NA values in any of the variables, those rows will be deleted from the observer data set. Any NA values in the logbook dataset will cause the function to stop with an error message. There should be no NA values in the logbook data, because this dataset should be a complete accounting of all effort. 
 
-Any variables you intend to use in analysis should be entered in the character vectors as either factorVariables or numericVariables. Note that design-based methods only work for categorical variables. Year is interpreted as a factor in the design-based methods whether it is numerical or factor. For model-based methods, Year may be either a number or a factor. Note that there is an input "yearVar" for the name of the year variable in your datasets. However, this variable will be renamed as Year (with a captial Y) in the code. If Year is not a predictor variable in your analysis, you must still input a value for yearVar in `dataSetup`, but you don't have to use it the analysis functions. Year should be be spelled "Year" in numericVariables, factorVariables, and all other model inputs.
+Any variables you intend to use in analysis should be entered in the character vectors named factorVariables or numericVariables. Note that design-based methods only work for categorical variables. Year is interpreted as a factor in the design-based methods whether it is numerical or factor. For model-based methods, Year may be either a number or a factor. Note that there is an input "yearVar" for the name of the year variable in your datasets. However, this variable will be renamed as Year (with a capital Y) in the code. If Year is not a predictor variable in your analysis, you must still input a value for yearVar in `dataSetup`, but you don't have to use it the analysis functions. Year should be be spelled "Year" in numericVariables, factorVariables, and all other model inputs.
 
-The code can be used to analyze multiple species, or disposition types (e.g. retained catch, dead discards, live releases) at the same time. This is specified by inputting a vector rather than a single value for the scientific name, common name, units of estimates, and the name of the column containing the catch data (obsCatch).All these inputs can be a single value if analyzing only one species or catch type. 
+The code can be used to analyze multiple species, or disposition types (e.g. retained catch, dead discards, live releases) at the same time. This is specified by inputting a vector rather than a single value for the scientific name, common name, units of estimates, and the name of the column containing the catch data (obsCatch).All these inputs can be a single value if analyzing only one species and catch type. 
 
-This function outputs the user's choice of an html or a pdf file, or both, named with a shortened version of the species name, catch type and "data checks", in directories named "output" followed by the specified run name. A csv file for each species is placed in a directory named for the species, sub-directory "bycatchSetup Files". If there are multiple species or catch types, each will have their own summary file. There will be warning messages if there are any NA values in the data or any 0 values in the observer effort data, or if levels of a factor variable in the logbook data are not present in the observer data. The  html or pdf data check file will include the warnings, a table of combinations of factors present in logdat but not obsdat (if any) and the following tables and plots.
+This function outputs the user's choice of an html or a pdf file, or both, named with a shortened version of the species name, catch type and "data checks", in directories named "output" followed by the specified run name. A csv file for each species is placed in a directory named for the species, sub-directory "Setup Files". If there are multiple species or catch types, each will have their own summary file. 
+
+There will be warning messages if there are any NA values in the data or any 0 values in the observer effort data, or if levels of a factor variable in the logbook data are not present in the observer data. The  html or pdf data check file will include the warnings, a table of combinations of factors present in logdat but not obsdat (if any) and the following tables and plots.
 
 The tables are:
 
@@ -116,7 +118,7 @@ When looking at the tables and plots, check that the observer data spans roughly
 
 Model-based estimation methods work best of there are non-zero catches across all levels of each factor variable. Numeric variables can introduce bias if the observed data does not include the full range of values in the whole fishery. Also, look for non-linear trends in the relationship between CPUE and the numerical variable. A numeric variable will be treated as a simple linear regression in the models. If the relationship looks non-linear, you may want to consider a polynomial regression (see below). Also, check for instances of very high CPUE. This may happen if a catch occurs in a set/trip with low recorded effort, and these outliers may bias the results. In general, model-based methods are very sensitive to outliers, which are often errors in the data that should be cleaned up. If there are any zeroes values of Effort in the observer data (which is not possible), these should be corrected before doing model-based analysis. 
 
-NA values in the logbook data cause the code to stop with an error message. Values of effort and all predictor variables are needed for the entire fishery so that the estimated total bycatch will be estimated correctly. If your total effort (logbook) data are missing values of some variables for a component of the fishery (e.g. a gear type or some years), consider excluding that part of the fishery from the bycatch calculations, and reporting bycatch only for the part of the fishery with complete effort data. If missing values are scattered throughout the dataset, consider filling in the missing values with reasonable numbers. For example, if some sets are missing data on the effort in number of hook-hours, you could replace the NAs with the mean effort (e.g. mean number of hook-hours per set if that is the unit of effort). Imputing the missing values is preferable to excluding effort from the fishery, because deleting the missing records implies that those sample units have no bycatch. Similarly, if the value of a categorical variable like gear type is missing, the NAs could be filled with the most common gear type, or with a random choice of gear type. These imputation methods will not cause bias if they number of imputed values is fairly small.  
+NA values in the logbook data cause the code to stop with an error message. Values of effort and all predictor variables are needed for the entire fishery so that the total bycatch will be estimated correctly. If your total effort (logbook) data are missing values of some variables for a component of the fishery (e.g. a gear type or some years), consider excluding that part of the fishery from the bycatch calculations, and reporting bycatch only for the part of the fishery with complete effort data. If missing values are scattered throughout the dataset, consider filling in the missing values with reasonable numbers. For example, if some sets are missing data on the effort in number of hook-hours, you could replace the NAs with the mean effort (e.g. mean number of hook-hours per set if that is the unit of effort). Imputing the missing values is preferable to excluding effort from the fishery, because deleting the missing records implies that those sample units have no bycatch. Similarly, if the value of a categorical variable like gear type is missing, the NAs could be filled with the most common gear type, or with a random choice of gear type. These imputation methods will not cause bias if they number of imputed values is fairly small.  
 
 ## Design-based estimators
 
@@ -143,13 +145,13 @@ To deal with strata that have no observations or few observations, the user may 
 
 This function produces the user's choice of a pdf or html file with bycatch estimates for each species and catch type, labelled with the designScenario and species name plus "design results". The file includes a table with the total estimates by year for each method, along with standard errors, a figure showing the estimates by year with 95% confidence intervals. If pooling was requested, there is a barplot showing the number of strata pooled in each Year to each variable in designVars, also indicating the number of strata that have not acheived the specified minimum number of sample units.  
 
-The outputs are also given in .csv files in a folder labeled "Design outputs". The estimates are in columns called ratioMean, ratioSE, deltaMean and deltaSE in the file labelled DesignSummary (by year) and the file labelled DesignStrata (by stata). If pooling was requested, a csv labelled "pooling" gives the number of sample units in the strata with and without pooling, etc. See details on outputs in the appendix. 
+The outputs are also given in .csv files in a folder labeled "Design outputs". The estimates are in columns called ratioMean, ratioSE, deltaMean and deltaSE in the file labelled DesignSummary (by year) and the file labelled DesignStrata (by stata). If pooling was requested, a csv labelled "pooling" gives the number of sample units in the strata with and without pooling, etc. See details on outputs in the Appendix. 
 
 In general, if there are any combinations of the stratification variables (designVars) which do not exist in the observer data but do exist in the logbook data, you should consider at least some pooling. Without pooling, the model will assume there is no bycatch in the unsampled strata, so that, if there are many stratification variables, the total bycatch could be under-estimated substantially. You can experiment with different pooling schemes and see if they give very different results, by giving them different designScenario names. 
 
-Note that leaving out a variable from the list of designVars is equivalent to always pooling over all levels of that variable. If the observer program allocates observer sampling effort by a stratified random design, in which the observer coverage level varies by strata, it is usually necessary to include all the stratification variables in the design. For example, if observers are allocated so that roughly equal numbers of sets are covered in each stratum defined by gear, year, area and season, then strata with more fishing effort will have lower observer coverage rates. In this case, all the stratification variables should be included in the design-based estimators, so that pooling can be used only where needed. On the other hand, if observers are allocated randomly across the whole fisher (a simple random design) then there is no need to include any stratification variables, as the average bycatch rate across the sampled part fo the fishery will be representative. 
+Note that leaving out a variable from the list of designVars is equivalent to always pooling over all levels of that variable. If the observer program allocates observer sampling effort by a stratified random design, in which the observer coverage level varies by strata, it is usually necessary to include all the stratification variables in the design. For example, if observers are allocated so that roughly equal numbers of sets are covered in each stratum defined by gear, year, area and season, then strata with more fishing effort will have lower observer coverage rates. In this case, all the stratification variables should be included in the design-based estimators, so that pooling can be used only where needed. On the other hand, if observers are allocated randomly across the whole fishery (a simple random design) then there is no need to include any stratification variables, as the average bycatch rate across the sampled part fo the fishery will be representative. 
 
-If including multiple stratification variables is necessary, but the sample sizes are small enough to require pooling, the pooling strategy should be developed to pool only across strata that have similar bycatch rates. For example, if seasons are very different, but years are similar within seasons, then it makes sense to use adjacent year pooling. Similarly, areas that are similar to each other can be pooled. For example, if there are 10 fishing areas, you could group them into 2 fishing zones (e.g. zone 1 is areas 1-5, zone 2 is areas 6-10), and use the pooledVar feature to pool within zones if needed. Something like the following would pool on adjacent years and areas within zones:
+If including multiple stratification variables is necessary, but the sample sizes are small enough to require pooling, the pooling strategy should be developed to pool only across strata that have similar bycatch rates. The CPUE plots by level of each variable in the Data Checks are useful for this. For example, if seasons are very different, but years are similar within seasons, then it makes sense to use adjacent year pooling. Similarly, areas that are similar to each other can be pooled. For example, if there are 10 fishing areas, you could group them into 2 fishing zones (e.g. zone 1 is areas 1-5, zone 2 is areas 6-10), and use the pooledVar feature to pool within zones if needed. Something like the following would pool on adjacent years and areas within zones:
 
 ```{r,eval=FALSE}
 designVars = c("Year","area")
@@ -159,7 +161,7 @@ pooledVar=c(NA,zone)
 adjacentNum=c(1,NA)
 ```
 
-The minimum number of sample units needed to avoid pooling can also be adjusted. In general, the pooling should require enough sample unit that the estimated bycatch rates are generally above zero in the pool. For example, if the species is caught in one set out of 10, then a minimum sample unit of 10 might work. On the other hand, more pooling will have the effect of smoothing out the differences between strata, which may not be desirable if the purpose of the study is to compare strata. Experiment with different levels of pooling and see if the pooling makes a difference in the estimates, using a different designScenario name for each version. 
+The minimum number of sample units needed to avoid pooling can also be adjusted. In general, the pooling should require enough sample units that the estimated bycatch rates are generally above zero in the pool. For example, if the species is caught in one set out of 10, then a minimum sample unit of 10 might work. On the other hand, more pooling will have the effect of smoothing out the differences between strata, which may not be desirable if the purpose of the study is to compare strata. Experiment with different levels of pooling and see if the pooling makes a difference in the estimates, using a different designScenario name for each version. Of course, increasing the observer coverage level so that pooling is not needed would provide the best bycatch estimates. 
 
 ## Model specification
 
@@ -236,7 +238,7 @@ For all models together, the file includes:
  
  - If requested, an abundance index.
  
-These results may be all that is needed. However, if you want to look more closely at a specific model result, whether or not it was selected by the information criteria and cross validation, all the outputs are printed to .csv files in the folders listed for each species, in a folder called bycatchFit files. These files are:
+These results may be all that is needed. However, if you want to look more closely at a specific model result, whether or not it was selected by the information criteria and cross validation, all the outputs are printed to .csv files in the folders listed for each species, in a folder called "Fit files". These files are:
 
 - Model Selection. The MuMIn dredge model selection table.
 
@@ -368,10 +370,10 @@ One solution to this problem is to put vessel or vessel-trip in the model as a r
 
 If a user requests an annual abundance index, this is also calculated from the best model in each model group. The annual abundance index is calculated by setting all variables other than year, and any variables required to be included in the index (e.g. region or fleet) to a reference level, which is the mean for numerical variables or the most common value for categorical variables. The index is calculated by predicting the mean CPUE in each year, and its standard error is calculated as the standard error of the mean prediction. For delta-lognormal and delta-Gamma models the standard error of the prediction is calculated from the means and standard errors of the binomial and positive catch models using the method of @Lo.  
 
-If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE, bycatchFit can estimate a CPUE abundance index from any dataset. The dataset to be used for the index should be estimated as "obsdat" even if it is a logbook dataset, because the model is applied to the dataset labelled "obsdat". For CPUE standardization, see papers by @OrtizArocha, @MaunderPunt and @Hoyle.
+If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE, `bycatchFit` can estimate a CPUE abundance index from any dataset. The dataset to be used for the index should be estimated as "obsdat" even if it is a logbook dataset, because the model is applied to the dataset labelled "obsdat". For advice on CPUE standardization, see papers by @OrtizArocha, @MaunderPunt and @Hoyle.
 
 
-### Loading outputs for futher plotting and analysis
+## Loading outputs for futher plotting and analysis
 
 You may use the function load `loadOutputs` to read in either the model-based or design-based results, by specifying the runName, runDate, and designScenario and/or modelScenario. The R objects will be available in your main R environment, including, for model results. 
 
@@ -421,7 +423,7 @@ ggplot(allResults,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI,
 
 ```
 
-### Validation and conclusions
+## Validation and conclusions
 
 Although this code automates much of the process of bycatch estimation, including model selection, it is important to keep in mind that the results are only correct if the assumptions of the method are met. All methods of expanding a sample (e.g. observer data) to the total fishery (e.g. logbooks) are dependent on the assumption that the sample is representative of the whole fishery. This assumption may be violated in many cases because, for example: 
 
@@ -445,7 +447,7 @@ For model-based estimation, it is not recommended that the final model be used w
 ## Appendix
 Descriptions of columns for outputs from each function.
 
-***bycatchSetup function***
+***`bycatchSetup` function***
 
 DataSummary/StrataSummary tables:
 
@@ -469,7 +471,7 @@ DataSummary/StrataSummary tables:
 - Cse: standard error of estimated catch
 
 
-***bycatchDesign function***
+***`bycatchDesign` function***
 
 Pooling.csv file:
 
@@ -492,7 +494,7 @@ DesignYear/DesignStrata tables:
 - deltaSE: standard deviation of the delta estimator
 
 
-***bycatchFit function***
+***`bycatchFit` function***
 
 AnnualSummary/StratumSummary tables:
 
