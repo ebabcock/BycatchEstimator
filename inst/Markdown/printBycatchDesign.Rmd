@@ -62,9 +62,11 @@ yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designs
   for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
   for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
 
-if(!"Year" %in% factorVariables) { #treat Year as numeric variable
-  obsdat$Year<-obsdat$Year+startYear
-  logdat$Year<-logdat$Year+startYear
+if("Year" %in% numericVariables) { #treat Year as numeric variable
+  if(min(obsdat$Year,na.rm=TRUE)==0) {
+   obsdat$Year<-obsdat$Year+startYear
+   logdat$Year<-logdat$Year+startYear
+  }
 }
 
 ```
