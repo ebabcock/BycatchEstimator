@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Bycatch-Estimator User Guide • BycatchEstimator</title>
+<title>BycatchEstimator User Guide • BycatchEstimator</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Bycatch-Estimator User Guide">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="BycatchEstimator User Guide">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,9 +33,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/InstallationGuide.html">Installing bycatch estimator</a></li>
+<li><a class="dropdown-item" href="../articles/InstallationGuide.html">Installing BycatchEstimator</a></li>
     <li><a class="dropdown-item" href="../articles/TransitionFrom2024Version.html">Transitioning to the new version of bycatchEstimator in 2025</a></li>
-    <li><a class="dropdown-item" href="../articles/UserGuide2.html">Bycatch-Estimator User Guide</a></li>
+    <li><a class="dropdown-item" href="../articles/UserGuide2.html">BycatchEstimator User Guide</a></li>
   </ul>
 </li>
       </ul>
@@ -56,11 +56,11 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Bycatch-Estimator User Guide</h1>
+      <h1>BycatchEstimator User Guide</h1>
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-07-17</h4>
+            <h4 data-toc-skip class="date">2025-07-21</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -72,11 +72,11 @@ Babcock</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The BycatchEstimator tool estimates total bycatch, calculated by
-expanding a sample, such as an observer data set, to total effort from
-logbooks or landings records. The bycatch estimates are made with either
-a generic model-based bycatch estimation procedure, or common
-design-based bycatch estimation methods (e.g. stratified ratio
+<p>The <code>BycatchEstimator</code> tool estimates total bycatch,
+calculated by expanding a sample, such as an observer data set, to total
+effort from logbooks or landings records. The bycatch estimates are made
+with either a generic model-based bycatch estimation procedure, or
+common design-based bycatch estimation methods (e.g. stratified ratio
 estimator).</p>
 <p>All bycatch estimation methods essentially estimate total bycatch as
 the sum over all the strata (<em>i</em>, e.g. years, areas, seasons), of
@@ -95,17 +95,18 @@ bycatch species, which may improve precision of bycatch estimates.
 However, model-based and design-based estimators often produce similar
 estimates, so that the simpler design-based estimates are sufficient in
 many cases.</p>
-<p>The workflow for using BycatchEstimator is:</p>
+<p>The workflow for using <code>BycatchEstimator</code> is:</p>
 <ol style="list-style-type: decimal">
 <li>Install the code and test that everything works properly by running
 an example.</li>
-<li>Run the bycatchSetup function to produce data summaries and plots,
-to make sure that your data are appropriate for bycatch estimation.</li>
-<li>Run either bycatchDesign for design-based estimators, or bycatchFit
-for model-based estimators, or both.</li>
+<li>Run the <code>bycatchSetup</code> function to produce data summaries
+and plots, to make sure that your data are appropriate for bycatch
+estimation.</li>
+<li>Run either <code>bycatchDesign</code> for design-based estimators,
+or <code>bycatchFit</code> for model-based estimators, or both.</li>
 <li>Use the output figures and tables directly, or if desired, use the
-loadResults function to input the model runs back into R for more
-advanced analysis.</li>
+<code>loadOutputs</code> function to input the model runs back into R
+for more advanced analysis.</li>
 <li>Validate results if possible.</li>
 </ol>
 <p>This user guide provides both detailed information on how to use the
@@ -195,22 +196,22 @@ at the set level.</p>
 <p>The observer data should have columns for year and the other
 predictor (for models) or stratification (for design-based) variables,
 the observed effort and the observed bycatch or catch per trip of each
-species to be estimated. The logbook data must also have Year and the
-other predictor variables, and the total effort in the same units
-(e.g. sets or hook-hours) as the observer data. If there are any NA
-values in any of the variables, those rows will be deleted from the
+species to be estimated. The logbook data must also have columns for
+Year and the other predictor variables, and the total effort in the same
+units (e.g. sets or hook-hours) as the observer data. If there are any
+NA values in any of the variables, those rows will be deleted from the
 observer data set. Any NA values in the logbook dataset will cause the
 function to stop with an error message. There should be no NA values in
 the logbook data, because this dataset should be a complete accounting
 of all effort.</p>
 <p>Any variables you intend to use in analysis should be entered in the
-character vectors as either factorVariables or numericVariables. Note
-that design-based methods only work for categorical variables. Year is
+character vectors named factorVariables or numericVariables. Note that
+design-based methods only work for categorical variables. Year is
 interpreted as a factor in the design-based methods whether it is
 numerical or factor. For model-based methods, Year may be either a
 number or a factor. Note that there is an input “yearVar” for the name
 of the year variable in your datasets. However, this variable will be
-renamed as Year (with a captial Y) in the code. If Year is not a
+renamed as Year (with a capital Y) in the code. If Year is not a
 predictor variable in your analysis, you must still input a value for
 yearVar in <code>dataSetup</code>, but you don’t have to use it the
 analysis functions. Year should be be spelled “Year” in
@@ -220,19 +221,19 @@ types (e.g. retained catch, dead discards, live releases) at the same
 time. This is specified by inputting a vector rather than a single value
 for the scientific name, common name, units of estimates, and the name
 of the column containing the catch data (obsCatch).All these inputs can
-be a single value if analyzing only one species or catch type.</p>
+be a single value if analyzing only one species and catch type.</p>
 <p>This function outputs the user’s choice of an html or a pdf file, or
 both, named with a shortened version of the species name, catch type and
 “data checks”, in directories named “output” followed by the specified
 run name. A csv file for each species is placed in a directory named for
-the species, sub-directory “bycatchSetup Files”. If there are multiple
-species or catch types, each will have their own summary file. There
-will be warning messages if there are any NA values in the data or any 0
-values in the observer effort data, or if levels of a factor variable in
-the logbook data are not present in the observer data. The html or pdf
-data check file will include the warnings, a table of combinations of
-factors present in logdat but not obsdat (if any) and the following
-tables and plots.</p>
+the species, sub-directory “Setup Files”. If there are multiple species
+or catch types, each will have their own summary file.</p>
+<p>There will be warning messages if there are any NA values in the data
+or any 0 values in the observer effort data, or if levels of a factor
+variable in the logbook data are not present in the observer data. The
+html or pdf data check file will include the warnings, a table of
+combinations of factors present in logdat but not obsdat (if any) and
+the following tables and plots.</p>
 <p>The tables are:</p>
 <ul>
 <li><p>Observer coverage levels in both sample units (rows in the
@@ -290,10 +291,10 @@ in the observer data (which is not possible), these should be corrected
 before doing model-based analysis.</p>
 <p>NA values in the logbook data cause the code to stop with an error
 message. Values of effort and all predictor variables are needed for the
-entire fishery so that the estimated total bycatch will be estimated
-correctly. If your total effort (logbook) data are missing values of
-some variables for a component of the fishery (e.g. a gear type or some
-years), consider excluding that part of the fishery from the bycatch
+entire fishery so that the total bycatch will be estimated correctly. If
+your total effort (logbook) data are missing values of some variables
+for a component of the fishery (e.g. a gear type or some years),
+consider excluding that part of the fishery from the bycatch
 calculations, and reporting bycatch only for the part of the fishery
 with complete effort data. If missing values are scattered throughout
 the dataset, consider filling in the missing values with reasonable
@@ -379,7 +380,7 @@ deltaMean and deltaSE in the file labelled DesignSummary (by year) and
 the file labelled DesignStrata (by stata). If pooling was requested, a
 csv labelled “pooling” gives the number of sample units in the strata
 with and without pooling, etc. See details on outputs in the
-appendix.</p>
+Appendix.</p>
 <p>In general, if there are any combinations of the stratification
 variables (designVars) which do not exist in the observer data but do
 exist in the logbook data, you should consider at least some pooling.
@@ -399,16 +400,17 @@ and season, then strata with more fishing effort will have lower
 observer coverage rates. In this case, all the stratification variables
 should be included in the design-based estimators, so that pooling can
 be used only where needed. On the other hand, if observers are allocated
-randomly across the whole fisher (a simple random design) then there is
+randomly across the whole fishery (a simple random design) then there is
 no need to include any stratification variables, as the average bycatch
 rate across the sampled part fo the fishery will be representative.</p>
 <p>If including multiple stratification variables is necessary, but the
 sample sizes are small enough to require pooling, the pooling strategy
 should be developed to pool only across strata that have similar bycatch
-rates. For example, if seasons are very different, but years are similar
-within seasons, then it makes sense to use adjacent year pooling.
-Similarly, areas that are similar to each other can be pooled. For
-example, if there are 10 fishing areas, you could group them into 2
+rates. The CPUE plots by level of each variable in the Data Checks are
+useful for this. For example, if seasons are very different, but years
+are similar within seasons, then it makes sense to use adjacent year
+pooling. Similarly, areas that are similar to each other can be pooled.
+For example, if there are 10 fishing areas, you could group them into 2
 fishing zones (e.g. zone 1 is areas 1-5, zone 2 is areas 6-10), and use
 the pooledVar feature to pool within zones if needed. Something like the
 following would pool on adjacent years and areas within zones:</p>
@@ -419,7 +421,7 @@ following would pool on adjacent years and areas within zones:</p>
 <span><span class="va">pooledVar</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="va">zone</span><span class="op">)</span></span>
 <span><span class="va">adjacentNum</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
 <p>The minimum number of sample units needed to avoid pooling can also
-be adjusted. In general, the pooling should require enough sample unit
+be adjusted. In general, the pooling should require enough sample units
 that the estimated bycatch rates are generally above zero in the pool.
 For example, if the species is caught in one set out of 10, then a
 minimum sample unit of 10 might work. On the other hand, more pooling
@@ -427,7 +429,9 @@ will have the effect of smoothing out the differences between strata,
 which may not be desirable if the purpose of the study is to compare
 strata. Experiment with different levels of pooling and see if the
 pooling makes a difference in the estimates, using a different
-designScenario name for each version.</p>
+designScenario name for each version. Of course, increasing the observer
+coverage level so that pooling is not needed would provide the best
+bycatch estimates.</p>
 </div>
 <div class="section level2">
 <h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
@@ -626,7 +630,7 @@ interval.</p></li>
 more closely at a specific model result, whether or not it was selected
 by the information criteria and cross validation, all the outputs are
 printed to .csv files in the folders listed for each species, in a
-folder called bycatchFit files. These files are:</p>
+folder called “Fit files”. These files are:</p>
 <ul>
 <li><p>Model Selection. The MuMIn dredge model selection table.</p></li>
 <li><p>Annual Summary. The estimated total bycatch, standard errors and
@@ -1175,9 +1179,9 @@ have to be included at the set level, such as, for example, if depth
 zone is a stratification variable and vessel-trips may fish in more than
 one depth-zone. If only a few trips fish in multiple depth-zones (or
 other variable) then the most common one can be assigned to the trip
-without much loss of information. See <span class="citation">Elizabeth
-A. Babcock et al. (2018)</span> for an example where this method was
-used for sea turtle bycatch in shrimp trawls.</p>
+without much loss of information. See <span class="citation">Babcock et
+al. (2018)</span> for an example where this method was used for sea
+turtle bycatch in shrimp trawls.</p>
 </div>
 <div class="section level4">
 <h4 id="abundance-index-calculation">Abundance index calculation<a class="anchor" aria-label="anchor" href="#abundance-index-calculation"></a>
@@ -1194,14 +1198,17 @@ delta-lognormal and delta-Gamma models the standard error of the
 prediction is calculated from the means and standard errors of the
 binomial and positive catch models using the method of <span class="citation">Lo, Jacobson, and Squire (1992)</span>.</p>
 <p>If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE,
-bycatchFit can estimate a CPUE abundance index from any dataset. The
-dataset to be used for the index should be estimated as “obsdat” even if
-it is a logbook dataset, because the model is applied to the dataset
-labelled “obsdat”. For CPUE standardization, see papers by <span class="citation">Ortiz and Arocha (2004)</span>, <span class="citation">Maunder and Punt (2004)</span> and <span class="citation">Hoyle et al. (2024)</span>.</p>
+<code>bycatchFit</code> can estimate a CPUE abundance index from any
+dataset. The dataset to be used for the index should be estimated as
+“obsdat” even if it is a logbook dataset, because the model is applied
+to the dataset labelled “obsdat”. For advice on CPUE standardization,
+see papers by <span class="citation">Ortiz and Arocha (2004)</span>,
+<span class="citation">Maunder and Punt (2004)</span> and <span class="citation">Hoyle et al. (2024)</span>.</p>
 </div>
-<div class="section level3">
-<h3 id="loading-outputs-for-futher-plotting-and-analysis">Loading outputs for futher plotting and analysis<a class="anchor" aria-label="anchor" href="#loading-outputs-for-futher-plotting-and-analysis"></a>
-</h3>
+</div>
+<div class="section level2">
+<h2 id="loading-outputs-for-futher-plotting-and-analysis">Loading outputs for futher plotting and analysis<a class="anchor" aria-label="anchor" href="#loading-outputs-for-futher-plotting-and-analysis"></a>
+</h2>
 <p>You may use the function load <code>loadOutputs</code> to read in
 either the model-based or design-based results, by specifying the
 runName, runDate, and designScenario and/or modelScenario. The R objects
@@ -1254,9 +1261,9 @@ modelFit objects, and make a plot combining the annual estimates.</p>
 <span>       y<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">common</span><span class="op">[</span><span class="va">spnum</span><span class="op">]</span>,<span class="st">" "</span>,<span class="va">catchType</span><span class="op">[</span><span class="va">spnum</span><span class="op">]</span>,<span class="st">" ("</span>,<span class="va">catchUnit</span><span class="op">[</span><span class="va">spnum</span><span class="op">]</span>,<span class="st">")"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="validation-and-conclusions">Validation and conclusions<a class="anchor" aria-label="anchor" href="#validation-and-conclusions"></a>
-</h3>
+<div class="section level2">
+<h2 id="validation-and-conclusions">Validation and conclusions<a class="anchor" aria-label="anchor" href="#validation-and-conclusions"></a>
+</h2>
 <p>Although this code automates much of the process of bycatch
 estimation, including model selection, it is important to keep in mind
 that the results are only correct if the assumptions of the method are
@@ -1311,16 +1318,14 @@ important to understand why they differ. In some cases, model results
 using additional variables (e.g. variables giving more details on
 fishing gear or fish habitat), the model-based estimates may be better.
 For more guidance on bycatch estimation, see the simulation papers
-published at ICCAT (<span class="citation">E. A. Babcock et al.
-(2022)</span>, <span class="citation">E. A. Babcock et al.
-(2023)</span>).</p>
-</div>
+published at ICCAT (<span class="citation">Babcock et al. (2022)</span>,
+<span class="citation">Babcock et al. (2023)</span>).</p>
 </div>
 <div class="section level2">
 <h2 id="appendix">Appendix<a class="anchor" aria-label="anchor" href="#appendix"></a>
 </h2>
 <p>Descriptions of columns for outputs from each function.</p>
-<p><strong><em>bycatchSetup function</em></strong></p>
+<p><strong><em><code>bycatchSetup</code> function</em></strong></p>
 <p>DataSummary/StrataSummary tables:</p>
 <ul>
 <li>Year</li>
@@ -1348,7 +1353,7 @@ divided by logbook sample units)</li>
 catch divided by observed effort raised by logbook effort)</li>
 <li>Cse: standard error of estimated catch</li>
 </ul>
-<p><strong><em>bycatchDesign function</em></strong></p>
+<p><strong><em><code>bycatchDesign</code> function</em></strong></p>
 <p>Pooling.csv file:</p>
 <ul>
 <li>Year</li>
@@ -1370,7 +1375,7 @@ sample units &gt; minStrataUnit)</li>
 <li>deltaMean: mean bycatch calculated by the delta estimator</li>
 <li>deltaSE: standard deviation of the delta estimator</li>
 </ul>
-<p><strong><em>bycatchFit function</em></strong></p>
+<p><strong><em><code>bycatchFit</code> function</em></strong></p>
 <p>AnnualSummary/StratumSummary tables:</p>
 <ul>
 <li>Year</li>
@@ -1438,6 +1443,13 @@ of cross validation</li>
 Auguie, Baptiste. 2017. <em>gridExtra: Miscellaneous Functions for
 "Grid" Graphics</em>. <a href="https://CRAN.R-project.org/package=gridExtra" class="external-link">https://CRAN.R-project.org/package=gridExtra</a>.
 </div>
+<div id="ref-Babcock2018" class="csl-entry">
+Babcock, E. A., M. Barnette, J. Bohnsack, J. J. Isely, Porch C., P. M.
+Richards, C. Sasso, and X. Zhang. 2018. <span>“Integrated Bayesian
+Models to Estimate Bycatch of Sea Turtles in the Gulf of Mexico and
+Southeastern u.s. Atlantic Coast Shrimp Otter Trawl Fishery.”</span>
+Generic. NOAA Technical Memorandum NMFS-SEFSC-721.
+</div>
 <div id="ref-Babcock2023" class="csl-entry">
 Babcock, E. A., W. J. Harford, T. Gedamke, S. Anderson, and C. P.
 Goodyear. 2023. <span>“Simulation-Testing Model-Based and Design-Based
@@ -1449,14 +1461,6 @@ Babcock, E. A., W. J. Harford, T. Gedamke, D. Soto, and C. P. Goodyear.
 2022. <span>“Efficacy of a Bycatch Estimation Tool.”</span> Journal
 Article. <em>ICCAT Collective Volume of Scientific Papers</em> 79 (5):
 304–39.
-</div>
-<div id="ref-Babcock2018" class="csl-entry">
-Babcock, Elizabeth A., Michael Barnette, James Bohnsack, John Jeffery
-Isely, Clay Porch, Paul M. Richards, Christopher Sasso, and Xinsheng
-Zhang. 2018. <span>“Integrated Bayesian Models to Estimate Bycatch of
-Sea Turtles in the Gulf of Mexico and Southeastern u.s. Atlantic Coast
-Shrimp Otter Trawl Fishery.”</span> Generic. NOAA Technical Memorandum
-NMFS-SEFSC-721.
 </div>
 <div id="ref-MuMIn" class="csl-entry">
 Barton, Kamil. 2020. <em>MuMIn: Multi-Model Inference</em>. <a href="https://CRAN.R-project.org/package=MuMIn" class="external-link">https://CRAN.R-project.org/package=MuMIn</a>.
