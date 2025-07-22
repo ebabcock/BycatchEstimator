@@ -169,7 +169,6 @@ bycatchFit<-function(
     indexVarNames<-as.vector(getAllTerms(indexModel))
     if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
   } else indexVarNames=NULL
-
   if(EstimateBycatch) {
     #Add interaction random effects to logdat for ease of prediction
     randomInteractions<-unique(c(randomEffects,randomEffects2))
@@ -187,12 +186,14 @@ bycatchFit<-function(
     indexDat<-distinct_at(obsdat,vars(all_of(indexVarNames)),.keep_all=TRUE) %>%
       arrange(Year) %>%
       mutate(Effort=1)
-    temp<-allVarNames[allVarNames != "Year"]
-    for(i in 1:length(temp)) {
-      if(!temp[i] %in% indexVarNames) {
-        if(is.numeric(pull(obsdat,!!temp[i])))
-          indexDat[,temp[i]]<-median(pull(obsdat,!!temp[i]),na.rm=TRUE) else
-            indexDat[,temp[i]]<-mostfreqfunc(obsdat[,temp[i]])
+    if(!(all(indexVarNames=="Year") & Year %in% numericVariables) ) {
+      temp<-allVarNames[allVarNames != "Year"]
+      for(i in 1:length(temp)) {
+        if(!temp[i] %in% indexVarNames) {
+          if(is.numeric(pull(obsdat,!!temp[i])))
+            indexDat[,temp[i]]<-median(pull(obsdat,!!temp[i]),na.rm=TRUE) else
+              indexDat[,temp[i]]<-mostfreqfunc(obsdat[,temp[i]])
+        }
       }
     }
   } else indexDat<-NULL
