@@ -197,8 +197,9 @@ bycatchFit<-function(
     }
   } else indexDat<-NULL
   if(is.null(VarCalc)) VarCalc="None"
+  if(VarCalc %in% c("delta","Delta")) VarCalc="DeltaMethod"
+  if(VarCalc %in% c("simulate","simulated","Simulated")) VarCalc="Simulate"
   if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
-
   # if(includeObsCatch & EstimateBycatch) {
   #    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
   #    if(length(missing_trips)>0){
@@ -404,7 +405,8 @@ if("Year" %in%numericVariables) {
                 run = run,
                 randomEffects=randomEffects,
                 randomEffects2=randomEffects2,
-                modelScenario=modelScenario)
+                modelScenario=modelScenario,
+                startYear=startYear)
           if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
             modPredVals[[run]][[modelTry[mod]]]<-
               makePredictionsDeltaVar(
@@ -420,7 +422,8 @@ if("Year" %in%numericVariables) {
                 catchType = catchType,
                 dirname = dirname,
                 run = run,
-                modelScenario=modelScenario
+                modelScenario=modelScenario,
+                startYear=startYear
               )
           if(VarCalc=="None") {
             modPredVals[[run]][[modelTry[mod]]]<-
@@ -438,7 +441,8 @@ if("Year" %in%numericVariables) {
                 shortName = shortName,
                 dirname = dirname,
                 run = run,
-                modelScenario=modelScenario
+                modelScenario=modelScenario,
+                startYear=startYear
               )
           }
         }

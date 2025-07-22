@@ -360,13 +360,15 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @param randomEffects Value
 #' @param randomEffects2 Value
 #' @param modelScenario Value
+#' @param startYear Value
 #' @import tidyr
 #' @importFrom stats predict model.matrix rbinom sigma rnorm rlnorm rnbinom quantile
 #' @importFrom MASS mvrnorm gamma.shape
 #' @keywords internal
 makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval,
                                    includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE,
-                                   catchType, common, shortName,dirname, run,randomEffects,randomEffects2,modelScenario) {
+                                   catchType, common, shortName,dirname, run,randomEffects,randomEffects2,
+                                   modelScenario,startYear) {
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
@@ -594,12 +596,16 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         stratapredyear[,c("Total.mean", "TotalVar", "Total")]
     }
   }
+  if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
+    yearpred$Year=yearpred$Year+startYear
+  if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
+    stratapred$Year=stratapred$Year+startYear
   if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
   }  else  {     returnval=yearpred  }
   if(printOutput) {
-    write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
+    if(!nrow(stratapred)==nrow(yearpred)) write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
     write.csv(yearpred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
   }
   returnval
@@ -621,12 +627,12 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
+#' @param startYear Value
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch,
                                   requiredVarNames, CIval, printOutput=TRUE, catchType, common,
-                                  shortName,dirname, run,
-                                  modelScenario) {
+                                  shortName,dirname, run,modelScenario,startYear) {
   if(modtype %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma")) stop("No delta-method variance available, use simulute")
   #Separate out sample units
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
@@ -733,12 +739,16 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       strata=unique(newdat$strata)
       for(j in 1:length(strata)) {
         stratapred$Total[stratapred$Year==years[i]][j] = sum(predval[newdat$strata==strata[j]])
-        stratapred$TotalVarl[stratapred$Year==years[i]][j] = t(deriv[newdat$strata==strata[j]]) %*%
+        stratapred$TotalVar[stratapred$Year==years[i]][j] = t(deriv[newdat$strata==strata[j]]) %*%
           vcovval[newdat$strata==strata[j],newdat$strata==strata[j]] %*%
           deriv[newdat$strata==strata[j]] + sum(residvar[newdat$strata==strata[j]])
       }
     }
   }
+  if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
+    yearpred$Year=yearpred$Year+startYear
+  if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
+    stratapred$Year=stratapred$Year+startYear
   if(length(requiredVarNames)>1) {
     stratapred<-stratapred %>%
       mutate(Total.se=sqrt(.data$TotalVar)) %>%
@@ -747,8 +757,8 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
              TotalLCI=.data$Total-qnorm(1-CIval/2)*.data$Total.se,
              TotalUCI=.data$Total+qnorm(1-CIval/2)*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-    if(printOutput)  write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
-
+    if(printOutput)
+      write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
   }
   yearpred<-yearpred %>%
     mutate(Total.se=sqrt(.data$TotalVar)) %>%
@@ -786,11 +796,12 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @param dirname Value
 #' @param run Value
 #' @param modelScenario Value
+#' @param startYear Value
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL,
                                nsims, includeObsCatch, requiredVarNames, printOutput=TRUE,
-                               catchType, common, shortName,dirname, run,modelScenario) {
+                               catchType, common, shortName,dirname, run,modelScenario,startYear) {
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat,.data$SampleUnits)
@@ -854,6 +865,10 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
       summarize(Total=sum(.data$Total,na.rm=TRUE)) %>%
       mutate(Total.mean=NA,TotalVar=NA,	TotalLCI=NA,	TotalUCI=NA,	Total.se=NA,
              Total.cv=NA)
+    if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
+      yearpred$Year=yearpred$Year+startYear
+    if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
+      stratapred$Year=stratapred$Year+startYear
     returnval=yearpred
     if(printOutput) {
       write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
