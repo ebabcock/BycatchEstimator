@@ -22,7 +22,8 @@ makePredictionsSimVarBig(
   run,
   randomEffects,
   randomEffects2,
-  modelScenario
+  modelScenario,
+  startYear
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ makePredictionsSimVarBig(
 \item{randomEffects2}{Value}
 
 \item{modelScenario}{Value}
+
+\item{startYear}{Value}
 }
 \description{
 Generate standard errors and confidence intervals of predictions from simulation from regression coefficients and their var/covar matrix

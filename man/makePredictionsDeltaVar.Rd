@@ -18,7 +18,8 @@ makePredictionsDeltaVar(
   shortName,
   dirname,
   run,
-  modelScenario
+  modelScenario,
+  startYear
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ makePredictionsDeltaVar(
 \item{run}{Value}
 
 \item{modelScenario}{Value}
+
+\item{startYear}{Value}
 }
 \description{
 Generate standard errors and confidence intervals of predictions with delta-method separately by year

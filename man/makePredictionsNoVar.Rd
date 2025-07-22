@@ -19,7 +19,8 @@ makePredictionsNoVar(
   shortName,
   dirname,
   run,
-  modelScenario
+  modelScenario,
+  startYear
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ makePredictionsNoVar(
 \item{run}{Value}
 
 \item{modelScenario}{Value}
+
+\item{startYear}{Value}
 }
 \description{
 Generate predictions without estimating variance
