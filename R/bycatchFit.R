@@ -186,7 +186,7 @@ bycatchFit<-function(
     indexDat<-distinct_at(obsdat,vars(all_of(indexVarNames)),.keep_all=TRUE) %>%
       arrange(Year) %>%
       mutate(Effort=1)
-    if(!(all(indexVarNames=="Year") & Year %in% numericVariables) ) {
+    if(!all(allVarNames=="Year") ) {
       temp<-allVarNames[allVarNames != "Year"]
       for(i in 1:length(temp)) {
         if(!temp[i] %in% indexVarNames) {
