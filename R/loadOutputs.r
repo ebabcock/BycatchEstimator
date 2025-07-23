@@ -30,7 +30,7 @@ loadOutputs<-function(baseDir = getwd(),
   if(!dir.exists(outDir)) stop(paste("Directory",outDir,"not found."))
   setupFile<-paste0(runDate,"_BycatchSetupSpecification.rds")
   if(!file.exists(paste0(outDir,"/",setupFile))) stop(paste("Setup file",setupFile ,"not found in",outDir,"."))
-  setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
+  setupObj<-readRDS(file=paste0(outDir,"/",runDate(),"_BycatchSetupSpecification.rds"))
   list2env(setupObj$bycatchInputs, envir = .GlobalEnv)
   list2env(setupObj$bycatchOutputs, envir = .GlobalEnv)
   #If doing design based, check that design file exists and read in.
