@@ -596,10 +596,12 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         stratapredyear[,c("Total.mean", "TotalVar", "Total")]
     }
   }
-  if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
-    yearpred$Year=yearpred$Year+startYear
-  if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
-    stratapred$Year=stratapred$Year+startYear
+  if(is.numeric(yearpred$Year))
+    if(min(yearpred$Year,na.rm=TRUE)==0)
+      yearpred$Year=yearpred$Year+startYear
+  if(is.numeric(stratapred$Year))
+    if(min(stratapred$Year,na.rm=TRUE)==0)
+     stratapred$Year=stratapred$Year+startYear
   if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
@@ -745,10 +747,12 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
       }
     }
   }
-  if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
-    yearpred$Year=yearpred$Year+startYear
-  if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
-    stratapred$Year=stratapred$Year+startYear
+  if(is.numeric(yearpred$Year))
+    if(min(yearpred$Year,na.rm=TRUE)==0)
+      yearpred$Year=yearpred$Year+startYear
+  if(is.numeric(stratapred$Year))
+    if(min(stratapred$Year,na.rm=TRUE)==0)
+      stratapred$Year=stratapred$Year+startYear
   if(length(requiredVarNames)>1) {
     stratapred<-stratapred %>%
       mutate(Total.se=sqrt(.data$TotalVar)) %>%
@@ -865,10 +869,12 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
       summarize(Total=sum(.data$Total,na.rm=TRUE)) %>%
       mutate(Total.mean=NA,TotalVar=NA,	TotalLCI=NA,	TotalUCI=NA,	Total.se=NA,
              Total.cv=NA)
-    if(is.numeric(yearpred$Year)& min(yearpred$Year,na.rm=0)==0)
-      yearpred$Year=yearpred$Year+startYear
-    if(is.numeric(stratapred$Year)& min(stratapred$Year,na.rm=0)==0)
-      stratapred$Year=stratapred$Year+startYear
+    if(is.numeric(yearpred$Year))
+      if(min(yearpred$Year,na.rm=TRUE)==0)
+        yearpred$Year=yearpred$Year+startYear
+    if(is.numeric(stratapred$Year))
+      if(min(stratapred$Year,na.rm=TRUE)==0)
+        stratapred$Year=stratapred$Year+startYear
     returnval=yearpred
     if(printOutput) {
       write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)

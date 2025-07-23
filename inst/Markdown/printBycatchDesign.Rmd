@@ -49,7 +49,7 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
     EstimateIndex<-EstimateBycatch<-
     baseDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName[run]<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
@@ -149,7 +149,7 @@ yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Meth
     Method=sub("SE","",Method)) %>%
   pivot_wider(names_from=parameter,values_from=value)
 
-print(ggplot(yearSumLong,aes(x=!!sym(groupVar),y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,color=Method,fill=Method))+
+print(ggplot(yearSumLong,aes(x=!!sym(groupVar),y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,color=Method,fill=Method,group=Method))+
   geom_line()+
   geom_point()+
   geom_ribbon(alpha=0.5))
