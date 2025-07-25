@@ -205,6 +205,28 @@ bycatchFit(
 )
 ```
 
+### Optionally reload model results for plotting
+
+The function `loadOutputs` reads in all the R objects from the analysis,
+as well as a data frame called allYearEstimates appropriate for plotting
+with ggplot.
+
+``` r
+allResults<-loadOutputs(baseDir = getwd(),
+                      runName= "LLSIMBUMtripExample",
+                      runDate =  Sys.Date(),
+                      designScenarios = "noPool",
+                      modelScenarios = "s1"
+)
+#Plot all together
+ggplot(allResults$allYearEstimates,aes(x=Year,y=Total,
+                                       ymin=TotalLCI,ymax=TotalUCI,
+                      fill=Source,color=Source))+
+  geom_line()+
+  geom_ribbon(alpha=0.4)+
+  theme_bw()
+```
+
 ## References
 
 Goodyear, C.P. 2021. Development of new model fisheries for simulating

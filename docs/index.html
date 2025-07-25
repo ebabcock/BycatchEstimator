@@ -166,6 +166,25 @@
 <span>  reportType <span class="op">=</span> <span class="st">"html"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="optionally-reload-model-results-for-plotting">Optionally reload model results for plotting<a class="anchor" aria-label="anchor" href="#optionally-reload-model-results-for-plotting"></a>
+</h3>
+<p>The function <code>loadOutputs</code> reads in all the R objects from the analysis, as well as a data frame called allYearEstimates appropriate for plotting with ggplot.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allResults</span><span class="op">&lt;-</span><span class="fu"><a href="reference/loadOutputs.html">loadOutputs</a></span><span class="op">(</span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                      runName<span class="op">=</span> <span class="st">"LLSIMBUMtripExample"</span>,</span>
+<span>                      runDate <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                      designScenarios <span class="op">=</span> <span class="st">"noPool"</span>,</span>
+<span>                      modelScenarios <span class="op">=</span> <span class="st">"s1"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#Plot all together</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">allResults</span><span class="op">$</span><span class="va">allYearEstimates</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Total</span>,</span>
+<span>                                       ymin<span class="op">=</span><span class="va">TotalLCI</span>,ymax<span class="op">=</span><span class="va">TotalUCI</span>,</span>
+<span>                      fill<span class="op">=</span><span class="va">Source</span>,color<span class="op">=</span><span class="va">Source</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">geom_ribbon</span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
