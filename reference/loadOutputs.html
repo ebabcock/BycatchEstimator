@@ -47,10 +47,8 @@
 <span>  baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">runName</span>,</span>
 <span>  runDate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  loadDesign <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  designScenario <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  loadModel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  modelScenario <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  designScenarios <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  modelScenarios <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -70,22 +68,18 @@
 <dd><p>The date when the model was run. Defaults to current date, but can be set to read in models previously run.</p></dd>
 
 
-<dt id="arg-loaddesign">loadDesign<a class="anchor" aria-label="anchor" href="#arg-loaddesign"></a></dt>
-<dd><p>TRUE to read in design-based estimator results.</p></dd>
+<dt id="arg-designscenarios">designScenarios<a class="anchor" aria-label="anchor" href="#arg-designscenarios"></a></dt>
+<dd><p>Character vector of designScenario values from original run. NULL to read in no design-based results.</p></dd>
 
 
-<dt id="arg-designscenario">designScenario<a class="anchor" aria-label="anchor" href="#arg-designscenario"></a></dt>
-<dd><p>Value of designScenario from original run.</p></dd>
-
-
-<dt id="arg-loadmodel">loadModel<a class="anchor" aria-label="anchor" href="#arg-loadmodel"></a></dt>
-<dd><p>TRUE to read in model-based estimator results.</p></dd>
-
-
-<dt id="arg-modelscenario">modelScenario<a class="anchor" aria-label="anchor" href="#arg-modelscenario"></a></dt>
-<dd><p>Value of designScenario from original run.</p></dd>
+<dt id="arg-modelscenarios">modelScenarios<a class="anchor" aria-label="anchor" href="#arg-modelscenarios"></a></dt>
+<dd><p>Character vector of modelScenario values from original run.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScneario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
