@@ -378,13 +378,60 @@ If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE, `bycatchFit` can
 
 ## Loading outputs for futher plotting and analysis
 
-You may use the function load `loadOutputs` to read in either the model-based or design-based results, by specifying the runName, runDate, and designScenario and/or modelScenario. The R objects will be available in your main R environment, including, for model results. 
+You may use the function load `loadOutputs` to read in either the model-based or design-based results, by specifying the runName, runDate, and character vectors of values of designScenario and/or modelScenario. This function returns a list, including:
+
+1. setupObj which the original setupObj for the run
+
+2. designObjList which is the results across designScenarios including bycatchInput and bycatchOutput lists.
+
+3. ModelObjList which is the results across modelScenarios including modelInput and modelOutput lists.
+
+4. The runName
+
+5. allYearEstimates which is a long-format data-frame with all the results of the design-based and model-based estimate from all the design and model scenarios requested. If more than one species or catchtype was run, they will all be included. There are columns for Scenario (design and model), Common (common name), Species (scientific name), CatchType, Source (the method or model used in estimation), Run (the run name), as well as Year, Total, Total Var, Total.mean, TotalLCI, TotalUCI, Total.se, Total.cv, and a column called Valid, which will be 1 for valid models or methods, and 0 for models that had some problem in the model fitting. This data-frame is appropriate for ggplot.
+
+```{r,eval=evalOption}
+library(tidyverse) #for data manipulation and ggplot
+#Load in both design and model based estimates
+allResults<-loadOutputs(baseDir = getwd(),
+                      runName= "Simulated",
+                      runDate =  Sys.Date(),
+                      designScenarios = "withPooling",
+                      modelScenarios = "s1"
+)
+#Plot all together
+ggplot(allResults$allYearEstimates,aes(x=Year,y=Total,
+                                       ymin=TotalLCI,ymax=TotalUCI,
+                      fill=Source,color=Source))+
+  geom_line()+
+  geom_ribbon(alpha=0.4)+
+  theme_bw()
+
+```
+
+The results from multiple runs can also be combined, with bind_rows.
+
+```{r,eval=FALSE}
+Run1<-loadOutputs(baseDir = getwd(),
+                  runName = "Run1",
+                  designScenarios = c("noPool","Pool1"),
+                  modelScenarios = c("s1","s2"))
+Run2<-loadOutputs(baseDir = getwd(),
+                  runName = "Run2",
+                  designScenarios = c("noPool","Pool1"),
+                  modelScenarios = c("g1","g2"))
+allRuns<-bind_rows(Run1,Run2)
+```
+
+This code will produce a data frame with all the results from all scenarios and species in both runs togehter, distinguished by the column called "Run".
+
+Within the list returned by `loadOutputs`,the results under designOutputs and modelOutputs include:
 
 - ModFits, a list for all species, containing lists of all model fits.
 
-- modpredVals, a list for all species, containing a list of tibbles of the bycatch predictions accross models, appropriate for plotting.
+- modpredVals, a list for all species, containing a list of tibbles of the bycatch.
 
-- allmods, a long format tibble with all the model annual predictions together, appropriate for plotting
+- allmods, a long format tibble with all the model annual predictions together, which is included in allYearEstimates
 
 - Allindex, the same for abundance indices if calculated.
 
@@ -394,38 +441,9 @@ And for design-based results:
 
 - poolingSum, the pooling summary data, the same as the .csv file
 
-- yearSumGraph, annual summaries in the same formula as the model outputs in allmods, convenient for combining
+- yearSumGraph, annual summaries in the same formula as the model outputs in allmods, which are combined in allYearEstimates
 
-For example, the following code would read the results of design and modelFit objects, and make a plot combining the annual estimates. 
-
-```{r,eval=evalOption}
-library(tidyverse) #for data manipulation and ggplot
-#Load in both design and model based estimates
-loadOutputs(baseDir = getwd(),
-                      runName= "Simulated",
-                      runDate =  Sys.Date(),
-                      loadDesign = TRUE,
-                      designScenario = "withPooling",
-                      loadModel = TRUE,
-                      modelScenario = "s1"
-)
-#specify which species 
-spnum<-1
-#combine model and design estimates, first making Year numeric
-allResults<-bind_rows(yearSumGraph[[spnum]],
-                      mutate(allmods[[spnum]],Year=as.numeric(as.character(Year))))
-
-#Plot all together
-ggplot(allResults,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI,
-                      fill=Source,color=Source))+
-  geom_line()+
-  geom_ribbon(alpha=0.4)+
-  labs(x="Year",
-       y=paste0(common[spnum]," ",catchType[spnum]," (",catchUnit[spnum],")"))+
-  theme_bw()
-
-```
-
+ 
 ## Validation and conclusions
 
 Although this code automates much of the process of bycatch estimation, including model selection, it is important to keep in mind that the results are only correct if the assumptions of the method are met. All methods of expanding a sample (e.g. observer data) to the total fishery (e.g. logbooks) are dependent on the assumption that the sample is representative of the whole fishery. This assumption may be violated in many cases because, for example: 

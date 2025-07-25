@@ -8,10 +8,8 @@ loadOutputs(
   baseDir = getwd(),
   runName,
   runDate = Sys.Date(),
-  loadDesign = TRUE,
-  designScenario = NULL,
-  loadModel = TRUE,
-  modelScenario = NULL
+  designScenarios = NULL,
+  modelScenarios = NULL
 )
 }
 \arguments{
@@ -21,13 +19,12 @@ loadOutputs(
 
 \item{runDate}{The date when the model was run. Defaults to current date, but can be set to read in models previously run.}
 
-\item{loadDesign}{TRUE to read in design-based estimator results.}
+\item{designScenarios}{Character vector of designScenario values from original run. NULL to read in no design-based results.}
 
-\item{designScenario}{Value of designScenario from original run.}
-
-\item{loadModel}{TRUE to read in model-based estimator results.}
-
-\item{modelScenario}{Value of designScenario from original run.}
+\item{modelScenarios}{Character vector of modelScenario values from original run.}
+}
+\value{
+Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScneario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.
 }
 \description{
 Reads in all the R objects created during runs of the bycatchEstimator for further analysis

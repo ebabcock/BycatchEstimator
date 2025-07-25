@@ -80,7 +80,11 @@ bycatchSetup <- function(
 ){
 
   if(!dir.exists(baseDir)) stop(paste("Directory",baseDir,"does not exist."))
-
+  if(is.null(logdat) & EstimateBycatch) stop("EstimateBycatch=TRUE requires logdat")
+  if(!is.null(logdat) & !EstimateBycatch) {
+    warning("EstimateBycatch=FALSE, so logdat will be ignored")
+    logdat<-NULL
+  }
   SampleUnits<-Year<-drop_na<-Catch<-Effort<-cpue<-pres<-Pos<-OUnit<-OEff<-Eff<-Units<-outDir<-NULL
     # drop_na: drops rows with missing values
 

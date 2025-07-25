@@ -92,6 +92,8 @@ bycatchDesign <- function(
 
   if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
 
+  if(is.null(logdat)) stop("Logdat needed for bycatch estimation. Re-run bycatchSetup.")
+
   #make sure only one groupVar
   groupVar<-groupVar[1]
 
