@@ -647,6 +647,7 @@ if("Year" %in%numericVariables) {
       modPredVals = modPredVals,
       modIndexVals = modIndexVals,
       indexDat = indexDat,
+      logdatFit = logdat,
       indexVarNames = indexVarNames,
       residualTab = residualTab,
       bestmod = bestmod,

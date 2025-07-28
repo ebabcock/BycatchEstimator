@@ -38,10 +38,10 @@ loadOutputs<-function(baseDir = getwd(),
       designFile<-paste0(runDate,"_BycatchDesign",designScenarios[i],".rds")
       if(!file.exists(paste0(outDir,"/",designFile))) stop(paste("Design file",designFile ,"not found in",outDir,"."))
       designObjList[[i]]<-readRDS(file=paste0(outDir,"/",designFile))
-      names(designObjList[[i]]$designOutputs$yearSumGraph)<-paste(setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+      names(designObjList[[i]]$designOutputs$yearSumGraph)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
       allDesignResults[[i]]<-bind_rows(designObjList[[i]]$designOutputs$yearSumGraph,
                                        .id="Common")%>%
-        separate_wider_delim(Common,delim=";",names = c("Common","Species","CatchType"))%>%
+        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
         mutate(Valid=1)
 
     }
@@ -59,10 +59,10 @@ loadOutputs<-function(baseDir = getwd(),
       modelFile<-paste0(runDate,"_BycatchFit",modelScenarios[i],".rds")
       if(!file.exists(paste0(outDir,"/",modelFile))) stop(paste("Model file",modelFile ,"not found in",outDir,"."))
       modelObjList[[i]]<-readRDS(file=paste0(outDir,"/",modelFile))
-      names(modelObjList[[i]]$modelOutputs$allmods)<-paste(setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+      names(modelObjList[[i]]$modelOutputs$allmods)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
       allModResults[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmods,
                                     .id="Common")%>%
-        separate_wider_delim(Common,delim=";",names = c("Common","Species","CatchType"))
+        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))
     }
     names(modelObjList)<-modelScenarios
     names(allModResults)<-modelScenarios
@@ -76,6 +76,9 @@ loadOutputs<-function(baseDir = getwd(),
   list(setupObj=setupObj,
        designObjList=designObjList,
        modelobjList=modelObjList,
+       allYearEstimates=allYearEstimates,
        runName=runName,
-       allYearEstimates=allYearEstimates)
+       baseDir=baseDir,
+       runDate=runDate
+  )
 }

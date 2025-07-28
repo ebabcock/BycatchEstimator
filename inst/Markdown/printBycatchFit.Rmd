@@ -62,16 +62,18 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
   logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
-  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName[run]<-NULL
+  dat<-numSp<-yearSum<-allVarNames<-startYear<-strataSum<-shortName<-NULL
 
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]])
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
 #unpack modelObj
-modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-plotValidation<-trueVals<-trueCols<-logUnsampledEffort<-includeObsCatch<-matchColumn<-EstimateIndex<-NULL
+modelTry<-randomEffects<-randomEffects2<-complexModel<-simpleModel<-indexModel<-
+  selectCriteria<-DoCrossValidation<-CIval<-VarCalc<-useParallel<-nSims<-
+  plotValidation<-trueVals<-trueCols<-logUnsampledEffort<-includeObsCatch<-
+  matchColumn<-EstimateIndex<-NULL
 
-
-modelScenario<-modelTable<-modelSelectTable<-modelSummaryTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-NULL
+modelScenario<-modelTable<-modelSelectTable<-modelSummaryTable<-modFits<-modPredVals<-modIndexVals<-indexDat<-indexVarNames<-residualTab<-bestmod<-predbestmod<-indexbestmod<-allmods<-allindex<-modelFail<-rmsetab<-metab<-dat<-requiredVarNames<-allVarNames<-startYear<-NumCores<-obsdatFit<-NULL
 
  for(r in 1:NROW(modelObj$modelInputs)) assign(names(modelObj$modelInputs)[r], modelObj$modelInputs[[r]])
  for(r in 1:NROW(modelObj$modelOutputs)) assign(names(modelObj$modelOutputs)[r],modelObj$modelOutputs[[r]])
