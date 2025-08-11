@@ -115,9 +115,16 @@ noWarnings<-FALSE
 temp<-setdiff(select(logdat,all_of(factorVariables)),select(obsdat,all_of(factorVariables)))%>%
   filter(!duplicated(.)) 
 if(nrow(temp)>0) {
+  nrowstemp<-nrow(temp)
   cat("\n")
  cat("- The following combinations of factors are present in the logbook data but not the observer data:")
- print(kbl(temp,format="simple"))
+if(nrowstemp<=10)
+ print(kbl(temp,format="simple")) else  {
+   print(kbl(slice_head(temp,n=10),format="simple")) 
+  cat("\n")
+  cat(paste0("- plus ",nrowstemp-10," more rows."))   
+  cat("\n")
+ }
   cat("\n")
 }
 temp<-setdiff(select(obsdat,all_of(factorVariables)),select(logdat,all_of(factorVariables)))%>%
@@ -130,9 +137,9 @@ if(nrowstemp<=10)
  print(kbl(temp,format="simple")) else  {
    print(kbl(slice_head(temp,n=10),format="simple")) 
   cat("\n")
-  cat(paste0("plus ",n-10," more rows."))   
+  cat(paste0("- plus ",nrowstemp-10," more rows."))   
+  cat("\n")
  }
-   
   cat("\n")
 }
 }
