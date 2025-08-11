@@ -123,9 +123,16 @@ if(nrow(temp)>0) {
 temp<-setdiff(select(obsdat,all_of(factorVariables)),select(logdat,all_of(factorVariables)))%>%
   filter(!duplicated(.)) 
 if(nrow(temp)>0) {
+  nrowstemp<-nrow(temp)
   cat("\n")
  cat("- The following combinations of factors are present in the observer data but not the logbook data:")
- print(kbl(temp,format="simple"))
+if(nrowstemp<=10)
+ print(kbl(temp,format="simple")) else  {
+   print(kbl(slice_head(temp,n=10),format="simple")) 
+  cat("\n")
+  cat(paste0("plus ",n-10," more rows."))   
+ }
+   
   cat("\n")
 }
 }
