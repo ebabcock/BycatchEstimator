@@ -21,7 +21,7 @@ Useful links:
 \author{
 \strong{Maintainer}: Elizabeth Babcock \email{ebabcock@rsmas.miami.edu}
 
-Other contributors:
+Authors:
 \itemize{
   \item William Harford \email{bill@natureanalytics.ca} [contributor]
   \item Ana Adao \email{aadao@natureanalytics.ca} [contributor]

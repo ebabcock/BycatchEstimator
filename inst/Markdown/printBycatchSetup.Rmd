@@ -180,12 +180,13 @@ if(is.null(logdat)) cat("- Logbook data not entered")
 if(!is.null(logdat)){
 cat("Table ",tablenum, ". Observed and unobserved effort by ",sampleUnit,".", sep="")
 tablenum<-tablenum+1
-temp_bind<-bind_rows(list(observer=select(dat[[run]],Effort),
-                  logbook=filter(select(logdat,Effort),!is.na(Effort))),
+obstemp<-select(dat[[run]],Effort) %>% mutate(SampleUnits=1)
+temp_bind<-bind_rows(list(observer=obstemp,
+                  logbook=filter(select(logdat,Effort,SampleUnits),!is.na(Effort))),
                   .id = "Source")
 
 temp1 <- temp_bind  %>% group_by(Source) %>%
-  summarize(`Sample units` = n(),
+  summarize(`Sample units` = sum(SampleUnits),
             `Total effort`=sum(Effort))%>%
   mutate(`Proportion units`=round(`Sample units`/(`Sample units`[Source=="logbook"]),3),
          `Proportion effort`=round(`Total effort`/(`Total effort`[Source=="logbook"]),3))
@@ -486,7 +487,7 @@ ggplot(obsdatTemp,aes(x=Catch/Effort)) +
        y=paste0("Sample units(",sampleUnit,")"))
 # log CPUE histogram
 cat("\n\n")
-cat("\n Figure ",figurenum,". Lof of Observed CPUE plus a constant histogram for ",common[[run]], ".\n",sep="")
+cat("\n Figure ",figurenum,". Log of Observed CPUE plus a constant histogram for ",common[[run]], ".\n",sep="")
 figurenum<-figurenum+1
 ggplot(obsdatTemp,aes(x=log(Catch/Effort+0.001))) +
   geom_histogram(bins=30,fill="darkblue")+

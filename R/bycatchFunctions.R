@@ -809,6 +809,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat,.data$SampleUnits)
+  requiredVarNames<-unique(c(requiredVarNames,"Year"))
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal", "TMBlognormal","TMBdelta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {

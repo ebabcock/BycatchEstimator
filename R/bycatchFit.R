@@ -161,8 +161,9 @@ bycatchFit<-function(
   allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
   if(!all(allVarNames %in% c(numericVariables,factorVariables)))
     stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
-
-    if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
+  if(all(is.na(RandomEffects))) randomEffects<-NULL
+  if(all(is.na(RandomEffects2))) randomEffects2<-NULL
+  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
   if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
 
   if(EstimateIndex) {

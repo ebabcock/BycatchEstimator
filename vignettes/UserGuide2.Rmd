@@ -423,7 +423,7 @@ Run2<-loadOutputs(baseDir = getwd(),
 allRuns<-bind_rows(Run1,Run2)
 ```
 
-This code will produce a data frame with all the results from all scenarios and species in both runs togehter, distinguished by the column called "Run".
+This code will produce a data frame with all the results from all scenarios and species in both runs together, distinguished by the column called "Run".
 
 Within the list returned by `loadOutputs`,the results under designOutputs and modelOutputs include:
 

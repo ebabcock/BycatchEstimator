@@ -14,7 +14,7 @@
 #' @param designScenarios Character vector of designScenario values from original run. NULL to read in no design-based results.
 #' @param modelScenarios Character vector of modelScenario values from original run.
 #' @export
-#' @returns Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScneario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.
+#' @returns Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScenario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.
 #' @keywords reload outputs
 loadOutputs<-function(baseDir = getwd(),
                       runName,
@@ -50,7 +50,10 @@ loadOutputs<-function(baseDir = getwd(),
     allDesignResults<-bind_rows(allDesignResults,.id="Scenario")
     if("Year" %in% names(allDesignResults))
       allDesignResults<-mutate(allDesignResults,Year=as.numeric(as.character(Year)))
-  } else allDesignResults<-NULL
+  } else {
+    allDesignResults<-NULL
+    designObjList<-NULL
+  }
   if(all(is.na(modelScenarios))) modelScenarios<-NULL
   if(!is.null(modelScenarios)) {
     modelObjList<-list()
@@ -69,7 +72,10 @@ loadOutputs<-function(baseDir = getwd(),
     allModResults<-bind_rows(allModResults,.id="Scenario")
     if("Year" %in% names(allModResults))
       allModResults<-mutate(allModResults,Year=as.numeric(as.character(Year)))
-  }  else allModResults<-NULL
+  }  else {
+    allModResults<-NULL
+    modelobjList<-NULL
+  }
   allYearEstimates<-bind_rows(allModResults,allDesignResults) %>%
     mutate(Run=runName)
   allYearEstimates<-filter(allYearEstimates,!Source=="Unstratified ratio")

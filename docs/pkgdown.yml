@@ -1,11 +1,12 @@
-pandoc: '3.4'
+pandoc: '3.2'
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
+  Course2025: Course2025.html
   InstallationGuide: InstallationGuide.html
   TransitionFrom2024Version: TransitionFrom2024Version.html
   UserGuide2: UserGuide2.html
-last_built: 2025-07-28T12:12Z
+last_built: 2025-08-13T21:32Z
 urls:
   reference: https://ebabcock.github.io/BycatchEstimator/reference
   article: https://ebabcock.github.io/BycatchEstimator/articles

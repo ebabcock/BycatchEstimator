@@ -81,7 +81,7 @@ modelScenario<-modelTable<-modelSelectTable<-modelSummaryTable<-modFits<-modPred
 if("Year" %in% numericVariables) { #treat Year as numeric variable
   if(min(obsdat$Year,na.rm=TRUE)==0) {
    obsdat$Year<-obsdat$Year+startYear
-   logdat$Year<-logdat$Year+startYear
+   if(EstimateBycatch) logdat$Year<-logdat$Year+startYear
   }
 }
 
@@ -137,9 +137,17 @@ cat("\n")
 cat("- Best predictor variable in each model group selected with",selectCriteria = "BIC")
 cat("\n")
 cat("\n")
-if(DoCrossValidation & !is.null(rmsetab[[run]])) cat("- Cross-validation results generated")
-if(DoCrossValidation & is.null(rmsetab[[run]])) cat("- Cross-validation failed")
 if(!DoCrossValidation) cat("- No cross-validation requested")
+if(DoCrossValidation & !is.null(rmsetab[[run]])) {
+ if(!all(is.na(rmsetab[[run]])))  cat("- Cross-validation results generated") else {
+   cat("- Cross-validation failed") 
+   DoCrossValidation<-FALSE  
+ } 
+}
+if(DoCrossValidation & is.null(rmsetab[[run]])) {
+  cat("- Cross-validation failed")
+  DoCrossValidation<-FALSE  
+}
 cat("\n")
 cat("\n")
 if(EstimateBycatch) {
@@ -166,11 +174,12 @@ if(plotValidation & EstimateBycatch) cat("- Total catch plots included true valu
 
 ```{r print results1,  results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
 #Print modelTable including ModelFail
-cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs). If cross-validation was done, mean RMSE and mean ME across folds is shown (near zero is better).",sep="")
+cat("Table ",tablenum,". Formula of ",selectCriteria," best model, along whether models were fit successfully. A dash (-) means the model converged. Failure to converge may be from data (not all years had a positive observation for delta models), fit (models did not converge) or CV (bycatch estimates had very large CVs).",sep="" )
+if(DoCrossValidation)   cat(" The cross-validation RMSE and mean ME across folds are shown (near zero is better).",sep="")
 tablenum<-tablenum+1
 df1<-modelTable[[run]] %>%
   mutate(Failure=modelFail[run,]) %>%
-   mutate_if(is.numeric,round,2)
+   mutate_if(is.numeric,round,4)
 if(!DoCrossValidation) df1<-dplyr::select(df1,-c("RMSE","ME"))
 if(output_format == "html"){
   kbl(df1,format = "simple")%>%
@@ -289,19 +298,13 @@ cat('<div style="height:30px;"></div>\n')
     cat('\n')
     
   # plot fitted vs observed values
-  if(!modelTry[mod] %in% c("Binomial")){
-    if(modelTry[mod] %in% c("Tweedie")){
+  if(modelTry[mod] %in% c("Tweedie")){
           tempdf<-data.frame(Expected=cplm::predict(modFits[[run]][[modelTry[mod]]],
                                                     type="response"),
                      Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
     } else {
-      if(any(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))<0)){
-          tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
-                     Observed=exp(model.response(model.frame(modFits[[run]][[modelTry[mod]]]))))}
-      else{
           tempdf<-data.frame(Expected=predict(modFits[[run]][[modelTry[mod]]], type="response"),
                      Observed=model.response(model.frame(modFits[[run]][[modelTry[mod]]])))
-      }
   }
   corr.coeff<-round(cor(tempdf$Observed,tempdf$Expected),2)
    g1<- ggplot(tempdf, aes(x = Expected, y = Observed))+
@@ -313,7 +316,7 @@ cat('<div style="height:30px;"></div>\n')
    if(!modelTry[mod] %in% c("Binomial","TMBbinomial"))   
     g1<-g1+stat_smooth(se=FALSE,color="blue")
   print(g1)
-  }
+  
   cat("\n Figure ",fignum,". Observed vs predicted values for ", modelTry[mod],".\n",sep="")
   fignum<-fignum+1
   cat('\n')
