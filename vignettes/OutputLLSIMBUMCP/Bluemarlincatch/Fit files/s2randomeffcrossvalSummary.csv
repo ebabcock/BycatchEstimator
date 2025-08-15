@@ -1,0 +1,6 @@
+"","model","formula","RMSE","ME"
+"1","TMBbinomial","area + season + Year + (1 | Year:area) + area:season",NA,NA
+"2","TMBdelta-Lognormal","area + Year + (1 | Year:area)",0.126129320124336,0.00236918806906429
+"3","TMBdelta-Gamma","area + Year + (1 | Year:area)",0.125843565820678,-0.000179072358107334
+"4","TMBnbinom2","area + Year + (1 | Year:area) + offset(log(Effort))",0.126099362473648,-0.00060496684368561
+"5","TMBtweedie","area + Year + (1 | Year:area)",0.126329445511611,-4.79238376595321e-05
