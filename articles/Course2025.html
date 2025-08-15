@@ -53,15 +53,15 @@
 
 
 
-
-<div class="row">
+<link href="Course2025_files/tabwid-1.1.3/tabwid.css" rel="stylesheet">
+<script src="Course2025_files/tabwid-1.1.3/tabwid.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Material from 2025 ICCAT Training Course</h1>
                         <h4 data-toc-skip class="author">Beth
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-08-13</h4>
+            <h4 data-toc-skip class="date">2025-08-15</h4>
       
 
       <div class="d-none name"><code>Course2025.Rmd</code></div>
@@ -106,8 +106,24 @@ data. For CPUE standardization, only the observer data is needed.</p>
 <p>The package includes some simulated longline observer data from
 LLSIM, and a toy example data set. This is the toy data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">obsdatExample</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatExample</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">obsdatExample</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##       EW                season           Year       sampled.sets     </span></span>
+<span><span class="co">##  Length:394         Min.   :1.000   Min.   :2009   Min.   :  0.7347  </span></span>
+<span><span class="co">##  Class :character   1st Qu.:1.000   1st Qu.:2011   1st Qu.: 17.9600  </span></span>
+<span><span class="co">##  Mode  :character   Median :1.000   Median :2013   Median : 22.4808  </span></span>
+<span><span class="co">##                     Mean   :1.398   Mean   :2013   Mean   : 30.1655  </span></span>
+<span><span class="co">##                     3rd Qu.:2.000   3rd Qu.:2015   3rd Qu.: 46.4658  </span></span>
+<span><span class="co">##                     Max.   :2.000   Max.   :2018   Max.   :107.7441  </span></span>
+<span><span class="co">##      Catch       </span></span>
+<span><span class="co">##  Min.   : 0.000  </span></span>
+<span><span class="co">##  1st Qu.: 0.000  </span></span>
+<span><span class="co">##  Median : 0.000  </span></span>
+<span><span class="co">##  Mean   : 1.109  </span></span>
+<span><span class="co">##  3rd Qu.: 0.000  </span></span>
+<span><span class="co">##  Max.   :33.000</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatExample</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 394   5</span></span></code></pre>
 <p>This is trip by trip observer data from a benthic longline fishery.
 The variables we need are <em>Catch</em>, which is bycatch of a species,
 <em>sampled.sets</em>, which is the unit of effort, and the variables
@@ -116,9 +132,25 @@ stratification for the design-based estimate and serve as predictor
 variables for the model-base estimates. CPUE would be in terms of
 <em>Catch/sampled.sets</em>.</p>
 <p>The corresponding logbook data is here:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">logdatExample</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">logdatExample</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">logdatExample</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##       sets               Year          season           EW           </span></span>
+<span><span class="co">##  Min.   :  0.4343   Min.   :2009   Min.   :1.000   Length:7794       </span></span>
+<span><span class="co">##  1st Qu.: 13.1870   1st Qu.:2011   1st Qu.:1.000   Class :character  </span></span>
+<span><span class="co">##  Median : 25.3512   Median :2013   Median :1.000   Mode  :character  </span></span>
+<span><span class="co">##  Mean   : 28.2885   Mean   :2013   Mean   :1.415                     </span></span>
+<span><span class="co">##  3rd Qu.: 38.4678   3rd Qu.:2016   3rd Qu.:2.000                     </span></span>
+<span><span class="co">##  Max.   :529.8817   Max.   :2018   Max.   :2.000                     </span></span>
+<span><span class="co">##      trips  </span></span>
+<span><span class="co">##  Min.   :1  </span></span>
+<span><span class="co">##  1st Qu.:1  </span></span>
+<span><span class="co">##  Median :1  </span></span>
+<span><span class="co">##  Mean   :1  </span></span>
+<span><span class="co">##  3rd Qu.:1  </span></span>
+<span><span class="co">##  Max.   :1</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">logdatExample</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 7794    5</span></span></code></pre>
 <p>The logbook data must include all the effort for which bycatch
 estimates are needed (i.e.the whole fleet). This logbook data contains
 one row per trip, the same as the observer data. The logbook data could
@@ -140,18 +172,18 @@ subsequent steps for applying design-based estimators
 the working directory for the user to review. The inputs to the
 <code>bycatchSetup</code> function are explained in the help file. To
 see what the function does:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">bycatchSetup</span></span></code></pre></div>
 <p>The help file explains all the inputs. Read through them to see what
 options there are. The User’s Guide goes into much more detail.</p>
 <p>For now, let’s run the simulated example data. First set the working
 directory to where you want the outputs to be, for example:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Commented out so it will not run, because every computer has a different path. </span></span>
 <span><span class="co"># setwd("~/Tutorials")</span></span></code></pre></div>
 <p>Now copy and paste this example to the console or an R script and run
 it:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span>
@@ -206,10 +238,10 @@ estimates of total bycatch, e.g. using a stratified ratio estimator. You
 don’t have to run this function if you are only using model-based
 estimates (see below). The inputs to <code>bycatchDesign</code> are
 explained in the help file:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">bycatchDesign</span></span></code></pre></div>
 <p>You can use this code:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>designScenario <span class="op">=</span> <span class="st">"withPooling"</span>,</span>
@@ -238,7 +270,7 @@ later.</p>
 </h3>
 <p>The <code>bycatchFit</code> function does all the model-based
 estimates.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">bycatchFit</span></span></code></pre></div>
 <p>This function has a few more specifications regarding setting up
 model variables, model selection (which information criterion to use),
@@ -247,7 +279,7 @@ to find the best set of predictor variables for each kind of model
 listed in modelTry. It can also do cross validation if desired. It
 prints out the model based estimates, diagnostics, and selection
 criteria.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>modelScenario <span class="op">=</span> <span class="st">"model1"</span>,</span>
@@ -275,7 +307,7 @@ files”.</p>
 <h2 id="presentation-2--data-setup-and-data-checks">Presentation 2. Data setup and data checks<a class="anchor" aria-label="anchor" href="#presentation-2--data-setup-and-data-checks"></a>
 </h2>
 <p><a href="https://acrobat.adobe.com/id/urn:aaid:sc:US:d96970ee-ffe1-4f29-ba58-61e2423d2058" class="external-link">Slides
-for data</a></p>
+for data setup and data checks</a></p>
 </div>
 <div class="section level2">
 <h2 id="tutorial-2--data-setup-and-data-checks-with-the-bycatchsetup-function">Tutorial 2. Data setup and data checks with the bycatchSetup
@@ -284,7 +316,7 @@ function<a class="anchor" aria-label="anchor" href="#tutorial-2--data-setup-and-
 <p>This tutorial explains what outputs are produced after running
 bycatchSetup and how to interpret them (what to look out for in terms of
 potential issues with the data). First load the libraries:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed and up to date</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span>
@@ -295,11 +327,35 @@ distribution and longline fishery simulator. The data in both the
 logbook and observer data are at trip-by-trip. There is a variable
 called <em>trip</em> which can be used to match the sampled trips in the
 observer data to the corresponding trips in the logbook.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_logbook</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 22</span></span></span>
+<span><span class="co">##    ...1 trip    Year month  gear light fleet  bait  hook hooks  sets   SWO   BUM</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     2 10.19…  <span style="text-decoration: underline;">1</span>990     4    10     1     1     2     4  0.5      1     4     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span>     3 10.19…  <span style="text-decoration: underline;">1</span>990     7    10     1     1     2     4  4.5      9    31     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span>     4 10.19…  <span style="text-decoration: underline;">1</span>990     8    10     1     1     2     4  1.15     2     7     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span>     5 10.19…  <span style="text-decoration: underline;">1</span>991     2    10     1     1     2     4  0.5      1     2     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span>     6 10.19…  <span style="text-decoration: underline;">1</span>992    10    10     1     1     2     4  1.2      2     7     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span>     7 10.19…  <span style="text-decoration: underline;">1</span>993     5    10     1     1     2     4  2.5      5    14     0</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 9 more variables: lat5 &lt;dbl&gt;, lon5 &lt;dbl&gt;, lat &lt;dbl&gt;, lon &lt;dbl&gt;, hbf &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   habSWO &lt;dbl&gt;, habBUM &lt;dbl&gt;, season &lt;dbl&gt;, area &lt;chr&gt;</span></span></span></code></pre>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_logbook</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 25</span></span></span>
+<span><span class="co">##    ...1 trip    Year month  gear light fleet  bait  hook hooks  sets   SWO   BUM</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     1 1.200…  <span style="text-decoration: underline;">2</span>009     4     1     1     1     2     1 2         4    14     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span>    51 10.19…  <span style="text-decoration: underline;">1</span>990     1    10     1     1     2     4 0.5       1     2     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span>    52 10.19…  <span style="text-decoration: underline;">1</span>990     1    10     1     1     2     4 1.5       3     4     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span>    53 10.19…  <span style="text-decoration: underline;">1</span>990     1    10     1     1     2     4 1.5       3     8     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span>    54 10.19…  <span style="text-decoration: underline;">1</span>990    10    10     1     1     2     4 0.516     1     5     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span>    55 10.19…  <span style="text-decoration: underline;">1</span>990    10    10     1     1     2     4 3         6    19     0</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 12 more variables: lat5 &lt;dbl&gt;, lon5 &lt;dbl&gt;, lat &lt;dbl&gt;, lon &lt;dbl&gt;, hbf &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   habSWO &lt;dbl&gt;, habBUM &lt;dbl&gt;, trip.05 &lt;dbl&gt;, trips &lt;dbl&gt;, season &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   area &lt;chr&gt;, unsampledEffort &lt;dbl&gt;</span></span></span></code></pre>
 <p>Now let’s run bycatchSetup with the following arguments:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,</span>
@@ -377,7 +433,7 @@ are any strata with no observations, consider pooling.</p>
 <h2 id="presentation-3--design-based-estimation">Presentation 3. Design-Based estimation<a class="anchor" aria-label="anchor" href="#presentation-3--design-based-estimation"></a>
 </h2>
 <p><a href="https://acrobat.adobe.com/id/urn:aaid:sc:US:6a0e09e6-b0da-4849-89f5-b8b8b3892add" class="external-link">Slides
-for design-based</a></p>
+for design-based estimation</a></p>
 </div>
 <div class="section level2">
 <h2 id="tutorial-3--design-based-estimation-with-the-bycatchdesign-function">Tutorial 3. Design-based estimation with the bycatchDesign
@@ -386,7 +442,7 @@ function<a class="anchor" aria-label="anchor" href="#tutorial-3--design-based-es
 <p>This tutorial gives some practice in working with design-based
 estimators, including different pooling methods, using the data sets
 included with the tool. First load the libraries:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed and up to date</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span>
@@ -397,7 +453,7 @@ fleet and area (N vs. S Atlantic). The bycatch response variable is the
 catch of blue marlin <em>BUM</em> and effort is in <em>hooks</em>. Run
 first <code>bycatchSetup</code> for setting up the data, using the
 simulated longline data:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_observer</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">LLSIM_BUM_Example_logbook</span>,</span>
@@ -422,7 +478,7 @@ simulated longline data:</p>
 <h3 id="with-no-pooling">With no pooling<a class="anchor" aria-label="anchor" href="#with-no-pooling"></a>
 </h3>
 <p>And then run <code>bycatchDesign</code>, first with no pooling:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  designScenario <span class="op">=</span> <span class="st">"NoPooling"</span>,</span>
@@ -446,7 +502,7 @@ to define the pooling.</p>
 <div class="section level3">
 <h3 id="with-pooling">With pooling<a class="anchor" aria-label="anchor" href="#with-pooling"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  designScenario <span class="op">=</span> <span class="st">"Pool2"</span>, <span class="co">#update name</span></span>
@@ -469,17 +525,46 @@ variable (Year), 2 is the second variable, etc. The column
 which can be the same as the observed n in the stratum, if n was above
 the minimum. For example, look at <em>Year</em> 1996, <em>fleet</em> 3,
 and <em>area</em> N.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pooling</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPool2Pooling.csv"</span><span class="op">)</span> </span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pooling</span><span class="op">)</span></span>
-<span><span class="va">pooling</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pooling</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   Year area fleet totalUnits totalEffort units   effort pooled.n poolnum</span></span>
+<span><span class="co">## 1 1990    N     1       1445    5442.777    71  248.057       71       0</span></span>
+<span><span class="co">## 2 1990    N     2        787   27553.331    48 1514.269       48       0</span></span>
+<span><span class="co">## 3 1990    S     2        887   51579.501    41 2059.257       41       0</span></span>
+<span><span class="co">## 4 1990    S     3         99    5237.189     4  234.972        4       0</span></span>
+<span><span class="co">## 5 1991    N     1       1339    6007.066    63  311.781       63       0</span></span>
+<span><span class="co">## 6 1991    N     2        777   27417.542    33  953.047       33       0</span></span>
+<span><span class="co">##   pooledTotalUnits pooledTotalEffort</span></span>
+<span><span class="co">## 1             1445          5442.777</span></span>
+<span><span class="co">## 2              787         27553.331</span></span>
+<span><span class="co">## 3              887         51579.501</span></span>
+<span><span class="co">## 4               99          5237.189</span></span>
+<span><span class="co">## 5             1339          6007.066</span></span>
+<span><span class="co">## 6              777         27417.542</span></span></code></pre>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pooling</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Pooling<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">poolnum</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Pooling<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">Pooling</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"&gt;"</span>,<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">poolnum</span>,na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,<span class="va">Pooling</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,fill<span class="op">=</span><span class="va">Pooling</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Count of strata per year with number of dimensions pooled"</span><span class="op">)</span></span>
-<span><span class="co">#pull out an exmple</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Count of strata per year with number of dimensions pooled"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#pull out an exmple</span></span>
 <span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pooling</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1994</span><span class="op">:</span><span class="fl">2000</span>, <span class="va">fleet</span><span class="op">==</span><span class="fl">3</span>, <span class="va">area</span><span class="op">==</span><span class="st">"N"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   Year area fleet totalUnits totalEffort units  effort pooled.n poolnum</span></span>
+<span><span class="co">## 1 1996    N     3         16     716.070     2  56.745        6       1</span></span>
+<span><span class="co">## 2 1997    N     3         23     618.744     3  72.905        3       0</span></span>
+<span><span class="co">## 3 1998    N     3         32    1048.560     1  43.460       16       1</span></span>
+<span><span class="co">## 4 1999    N     3         77    2462.130     4  30.343        4       0</span></span>
+<span><span class="co">## 5 2000    N     3        106    3446.658     6 182.930        6       0</span></span>
+<span><span class="co">##   pooledTotalUnits pooledTotalEffort</span></span>
+<span><span class="co">## 1               71          2383.374</span></span>
+<span><span class="co">## 2               23           618.744</span></span>
+<span><span class="co">## 3              254          8292.162</span></span>
+<span><span class="co">## 4               77          2462.130</span></span>
+<span><span class="co">## 5              106          3446.658</span></span></code></pre>
 <p>You can see that years 1996 and 1998 both needed to be pooled
 (<em>units</em> of 2 or less). There was no effort in 1994 or 1995 in
 this area and fleet. So the pool for year 1996 was 1996 to 1997, which
@@ -488,14 +573,33 @@ minStrataUnit, so that pool was sufficient and <em>poolnum</em> was one,
 meaning no further pooling. Does the <em>pooled.n</em> value for 1998
 make sense?</p>
 <p>Let’s look at a stratum that needed more pooling.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pooling</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2002</span><span class="op">:</span><span class="fl">2006</span>, <span class="va">fleet</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   Year area fleet totalUnits totalEffort units  effort pooled.n poolnum</span></span>
+<span><span class="co">## 1 2002    N     1        919    6151.136    51 310.138       51       0</span></span>
+<span><span class="co">## 2 2002    S     1         17      60.102     0   0.000        4       1</span></span>
+<span><span class="co">## 3 2003    N     1        899    6195.748    40 240.244       40       0</span></span>
+<span><span class="co">## 4 2003    S     1          9      48.480     1   6.480        3       1</span></span>
+<span><span class="co">## 5 2004    N     1        935    6470.181    53 347.879       53       0</span></span>
+<span><span class="co">## 6 2004    S     1          5      16.000     0   0.000      226       2</span></span>
+<span><span class="co">## 7 2005    N     1        825    5319.083    39 291.849       39       0</span></span>
+<span><span class="co">## 8 2006    N     1        825    5160.586    42 298.967       42       0</span></span>
+<span><span class="co">##   pooledTotalUnits pooledTotalEffort</span></span>
+<span><span class="co">## 1              919          6151.136</span></span>
+<span><span class="co">## 2               63           286.179</span></span>
+<span><span class="co">## 3              899          6195.748</span></span>
+<span><span class="co">## 4               50           234.780</span></span>
+<span><span class="co">## 5              935          6470.181</span></span>
+<span><span class="co">## 6             4434         29421.316</span></span>
+<span><span class="co">## 7              825          5319.083</span></span>
+<span><span class="co">## 8              825          5160.586</span></span></code></pre>
 <p>This fleet had one trip in the area in 2003, and zero in 2002 and
 2004, so combining years did not give enough trips for a pool for the
 2004 estimate. So, <em>poolnum</em> is 2, and the <em>pooled.n</em>
 includes all areas for that fleet in that year.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2002</span><span class="op">:</span><span class="fl">2006</span>,<span class="va">fleet</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 226</span></span></code></pre>
 <p>The html file shows what fraction of the strata are pooled to each
 level as a diagnostic that the pooling works as intended (last
 figure).</p>
@@ -505,7 +609,7 @@ figure).</p>
 </h3>
 <p>Now try the pooling for a higher minimum number of observed
 trips:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  designScenario <span class="op">=</span> <span class="st">"Pool5"</span>, <span class="co">#update name</span></span>
@@ -517,7 +621,7 @@ trips:</p>
 <span>  adjacentNum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="cn">NA</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  minStrataUnit <span class="op">=</span> <span class="fl">5</span> <span class="co">#Pool if there are 5 or fewer trips in a stratum</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pooling</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPool5Pooling.csv"</span><span class="op">)</span> </span>
 <span><span class="va">pooling</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Pooling<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">poolnum</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -525,6 +629,7 @@ trips:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,fill<span class="op">=</span><span class="va">Pooling</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Count of strata per year with number of dimensions pooled"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
 <p>You can compare the last plot in the html file with the previous
 results when pooling with minStrataUnit=2.</p>
 <p>Another option for pooling is to add another column to the data that
@@ -532,7 +637,7 @@ is a more aggregated variable to use when the original data doesn’t meet
 the minimum sample size requirement. For example, if the strata were
 months, the variable to pool on (if needed) could be season. Let’s try
 that.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  designScenario <span class="op">=</span> <span class="st">"PoolMonth"</span>, <span class="co">#update name</span></span>
@@ -544,7 +649,7 @@ that.</p>
 <span>  adjacentNum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  minStrataUnit <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pooling</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPoolMonthPooling.csv"</span><span class="op">)</span> </span>
 <span><span class="va">pooling</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Pooling<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">poolnum</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -552,6 +657,7 @@ that.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,fill<span class="op">=</span><span class="va">Pooling</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Count of strata per year with number of dimensions pooled"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
 <p>This stratification scheme requires pooling for nearly all the
 strata. It still works, but the resulting estimates will be somewhat
 smoothed by the pooling process.</p>
@@ -583,7 +689,7 @@ group of models.</li>
 group.</li>
 <li>Choosing the best model.</li>
 </ul>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span>
@@ -592,7 +698,7 @@ group.</li>
 <p>Model fitting and model selection can be slow. So, for the purposes
 of this demonstration, we will limit the data to a 5 year period so it
 will run faster.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obsdatTest</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2011</span><span class="op">:</span><span class="fl">2015</span><span class="op">)</span></span>
 <span><span class="va">logdatTest</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_logbook</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2011</span><span class="op">:</span><span class="fl">2015</span><span class="op">)</span></span></code></pre></div>
 <p>To try multiple models, we define them in modelTry in
@@ -608,7 +714,7 @@ be evaluated with information criteria in each model group. The
 simpleModel should not include any interactions.</p>
 <p>First run again <code>bycatchSetup</code> with the 5 years of
 data:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatTest</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatTest</span>,</span>
@@ -634,7 +740,7 @@ from <code>bycatchSetup</code>. The selectCriteria will be used to
 select the best combination of predictor variables. This may be any of
 the criteria for ranking models in the MuMIn dredge function. Bayesian
 information criterion (BIC) works well.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"scen1"</span>,</span>
@@ -675,24 +781,82 @@ saying the model failed due to “data” (meaning that that the model was
 not able to fit the delta models due to all zero all all non-zero
 observations), “fit” (meaning the model never converged) or “CV”
 (meaning predicted CVs were too large).</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">crossval</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1crossvalSummary.csv"</span><span class="op">)</span></span>
 <span><span class="va">crossval</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>,<span class="va">round</span>,digits<span class="op">=</span><span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">flextable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html" class="external-link">flextable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-72e53a08{}.cl-72ded7bc{font-family:'DejaVu Sans';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-72e190e2{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-72e190ec{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-72e1adc0{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-72e1adca{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-72e1adcb{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-72e1add4{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-72e1add5{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-72e1add6{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-72e53a08">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-72e1adc0"><p class="cl-72e190e2"><span class="cl-72ded7bc">X</span></p></th>
+<th class="cl-72e1adca"><p class="cl-72e190ec"><span class="cl-72ded7bc">model</span></p></th>
+<th class="cl-72e1adca"><p class="cl-72e190ec"><span class="cl-72ded7bc">formula</span></p></th>
+<th class="cl-72e1adc0"><p class="cl-72e190e2"><span class="cl-72ded7bc">RMSE</span></p></th>
+<th class="cl-72e1adc0"><p class="cl-72e190e2"><span class="cl-72ded7bc">ME</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">1</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">TMBbinomial</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc"></span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc"></span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">2</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">TMBdelta-Lognormal</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0673</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">-0.0012</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">3</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">TMBnbinom1</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year + offset(log(Effort))</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0673</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0040</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">4</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">NegBin</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year + offset(log(Effort))</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0668</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0012</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">5</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">TMBnbinom2</span></p></td>
+<td class="cl-72e1add4"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year + offset(log(Effort))</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0668</span></p></td>
+<td class="cl-72e1adcb"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0012</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-72e1add5"><p class="cl-72e190e2"><span class="cl-72ded7bc">6</span></p></td>
+<td class="cl-72e1add6"><p class="cl-72e190ec"><span class="cl-72ded7bc">TMBtweedie</span></p></td>
+<td class="cl-72e1add6"><p class="cl-72e190ec"><span class="cl-72ded7bc">area + fleet + 1 + Year</span></p></td>
+<td class="cl-72e1add5"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0734</span></p></td>
+<td class="cl-72e1add5"><p class="cl-72e190e2"><span class="cl-72ded7bc">0.0011</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>Figure 2 in the html file shows boxplots of RMSE and ME across 10
 folds of the cross validation. The RMSE and ME values are very similar
 between models but the delta-lognormal has the lowest RMSE. The csv
 files called “scen1rmse.csv” and “scen1me.csv” have the numbers to
 recreate these figures.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rmse</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1rmse.csv"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="va">TMBdelta.Lognormal</span><span class="op">:</span><span class="va">TMBtweedie</span>, names_to<span class="op">=</span><span class="st">"Model"</span>, values_to<span class="op">=</span><span class="st">"RMSE"</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">rmse</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Model</span>,y<span class="op">=</span><span class="va">RMSE</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<p><img src="Course2025_files/figure-html/unnamed-chunk-31-1.png" width="700"></p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">me</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1me.csv"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="va">TMBdelta.Lognormal</span><span class="op">:</span><span class="va">TMBtweedie</span>, names_to<span class="op">=</span><span class="st">"Model"</span>, values_to<span class="op">=</span><span class="st">"ME"</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">me</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Model</span>,y<span class="op">=</span><span class="va">ME</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-32-1.png" width="700"></p>
 <p>Table 2 gives a summary of model diagnostics. The diagnostics include
 a test of whether the quantile residuals are uniformly distributed (KS),
 an overdispersion test, a zero inflation test and an outlier test. In
@@ -703,11 +867,99 @@ significant P values. At the same time, larger datasets are more robust
 to minor violations of model assumptions. In this case, negative binomal
 2/NegBin and delta lognormal pass all the tests, and negative binomial 1
 and Tweedie have some failures.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">diagnostics_summary</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1modelSummary.csv"</span><span class="op">)</span></span>
 <span><span class="va">diagnostics_summary</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>,<span class="va">round</span>,digits<span class="op">=</span><span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">flextable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html" class="external-link">flextable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-737baf1a{}.cl-7375c294{font-family:'DejaVu Sans';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-73783bf0{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-73783c04{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-73785572{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7378557c{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-73785586{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-73785590{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-73785591{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7378559a{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-737baf1a">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-73785572"><p class="cl-73783bf0"><span class="cl-7375c294">X</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">TMBbinomial</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">TMBdelta.Lognormal</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">TMBnbinom1</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">NegBin</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">TMBnbinom2</span></p></th>
+<th class="cl-7378557c"><p class="cl-73783c04"><span class="cl-7375c294">TMBtweedie</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">KS.D</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0540</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0709</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0590</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0458</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0279</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0568</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">KS.p</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.3783</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.8282</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.2759</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.5894</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9798</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.3190</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">Dispersion.ratio</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0088</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0106</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.5408</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9058</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9983</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.9923</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">Dispersion.p</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9280</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.8880</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0560</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.6800</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.6800</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0000</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">ZeroInf.ratio</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9984</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294"></span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0119</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0355</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0323</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9981</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">ZeroInf.p</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.7840</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.3040</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.3120</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.9440</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785586"><p class="cl-73783bf0"><span class="cl-7375c294">Outlier</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">0.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">2.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-73785590"><p class="cl-73783c04"><span class="cl-7375c294">3.0000</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-73785591"><p class="cl-73783bf0"><span class="cl-7375c294">Outlier.p</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">0.4642</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">0.3800</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">1.0000</span></p></td>
+<td class="cl-7378559a"><p class="cl-73783c04"><span class="cl-7375c294">0.4975</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>Table 3 provides parameter values from the fitted models, together
 with the likelihood and residuals degrees of freedom.</p>
 <p>Figure 1 shows a time series of the total bycatch estimates from all
@@ -728,12 +980,206 @@ with similar weight, both might be viable.</p>
 <p>For example, for the Negative Binomial model (NegBin), the best model
 includes area, fleet and year. We can see the ranking of other models in
 the file labelled “modelSelectionNegbin.csv”.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">negBinSel</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/Bluemarlincatchscen1ModelSelectionNegBin.csv"</span><span class="op">)</span></span>
 <span><span class="va">negBinSel</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">!</span><span class="va">offset.log.Effort..</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>,<span class="va">round</span>,digits<span class="op">=</span><span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">flextable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html" class="external-link">flextable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-73a1a2a6{}.cl-739b050e{font-family:'DejaVu Sans';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-739dac00{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-739dac0a{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-739dc726{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-739dc730{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-739dc73a{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-739dc73b{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-739dc73c{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-739dc744{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-73a1a2a6">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">X.Intercept.</span></p></th>
+<th class="cl-739dc730"><p class="cl-739dac0a"><span class="cl-739b050e">area</span></p></th>
+<th class="cl-739dc730"><p class="cl-739dac0a"><span class="cl-739b050e">fleet</span></p></th>
+<th class="cl-739dc730"><p class="cl-739dac0a"><span class="cl-739b050e">season</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">Year</span></p></th>
+<th class="cl-739dc730"><p class="cl-739dac0a"><span class="cl-739b050e">area.season</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">AICc</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">AIC</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">BIC</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">df</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">logLik</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">selectCriteria</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">delta</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">weight</span></p></th>
+<th class="cl-739dc726"><p class="cl-739dac00"><span class="cl-739b050e">R2</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.98</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.09</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">513.36</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">513.06</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">534.95</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">6</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-250.53</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">534.95</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.00</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">1</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.14</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.60</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.15</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">513.81</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">513.15</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">545.99</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">9</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-247.57</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">545.99</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">11.04</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.18</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.10</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.14</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">536.66</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">536.52</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">551.11</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">4</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-264.26</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">551.11</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">16.16</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.06</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.38</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.16</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">544.55</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">544.46</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">555.41</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">3</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-269.23</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">555.41</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">20.46</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.01</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.92</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.19</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">512.89</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">511.74</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">555.53</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">12</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-243.87</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">555.53</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">20.58</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.23</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.95</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.15</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">541.76</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">541.55</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">559.79</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">5</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-265.77</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">559.79</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">24.84</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.06</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-2.75</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.20</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">535.64</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">535.23</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">560.77</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">7</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-260.62</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">560.77</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">25.82</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.10</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.02</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.22</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">543.48</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">543.17</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">565.07</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">6</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-265.59</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">565.07</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">30.11</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.05</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-3.53</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-0.21</span></p></td>
+<td class="cl-739dc73b"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">541.19</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">540.66</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">569.86</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">8</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">-262.33</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">569.86</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">34.90</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73a"><p class="cl-739dac00"><span class="cl-739b050e">0.11</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">-2.87</span></p></td>
+<td class="cl-739dc744"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc744"><p class="cl-739dac0a"><span class="cl-739b050e"></span></p></td>
+<td class="cl-739dc744"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">-0.23</span></p></td>
+<td class="cl-739dc744"><p class="cl-739dac0a"><span class="cl-739b050e">+</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">539.48</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">538.68</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">575.17</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">10</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">-259.34</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">575.17</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">40.21</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">0</span></p></td>
+<td class="cl-739dc73c"><p class="cl-739dac00"><span class="cl-739b050e">0.12</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>The html output has a four panel residual plot for each model type
 (example Figure 3 that shows residuals for TMBbinomial). The four panels
 are: (a) ordinary residuals, i.e plotting
@@ -759,11 +1205,12 @@ Figures 5, 8, 11, 14).</p>
 <p>The last figure for each model type are the bycatch predictions from
 the best model in each model type. These are also saved as csv files
 labelled “AnnualSummary”.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ResultsNegBin</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMM1/Bluemarlincatch/Fit files/Bluemarlincatchscen1NegBinAnnualSummary.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ResultsNegBin</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Total</span>,ymin<span class="op">=</span><span class="va">TotalLCI</span>,ymax<span class="op">=</span><span class="va">TotalUCI</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-35-1.png" width="700"></p>
 <p>Choosing the best model: it is not possible to completely automate
 the problem of model selection. In this case, all models performed very
 similarly in cross validation, and the DIC preferred the same
@@ -789,7 +1236,7 @@ blue marlin data. The following models will show how to:</p>
 <li><p>Add random effects</p></li>
 <li><p>Add more variables.</p></li>
 </ol>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span>
@@ -797,7 +1244,7 @@ blue marlin data. The following models will show how to:</p>
 <p>Model fitting and model selection can be slow. So, for the purposes
 of this demonstration, we will limit the data to a 15 year period so it
 will run faster.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obsdatTest</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2001</span><span class="op">:</span><span class="fl">2015</span><span class="op">)</span></span>
 <span><span class="va">logdatTest</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_logbook</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2001</span><span class="op">:</span><span class="fl">2015</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
@@ -808,7 +1255,7 @@ EstimateBycatch can be FALSE in <code>bycatchSetup</code>, if there is
 no logbook data to be included. Note that all variables to be included
 in the CPUE standardization must be included in numericVariables or
 factorVariables:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatTest</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="cn">NULL</span>, <span class="co">#no logbook data</span></span>
@@ -840,7 +1287,7 @@ calculated at the mean value of any numerical predictor variables, and
 at the most common level of any factors. If a variable, such as area, is
 included in indexModel but not in the selected best model according to
 the information criteria, the areas will all have the same index:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"scen1"</span>,</span>
@@ -862,7 +1309,7 @@ the information criteria, the areas will all have the same index:</p>
 <p>Now, looking at the html output, there will be no total bycatch
 estimates, but there will be abundance indices plotted, plus and minus a
 standard error. The results are also in a .csv file.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nbinom2Index</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUMCP/Bluemarlincatch/Fit files/Bluemarlincatchscen1TMBnbinom2Index.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">nbinom2Index</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Index</span>,ymin<span class="op">=</span><span class="va">lowerCI</span></span>
 <span>,ymax<span class="op">=</span><span class="va">upperCI</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
@@ -885,7 +1332,7 @@ effects are included, they will be automatically included in all models.
 randomEffects is the list of random effects to include in the model. For
 delta models, randomEffects2 can be used to give a different set of
 randomEffects for the two model components.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"s2randomeff"</span>,</span>
@@ -912,7 +1359,7 @@ randomEffects for the two model components.</p>
 such as gear variables and environmental variables. Numerical variables
 will be set to their mean for the prediction. Here we add two numerical
 variables (hbf and habBUM) and more factors (light).</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatTest</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatTest</span>, <span class="co">#no logbook data</span></span>
@@ -933,7 +1380,7 @@ variables (hbf and habBUM) and more factors (light).</p>
 <span>  common <span class="op">=</span> <span class="st">"Blue marlin"</span>,</span>
 <span>  sp <span class="op">=</span> <span class="st">"Makaira nigricans"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"morevar"</span>,</span>
@@ -970,7 +1417,7 @@ year out of the model.</p></li>
 <li><p>Validation data.</p></li>
 <li><p>Reading in the R objects with .rds files</p></li>
 </ol>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span>
@@ -989,7 +1436,7 @@ the same variables and model set up for each species. The information
 criteria and cross validation may select different models for each
 species.</p>
 <p>We will run both blue marlin and swordfish together.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatTest</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatTest</span>,</span>
@@ -1014,7 +1461,7 @@ species.</p>
 labelled “OutputLLSIMBUMSWO”. Inside the folders for each species you
 will find the html output with the data checks. Now copy and paste the
 following code to the console:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"multispp"</span>,</span>
@@ -1046,7 +1493,7 @@ the observed effort. This must be non-zero (i.e. logbook effort equal to
 or greater than observed effort). All trips from obsdat must match trips
 in logdat. Let’s re-run bycatchSetup with only one species, then run
 bycatchFit</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">setupObj</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/bycatchSetup.html">bycatchSetup</a></span><span class="op">(</span></span>
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatTest</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatTest</span>,</span>
@@ -1104,7 +1551,7 @@ the information criteria select the best model. This allows for fitting
 trends with complex shapes, but estimating a smaller number of
 parameters. The R function I() is needed for calculations inside an R
 formula, such as squaring, so the code understands it correctly.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The code automatically converts variables listed in numericVariables to numeric, but you can also do that yourself, with this R code</span></span>
 <span><span class="va">obsdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">obsdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="va">logdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">logdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">)</span><span class="op">)</span></span>
@@ -1123,7 +1570,7 @@ formula, such as squaring, so the code understands it correctly.</p>
 <span>  nSims <span class="op">=</span> <span class="fl">100</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>In this case, the information criteria included a squared term.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Resultsnbinom</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"OutputLLSIMBUM/Bluemarlincatch/Fit files/BluemarlincatchnumYearTMBnbinom2AnnualSummary.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">Resultsnbinom</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Total</span>,ymin<span class="op">=</span><span class="va">TotalLCI</span>,ymax<span class="op">=</span><span class="va">TotalUCI</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
@@ -1133,7 +1580,7 @@ sample sizes is to not include year in the model. The estimates will
 still be annual, but the model doesn’t necessarily need to include year.
 The following tests a two year time block, and also allows the model to
 estimate a null model by setting simpleModel=formula(y~1).</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Make new variable for the 2 year time block</span></span>
 <span><span class="va">obsdatTest</span><span class="op">$</span><span class="va">Year2</span><span class="op">&lt;-</span><span class="fl">2</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">trunc</a></span><span class="op">(</span><span class="va">obsdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">logdatTest</span><span class="op">$</span><span class="va">Year2</span><span class="op">&lt;-</span><span class="fl">2</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">trunc</a></span><span class="op">(</span><span class="va">logdatTest</span><span class="op">$</span><span class="va">Year</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span>
@@ -1186,7 +1633,7 @@ true total bycatch, as we will do here. With real data, you can use the
 tool to predict total landed catch as a test of the methodology. The
 validation data must be in a dataframe, and input in bycatchFit using
 the settings in bycatchFit:</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trueVals</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"TotalAnnualCatches.csv"</span><span class="op">)</span> <span class="co">#read in validation data</span></span>
 <span><span class="va">trueVals</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">trueVals</span>,<span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2011</span><span class="op">:</span><span class="fl">2015</span><span class="op">)</span> <span class="co">#filter for years 2011 - 2015</span></span>
 <span></span>
@@ -1250,7 +1697,7 @@ format suitable for ggplot</p>
 results, then use loadInputs to get all the results and plot the
 design-based and model-based bycatch estimates together. This is based
 on the example code in the user’s guide.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Run some design-based estimates</span></span>
 <span><span class="fu"><a href="../reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
@@ -1280,6 +1727,312 @@ on the example code in the user’s guide.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="appendix-1--converting-between-long-and-wide-format-data">Appendix 1. Converting between long and wide format data<a class="anchor" aria-label="anchor" href="#appendix-1--converting-between-long-and-wide-format-data"></a>
+</h2>
+<p>This a tutorial on converting between wide and several kinds of long
+format in R tidyverse. The topics covered are converting between wide
+and long, aggregating by counting or summing over rows, and combining
+multiple datasets with left_join. You may not need all, or any, of these
+methods depending on the format of your data, but they are all here in
+case any of them are useful.</p>
+<p>We will use an example dataset from a simulated longline fishery from
+the BycatchEstimator package.</p>
+<p>This first chunk opens the tidyverse and BycatchEstimator libraries
+and makes a simplified version of the logbookd ata for the purposes of
+the tutorial.</p>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="va">obsdat</span><span class="op">&lt;-</span><span class="va">LLSIM_BUM_Example_observer</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">trip</span>,<span class="va">Year</span>,<span class="va">fleet</span>,<span class="va">hooks</span>,<span class="va">sets</span>,<span class="va">season</span>,<span class="va">area</span>,<span class="va">SWO</span>,<span class="va">BUM</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Year</span><span class="op">&gt;</span><span class="fl">1999</span><span class="op">)</span></span></code></pre></div>
+<p>The functions for converting between wide and long format are called
+pivot_wider and pivot_longer. For linear models, including in
+BycatchEstimator, data should be in wide format, meaning one row per
+sample unit (e.g. set or trip). The ggplot function prefers long format,
+so you often need convert between long and wide.</p>
+<p>The first code chunk converts the LLSIM observer data from long
+format to wide format. The original wide format data has columns called
+“SWO”, “BUM” that include the catch of swordfish and blue marlin,
+respectively. The pivot_longer function will make a new column called
+“Species” to hold the values “SWO” and “BUM”, which are the names of the
+columns being “pivoted”. The values in those columns will go in a column
+named “Catch”. See the help file for pivot_longer for the syntax. Note
+that the names of the new columns have to be a character string (i.e. in
+quotes) because they are not defined in the dataframe.</p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">?</span><span class="va">pivot_longer</span></span>
+<span><span class="va">obsdatLong</span><span class="op">&lt;-</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="va">obsdat</span>,</span>
+<span>                         cols<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">SWO</span>,<span class="va">BUM</span><span class="op">)</span>,</span>
+<span>                         names_to<span class="op">=</span><span class="st">"Species"</span>,</span>
+<span>                         values_to<span class="op">=</span><span class="st">"Catch"</span><span class="op">)</span></span></code></pre></div>
+<p>The new dataset is longer because each trip now has two rows, one for
+each species. All other columns have been replicated.</p>
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdat</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 2147    9</span></span></code></pre>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatLong</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 4294    9</span></span></code></pre>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">obsdatLong</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 9</span></span></span>
+<span><span class="co">##   trip                  Year fleet hooks  sets season area  Species Catch</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2000.6.1.25.-80   <span style="text-decoration: underline;">2</span>000     1  5.10     6      2 N     SWO         0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2000.6.1.25.-80   <span style="text-decoration: underline;">2</span>000     1  5.10     6      2 N     BUM         0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2001.10.1.25.-80  <span style="text-decoration: underline;">2</span>001     1  0.8      1      4 N     SWO         0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2001.10.1.25.-80  <span style="text-decoration: underline;">2</span>001     1  0.8      1      4 N     BUM         1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1      4 N     SWO         2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1      4 N     BUM         0</span></span></code></pre>
+<p>This is now the right format for making a ggplot, for example:</p>
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">obsdatLong</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Catch</span>,fill<span class="op">=</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Total catch of swordfish and blue marlin"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Course2025_files/figure-html/unnamed-chunk-56-1.png" width="700"></p>
+<p>This kind of long format is quite common in input data from observer
+programs, scientific surveys, etc. If there is exactly one row per
+species per set, we can pivot from long to wide using pivot_wider. The
+input names_from is the column containing the categorical variables
+which will be used to give names to the new columns, and values_from
+will be the values in the new columns (note: no quotes because these are
+existing columns). The input values_fill optionally specifies that, if
+there is no row for a species in a set, a zero will be filled in.</p>
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">?</span><span class="va">pivot_wider</span></span>
+<span><span class="va">obsdatWide</span><span class="op">&lt;-</span><span class="va">obsdatLong</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from<span class="op">=</span><span class="va">Species</span>,</span>
+<span>                                       values_from<span class="op">=</span><span class="va">Catch</span>,</span>
+<span>                                       values_fill<span class="op">=</span><span class="fl">0</span><span class="op">)</span> </span></code></pre></div>
+<p>This only works with exactly one row per species and sample unit. In
+the case where there might be more than one catch record per species and
+sample unit, you may need to add them using group_by() %&gt;%
+summarize().The group_by %&gt;% summarize syntax removes all variables
+not mentioned explicitly in group_by or summarize, so we need to mention
+them all to keep them. Finally, I will use ungroup to remove the
+grouping because grouping can cause problems later when using the
+dataframe for other purposes. This aggregated data can then be used in
+the pivot_wider function. This dataset doesn’t need this step, but here
+is the code in case you need it.</p>
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">obsdatLongAgg</span><span class="op">&lt;-</span><span class="va">obsdatLong</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">trip</span>,<span class="va">Year</span>,<span class="va">fleet</span>,<span class="va">hooks</span>,<span class="va">sets</span>,<span class="va">Species</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>Catch<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">Catch</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatLongAgg</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 4294    7</span></span></code></pre>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatLong</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 4294    9</span></span></code></pre>
+<p>This made no change in the example data, because the data were
+already aggregrated.</p>
+<p>Another common data format, for example when the data include fish
+lengths, has a separate row for each individual fish. The next chunk
+uses the uncount function to make a dataset with one row per fish, so we
+can see how to aggregate it into the format we need.</p>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">obsdatUncount</span><span class="op">&lt;-</span><span class="va">obsdatLong</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/uncount.html" class="external-link">uncount</a></span><span class="op">(</span><span class="va">Catch</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatUncount</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 90882     8</span></span></code></pre>
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">obsdatUncount</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 8</span></span></span>
+<span><span class="co">##   trip                  Year fleet hooks  sets season area  Species</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2001.10.1.25.-80  <span style="text-decoration: underline;">2</span>001     1  0.8      1      4 N     BUM    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1      4 N     SWO    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1      4 N     SWO    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2002.11.1.25.-70  <span style="text-decoration: underline;">2</span>002     1  4.19    14      4 N     SWO    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2002.11.1.25.-70  <span style="text-decoration: underline;">2</span>002     1  4.19    14      4 N     SWO    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2002.11.1.25.-70  <span style="text-decoration: underline;">2</span>002     1  4.19    14      4 N     SWO</span></span></code></pre>
+<p>We now have a very long dataset in which there is one row per
+individual fish and no Catch column. For example, the 2 swordfish caught
+in trip 101.2001.11.1.30.-70 are now in row 2 and 3, with “SWO” in the
+Species column.</p>
+<p>To get this back to wide format for running linear models, we can
+group the data by trip and species, using group_by, and count the number
+of rows (which is the number of fish) using the n() function in the
+summarize function.</p>
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">obsdatRegroup</span><span class="op">&lt;-</span><span class="va">obsdatUncount</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">trip</span>,<span class="va">Year</span>,<span class="va">fleet</span>,<span class="va">hooks</span>,<span class="va">sets</span>,<span class="va">Species</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>Catch<span class="op">=</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This dataset now has a Catch column with counts of swordfish and blue
+marlin</p>
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">obsdatRegroup</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
+<span><span class="co">##   trip                  Year fleet hooks  sets Species Catch</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2001.10.1.25.-80  <span style="text-decoration: underline;">2</span>001     1  0.8      1 BUM         1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1 SWO         2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2002.11.1.25.-70  <span style="text-decoration: underline;">2</span>002     1  4.19    14 SWO        22</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2002.5.1.25.-85   <span style="text-decoration: underline;">2</span>002     1  1.6      2 SWO        11</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2003.4.1.25.-85   <span style="text-decoration: underline;">2</span>003     1  2.65     3 SWO         5</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2006.6.1.25.-85   <span style="text-decoration: underline;">2</span>006     1  3.22     4 BUM         1</span></span></code></pre>
+<p>We can now pivot wider to get in the correct format for linear
+models.</p>
+<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">obsdatRegroupWide</span><span class="op">&lt;-</span><span class="va">obsdatRegroup</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">Species</span>,</span>
+<span>                                                 values_from <span class="op">=</span> <span class="va">Catch</span>,</span>
+<span>                                                 values_fill <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">obsdatRegroupWide</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
+<span><span class="co">##   trip                  Year fleet hooks  sets   BUM   SWO</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2001.10.1.25.-80  <span style="text-decoration: underline;">2</span>001     1  0.8      1     1     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.11.1.30.-70  <span style="text-decoration: underline;">2</span>001     1  0.4      1     0     2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2002.11.1.25.-70  <span style="text-decoration: underline;">2</span>002     1  4.19    14     0    22</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2002.5.1.25.-85   <span style="text-decoration: underline;">2</span>002     1  1.6      2     0    11</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2003.4.1.25.-85   <span style="text-decoration: underline;">2</span>003     1  2.65     3     0     5</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2006.6.1.25.-85   <span style="text-decoration: underline;">2</span>006     1  3.22     4     1    22</span></span></code></pre>
+<p>The data frame is now in wide format, and values_fill put zeros for
+the catch species not found in each trip. However, we still have a
+problem. We don’t have as many rows in this table as in the original
+obsdat.</p>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdatRegroupWide</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 2049    7</span></span></code></pre>
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obsdat</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 2147    9</span></span></code></pre>
+<p>And if we look, we can see that the missing rows are those with no
+catches of either swordfish or blue marlin. The following code filters
+obsdat to the trip numbers that are not in obsdatRegroupWide and looks
+at the first few rows.</p>
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">obsdat</span>,<span class="op">!</span><span class="va">trip</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">obsdatRegroupWide</span><span class="op">$</span><span class="va">trip</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 9</span></span></span>
+<span><span class="co">##   trip                  Year fleet hooks  sets season area    SWO   BUM</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2000.6.1.25.-80   <span style="text-decoration: underline;">2</span>000     1 5.10      6      2 N         0     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.7.1.35.-65   <span style="text-decoration: underline;">2</span>001     1 0.3       1      3 N         0     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2012.8.1.25.-85   <span style="text-decoration: underline;">2</span>012     1 0.8       1      3 N         0     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 103.2004.11.1.25.-75  <span style="text-decoration: underline;">2</span>004     1 0.402     1      4 N         0     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 106.2005.10.1.30.-75  <span style="text-decoration: underline;">2</span>005     1 0.552     1      4 N         0     0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 106.2008.2.1.25.-85   <span style="text-decoration: underline;">2</span>008     1 1.8       2      1 N         0     0</span></span></code></pre>
+<p>These rows in the original data indicating zero catches are needed
+for our linear models to estimate abundance trends or bycatch rates.
+However, they cannot be calculated from a long format dataset that has
+no rows for zero observations.</p>
+<p>Often datasets from observer programs and surveys will have one table
+containing observations for each sample unit (e.g. set, trip, transect),
+including, time, date, location, etc., and have a separate table for the
+information on the individual animals observed. The data might be
+formatted like this:</p>
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tripTable</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">obsdat</span>,<span class="va">trip</span>,<span class="va">sets</span>,<span class="va">hooks</span>,<span class="va">sets</span>,<span class="va">season</span>,<span class="va">area</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tripTable</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
+<span><span class="co">##   trip                  sets hooks season area </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2000.6.1.25.-80      6  5.10      2 N    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.10.1.25.-80     1  0.8       4 N    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2001.11.1.30.-70     1  0.4       4 N    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2001.7.1.35.-65      1  0.3       3 N    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2002.11.1.25.-70    14  4.19      4 N    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2002.5.1.25.-85      2  1.6       2 N</span></span></code></pre>
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">animalTable</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">obsdatUncount</span>,<span class="va">trip</span>,<span class="va">Species</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length<span class="op">=</span><span class="cn">NA</span>,</span>
+<span>         weight<span class="op">=</span><span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">animalTable</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
+<span><span class="co">##   trip                 Species length weight</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 101.2001.10.1.25.-80 BUM     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 101.2001.11.1.30.-70 SWO     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 101.2001.11.1.30.-70 SWO     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 101.2002.11.1.25.-70 SWO     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 101.2002.11.1.25.-70 SWO     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 101.2002.11.1.25.-70 SWO     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span></span></span></code></pre>
+<p>In this case all the information about each trip is in the table
+called trip, and information about individual animals is in the
+animalTable. To get the count of animals of each species, including
+zeros, we do two steps.</p>
+<ol style="list-style-type: decimal">
+<li><p>Use group_by %&gt;% summarize to count all the animals in the
+non-zero trips in the animals table</p></li>
+<li><p>Use left_join to add the counts onto the full trip table, filling
+in zeros for trips with no animals caught.</p></li>
+</ol>
+<p>Step 1 is the same analysis we did before to make obsdatRegroupWide,
+except in that in this case, we don’t want to include any variables
+other than trip and the catch of each species. We can ignore variables
+like animal length and weight, and we don’t want to duplicate any
+variables already in tripTable (except those used in matching rows, as
+shown below).</p>
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">animalCatch</span><span class="op">&lt;-</span><span class="va">animalTable</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">trip</span>,<span class="va">Species</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>Catch<span class="op">=</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">animalCatchWide</span> <span class="op">&lt;-</span><span class="va">animalCatch</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">Species</span>,</span>
+<span>                                             values_from <span class="op">=</span> <span class="va">Catch</span>,</span>
+<span>                                             values_fill <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">animalCatchWide</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 2049    3</span></span></code></pre>
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">tripTable</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 2147    5</span></span></code></pre>
+<p>We see from the dimensions that there are 98 trips missing. So, we
+now add catch to tripTable using left_join. Left join will use the trip
+variable (by=trip) present in both datasets to match the rows. It will
+keep all the rows in tripTable (the left table in the left_join).</p>
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">?</span><span class="va">left_join</span></span>
+<span><span class="va">finalTable</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">tripTable</span>,<span class="va">animalCatchWide</span>,by<span class="op">=</span><span class="st">"trip"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">finalTable</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      trip                sets           hooks            season     </span></span>
+<span><span class="co">##  Length:2147        Min.   : 1.00   Min.   :  0.01   Min.   :1.000  </span></span>
+<span><span class="co">##  Class :character   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  </span></span>
+<span><span class="co">##  Mode  :character   Median :15.00   Median : 22.08   Median :2.000  </span></span>
+<span><span class="co">##                     Mean   :15.79   Mean   : 32.45   Mean   :2.465  </span></span>
+<span><span class="co">##                     3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  </span></span>
+<span><span class="co">##                     Max.   :99.00   Max.   :258.98   Max.   :4.000  </span></span>
+<span><span class="co">##                                                                     </span></span>
+<span><span class="co">##      area                BUM               SWO         </span></span>
+<span><span class="co">##  Length:2147        Min.   :  0.000   Min.   :   0.00  </span></span>
+<span><span class="co">##  Class :character   1st Qu.:  0.000   1st Qu.:   7.00  </span></span>
+<span><span class="co">##  Mode  :character   Median :  1.000   Median :  20.00  </span></span>
+<span><span class="co">##                     Mean   :  3.413   Mean   :  40.94  </span></span>
+<span><span class="co">##                     3rd Qu.:  3.000   3rd Qu.:  40.00  </span></span>
+<span><span class="co">##                     Max.   :108.000   Max.   :1256.00  </span></span>
+<span><span class="co">##                     NA's   :98        NA's   :98</span></span></code></pre>
+<p>We see that there are 98 MA values of BUM and SWO, for the trips that
+were now match. We just need to replace those with zeros, as they are
+trips that caught no swordfish or blue marlin.</p>
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">finalTable</span><span class="op">&lt;-</span><span class="va">finalTable</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="va">BUM</span><span class="op">:</span><span class="va">SWO</span>,<span class="op">~</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/replace_na.html" class="external-link">replace_na</a></span><span class="op">(</span><span class="va">.x</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">finalTable</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      trip                sets           hooks            season     </span></span>
+<span><span class="co">##  Length:2147        Min.   : 1.00   Min.   :  0.01   Min.   :1.000  </span></span>
+<span><span class="co">##  Class :character   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  </span></span>
+<span><span class="co">##  Mode  :character   Median :15.00   Median : 22.08   Median :2.000  </span></span>
+<span><span class="co">##                     Mean   :15.79   Mean   : 32.45   Mean   :2.465  </span></span>
+<span><span class="co">##                     3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  </span></span>
+<span><span class="co">##                     Max.   :99.00   Max.   :258.98   Max.   :4.000  </span></span>
+<span><span class="co">##      area                BUM               SWO         </span></span>
+<span><span class="co">##  Length:2147        Min.   :  0.000   Min.   :   0.00  </span></span>
+<span><span class="co">##  Class :character   1st Qu.:  0.000   1st Qu.:   6.00  </span></span>
+<span><span class="co">##  Mode  :character   Median :  1.000   Median :  18.00  </span></span>
+<span><span class="co">##                     Mean   :  3.258   Mean   :  39.07  </span></span>
+<span><span class="co">##                     3rd Qu.:  3.000   3rd Qu.:  39.00  </span></span>
+<span><span class="co">##                     Max.   :108.000   Max.   :1256.00</span></span></code></pre>
+<p>We now have the correct zero catches in the table. We can confirm
+that this process recreated the exact same data that was in the original
+obsdat, as follows:</p>
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">obsdat</span><span class="op">$</span><span class="va">BUM</span><span class="op">==</span><span class="va">finalTable</span><span class="op">$</span><span class="va">BUM</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## TRUE </span></span>
+<span><span class="co">## 2147</span></span></code></pre>
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">obsdat</span><span class="op">$</span><span class="va">SWO</span><span class="op">==</span><span class="va">finalTable</span><span class="op">$</span><span class="va">SWO</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## TRUE </span></span>
+<span><span class="co">## 2147</span></span></code></pre>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
