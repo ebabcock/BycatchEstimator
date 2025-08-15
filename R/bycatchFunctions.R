@@ -1140,11 +1140,15 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
     obsdatval$y=round(obsdatval$Catch)
     modfit1=try(glm.nb(formula1,data=obsdatval,control=glm.control(epsilon=1E-6,maxit=45),na.action=na.fail))
   }
+  if(modType=="Poisson") {
+    obsdatval$y=round(obsdatval$Catch)
+    modfit1=try(glm(formula1,data=obsdatval,family="poisson",na.action=na.fail))
+  }
   if(modType=="Tweedie") {
     obsdatval$y=obsdatval$cpue
     modfit1=try(cplm::cpglm(formula1,data=obsdatval))
   }
-  if(modType %in% c("TMBnbinom1","TMBnbinom2") ){
+  if(modType %in% c("TMBnbinom1","TMBnbinom2","TMBpoisson") ){
     obsdatval$y=round(obsdatval$Catch)
     TMBfamily=gsub("TMB","",modType)
     modfit1=try(glmmTMB(formula1,family=TMBfamily,data=obsdatval))
@@ -1183,7 +1187,7 @@ makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
         allpred<-cbind(newdat,predval1,predval2)   %>%
           mutate(est.cpue=.data$fit*.data$fit2)
       }
-      if(modType %in% c("NegBin","TMBnbinom1","TMBnbinom2")) {
+      if(modType %in% c("NegBin","TMBnbinom1","TMBnbinom2","Poisson","TMBpoisson")) {
         allpred<-cbind(newdat,predval1)   %>%
           mutate(est.cpue=.data$fit/.data$Effort)
       }

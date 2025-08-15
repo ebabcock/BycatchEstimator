@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,error=FALSE,message=FALSE,eval=FALSE)
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,error=FALSE,message=FALSE,eval=TRUE)
 evalOption<-FALSE #FALSE to just print html, TRUE to get bycatch outputs
 ```
 
@@ -160,7 +160,7 @@ There will now be a html file named "Simltdspcscatchmodel1ModelResults.html" in 
 
 # Presentation 2. Data setup and data checks
 
-[Slides for data](https://acrobat.adobe.com/id/urn:aaid:sc:US:d96970ee-ffe1-4f29-ba58-61e2423d2058)
+[Slides for data setup and data checks](https://acrobat.adobe.com/id/urn:aaid:sc:US:d96970ee-ffe1-4f29-ba58-61e2423d2058)
 
 
 # Tutorial 2. Data setup and data checks with the bycatchSetup function
@@ -231,7 +231,7 @@ Design-based estimates require observations in all strata. If there are any stra
 
 # Presentation 3. Design-Based estimation
 
-[Slides for design-based](https://acrobat.adobe.com/id/urn:aaid:sc:US:6a0e09e6-b0da-4849-89f5-b8b8b3892add)
+[Slides for design-based estimation](https://acrobat.adobe.com/id/urn:aaid:sc:US:6a0e09e6-b0da-4849-89f5-b8b8b3892add)
 
 
 
@@ -1006,6 +1006,170 @@ ggplot(outputObj$allYearEstimates,aes(x=Year,y=Total,
   geom_ribbon(alpha=0.4)+
   theme_bw()
 ```
+
+
+# Appendix 1. Converting between long and wide format data
+ 
+This a tutorial on converting between wide and several kinds of long format in R tidyverse. The topics covered are converting between wide and long, aggregating by counting or summing over rows, and combining multiple datasets with left_join. You may not need all, or any, of these methods depending on the format of your data, but they are all here in case any of them are useful. 
+ 
+We will use an example dataset from a simulated longline fishery from the BycatchEstimator package. 
+ 
+This first chunk opens the tidyverse and BycatchEstimator libraries and makes a simplified version of the logbookd ata for the purposes of the tutorial.
+ 
+```{r, error=FALSE, message=FALSE}
+library(tidyverse)
+obsdat<-LLSIM_BUM_Example_observer%>%
+  select(trip,Year,fleet,hooks,sets,season,area,SWO,BUM) %>%
+  filter(Year>1999)
+```
+
+The functions for converting between wide and long format are called pivot_wider and pivot_longer. For linear models, including in BycatchEstimator, data should be in wide format, meaning one row per sample unit (e.g. set or trip). The ggplot function prefers long format, so you often need convert between long and wide.
+
+The first code chunk converts the LLSIM observer data from long format to wide format. The original wide format data has columns called "SWO", "BUM" that include the catch of swordfish and blue marlin, respectively. The pivot_longer function will make a new column called "Species" to hold the values "SWO" and "BUM", which are the names of the columns being "pivoted". The values in those columns will go in a column named "Catch". See the help file for pivot_longer for the syntax. Note that the names of the new columns have to be a character string (i.e. in quotes) because they are not defined in the dataframe.
+
+```{r}
+?pivot_longer
+obsdatLong<-pivot_longer(obsdat,
+                         cols=c(SWO,BUM),
+                         names_to="Species",
+                         values_to="Catch")
+```
+
+The new dataset is longer because each trip now has two rows, one for each species. All other columns have been replicated.
+
+```{r}
+dim(obsdat)
+dim(obsdatLong)
+head(obsdatLong)
+```
+
+This is now the right format for making a ggplot, for example:
+
+```{r}
+ggplot(obsdatLong,aes(x=Year,y=Catch,fill=Species))+
+  geom_col()+
+  ggtitle("Total catch of swordfish and blue marlin")
+```
+
+This kind of long format is quite common in input data from observer programs, scientific surveys, etc. If there is exactly one row per species per set, we can pivot from long to wide using pivot_wider. The input names_from is the column containing the categorical variables which will be used to give names to the new columns, and values_from will be the values in the new columns (note: no quotes because these are existing columns). The input values_fill optionally specifies that, if there is no row for a species in a set, a zero will be filled in. 
+
+```{r}
+?pivot_wider
+obsdatWide<-obsdatLong %>% pivot_wider(names_from=Species,
+                                       values_from=Catch,
+                                       values_fill=0) 
+```
+
+This only works with exactly one row per species and sample unit. In the case where there might be more than one catch record per species and sample unit, you may need to add them using group_by() %>% summarize().The group_by %>% summarize syntax removes all variables not mentioned explicitly in group_by or summarize, so we need to mention them all to keep them. Finally, I will use ungroup to remove the grouping because grouping can cause problems later when using the dataframe for other purposes. This aggregated data can then be used in the pivot_wider function. This dataset doesn't need this step, but here is the code in case you need it.
+
+```{r}
+obsdatLongAgg<-obsdatLong %>% group_by(trip,Year,fleet,hooks,sets,Species) %>%
+  summarize(Catch=sum(Catch))%>%
+  ungroup()
+dim(obsdatLongAgg)
+dim(obsdatLong)
+```
+This made no change in the example data, because the data were already aggregrated.
+
+Another common data format, for example when the data include fish lengths, has a separate row for each individual fish. The next chunk uses the uncount function to make a dataset with one row per fish, so we can see how to aggregate it into the format we need. 
+
+```{r}
+obsdatUncount<-obsdatLong %>%
+  uncount(Catch)
+dim(obsdatUncount)
+head(obsdatUncount)
+```
+We now have a very long dataset in which there is one row per individual fish and no Catch column. For example, the 2 swordfish caught in trip 101.2001.11.1.30.-70 are now in row 2 and 3, with "SWO" in the Species column. 
+
+To get this back to wide format for running linear models, we can group the data by trip and species, using group_by, and count the number of rows (which is the number of fish) using the n() function in the summarize function. 
+
+
+```{r}
+obsdatRegroup<-obsdatUncount %>% group_by(trip,Year,fleet,hooks,sets,Species) %>%
+  summarize(Catch=n())%>%
+  ungroup()
+```
+This dataset now has a Catch column with counts of swordfish and blue marlin
+
+```{r}
+head(obsdatRegroup)
+```
+
+We can now pivot wider to get in the correct format for linear models.
+
+```{r}
+obsdatRegroupWide<-obsdatRegroup %>% pivot_wider(names_from = Species,
+                                                 values_from = Catch,
+                                                 values_fill = 0)
+head(obsdatRegroupWide)
+```
+
+The data frame is now in wide format, and values_fill put zeros for the catch species not found in each trip. However, we still have a problem.  We don't have as many rows in this table as in the original obsdat.
+
+```{r}
+dim(obsdatRegroupWide)
+dim(obsdat)
+```
+And if we look, we can see that the missing rows are those with no catches of either swordfish or blue marlin. The following code filters obsdat to the trip numbers that are not in obsdatRegroupWide and looks at the first few rows.
+
+```{r}
+head(filter(obsdat,!trip %in% obsdatRegroupWide$trip))
+```
+
+These rows in the original data indicating zero catches are needed for our linear models to estimate abundance trends or bycatch rates. However, they cannot be calculated from a long format dataset that has no rows for zero observations. 
+
+Often datasets from observer programs and surveys will have one table containing observations for each sample unit (e.g. set, trip, transect), including, time, date, location, etc., and have a separate table for the information on the individual animals observed. The data might be formatted like this:
+
+```{r}
+tripTable<-select(obsdat,trip,sets,hooks,sets,season,area)
+head(tripTable)
+animalTable<-select(obsdatUncount,trip,Species)%>%
+  mutate(length=NA,
+         weight=NA)
+head(animalTable)
+```
+
+In this case all the information about each trip is in the table called trip, and information about individual animals is in the animalTable. To get the count of animals of each species, including zeros, we do two steps.
+
+1. Use group_by %>% summarize to count all the animals in the non-zero trips in the animals table
+
+2. Use left_join to add the counts onto the full trip table, filling in zeros for trips with no animals caught.
+
+Step 1 is the same analysis we did before to make obsdatRegroupWide, except in that in this case, we don't want to include any variables other than trip and the catch of each species. We can ignore variables like animal length and weight, and we don't want to duplicate any variables already in tripTable (except those used in matching rows, as shown below).
+
+```{r}
+animalCatch<-animalTable %>% group_by(trip,Species) %>%
+  summarize(Catch=n())%>%
+  ungroup()
+animalCatchWide <-animalCatch %>%pivot_wider(names_from = Species,
+                                             values_from = Catch,
+                                             values_fill = 0)
+dim(animalCatchWide)
+dim(tripTable)
+```
+
+We see from the dimensions that there are 98 trips missing. So, we now add catch to tripTable using left_join. Left join will use the trip variable (by=trip) present in both datasets to match the rows. It will keep all the rows in tripTable (the left table in the left_join).
+
+```{r}
+?left_join
+finalTable<-left_join(tripTable,animalCatchWide,by="trip")
+summary(finalTable)
+```
+We see that there are 98 MA values of BUM and SWO, for the trips that were now match. We just need to replace those with zeros, as they are trips that caught no swordfish or blue marlin. 
+
+```{r}
+finalTable<-finalTable %>%
+  mutate(across(BUM:SWO,~replace_na(.x,0)))
+summary(finalTable)
+```
+
+We now have the correct zero catches in the table. We can confirm that this process recreated the exact same data that was in the original obsdat, as follows: 
+
+```{r}
+table(obsdat$BUM==finalTable$BUM)
+table(obsdat$SWO==finalTable$SWO)
+```
+
 
 
 

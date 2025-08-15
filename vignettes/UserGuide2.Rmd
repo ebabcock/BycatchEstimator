@@ -15,7 +15,7 @@ header-includes:
 
 ```{r setup1, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,error=FALSE,message=FALSE)
-evalOption<-FALSE
+evalOption<-TRUE
 ```
 ebabcock@miami.edu
 
