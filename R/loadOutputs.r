@@ -74,11 +74,11 @@ loadOutputs<-function(baseDir = getwd(),
       allModResults<-mutate(allModResults,Year=as.numeric(as.character(Year)))
   }  else {
     allModResults<-NULL
-    modelobjList<-NULL
+    modelObjList<-NULL
   }
   allYearEstimates<-bind_rows(allModResults,allDesignResults) %>%
     mutate(Run=runName)
-  allYearEstimates<-filter(allYearEstimates,!Source=="Unstratified ratio")
+  if(nrow(allYearEstimates)>0) allYearEstimates<-filter(allYearEstimates,!Source=="Unstratified ratio")
   list(setupObj=setupObj,
        designObjList=designObjList,
        modelobjList=modelObjList,
