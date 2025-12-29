@@ -36,7 +36,6 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
 # setupObj<-readRDS(file=paste0(out.dir,"2025-06-11_BycatchSetupSpecification.rds"))
 # run=1
 # source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
@@ -315,11 +314,11 @@ cat('<div style="height:30px;"></div>\n')
 ```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 #wrap this code in if statement in case logdat is NULL
 if(!is.null(logdat)){
-nmax<-100000  #If there are more data points than this, subsample to avoid hanging R
+nmax<-5000  #If there are more data points than this, subsample to avoid hanging R
 allData<-bind_rows(list(Obs=obsdat[,unique(c(factorVariables,numericVariables))],
                         Eff=logdat[,unique(c(factorVariables,numericVariables))]),
                    .id="Source")%>%arrange(Source)
-if(nrow(allData)>nmax) allData<-allData[sort(sample(1:nrow(allData),nmax,replace=FALSE)),]
+if(nrow(allData)>nmax) allData<-slice_sample(allData,n=nmax)
 #uncomment to convert factors with>15 levels to number so it will plot visibly
 temp<-allData %>%summarise(across(all_of(factorVariables), ~ n_distinct(.)))
 temp<-names(temp)[temp[1,]>15]
@@ -460,7 +459,9 @@ cat('<div style="height:30px;"></div>\n')
 if(unique(!is.na(numericVariables))){
 #Catch by numeric variables
 cat("\n\n")
-temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+temp<-obsdatTemp
+if(nrow(temp)>nmax) temp<-slice_sample(temp,n=nmax)
+temp<-temp%>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
 print(ggplot(temp,aes(x=Value,y=Catch))+
   geom_point(alpha=0.3)+
   stat_smooth()+
@@ -507,7 +508,9 @@ cat('<div style="height:30px;"></div>\n')
 if(unique(!is.na(numericVariables))){
 #CPUE by numeric variables
 cat("\n\n")
-temp<-obsdatTemp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
+temp<-obsdatTemp
+if(nrow(temp)>nmax) temp<-slice_sample(temp,n=nmax)
+temp<-temp %>% pivot_longer(cols=all_of(numericVariables),names_to="Variable",values_to = "Value") 
 print(ggplot(temp,aes(x=Value,y=CPUE))+
   geom_point(alpha=0.3)+
   stat_smooth()+
