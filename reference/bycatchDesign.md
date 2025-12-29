@@ -1,0 +1,132 @@
+# Bycatch estimation using design-based estimators
+
+Produces estimates of bycatch using design-based ratio estimator and
+delta estimator, with the option of pooling across stratification
+variables.
+
+## Usage
+
+``` r
+bycatchDesign(
+  setupObj = setupObj,
+  designScenario,
+  designMethods = "Ratio",
+  designVars = "Year",
+  groupVar = "Year",
+  designPooling = FALSE,
+  poolTypes = NULL,
+  pooledVar = NULL,
+  adjacentNum = NULL,
+  minStrataUnit = 1,
+  reportType = "html"
+)
+```
+
+## Arguments
+
+- setupObj:
+
+  An object produced by `bycatchSetup`.
+
+- designScenario:
+
+  Short name, e.g. noPool, or Pool1, to distinguish outputs made with
+  the same setupObj.
+
+- designMethods:
+
+  Character vector of methods to use for design based estimation.
+  Current options are Ratio and Delta (for a delta-lognormal estimator).
+
+- designVars:
+
+  Specify strata that must be included in design based estimates, in
+  order across which data should be pooled. Order of these variables
+  determines order for which pooling will occur.
+
+- groupVar:
+
+  Specify variable to keep separate in summaries. Defaults to Year. Put
+  "NA" to summarize over whole dataset
+
+- designPooling:
+
+  TRUE if design-based estimates should be pooled for strata with
+  missing data
+
+- poolTypes:
+
+  Type of pooling for each variable in designVars, as a character vector
+  in the same order. Options are "none", where data will not be pooled
+  over this variable, "all" where data will be pooled over all levels of
+  the variable, "pooledVar" where the variable named in pooledVar will
+  be used to pool, and (currently for year only) "adjacent" to pool over
+  adjacent years.
+
+- pooledVar:
+
+  Variables to pool over for any variable with pooledVar in the previous
+  line, as a character vector in the same order as designVars. Use NA
+  for variables with other pooling methods. This can be used to pool
+  (for example) months into seasons when pooling is needed.
+
+- adjacentNum:
+
+  Number of adjacent years to include for adjacent pooling, as a
+  numerical vector in the same order as designVars. NA for anything
+  other than year, in the same order as designVars.
+
+- minStrataUnit:
+
+  The smallest sample size in the strata defined by designVars that is
+  acceptable, in sample units (e.g. trips); below that pooling will
+  occur.
+
+- reportType:
+
+  Character. Choose type of report to be produced. Options are pdf, html
+  (default) or both.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+library(BycatchEstimator)
+#-------------------------------------------------
+#Step 1. Run the datasetup function and review data inputs
+setupObj<-bycatchSetup(
+obsdat = obsdatExample,
+logdat = logdatExample,
+yearVar = "Year",
+obsEffort = "sampled.sets",
+logEffort = "sets",
+obsCatch = "Catch",
+catchUnit = "number",
+catchType = "dead discard",
+logNum = NA,
+sampleUnit = "trips",
+factorVariables = c("Year","season"),
+numericVariables = NA,
+EstimateBycatch = TRUE,
+runName = "SimulatedExample",
+runDescription = "Example with simulated data",
+common = "Simulated species",
+sp = "Genus species",
+reportType = "html"
+)
+
+#-------------
+#Step 2. Design-based estimators (with pooling)
+bycatchDesign(
+setupObj = setupObj,
+designScenario = "noPool",
+designMethods = c("Ratio", "Delta"),
+designVars = c("Year","season"),
+groupVar = "Year",
+designPooling = TRUE,
+poolTypes=c("adjacent","all"),
+pooledVar=c(NA,NA),
+adjacentNum=c(1,NA),
+minStrataUnit = 1
+)} # }
+```

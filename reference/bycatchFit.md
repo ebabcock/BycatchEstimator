@@ -1,0 +1,213 @@
+# Bycatch estimation using model-based estimators
+
+Produces model-based estimates of bycatch and annual abundance index.
+
+## Usage
+
+``` r
+bycatchFit(
+  setupObj,
+  modelScenario,
+  complexModel,
+  simpleModel,
+  indexModel = NULL,
+  modelTry = c("Delta-Lognormal", "Delta-Gamma", "TMBnbinom1", "TMBnbinom2",
+    "TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = FALSE,
+  CIval = 0.05,
+  VarCalc = "Simulate",
+  includeObsCatch = FALSE,
+  matchColumn = NULL,
+  EstimateIndex = FALSE,
+  useParallel = TRUE,
+  nSims = 1000,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+```
+
+## Arguments
+
+- setupObj:
+
+  An object produced by `bycatchSetup`.
+
+- modelScenario:
+
+  Short descriptor of model setup, eg. "s1", so output files will be
+  different if you run more than one scenario with one setupObj.
+
+- complexModel:
+
+  Specify as stats::formula. Specify the most complex and simplest model
+  to be considered. The code will find and compare all intermediate
+  models using information criteria. Include only fixed effects.
+
+- simpleModel:
+
+  Specify as stats::formula. This model includes all variables that must
+  be in the final bycatch estimation model
+
+- indexModel:
+
+  Specify as stats::formula. Use indexModel to specify which strata to
+  keep separate in calculating abundance indices.
+
+- modelTry:
+
+  Specify which observation error models to try. Options are:
+  "Binomial", "Normal","Lognormal","Poisson", "Delta-Lognormal", and
+  "Delta-Gamma", for models using the lm and glm functions, "NegBin" for
+  Negative binomial using glm.nb in the MASS library, "Tweedie" for
+  Tweedie GLM from the cpglm function in the cplm library, and
+  "TMBbinomial","TMBnormal", "TMBlognormal","TMBpoisson" ,
+  "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and
+  "TMBtweedie" for the corresponding models from the glmmTMB library.
+  Binomial or TMBbinomial will be run automatically as part of the delta
+  models if any of them are selected.
+
+- randomEffects:
+
+  Character vector. Random effects that should be included in all
+  non-delta and binomial models, as a character vector in (e.g.
+  "Year:area" to include Year:area as a random effect). Null if none.
+  Note that random effects will be included in all models. The code will
+  not evaluate whether they should be included.
+
+- randomEffects2:
+
+  Character vector. Random effects that should be included in the
+  positive catch component of delta models, as a character vector in
+  (e.g. "Year:area" to include Year:area as a random effect). Null if
+  none. Note that random effects will be included in all models. The
+  code will not evaluate whether they should be included.
+
+- selectCriteria:
+
+  Character. Model selection criteria. Options are AICc, AIC and BIC
+
+- DoCrossValidation:
+
+  Specify whether to run a 10 fold cross-validation (TRUE or FALSE).
+  This may not work with a small or unbalanced dataset
+
+- CIval:
+
+  Specify confidence interval for total bycatch estimates. Should be the
+  alpha level, e.g. 0.05 for 95%
+
+- VarCalc:
+
+  Character. Variance calculation method. Options are:
+  "Simulate","DeltaMethod", or "None". Simulate will not work with a
+  large number of sample units in the logbook data. The delta method for
+  variance calculation is not implemented for the delta-lognormal or
+  delta-gamma methods.
+
+- includeObsCatch:
+
+  Logical. Set to TRUE if (1) the observed sample units can be matched
+  to the logbook sample units and (2) you want to calculate total
+  bycatch as the observed bycatch plus the predicted unobserved bycatch.
+  This doesn't work with aggregated logbook effort.
+
+- matchColumn:
+
+  Character. If `includeObsCatch` is TRUE, give the name of the column
+  that matches sample units between the observer and logbook data.
+  Otherwise, this can be NA
+
+- EstimateIndex:
+
+  Logical. What would you like to estimate? You may calculate either an
+  annual abundance index, or total bycatch, or both.
+
+- useParallel:
+
+  Logical. Whether to conduct the analysis using parallel processing.
+  Only initialized when more that two cores are available.
+
+- nSims:
+
+  Number of simulations used to calculate confidence intervals. Ignored
+  if `VarCalc` set to "None"
+
+- plotValidation:
+
+  Logical. If you have true values of the total bycatch (for example in
+  a simulation study), make plotValidation = TRUE and fill out the rest
+  of the specification (trueVals and trueCols).
+
+- trueVals:
+
+  The data set that contains the true simulated total catches by year.
+
+- trueCols:
+
+  The column of the true simulated catches that contains true bycatch by
+  year
+
+- reportType:
+
+  Character. Choose type of report to be produced. Options are pdf, html
+  (default) or both.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+library(BycatchEstimator)
+#-------------------------------------------------
+#Step 1. Run the datasetup function and review data inputs
+setupObj<-bycatchSetup(
+obsdat = obsdatExample,
+logdat = logdatExample,
+yearVar = "Year",
+obsEffort = "sampled.sets",
+logEffort = "sets",
+obsCatch = "Catch",
+catchUnit = "number",
+catchType = "dead discard",
+logNum = NA,
+sampleUnit = "trips",
+factorVariables = c("Year","season"),
+numericVariables = NA,
+EstimateBycatch = TRUE,
+baseDir = getwd(),
+runName = "SimulatedExample",
+runDescription = "Example with simulated data",
+common = "Simulated species",
+sp = "Genus species",
+reportType = "html"
+)
+
+-------------
+#Step 2. Model fitting
+bycatchFit(
+setupObj = setupObj,
+modelScenario = "s1",
+complexModel = formula(y~(Year+season)^2),
+simpleModel = formula(y~Year),
+indexModel = formula(y~Year),
+modelTry = c("Delta-Lognormal","TMBnbinom2"),
+randomEffects = NULL,
+randomEffects2 = NULL,
+selectCriteria = "BIC",
+DoCrossValidation = TRUE,
+CIval = 0.05,
+VarCalc = "Simulate",
+includeObsCatch=FALSE,
+matchColumn=NULL,
+EstimateIndex=FALSE,
+useParallel = TRUE,
+nSims = 100,
+plotValidation = FALSE,
+trueVals = NULL,
+trueCols = NULL
+)} # }
+```
