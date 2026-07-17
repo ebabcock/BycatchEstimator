@@ -34,6 +34,7 @@ loadOutputs<-function(baseDir = getwd(),
   if(!is.null(designScenarios)) {
     designObjList<-list()
     allDesignResults<-list()
+    allDesignResultsStrata<-list()
     for(i in 1:length(designScenarios)) {
       designFile<-paste0(runDate,"_BycatchDesign",designScenarios[i],".rds")
       if(!file.exists(paste0(outDir,"/",designFile))) stop(paste("Design file",designFile ,"not found in",outDir,"."))
@@ -43,7 +44,11 @@ loadOutputs<-function(baseDir = getwd(),
                                        .id="Common")%>%
         separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
         mutate(Valid=1)
-
+      names(designObjList[[i]]$designOutputs$yearSumGraphStrata)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+      allDesignResultsStrata[[i]]<-bind_rows(designObjList[[i]]$designOutputs$yearSumGraphStrata,
+                                             .id="Common")%>%
+        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
+        mutate(Valid=1)
     }
     names(designObjList)<-designScenarios
     names(allDesignResults)<-designScenarios
@@ -58,6 +63,7 @@ loadOutputs<-function(baseDir = getwd(),
   if(!is.null(modelScenarios)) {
     modelObjList<-list()
     allModResults<-list()
+    allModResultsStrata<-list()
     for(i in 1:length(modelScenarios)) {
       modelFile<-paste0(runDate,"_BycatchFit",modelScenarios[i],".rds")
       if(!file.exists(paste0(outDir,"/",modelFile))) stop(paste("Model file",modelFile ,"not found in",outDir,"."))
@@ -66,14 +72,20 @@ loadOutputs<-function(baseDir = getwd(),
       allModResults[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmods,
                                     .id="Common")%>%
         separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))
+      names(modelObjList[[i]]$modelOutputs$allmodsStrata)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+      allModResultsStrata[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmodsStrata,
+                                          .id="Common")%>%
+        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))
     }
     names(modelObjList)<-modelScenarios
     names(allModResults)<-modelScenarios
     allModResults<-bind_rows(allModResults,.id="Scenario")
+    allModResultsStrata<-bind_rows(allModResultsStrata,.id="Scenario")
     if("Year" %in% names(allModResults))
       allModResults<-mutate(allModResults,Year=as.numeric(as.character(Year)))
   }  else {
     allModResults<-NULL
+    allModResultsStrata<-NULL
     modelObjList<-NULL
   }
   allYearEstimates<-bind_rows(allModResults,allDesignResults) %>%
@@ -83,6 +95,7 @@ loadOutputs<-function(baseDir = getwd(),
        designObjList=designObjList,
        modelobjList=modelObjList,
        allYearEstimates=allYearEstimates,
+       allModResultsStrata=allModResultsStrata,
        runName=runName,
        baseDir=baseDir,
        runDate=runDate

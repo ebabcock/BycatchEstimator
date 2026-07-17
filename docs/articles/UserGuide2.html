@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>BycatchEstimator User Guide • BycatchEstimator</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="BycatchEstimator User Guide">
 </head>
@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2025-08-15</h4>
+            <h4 data-toc-skip class="date">2026-07-17</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -126,17 +126,14 @@ glmmTMB, GGally and quantreg (<span class="citation">Wickham et al.
 (2019)</span>; <span class="citation">Wickham (2016)</span>; <span class="citation">Venables and Ripley (2002)</span>; <span class="citation">Bates et al. (2015)</span>; <span class="citation">Zhang (2013)</span>; <span class="citation">Dunn and
 Smyth (2005)</span>; <span class="citation">Hartig (2020)</span>; <span class="citation">Henry and Wickham (2020)</span>; <span class="citation">Barton (2020)</span>; <span class="citation">Auguie
 (2017)</span>; <span class="citation">Wickham and Pedersen
-(2019)</span>; <span class="citation">Iannone, Cheng, and Schloerke
-(2020)</span>; <span class="citation">Ooms (2020)</span>;<span class="citation">Microsoft and Weston (2020)</span>;<span class="citation">Corporation and Weston (2020)</span>; <span class="citation">Wickham (2007)</span>; <span class="citation">Brooks et
-al. (2017)</span>;<span class="citation">Schloerke et al. (2024)</span>;
-<span class="citation">Koenker (2021)</span>). The output figures and
-tables are printed to the user’s choice of an html or pdf file using
-RMarkdown and the knitr library(<span class="citation">Xie
-(2025)</span>). To use pdf outputs, you must have a LaTex program
-installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
-<span class="citation">Xie (2021)</span>, <span class="citation">Xie
-(2025)</span>). For a quick start guide with example data, see the
-GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
+(2019)</span>; <span class="citation">Iannone et al. (2020)</span>;
+<span class="citation">Ooms (2020)</span>;<span class="citation">Microsoft and Weston (2020)</span>;<span class="citation">Corporation and Weston (2020)</span>; <span class="citation">Wickham (2007)</span>; <span class="citation"><span class="nocase">Brooks et al.</span> (2017)</span>;<span class="citation">Schloerke et al. (2024)</span>; <span class="citation">Koenker (2021)</span>). The output figures and tables
+are printed to the user’s choice of an html or pdf file using RMarkdown
+and the knitr library(<span class="citation">Xie (2025)</span>). To use
+pdf outputs, you must have a LaTex program installed, such as TinyTex
+(<span class="citation">Xie (2019)</span>, <span class="citation">Xie
+(2021)</span>, <span class="citation">Xie (2025)</span>). For a quick
+start guide with example data, see the GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
 help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.
 The following code will load the libary from GitHub using devtools
 (<span class="citation">Wickham et al. (2022)</span>).</p>
@@ -462,7 +459,7 @@ abundance index is done with the function <code>bycatchFit</code></p>
 <span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reportType <span class="op">=</span> <span class="st">"html"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "1 Simulated species, catch, complete, 2025-08-15 17:42:46.090699"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "1 Simulated species, catch, complete, 2026-07-17 08:47:18.482786"</span></span></code></pre>
 <p>The user specifies which potential predictor variables to use and
 what potential error distribution models (e.g. negative binomial,
 delta-lognormal) to use. The function uses information criteria to pick
@@ -691,8 +688,8 @@ variables, offsets) as explained here.</p>
 <td align="left">CPUE,real,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt;0</annotation></semantics></math>
 </td>
 <td align="left">log transformed</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">exp(\mu+\sigma^2/2)</annotation></semantics></math></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(exp(\sigma ^2)-1)(exp(2\mu +\sigma ^2)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>x</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">exp(\mu+\sigma^2/2)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mi>x</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(exp(\sigma ^2)-1)(exp(2\mu +\sigma ^2)</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>a</mi><mi>m</mi><mi>m</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">Gamma</annotation></semantics></math></td>
@@ -715,7 +712,7 @@ variables, offsets) as explained here.</p>
 <td align="left">presence/absence (0,1)</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mi>i</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">logit</annotation></semantics></math></td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">np</annotation></semantics></math></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">np(1-p)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">np(1-p)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>s</mi><mi>o</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">Poisson</annotation></semantics></math></td>
@@ -731,7 +728,7 @@ variables, offsets) as explained here.</p>
 </td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">log</annotation></semantics></math></td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu(1+\alpha)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu(1+\alpha)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>e</mi><mi>g</mi><mi>B</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">NegBinomial2</annotation></semantics></math></td>
@@ -756,14 +753,13 @@ time, and it is also used to model positive versus zero observations in
 the delta models (see below).</p>
 <p>The negative binomial using the glm.nb function from the MASS library
 (<span class="citation">Venables and Ripley (2002)</span>) or nbinom2
-from the glmmTMB library(<span class="citation">Brooks et al.
-(2017)</span>) are the ordinary negative binomial, in which the variance
-is:
+from the glmmTMB library(<span class="citation"><span class="nocase">Brooks et al.</span> (2017)</span>) are the ordinary
+negative binomial, in which the variance is:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mo>+</mo><msup><mi>μ</mi><mn>2</mn></msup><mi>/</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\sigma^2=\mu+\mu^2/\theta</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is an estimated parameter. For nbinom1, the variance is defined as:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma^2= \mu(1+\alpha)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sigma^2= \mu(1+\alpha)</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
 is an estimated parameter. This version of the negative binomial model,
@@ -779,7 +775,7 @@ catch per unit effort (CPUE) when each sample unit(e.g. set) might have
 a different amount of effort (e.g. hook-hours) it is necessary to
 include effort as an offset in the model. We use a log link for all
 negative binomial models, so that the model predicts:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>o</mi><mi>f</mi><mi>f</mi><mi>s</mi><mi>e</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(C_i)=b_0+ b_1x_1+offset(log(E_i))</annotation></semantics></math>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>o</mi><mi>f</mi><mi>f</mi><mi>s</mi><mi>e</mi><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">log(C_i)=b_0+ b_1x_1+offset(log(E_i))</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mi>i</mi></msub><annotation encoding="application/x-tex">C_i</annotation></semantics></math>
 is the catch in sample unit
@@ -791,14 +787,14 @@ offset is the log of the effort
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>i</mi></msub><annotation encoding="application/x-tex">E_i</annotation></semantics></math>
 in each trip. This is algebraically equivalent to modeling CPUE as a
 function of the same linear predictors,
-e.g. <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mi>/</mi><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">log(C_i/E_i)=b_0+ b_1x_1</annotation></semantics></math>
+e.g. <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>C</mi><mi>i</mi></msub><mi>/</mi><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">log(C_i/E_i)=b_0+ b_1x_1</annotation></semantics></math>
 The model can then be used to predict CPUE by inputting Effort=1, and to
 predict catch by inputting the Effort in a sample unit. The code sets up
 the offset automatically, so you don’t have to put it in simpleModel or
 complexModel. However, the best models shown in the output tables will
 show the full formula in R formula format, e.g. the formula above would
 be
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>1</mn><mo>+</mo><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>o</mi><mi>f</mi><mi>f</mi><mi>s</mi><mi>e</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>f</mi><mi>f</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y=1 + x_1+offset(log(Effort))</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>1</mn><mo>+</mo><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>o</mi><mi>f</mi><mi>f</mi><mi>s</mi><mi>e</mi><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>E</mi><mi>f</mi><mi>f</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y=1 + x_1+offset(log(Effort))</annotation></semantics></math>,
 where 1 indicates the intercept, and the offset is distinguished from
 predictor variables by the keyword “offset”. Negative binomial models
 work well, even for very rare species, if the data are counts of the
@@ -878,9 +874,9 @@ likely to prefer overly complex models when the sample size is large
 (<span class="citation">Burnham and Anderson (2004)</span>). Information
 criteria work by weighing the tradeoff between model fit and model
 complexity. The AIC is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2log(L)+2k</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2log(L)+2k</annotation></semantics></math>
 where L is likelihood,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">-2log(L)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-2log(L)</annotation></semantics></math>
 is model deviance, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
 is the number of parameters. A lower deviance (higher likelihood)
@@ -889,7 +885,7 @@ implies better model fit. However, the complexity penalty
 means that an added parameter (e.g. another predictor variable
 coefficient) must reduce deviance by more than 2 units to improve the
 fit enough to be worth the extra parameters. BIC is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>n</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">BIC=-2log(L)+nk</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">BIC=-2log(L)+nk</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
 is total sample size. Thus, the complexity penalty increases with sample
@@ -900,16 +896,16 @@ explained very little of the model deviance.</p>
 separate CSV) includes all the information criteria for each model that
 was considered, as well as model weights calculated for the information
 criterion the user specified,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mi>−</mi><mn>0.5</mn><msub><mi>Δ</mi><mi>i</mi></msub><mi>/</mi><mo>∑</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mn>0.5</mn><msub><mi>Δ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">w_i=-0.5\Delta_i/\sum(-0.5\Delta_i)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mi>−</mi><mn>0.5</mn><msub><mi mathvariant="normal">Δ</mi><mi>i</mi></msub><mi>/</mi><mo>∑</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>0.5</mn><msub><mi mathvariant="normal">Δ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w_i=-0.5\Delta_i/\sum(-0.5\Delta_i)</annotation></semantics></math>,
 where delta
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Δ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Delta_i</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Δ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Delta_i</annotation></semantics></math>
 is the difference in information criteria between model
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
 and the best model. Model weights sum to one and indicate the degree of
 support for the model in the data (<span class="citation">Barton
 (2020)</span>). The best model will have the highest weight and the
 lowest
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>.
 But, in some cases other models may also have strong support, and should
 perhaps be considered, particularly if they are simpler. The current
 version of the code does not use MuMIn’s model averaging function, but
@@ -978,7 +974,7 @@ will estimate a linear trend across years. Polynomial regression may be
 a useful way to estimate more complex trends across years in data sets
 where not all years have enough data to estimate Year as a categorical
 fixed effect. This can be specified as, for example
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mi>e</mi><mi>a</mi><msup><mi>r</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mi>e</mi><mi>a</mi><msup><mi>r</mi><mn>3</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y \sim Year + I(Year^2) + I(Year^3)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∼</mo><mi>Y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mo>+</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mi>e</mi><mi>a</mi><msup><mi>r</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mi>e</mi><mi>a</mi><msup><mi>r</mi><mn>3</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y \sim Year + I(Year^2) + I(Year^3)</annotation></semantics></math>.</p>
 <p>When considering including additional variables in the model, other
 than Year and any stratification variables used in the sampling design,
 the key consideration is whether the variable is available, and has the
@@ -1060,7 +1056,7 @@ the other 9 folds. The same predictor variables chosen as the best model
 on the full dataset will be used in each fold as for the full data set
 to save time. The fitted model is used to predict the CPUE for the left
 out fold, and the root mean square error is calculated as:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mi>M</mi><mi>S</mi><mi>E</mi><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="true" form="prefix">(</mo><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">̂</mo></mover><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">RMSE =\frac{1}{n}\sum_{i=1}^{n}(\hat{y_i}-y_i)^2</annotation></semantics></math>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mi>M</mi><mi>S</mi><mi>E</mi><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">̂</mo></mover><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">RMSE =\frac{1}{n}\sum_{i=1}^{n}(\hat{y_i}-y_i)^2</annotation></semantics></math>
 where n is the number of observed trips and y is the CPUE data in the
 left-out tenth of the observer data, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>y</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{y}</annotation></semantics></math>
@@ -1129,8 +1125,8 @@ residual variance, and this value is used in the bias correction. The
 total predicted CPUE is the predicted probability of a positive
 observation from the binomial times the predicted positive CPUE, and
 predicted catch is the predicted CPUE times effort. The variance of the
-total CPUE is calculated using the method of <span class="citation">Lo,
-Jacobson, and Squire (1992)</span>.</p>
+total CPUE is calculated using the method of <span class="citation">Lo
+et al. (1992)</span>.</p>
 <p>For the Monte Carlo variance estimation method, we first draw random
 values of the linear model coefficients from a multivariate normal
 distribution with the mean and variance/covariance matrix estimated from
@@ -1152,9 +1148,9 @@ variance of the original variable. Thus, the variance of the prediction
 intervals in the original data scale is calculated by pre and post
 multiplying the derivative of the inverse link function to the variance
 covariance matrix of the predicted values.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mi>p</mi></msub><mo>=</mo><mi>J</mi><msub><mi>Σ</mi><mi>l</mi></msub><mi>J</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">\Sigma_p = J \Sigma_l J'  </annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mi>p</mi></msub><mo>=</mo><mi>J</mi><msub><mi mathvariant="normal">Σ</mi><mi>l</mi></msub><msup><mi>J</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">\Sigma_p = J \Sigma_l J'  </annotation></semantics></math></p>
 <p>were
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mi>l</mi></msub><annotation encoding="application/x-tex">\Sigma_l</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Σ</mi><mi>l</mi></msub><annotation encoding="application/x-tex">\Sigma_l</annotation></semantics></math>
 is the variance covariance matrix for the predicted trips in the stratum
 on the scale of the log link, and J is the matrix of derivatives. See
 the function MakePredictionsDeltaVar in bycatchFunctions.R for the
@@ -1217,7 +1213,7 @@ predicting the mean CPUE in each year, and its standard error is
 calculated as the standard error of the mean prediction. For
 delta-lognormal and delta-Gamma models the standard error of the
 prediction is calculated from the means and standard errors of the
-binomial and positive catch models using the method of <span class="citation">Lo, Jacobson, and Squire (1992)</span>.</p>
+binomial and positive catch models using the method of <span class="citation">Lo et al. (1992)</span>.</p>
 <p>If you set EstimateBycatch to FALSE, and EstimateIndex to TRUE,
 <code>bycatchFit</code> can estimate a CPUE abundance index from any
 dataset. The dataset to be used for the index should be estimated as
@@ -1268,7 +1264,7 @@ fitting. This data-frame is appropriate for ggplot.</p></li>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="UserGuide2_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p><img src="UserGuide2_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 <p>The results from multiple runs can also be combined, with
 bind_rows.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -1482,16 +1478,15 @@ of cross validation</li>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-gridExtra" class="csl-entry">
 Auguie, Baptiste. 2017. <em>gridExtra: Miscellaneous Functions for
 "Grid" Graphics</em>. <a href="https://CRAN.R-project.org/package=gridExtra" class="external-link">https://CRAN.R-project.org/package=gridExtra</a>.
 </div>
 <div id="ref-Babcock2018" class="csl-entry">
-Babcock, E. A., M. Barnette, J. Bohnsack, J. J. Isely, Porch C., P. M.
-Richards, C. Sasso, and X. Zhang. 2018. <span>“Integrated Bayesian
-Models to Estimate Bycatch of Sea Turtles in the Gulf of Mexico and
-Southeastern u.s. Atlantic Coast Shrimp Otter Trawl Fishery.”</span>
+Babcock, E. A., M. Barnette, J. Bohnsack, et al. 2018. <em>Integrated
+Bayesian Models to Estimate Bycatch of Sea Turtles in the Gulf of Mexico
+and Southeastern u.s. Atlantic Coast Shrimp Otter Trawl Fishery</em>.
 Generic. NOAA Technical Memorandum NMFS-SEFSC-721.
 </div>
 <div id="ref-Babcock2023" class="csl-entry">
@@ -1515,11 +1510,11 @@ Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015.
 Software</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01" class="external-link">https://doi.org/10.18637/jss.v067.i01</a>.
 </div>
 <div id="ref-glmmTMB" class="csl-entry">
-Brooks, Mollie E., Kasper Kristensen, Koen J. van Benthem, Arni
-Magnusson, Casper W. Berg, Anders Nielsen, Hans J. Skaug, Martin
-Maechler, and Benjamin M. Bolker. 2017. <span>“<span class="nocase">glmmTMB</span> Balances Speed and Flexibility Among
-Packages for Zero-Inflated Generalized Linear Mixed Modeling.”</span>
-<em>The R Journal</em> 9 (2): 378–400. <a href="https://journal.r-project.org/archive/2017/RJ-2017-066/index.html" class="external-link">https://journal.r-project.org/archive/2017/RJ-2017-066/index.html</a>.
+<span class="nocase">Brooks, Mollie E., Kasper Kristensen, Koen J. van
+Benthem, et al.</span> 2017. <span>“<span class="nocase">glmmTMB</span>
+Balances Speed and Flexibility Among Packages for Zero-Inflated
+Generalized Linear Mixed Modeling.”</span> <em>The R Journal</em> 9 (2):
+378–400. <a href="https://journal.r-project.org/archive/2017/RJ-2017-066/index.html" class="external-link">https://journal.r-project.org/archive/2017/RJ-2017-066/index.html</a>.
 </div>
 <div id="ref-Brown" class="csl-entry">
 Brown, C. A. 2001. <span>“Revised Estimates of Bluefin Tuna Dead
@@ -1551,11 +1546,9 @@ Henry, Lionel, and Hadley Wickham. 2020. <em>Tidyselect: Select from a
 Set of Strings</em>. <a href="https://CRAN.R-project.org/package=tidyselect" class="external-link">https://CRAN.R-project.org/package=tidyselect</a>.
 </div>
 <div id="ref-Hoyle" class="csl-entry">
-Hoyle, SD, RA Campbell, ND Ducharme-Barth, A Grüss, BR Moore, JT
-Thorson, L Tremblay-Boyer, H Winker, SJ Zhou, and MN Maunder. 2024.
-<span>“Catch Per Unit Effort Modelling for Stock Assessment: A Summary
-of Good Practices.”</span> Journal Article. <em>Fisheries Research</em>
-269. <a href="https://doi.org/10.1016/j.fishres.2023.106860" class="external-link">https://doi.org/10.1016/j.fishres.2023.106860</a>.
+Hoyle, SD, RA Campbell, ND Ducharme-Barth, et al. 2024. <span>“Catch Per
+Unit Effort Modelling for Stock Assessment: A Summary of Good
+Practices.”</span> Journal Article. <em>Fisheries Research</em> 269. <a href="https://doi.org/10.1016/j.fishres.2023.106860" class="external-link">https://doi.org/10.1016/j.fishres.2023.106860</a>.
 </div>
 <div id="ref-gt" class="csl-entry">
 Iannone, Richard, Joe Cheng, and Barret Schloerke. 2020. <em>Gt: Easily
@@ -1599,8 +1592,7 @@ and Plankton Surveys.”</span> Journal Article. <em>Biometrics</em> 39
 </div>
 <div id="ref-R-base" class="csl-entry">
 R Core Team. 2020. <em>R: A Language and Environment for Statistical
-Computing</em>. Vienna, Austria: R Foundation for Statistical Computing.
-<a href="https://www.R-project.org/" class="external-link">https://www.R-project.org/</a>.
+Computing</em>. R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="external-link">https://www.R-project.org/</a>.
 </div>
 <div id="ref-Rao" class="csl-entry">
 Rao, P. S. R. S. 2000. <em>Sampling Methodologies with Applications. 1st
@@ -1608,28 +1600,26 @@ Edition.</em> Chapman; Hall/CRC.
 </div>
 <div id="ref-RStudio" class="csl-entry">
 RStudio Team. 2020. <em>RStudio: Integrated Development Environment for
-r</em>. Boston, MA: RStudio, PBC. <a href="http://www.rstudio.com/" class="external-link">http://www.rstudio.com/</a>.
+r</em>. RStudio, PBC. <a href="http://www.rstudio.com/" class="external-link">http://www.rstudio.com/</a>.
 </div>
 <div id="ref-GGally" class="csl-entry">
-Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz
-Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. <em>GGally:
+Schloerke, Barret, Di Cook, Joseph Larmarange, et al. 2024. <em>GGally:
 Extension to ’Ggplot2’</em>. <a href="https://doi.org/10.32614/CRAN.package.GGally" class="external-link">https://doi.org/10.32614/CRAN.package.GGally</a>.
 </div>
 <div id="ref-MASS" class="csl-entry">
 Venables, W. N., and B. D. Ripley. 2002. <em>Modern Applied Statistics
-with s</em>. Fourth. New York: Springer. <a href="http://www.stats.ox.ac.uk/pub/MASS4" class="external-link">http://www.stats.ox.ac.uk/pub/MASS4</a>.
+with s</em>. Fourth. Springer. <a href="http://www.stats.ox.ac.uk/pub/MASS4" class="external-link">http://www.stats.ox.ac.uk/pub/MASS4</a>.
 </div>
 <div id="ref-reshape2" class="csl-entry">
 Wickham, Hadley. 2007. <span>“Reshaping Data with the <span class="nocase">reshape</span> Package.”</span> <em>Journal of
 Statistical Software</em> 21 (12): 1–20. <a href="http://www.jstatsoft.org/v21/i12/" class="external-link">http://www.jstatsoft.org/v21/i12/</a>.
 </div>
 <div id="ref-ggplot2" class="csl-entry">
-———. 2016. <em>Ggplot2: Elegant Graphics for Data Analysis</em>.
-Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org" class="external-link">https://ggplot2.tidyverse.org</a>.
+Wickham, Hadley. 2016. <em>Ggplot2: Elegant Graphics for Data
+Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org" class="external-link">https://ggplot2.tidyverse.org</a>.
 </div>
 <div id="ref-tidyverse" class="csl-entry">
-Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
-D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, et al. 2019.
 <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
 <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686" class="external-link">https://doi.org/10.21105/joss.01686</a>.
 </div>
@@ -1647,16 +1637,16 @@ Easy-to-Maintain LaTeX Distribution Based on TeX Live.”</span>
 <em>TUGboat</em>, no. 1: 30–32. <a href="http://tug.org/TUGboat/Contents/contents40-1.html" class="external-link">http://tug.org/TUGboat/Contents/contents40-1.html</a>.
 </div>
 <div id="ref-tinytex" class="csl-entry">
-———. 2021. <em>Tinytex: Helper Functions to Install and Maintain TeX
-Live, and Compile LaTeX Documents</em>. <a href="https://github.com/yihui/tinytex" class="external-link">https://github.com/yihui/tinytex</a>.
+Xie, Yihui. 2021. <em>Tinytex: Helper Functions to Install and Maintain
+TeX Live, and Compile LaTeX Documents</em>. <a href="https://github.com/yihui/tinytex" class="external-link">https://github.com/yihui/tinytex</a>.
 </div>
 <div id="ref-knitr" class="csl-entry">
-———. 2025. <em>Knitr: A General-Purpose Package for Dynamic Report
-Generation in <span>R</span></em>. <a href="https://yihui.org/knitr/" class="external-link">https://yihui.org/knitr/</a>.
+Xie, Yihui. 2025. <em>Knitr: A General-Purpose Package for Dynamic
+Report Generation in <span>R</span></em>. <a href="https://yihui.org/knitr/" class="external-link">https://yihui.org/knitr/</a>.
 </div>
 <div id="ref-cplm" class="csl-entry">
-Zhang, Yanwei. 2013. <span>“Likelihood-Based and Bayesian Methods for
-Tweedie Compound Poisson Linear Mixed Models.”</span>
+Zhang, Yanwei. 2013. <em>Likelihood-Based and Bayesian Methods for
+Tweedie Compound Poisson Linear Mixed Models</em>.
 </div>
 </div>
 </div>
@@ -1671,7 +1661,7 @@ Tweedie Compound Poisson Linear Mixed Models.”</span>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

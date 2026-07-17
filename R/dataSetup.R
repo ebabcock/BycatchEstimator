@@ -12,6 +12,9 @@
 #' @param obsdat  Observer data set
 #' @param logdat Logbook data set
 #' @param yearVar Character. The column name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.
+#' @param latitudeVar Optional name of latitude column, to get spatial plots.
+#' @param longitudeVar Optional name of longitude column, to get spatial plots.
+#' @param spatialBin Optional. If latitude and longitude are provided, this is the size of the spatial bin in degrees to use for spatial plots. Default is 1 degree.
 #' @param obsEffort Character. The column name of the effort variable in \code{obsdat}. This variable must have the same effort units as \code{logEffort}
 #' @param logEffort Character. The column name of the effort variable in \code{logdat}. Optional and only used when estimating bycatch. This variable must have the same effort units as \code{obsEffort}
 #' @param obsCatch Character vector. The name of the column(s) in \code{obsdat} that contain catch. If it is a vector, order of variable names must follow the same order as names provided in \code{common} and \code{sp}
@@ -39,6 +42,9 @@
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
+#' latitudeVar = "Latitude",
+#' longitudeVar = "Longitude",
+#' spatialBin = 1,
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
 #' obsCatch = "Catch",
@@ -61,6 +67,9 @@ bycatchSetup <- function(
     obsdat,
     logdat,
     yearVar,
+    latitudeVar = NULL,
+    longitudeVar = NULL,
+    spatialBin = 1,
     obsEffort,
     logEffort,
     obsCatch,
@@ -102,6 +111,15 @@ bycatchSetup <- function(
       rename(Year=!!yearVar)
   }
 
+  #Set up latitude and longitude variables if provided
+  if(!is.null(latitudeVar) & !is.null(longitudeVar)) {
+    obsdat<-obsdat %>%
+      rename(Latitude=!!latitudeVar,Longitude=!!longitudeVar)
+    if(EstimateBycatch) {
+      logdat<-logdat %>%
+        rename(Latitude=!!latitudeVar,Longitude=!!longitudeVar)
+    }
+  }
   # set up factor variables and numeric variables
   if(is.null(numericVariables)) numericVariables<-NA
   if(unique(!is.na(numericVariables))){
@@ -233,6 +251,9 @@ bycatchSetup <- function(
       obsdat = obsdat,
       logdat = logdat,
       yearVar = yearVar,
+      latitudeVar = latitudeVar,
+      longitudeVar = longitudeVar,
+      spatialBin = spatialBin,
       obsEffort = obsEffort,
       logEffort = logEffort,
       obsCatch = obsCatch,

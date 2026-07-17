@@ -44,6 +44,7 @@ setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.
 
 #unpack setup obj
 obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+  latitudeVar<-longitudeVar<-spatialBin<-
   logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-outDir<-dirname<-runName<-runDescription<-common<-sp<-NULL
 
@@ -309,6 +310,14 @@ cat("\n")
 cat('<div style="height:30px;"></div>\n') 
 
 }
+
+if(!is.null(latitudeVar) & !is.null(longitudeVar)) {
+cat("\n\n")
+plot_effort_sampled(obsdat=obsdat,logdat=logdat,bin_size=spatialBin) 
+cat("\n Figure ",figurenum,". Count of total ",sampleUnit," by ", spatialBin," x ",spatialBin," grid, and fraction observed (circles). \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+}
 ```
 
 ```{r effort-plot2, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
@@ -430,8 +439,17 @@ print(ggplot(temp,aes(x=Value,y=Catch))+
   figurenum<-figurenum+1
   cat('<div style="height:30px;"></div>\n') 
 cat("\n")
-  
 }
+
+if(!is.null(latitudeVar) & !is.null(longitudeVar)) {
+cat("\n\n")
+plot_catch_sampled(obsdat=obsdat,bin_size=spatialBin,catch_col = obsCatch[[run]]) 
+cat("\n Figure ",figurenum,". Count of total ",sampleUnit," by ", spatialBin," x ",spatialBin," grid, and catch of ",common[[run]], " (circles). \n",sep="")
+figurenum<-figurenum+1
+cat('<div style="height:30px;"></div>\n') 
+}
+
+
 ```
 
 ### Catch per sample unit of `r common[run]` in observer data ##

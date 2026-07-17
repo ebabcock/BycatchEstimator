@@ -53,6 +53,7 @@
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makeIndexVar.html</loc></url>
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictions.html</loc></url>
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsDeltaVar.html</loc></url>
+<url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsDeltaVarFast.html</loc></url>
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsNoVar.html</loc></url>
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVar.html</loc></url>
 <url><loc>https://ebabcock.github.io/BycatchEstimator/reference/makePredictionsSimVarBig.html</loc></url>

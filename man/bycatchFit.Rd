@@ -10,6 +10,7 @@ bycatchFit(
   complexModel,
   simpleModel,
   indexModel = NULL,
+  predictionGroups = NULL,
   modelTry = c("Delta-Lognormal", "Delta-Gamma", "TMBnbinom1", "TMBnbinom2",
     "TMBtweedie"),
   randomEffects = NULL,
@@ -17,7 +18,7 @@ bycatchFit(
   selectCriteria = "BIC",
   DoCrossValidation = FALSE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "DeltaMethod",
   includeObsCatch = FALSE,
   matchColumn = NULL,
   EstimateIndex = FALSE,
@@ -40,6 +41,8 @@ bycatchFit(
 
 \item{indexModel}{Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.}
 
+\item{predictionGroups, }{Character vector. Categorical variables to group predictions, such as years and spatial areas. These need not be in the fitted model, but must be factor variables defined in bycatchSetup. The default (if NULL is entered) is the termsin simpleModel. Annual summaries are also given by default.}
+
 \item{modelTry}{Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal","Poisson", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal","TMBpoisson" , "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.}
 
 \item{randomEffects}{Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.}
@@ -52,7 +55,7 @@ bycatchFit(
 
 \item{CIval}{Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95\%}
 
-\item{VarCalc}{Character. Variance calculation method. Options are: "Simulate","DeltaMethod", or "None".  Simulate will not work with a large number of sample units in the logbook data. The delta method for variance calculation is not implemented for the delta-lognormal or delta-gamma methods.}
+\item{VarCalc}{Character. Variance calculation method. Options are: "DeltaMethod", a fast delta-method is the default; "Simulate" for a simulate based method, or "None" for no variance calculations. DeltaMethodOld" is available for backward compatibility.  Simulate will not work with a large number of sample units in the logbook data.}
 
 \item{includeObsCatch}{Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.}
 
@@ -110,13 +113,14 @@ modelScenario = "s1",
 complexModel = formula(y~(Year+season)^2),
 simpleModel = formula(y~Year),
 indexModel = formula(y~Year),
+predictionGroups = NULL,
 modelTry = c("Delta-Lognormal","TMBnbinom2"),
 randomEffects = NULL,
 randomEffects2 = NULL,
 selectCriteria = "BIC",
 DoCrossValidation = TRUE,
 CIval = 0.05,
-VarCalc = "Simulate",
+VarCalc = "DeltaMethod",
 includeObsCatch=FALSE,
 matchColumn=NULL,
 EstimateIndex=FALSE,

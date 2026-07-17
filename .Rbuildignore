@@ -6,3 +6,14 @@
 ^README\.Rmd$
 ^\.github$
 ^LICENSE\.md$
+^BycatchEstimator/OutputLLSIM_BUM_/Bluemarlinbyctc$
+^BycatchEstimator/OutputLLSIM_BUM_$
+^BycatchEstimator/OutputSmltdExmpl$
+^BycatchEstimator/vignettes/OutputLLSIMBUMM1$
+^BycatchEstimator/vignettes/OutputLLSIMBUMCP$
+^BycatchEstimator/vignettes/OutputLLSIMBUM$
+^BycatchEstimator/vignettes/OutputLLSIMBUM2y$
+^BycatchEstimator/vignettes/OutputLLSIMBUMst$
+^BycatchEstimator/vignettes/OutputLLSIMBUMSW$
+^BycatchEstimator/vignettes/OutputLLSIMBUMV1$
+^BycatchEstimator/vignettes/OutputSimulated$

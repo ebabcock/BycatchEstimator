@@ -82,6 +82,7 @@ bycatchDesign <- function(
 
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+    latitudeVar<-longitudeVar<-spatialBin<-
     logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
