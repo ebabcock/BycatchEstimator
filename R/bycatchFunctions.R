@@ -187,13 +187,6 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     if(NumCores >= 3){
       cl2<-makeCluster(NumCores-2)
       registerDoParallel(cl2)
-      #For MuMIn
-      #cl2<-makeCluster(NumCores-2)
-      # clusterEvalQ(cl2, {
-      #   library(glmmTMB)
-      #   library(cplm)
-      #   library(MASS)
-      # })
     } else {
       useParallel <- FALSE
     }
@@ -304,9 +297,29 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
     if(grepl("TMB",modType) )
       modfit1<-glmmTMB(formula(modfit1),family=TMBfamily,data=obsdatval,na.action=na.fail)
     if(useParallel) {
-      clusterEvalQ(cl2, {rm(list=ls())} )
-      clusterExport(cl2,c("obsdatval","modfit1","keepVars","extras","TMBfamily","offset","selectCriteria"),envir=environment())
-      modfit2<-MuMIn:::.dredge.par(modfit1,rank=selectCriteria,fixed=keepVars,extra=extras,cluster=cl2)
+      if(modType=="Tweedie") libs<-c("MuMin","cplm")
+      if(grepl("TMB",modType)) libs<-c("MuMIn","glmmTMB")
+      if(modType=="NegBin") libs<-c("MuMIn","MASS")
+      export_list <- list(
+        libs         = libs,
+        modfit1      = modfit1,
+        obsdatval    = obsdatval,
+        keepVars     = keepVars,
+        extras       = extras,
+        TMBfamily    = TMBfamily,
+        offset       = offset,
+        selectCriteria = selectCriteria,
+        cl2 = cl2
+      )
+      mapply(assign, names(export_list), export_list, MoreArgs = list(envir = .GlobalEnv))
+      clusterExport(cl2,c("cl2","libs","obsdatval","modfit1","keepVars","extras","TMBfamily","offset",
+                          "selectCriteria"),envir=.GlobalEnv)
+      clusterCall(cl2, function() {
+        invisible(lapply(libs, require, character.only = TRUE))
+        NULL
+      })
+      clusterCall(cl2, function() Sys.getpid())
+      modfit2<-try(dredge(modfit1,rank=selectCriteria,fixed=keepVars,extra=extras,cluster=cl2))
       stopCluster(cl2)
     } else {
       modfit2<-try(dredge(modfit1,rank=selectCriteria,fixed=keepVars,extra=extras))
@@ -349,7 +362,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @param obsdatval Value
 #' @param includeObsCatch Value
 #' @param nsim Value
-#' @param requiredVarNames Value
+#' @param predictionGroups Value
 #' @param CIval Value
 #' @param printOutput Value
 #' @param catchType Value
@@ -366,7 +379,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
 #' @importFrom MASS mvrnorm gamma.shape
 #' @keywords internal
 makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval,
-                                   includeObsCatch, nsim, requiredVarNames, CIval, printOutput=TRUE,
+                                   includeObsCatch, nsim, predictionGroups, CIval, printOutput=TRUE,
                                    catchType, common, shortName,dirname, run,randomEffects,randomEffects2,
                                    modelScenario,startYear) {
   #Separate out sample units
@@ -555,12 +568,12 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
         sim[!is.na(d),]= obsdatvalyear$pres[d[!is.na(d)]]
       }
       stratatotal<-allpred %>%
-        group_by_at(all_of(requiredVarNames)) %>%
+        group_by_at(all_of(predictionGroups)) %>%
         summarize(Total=sum(.data$Total,na.rm=TRUE))
       yeartotal<-allpred%>% group_by(.data$Year) %>%
         summarize(Total=sum(.data$Total,na.rm=TRUE))
       stratapredyear<-cbind(newdat,sim) %>%
-        group_by_at(all_of(c("strata",requiredVarNames))) %>%
+        group_by_at(all_of(c("strata",predictionGroups))) %>%
         summarize_at(.vars=as.character(1:nsim),.funs=sum,na.rm=TRUE) %>%
         rowwise() %>%
         mutate(Total.mean=mean(c_across(as.character(1:nsim))),
@@ -605,7 +618,9 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
   if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
-  }  else  {     returnval=yearpred  }
+  }  else  {
+    returnval <- list(yearpred = yearpred,stratapred=stratapred)
+ }
   if(printOutput) {
     if(!nrow(stratapred)==nrow(yearpred)) write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
     write.csv(yearpred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
@@ -620,7 +635,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @param modtype Value
 #' @param obsdatval Value
 #' @param includeObsCatch Value
-#' @param requiredVarNames Value
+#' @param predictionGroups Value
 #' @param CIval Value
 #' @param printOutput Value
 #' @param catchType Value
@@ -633,7 +648,7 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeObsCatch,
-                                  requiredVarNames, CIval, printOutput=TRUE, catchType, common,
+                                  predictionGroups, CIval, printOutput=TRUE, catchType, common,
                                   shortName,dirname, run,modelScenario,startYear) {
   if(modtype %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma")) stop("No delta-method variance available, use simulute")
   #Separate out sample units
@@ -646,7 +661,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
   #Set up output dataframes
   years=sort(unique(newdat$Year))
   yearpred=expand.grid(Year=years,Total=NA,TotalVar=NA)
-  stratapred=data.frame(newdatall[!duplicated(newdatall$strata),requiredVarNames])
+  stratapred=data.frame(newdatall[!duplicated(newdatall$strata),predictionGroups])
   stratapred$Total=stratapred$TotalVar=NA
   for(i in 1:length(years)) {
     newdat = newdatall[newdatall$Year==years[i],]
@@ -737,7 +752,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
     yearpred$Total[i]<-sum(predval)
     yearpred$TotalVar[i] = t(deriv) %*%
       vcovval %*%  deriv + sum(residvar)
-    if(length(requiredVarNames)>1 )  {
+    if(length(predictionGroups)>1 )  {
       strata=unique(newdat$strata)
       for(j in 1:length(strata)) {
         stratapred$Total[stratapred$Year==years[i]][j] = sum(predval[newdat$strata==strata[j]])
@@ -753,7 +768,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
   if(is.numeric(stratapred$Year))
     if(min(stratapred$Year,na.rm=TRUE)==0)
       stratapred$Year=stratapred$Year+startYear
-  if(length(requiredVarNames)>1) {
+  if(length(predictionGroups)>1) {
     stratapred<-stratapred %>%
       mutate(Total.se=sqrt(.data$TotalVar)) %>%
       mutate(Total.cv=.data$Total.se/.data$Total,
@@ -774,7 +789,9 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
   if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
-  }  else  {     returnval=yearpred  }
+  }  else  {
+    returnval <- list(yearpred = yearpred,stratapred=stratapred)
+    }
   if(printOutput) { #remove Total.mean column from csv
     write.csv(yearpred[,!(names(yearpred) %in% c("Total.mean"))],
               paste0(dirname[[run]],shortName[run],modelScenario,
@@ -792,7 +809,7 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @param modtype Value
 #' @param obsdatval Value
 #' @param includeObsCatch Value
-#' @param requiredVarNames Value
+#' @param predictionGroups Value
 #' @param printOutput Value
 #' @param catchType Value
 #' @param common Value
@@ -804,12 +821,12 @@ makePredictionsDeltaVar<-function(modfit1, newdat, modtype,  obsdatval, includeO
 #' @importFrom stats delete.response terms qnorm
 #' @keywords internal
 makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval=NULL,
-                               nsims, includeObsCatch, requiredVarNames, printOutput=TRUE,
+                               nsims, includeObsCatch, predictionGroups, printOutput=TRUE,
                                catchType, common, shortName,dirname, run,modelScenario,startYear) {
   if(includeObsCatch)    newdat$Effort=newdat$unsampledEffort/newdat$SampleUnits else
     newdat$Effort=newdat$Effort/newdat$SampleUnits
   newdat=uncount(newdat,.data$SampleUnits)
-  requiredVarNames<-unique(c(requiredVarNames,"Year"))
+  predictionGroups<-unique(c(predictionGroups,"Year"))
   getse=ifelse(modtype %in% c("Lognormal","Delta-Lognormal", "TMBlognormal","TMBdelta-Lognormal"),TRUE,FALSE)
   nObs=dim(newdat)[1]
   if(!is.null(modfit1)) {
@@ -861,7 +878,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
       allpred$Total[!is.na(a)]= obsdatval$pres[a[!is.na(a)]]
     }
     stratapred<-allpred %>%
-      group_by_at(all_of(requiredVarNames)) %>%
+      group_by_at(all_of(predictionGroups)) %>%
       summarize(Total=sum(.data$Total,na.rm=TRUE)) %>%
       mutate(Total.mean=NA,TotalVar=NA,	TotalLCI=NA,	TotalUCI=NA,	Total.se=NA,
              Total.cv=NA)
@@ -876,7 +893,7 @@ makePredictionsNoVar<-function(modfit1, modfit2=NULL, modtype, newdat, obsdatval
     if(is.numeric(stratapred$Year))
       if(min(stratapred$Year,na.rm=TRUE)==0)
         stratapred$Year=stratapred$Year+startYear
-    returnval=yearpred
+    returnval <- list(yearpred = yearpred,stratapred=stratapred)
     if(printOutput) {
       write.csv(stratapred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"StratumSummary.csv"), row.names = FALSE)
       write.csv(yearpred,paste0(dirname[[run]],shortName[run],modelScenario,modtype,"AnnualSummary.csv"), row.names = FALSE)
@@ -1546,6 +1563,7 @@ CheckForPositivesPlot<-function(datval,species,variables) {
 
 #' Function to count the number of unique levels in a vector
 #' @keywords internal
+#' @export
 length.unique=function(x) length(unique(x))
 
 #'Function to divide up areas. Input grid areas, returns East vs. West
@@ -1661,7 +1679,10 @@ goodman.var<-function(x,y) {
 #' @param catchUnit Value
 #' @import dplyr
 #' @keywords internal
-plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear, common, run, catchType, catchUnit,VarCalc) {
+plotSums<-function(yearpred,modType,fileName, subtext="",
+                   allVarNames, startYear, common, run, catchType,
+                   catchUnit,VarCalc,
+                   facetGroups =NULL) {
   if(is.numeric(yearpred$Year) & "Year" %in% allVarNames)
     yearpred$Year[yearpred$Year<startYear]=yearpred$Year[yearpred$Year<startYear]+startYear
  #  yearpred$Year[yearpred$Source!="Ratio"]=yearpred$Year[yearpred$Source!="Ratio"]+startYear
@@ -1696,6 +1717,10 @@ plotSums<-function(yearpred,modType,fileName, subtext="", allVarNames, startYear
           geom_line(aes(y=.data$Total.mean),lty=2)+
           geom_line()+ geom_ribbon(alpha=0.3)+xlab("Year")+
           ylab(ytitle)
+    }
+    if(!is.null(facetGroups)) {
+      varplot=as.formula(paste0("~",paste(grep("Year",facetGroups,invert=TRUE,value=TRUE),sep="+")))
+      g=g+facet_wrap(varplot)
     }
     suppressWarnings(print(g))
     if(!is.null(fileName)) ggsave(fileName,height=5,width=7)
@@ -1781,7 +1806,7 @@ plotSumsValidate<-function(yearpred,trueval,fileName,colName, allVarNames, start
   }
 
   if(VarCalc!="None"){
-  if(all(is.na(yearpred$Total.mean))){ #if varCalc is DeltaMethod (?)
+  if(all(is.na(yearpred$Total.mean))){
     g<-ggplot(yearpred,aes(x=.data$Year,y=.data$Total,ymin=.data$TotalLCI,ymax=.data$TotalUCI,fill=.data$Source))+
     geom_line(aes(color=.data$Source))+ geom_ribbon(alpha=0.3)+
     xlab("Year")+
@@ -2244,4 +2269,538 @@ getModelSummaryTable<-function(modfits,modTypes) {
     }
   }
   modSum
+}
+
+#' Generate predicted total bycatch with standard errors and confidence intervals
+#' of predictions (computationally efficient version with
+#'  help from GitHub copilot)
+#'
+#' Avoids forming the n x n observation-level covariance matrix A %*% Sigma %*% t(A)
+#' by instead computing the equivalent scalar variance as
+#' crossprod(v, Sigma_beta %*% v) where v = t(A) %*% deriv is a p-length vector
+#' (p = number of model parameters). This reduces memory from O(n^2) to O(np)
+#' and computation from O(n^2 p) to O(np + p^2), making it feasible for large n.
+#'
+#' For delta models (Delta-Lognormal, Delta-Gamma), the delta method is applied
+#' to both component models jointly,with observation-level residual variance
+#' computed from the Lo et al. (1992) variance-of-a-product formula.
+#'
+#' @param modfit1 Fitted model object (binomial component for delta models, otherwise full model)
+#' @param modfit2 Fitted positive model object (Delta-Lognormal or Delta-Gamma only); NULL otherwise
+#' @param newdat Prediction data frame (logbook data)
+#' @param modtype Character string naming the model type
+#' @param obsdatval Observer data frame (for includeObsCatch)
+#' @param includeObsCatch Logical; whether to add observed catch to predictions
+#' @param predictionGroups Character vector of stratification variable names
+#' @param CIval Numeric; alpha level for confidence intervals (e.g. 0.05)
+#' @param printOutput Logical; whether to write CSV outputs
+#' @param catchType Value
+#' @param common Value
+#' @param shortName Value
+#' @param dirname Value
+#' @param run Value
+#' @param modelScenario Value
+#' @param startYear Value
+#' @importFrom stats delete.response terms qnorm sigma model.matrix predict formula
+#' @importFrom MASS gamma.shape
+#' @keywords internal
+makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype, obsdatval,
+                                        includeObsCatch, predictionGroups=NULL, CIval,
+                                        printOutput = TRUE, catchType, common,
+                                        shortName, dirname, run, modelScenario, startYear) {
+
+  # --- Expand sample units ---
+  # if (includeObsCatch)
+  #   newdat$Effort <- newdat$unsampledEffort / newdat$SampleUnits else
+  #     newdat$Effort <- newdat$Effort / newdat$SampleUnits
+  #   newdat <- uncount(newdat, .data$SampleUnits)
+  #   nObs   <- nrow(newdat)
+  #   newdat$SampleUnits <- rep(1, nObs)
+  if (includeObsCatch)
+    newdat$Effort <- newdat$unsampledEffort
+  nObs<-sum(newdat$SampleUnits)
+  newdatall <- newdat
+
+    is_delta <- modtype %in% c("Delta-Lognormal", "TMBdelta-Lognormal",
+                               "Delta-Gamma",     "TMBdelta-Gamma")
+    is_TMB   <- grepl("TMB", modtype)
+    is_cplm  <- modtype == "Tweedie"   # cplm::cpglm — stores vcov differently
+
+    # ---------------------------------------------------------------------------
+    # Helper: extract fixed-effect covariance matrix
+    #   - cplm stores it as modfit$vcov  (a plain matrix, already on coef scale)
+    #   - glmmTMB stores it as vcov(fit)[[1]]
+    #   - standard glm/lm/glmmTMB uses vcov(fit)
+    # ---------------------------------------------------------------------------
+    get_vcov <- function(fit) {
+      if (inherits(fit, "cpglm"))      as.matrix(fit$vcov) else
+        if (grepl("TMB", modtype))       as.matrix(vcov(fit)[[1]]) else
+          as.matrix(vcov(fit))
+    }
+
+    Sigma_beta1 <- get_vcov(modfit1)
+    if (is_delta) Sigma_beta2 <- get_vcov(modfit2)
+
+    years     <- sort(unique(newdat$Year))
+    yearpred  <- expand.grid(Year = years, Total = NA, TotalVar = NA)
+    stratapred <- data.frame(newdatall[!duplicated(newdatall$strata), predictionGroups])
+    stratapred$Total <- stratapred$TotalVar <- NA
+    if(!is_cplm)
+     tm1 <- delete.response(terms(modfit1)) else
+       tm1 <- delete.response(terms(formula(modfit1)))
+
+    if (is_delta) tm2 <- delete.response(terms(modfit2))
+
+    for (i in seq_along(years)) {
+      newdat <- newdatall[newdatall$Year == years[i], ]
+      n_i    <- nrow(newdat)
+
+      # =========================================================================
+      # BRANCH 1: Single-component models
+      # =========================================================================
+      if (!is_delta) {
+
+        a <- model.matrix(tm1, newdat)
+
+        # Predictions on response and link scale ---------------------------------
+        if (is_cplm) {
+          # cplm always returns response scale; derive link (log) from that
+          predval     <- as.vector(cplm::predict(modfit1, newdat = newdat))
+          predvallink <- log(predval)
+        } else if (is_TMB) {
+          predvallink <- predict(modfit1, newdat = newdat, allow.new.levels = TRUE)
+          predval     <- predict(modfit1, newdat = newdat, type = "response", allow.new.levels = TRUE)
+        } else {
+          predvallink <- predict(modfit1, newdat = newdat)
+          predval     <- predict(modfit1, newdat = newdat, type = "response")
+        }
+
+        # Derivative and residual variance per observation ----------------------
+        if (modtype %in% c("Binomial", "TMBbinomial")) {
+          # residvar <- predval * (1 - predval)
+          # deriv    <- as.vector(exp(predvallink) / (exp(predvallink) + 1)^2)
+          residvar <- predval * (1 - predval) * newdat$SampleUnits
+          deriv    <- as.vector(exp(predvallink) / (exp(predvallink) + 1)^2) * newdat$SampleUnits
+          }
+        if (modtype %in% c("Normal", "TMBnormal")) {
+          predval  <- predval * newdat$Effort
+          residvar <- rep(sigma(modfit1)^2, n_i) * newdat$Effort^2
+          deriv    <- rep(1, n_i)
+        }
+        if (modtype %in% c("Lognormal", "TMBlognormal")) {
+          temp     <- predict(modfit1, newdata = newdat, se.fit = TRUE)
+          predval  <- (lnorm.mean(temp$fit, sqrt(temp$se.fit^2 + sigma(modfit1)^2)) - 0.1) * newdat$Effort
+          deriv    <- lnorm.mean(temp$fit, sqrt(temp$se.fit^2 + sigma(modfit1)^2)) * newdat$Effort
+          residvar <- lnorm.se(temp$fit, sqrt(temp$se.fit^2 + sigma(modfit1)^2))^2 * newdat$Effort^2
+        }
+        if (modtype %in% c("Gamma", "TMBgamma")) {
+          shapepar <- if (inherits(modfit1, "glm")) gamma.shape(modfit1)[[1]] else
+            1 / (glmmTMB::sigma(modfit1))^2
+          predval          <- (predval - 0.1) * newdat$Effort
+          predval[predval < 0] <- 0
+          residvar <- exp(predvallink) * newdat$Effort * shapepar
+          deriv    <- exp(predvallink)
+        }
+        if (modtype == "NegBin") {
+          residvar <- predval + predval^2 / modfit1$theta
+          deriv    <- predval
+        }
+        if (modtype %in% c("TMBpoisson", "Poisson")) {
+          residvar <- predval
+          deriv    <- predval
+        }
+        if (modtype == "TMBnbinom1") {
+          residvar <- predval + predval * sigma(modfit1)
+          deriv    <- predval
+        }
+        if (modtype == "TMBnbinom2") {
+          residvar <- predval + predval^2 / sigma(modfit1)
+          deriv    <- predval
+        }
+        if (is_cplm) {
+          # cplm Tweedie: log link, dispersion phi, power p
+          # Variance of Y_i: phi * mu_i^p
+          # Derivative of E[Y_i * Effort_i] w.r.t. eta_i (log link): mu_i * Effort_i
+          residvar <- (modfit1$phi * predval^modfit1$p) * newdat$Effort^2
+          predval  <- predval * newdat$Effort
+          deriv    <- predval   # d(mu * Effort)/d(eta) = mu * Effort  (log link)
+        }
+        if (modtype == "TMBtweedie") {
+          residvar <- sigma(modfit1) * predval^(glmmTMB::family_params(modfit1)) * newdat$Effort^2
+          predval  <- predval * newdat$Effort
+          deriv    <- predval
+        }
+
+        # Observed catch adjustment ---------------------------------------------
+        if (includeObsCatch && !modtype %in% c("Binomial", "TMBbinomial")) {
+          obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
+          d <- match(newdatall$matchColumn, obsdatvalyear$matchColumn)
+          d <- d[!is.na(d)]
+          predval[d] <- predval[d] + obsdatvalyear$Catch
+        }
+        if (includeObsCatch && modtype %in% c("Binomial", "TMBbinomial")) {
+          obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
+          d <- match(newdatall$matchColumn, obsdatvalyear$matchColumn)
+          d <- d[!is.na(d)]
+          predval[d] <- obsdatvalyear$pres
+        }
+
+        # Efficient variance: collapse gradient to parameter space --------------
+        # v = A' d  is a p-vector; Var(T) = v' Sigma v + sum(residvar)
+        v_total <- drop(crossprod(a, deriv))
+        yearpred$Total[i]    <- sum(predval)
+        yearpred$TotalVar[i] <- as.numeric(t(v_total) %*% Sigma_beta1 %*% v_total) + sum(residvar)
+
+        if (length(predictionGroups) > 1) {
+          strata <- unique(newdat$strata)
+          for (j in seq_along(strata)) {
+            idx <- newdat$strata == strata[j]
+            v_k <- drop(crossprod(a[idx, , drop = FALSE], deriv[idx]))
+            stratapred$Total[stratapred$Year == years[i]][j]    <- sum(predval[idx])
+            stratapred$TotalVar[stratapred$Year == years[i]][j] <-
+              as.numeric(t(v_k) %*% Sigma_beta1 %*% v_k) + sum(residvar[idx])
+          }
+        }
+
+      } else {
+        # =========================================================================
+        # BRANCH 2: Delta models (Delta-Lognormal, Delta-Gamma)
+        #
+        # y_i = Effort_i * p_i * c_i
+        #   p_i  ~ Binomial component (modfit1, logit link)
+        #   c_i  ~ Positive component (modfit2, log link for both Lognormal and Gamma)
+        #
+        # Var(T) = v1' Sigma1 v1  +  v2' Sigma2 v2  +  sum(residvar_i)
+        #
+        # where (using the chain rule and independence of the two models):
+        #   v1 = A1' (Effort * c_i * p_i*(1-p_i))   [gradient w.r.t. beta1]
+        #   v2 = A2' (Effort * p_i * c_i)            [gradient w.r.t. beta2; log link -> deriv = c_i]
+        #   residvar_i = Effort_i^2 * lo.se(p_i, sqrt(p_i*(1-p_i)), c_i, c_i_resid_sd)^2
+        # =========================================================================
+
+        a1 <- model.matrix(tm1, newdat)
+        a2 <- model.matrix(tm2, newdat)
+
+        # Binomial component predictions ----------------------------------------
+        if (is_TMB) {
+          predlink1 <- predict(modfit1, newdata = newdat, allow.new.levels = TRUE)
+          predval1  <- predict(modfit1, newdata = newdat, type = "response", allow.new.levels = TRUE)
+        } else {
+          predlink1 <- predict(modfit1, newdata = newdat)
+          predval1  <- predict(modfit1, newdata = newdat, type = "response")
+        }
+        p_i       <- as.vector(predval1)
+        logit_d_i <- as.vector(exp(predlink1) / (exp(predlink1) + 1)^2)
+
+        # Positive component predictions ----------------------------------------
+        if (is_TMB) {
+          predlink2 <- predict(modfit2, newdata = newdat, allow.new.levels = TRUE)
+          predval2  <- predict(modfit2, newdata = newdat, type = "response", allow.new.levels = TRUE)
+        } else {
+          predlink2 <- predict(modfit2, newdata = newdat)
+          predval2  <- predict(modfit2, newdata = newdat, type = "response")
+        }
+
+        if (modtype %in% c("Delta-Lognormal", "TMBdelta-Lognormal")) {
+          sig2    <- sigma(modfit2)
+          temp2   <- predict(modfit2, newdata = newdat, se.fit = TRUE)
+          c_i     <- lnorm.mean(temp2$fit, sqrt(temp2$se.fit^2 + sig2^2))
+          c_i_resid_sd <- sqrt((exp(sig2^2) - 1) * exp(2 * temp2$fit + sig2^2))
+          # dc/deta2 = c_i  (lognormal, log link)
+          dc_deta2 <- c_i
+        } else {
+          # Delta-Gamma
+          shapepar <- if (inherits(modfit2, "glm")) gamma.shape(modfit2)[[1]] else
+            1 / (glmmTMB::sigma(modfit2))^2
+          c_i          <- as.vector(predval2)
+          c_i_resid_sd <- sqrt(c_i^2 / shapepar)
+          # dc/deta2 = c_i  (Gamma, log link)
+          dc_deta2 <- c_i
+        }
+
+        predval <- newdat$Effort * p_i * c_i
+
+        # Residual (distributional) variance per observation via Lo et al. (1992)
+        residvar <- newdat$Effort^2 * lo.se(p_i, sqrt(p_i * (1 - p_i)), c_i, c_i_resid_sd)^2 * newdat$SampleUnits
+
+        # Gradients collapsed to parameter space --------------------------------
+        w1       <- newdat$Effort * c_i * logit_d_i * newdat$SampleUnits      # d(T)/d(eta1_i) weights
+        w2       <- newdat$Effort * p_i * dc_deta2        # d(T)/d(eta2_i) weights
+        v1_total <- drop(crossprod(a1, w1))               # p1-vector
+        v2_total <- drop(crossprod(a2, w2))               # p2-vector
+
+        # Observed catch adjustment
+        if (includeObsCatch) {
+          obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
+          d <- match(newdatall$matchColumn, obsdatvalyear$matchColumn)
+          d <- d[!is.na(d)]
+          predval[d] <- predval[d] + obsdatvalyear$Catch
+        }
+
+        yearpred$Total[i] <- sum(predval)
+        yearpred$TotalVar[i] <- as.numeric(t(v1_total) %*% Sigma_beta1 %*% v1_total) +
+          as.numeric(t(v2_total) %*% Sigma_beta2 %*% v2_total) +
+          sum(residvar)
+
+        if (length(predictionGroups) > 1) {
+          strata <- unique(newdat$strata)
+          for (j in seq_along(strata)) {
+            idx  <- newdat$strata == strata[j]
+            v1_k <- drop(crossprod(a1[idx, , drop = FALSE], w1[idx]))
+            v2_k <- drop(crossprod(a2[idx, , drop = FALSE], w2[idx]))
+            stratapred$Total[stratapred$Year == years[i]][j]    <- sum(predval[idx])
+            stratapred$TotalVar[stratapred$Year == years[i]][j] <-
+              as.numeric(t(v1_k) %*% Sigma_beta1 %*% v1_k) +
+              as.numeric(t(v2_k) %*% Sigma_beta2 %*% v2_k) +
+              sum(residvar[idx])
+          }
+        }
+      } # end delta branch
+    } # end year loop
+
+    # --- Year offset ---
+    if (is.numeric(yearpred$Year) && min(yearpred$Year, na.rm = TRUE) == 0)
+      yearpred$Year <- yearpred$Year + startYear
+    if (is.numeric(stratapred$Year) && min(stratapred$Year, na.rm = TRUE) == 0)
+      stratapred$Year <- stratapred$Year + startYear
+
+    # --- CI / CV ---
+    if (length(predictionGroups) > 1) {
+      stratapred <- stratapred %>%
+        mutate(Total.se   = sqrt(.data$TotalVar),
+               Total.cv   = .data$Total.se / .data$Total,
+               Total.mean = NA,
+               TotalLCI   = pmax(.data$Total - qnorm(1 - CIval / 2) * .data$Total.se, 0),
+               TotalUCI   = .data$Total + qnorm(1 - CIval / 2) * .data$Total.se)
+      if (printOutput)
+        write.csv(stratapred,
+                  paste0(dirname[[run]], shortName[run], modelScenario, modtype, "StratumSummary.csv"),
+                  row.names = FALSE)
+    }
+
+    yearpred <- yearpred %>%
+      mutate(Total.se   = sqrt(.data$TotalVar),
+             Total.cv   = .data$Total.se / .data$Total,
+             Total.mean = NA,
+             TotalLCI   = pmax(.data$Total - qnorm(1 - CIval / 2) * .data$Total.se, 0),
+             TotalUCI   = .data$Total + qnorm(1 - CIval / 2) * .data$Total.se)
+
+    if (is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv, na.rm = TRUE) > 10) {
+      print(paste(common[run], modtype, " CV >10 or NA variance"))
+      returnval <- NULL
+    } else {
+      returnval <- list(yearpred = yearpred,stratapred=stratapred)
+    }
+
+    if (printOutput) {
+      write.csv(yearpred[, !(names(yearpred) %in% "Total.mean")],
+                paste0(dirname[[run]], shortName[run], modelScenario, modtype, "AnnualSummary.csv"),
+                row.names = FALSE)
+    }
+
+    returnval
+}
+
+
+#' Make plot of effort and sampling distribution
+#'
+#' @param logdat logbook data
+#' @param obsdat observer data
+#' @param bin_size bin size for spatial aggregation (in degrees)
+#' @param effort_col name of effort column
+#'
+#' @returns Makes a plot of the spatial distribution of total effort and sampled effort, with points sized by fraction sampled.
+#' @export
+#'
+#' @examples
+plot_effort_sampled <- function(logdat, obsdat,
+                                bin_size   = 1,
+                                effort_col = "Effort") {
+
+  # ── Aggregate effort by spatial bin ──────────────────────────────────────
+  bin_data <- function(df, label) {
+    df |>
+      dplyr::mutate(
+        lat_bin = round(floor(Latitude  / bin_size) * bin_size + bin_size / 2, 6),
+        lon_bin = round(floor(Longitude / bin_size) * bin_size + bin_size / 2, 6)
+      ) |>
+      dplyr::group_by(lat_bin, lon_bin) |>
+      dplyr::summarise(effort = sum(.data[[effort_col]], na.rm = TRUE),
+                       .groups = "drop") |>
+      dplyr::mutate(source = label)
+  }
+
+  log_bins <- bin_data(logdat, "Total (log)")
+  obs_bins <- bin_data(obsdat, "Sampled (obs)")
+
+  # ── Fraction sampled per bin ──────────────────────────────────────────────
+  frac_bins <- log_bins |>
+    dplyr::left_join(obs_bins |> dplyr::rename(obs_effort = effort),
+                     by = c("lat_bin", "lon_bin")) |>
+    dplyr::mutate(
+      obs_effort   = ifelse(is.na(obs_effort), 0, obs_effort),
+      frac_sampled = obs_effort / effort
+    )
+
+  # ── Coastlines ────────────────────────────────────────────────────────────
+  buf   <- max(bin_size, 2)
+  coast <- ggplot2::map_data("world") |>
+    dplyr::filter(
+      long >= min(frac_bins$lon_bin) - buf,
+      long <= max(frac_bins$lon_bin) + buf,
+      lat  >= min(frac_bins$lat_bin) - buf,
+      lat  <= max(frac_bins$lat_bin) + buf
+    )
+
+  # ── Plot ──────────────────────────────────────────────────────────────────
+  p <- ggplot2::ggplot(frac_bins, ggplot2::aes(x = lon_bin, y = lat_bin)) +
+
+    ggplot2::geom_polygon(
+      data        = coast,
+      ggplot2::aes(x = long, y = lat, group = group),
+      fill        = "grey80",
+      colour      = "grey40",
+      linewidth   = 0.3,
+      inherit.aes = FALSE
+    ) +
+
+    ggplot2::geom_tile(ggplot2::aes(fill = effort), colour = NA, alpha = 1,
+                       width = bin_size, height = bin_size) +
+    ggplot2::scale_fill_viridis_c(
+      name   = paste0("Total\nEffort"),
+      option = "plasma",
+      trans  = "log1p",
+      direction = -1
+    ) +
+
+    ggplot2::geom_point(
+      ggplot2::aes(size = frac_sampled),
+      shape  = 21,
+      fill   = NA,
+      colour = "black",
+      stroke = 0.4,
+      alpha  = 1,
+      data   = frac_bins |> dplyr::filter(obs_effort > 0)
+    ) +
+    ggplot2::scale_size_continuous(
+      name   = "Fraction\nsampled",
+      range  = c(0.5, 6),
+      limits = c(0, 1),
+      labels = scales::percent
+    ) +
+
+    ggplot2::coord_quickmap(
+      xlim = c(min(frac_bins$lon_bin) - buf, max(frac_bins$lon_bin) + buf),
+      ylim = c(min(frac_bins$lat_bin) - buf, max(frac_bins$lat_bin) + buf)
+    ) +
+    ggplot2::labs(
+      x        = "Longitude",
+      y        = "Latitude"
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      legend.position  = "right",
+      panel.grid.minor = ggplot2::element_blank()
+    )
+
+  print(p)
+}
+
+
+#' Make a plot of the observed effort and catches
+#'
+#' @param obsdat observer data
+#' @param bin_size spatial bin size
+#' @param effort_col column with effort data
+#' @param catch_col
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+plot_catch_sampled <- function(obsdat,
+                               bin_size    = 1,
+                               effort_col  = "Effort",
+                               catch_col   = "Catch") {
+
+  # ── Aggregate by spatial bin ──────────────────────────────────────────────
+  bin_data <- function(df) {
+    df |>
+      dplyr::mutate(
+        lat_bin = round(floor(Latitude  / bin_size) * bin_size + bin_size / 2, 6),
+        lon_bin = round(floor(Longitude / bin_size) * bin_size + bin_size / 2, 6)
+      ) |>
+      dplyr::group_by(lat_bin, lon_bin) |>
+      dplyr::summarise(
+        effort = sum(.data[[effort_col]], na.rm = TRUE),
+        catch  = sum(.data[[catch_col]],  na.rm = TRUE),
+        .groups = "drop"
+      )
+  }
+
+  bins <- bin_data(obsdat)
+
+  # ── Coastlines ────────────────────────────────────────────────────────────
+  buf   <- max(bin_size, 2)
+  coast <- ggplot2::map_data("world") |>
+    dplyr::filter(
+      long >= min(bins$lon_bin) - buf,
+      long <= max(bins$lon_bin) + buf,
+      lat  >= min(bins$lat_bin) - buf,
+      lat  <= max(bins$lat_bin) + buf
+    )
+
+  # ── Plot ──────────────────────────────────────────────────────────────────
+  p <- ggplot2::ggplot(bins, ggplot2::aes(x = lon_bin, y = lat_bin)) +
+
+    # Effort → tile fill
+    # Coastlines
+    ggplot2::geom_polygon(
+      data        = coast,
+      ggplot2::aes(x = long, y = lat, group = group),
+      fill        = "grey80",
+      colour      = "grey40",
+      linewidth   = 0.3,
+      inherit.aes = FALSE
+    ) +
+
+    ggplot2::geom_tile(ggplot2::aes(fill = effort), colour = NA, alpha = 0.85,
+                       width = bin_size, height = bin_size) +
+    ggplot2::scale_fill_viridis_c(
+      name   = paste0("Observed\nEffort"),
+      option = "plasma",
+      trans  = "log1p",
+      direction = -1
+    ) +
+
+    # Catch → circle size
+    ggplot2::geom_point(
+      ggplot2::aes(size = catch),
+      shape  = 21,
+      fill   = NA,
+      colour = "black",
+      stroke = 0.8,
+      alpha  = 0.75,
+      data   = bins |> dplyr::filter(catch > 0)
+    ) +
+    ggplot2::scale_size_continuous(
+      name  = "Catch",
+      range = c(0.5, 6)
+    ) +
+
+    ggplot2::coord_quickmap(
+      xlim = c(min(bins$lon_bin) - buf, max(bins$lon_bin) + buf),
+      ylim = c(min(bins$lat_bin) - buf, max(bins$lat_bin) + buf)
+    ) +
+    ggplot2::labs(
+      x        = "Longitude",
+      y        = "Latitude"
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      legend.position  = "right",
+      panel.grid.minor = ggplot2::element_blank()
+    )
+
+  print(p)
 }
