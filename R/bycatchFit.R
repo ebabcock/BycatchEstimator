@@ -143,8 +143,24 @@ bycatchFit<-function(
   if(("TMBdelta-Lognormal" %in% modelTry |"TMBdelta-Gamma" %in% modelTry) & !"TMBbinomial" %in% modelTry)
     modelTry<-c("TMBbinomial",modelTry)
 
-  #If there are any random effects, all fitting will be done in glmmTMB
-  if(!is.null(randomEffects) | !is.null(randomEffects2)) {
+  #Look for smooth terms
+  terms <- as.vector(MuMIn::getAllTerms(complexModel))
+  if(any(grepl("^(s|te|ti|t2)\\(", terms))) isSmooth<-TRUE else isSmooth<-FALSE
+  requiredVarNames<-extractVarNames(simpleModel)
+  terms <- as.vector(MuMIn::getAllTerms(simpleModel))
+  if(any(grepl("^(s|te|ti|t2)\\(", terms))) stop("Simple model cannot include smooth terms a this time.")
+  allVarNames<-extractVarNames(complexModel)
+  allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
+  if(!all(allVarNames %in% c(numericVariables,factorVariables)))
+    stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
+  if(all(is.na(randomEffects))) randomEffects<-NULL
+  if(all(is.na(randomEffects2))) randomEffects2<-NULL
+  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
+  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
+  if(is.null(predictionGroups)) predictionGroups<-requiredVarNames
+
+  #If there are any random effects or smooths, all fitting will be done in glmmTMB
+  if(!is.null(randomEffects) | !is.null(randomEffects2) | isSmooth) {
     modelTry<-case_when(modelTry=="Binomial" ~"TMBbinomial",
                         modelTry=="Normal" ~"TMBnormal",
                         modelTry=="Poisson" ~"TMBpoisson",
@@ -158,20 +174,8 @@ bycatchFit<-function(
     modelTry<-unique(modelTry)
   }
 
-  requiredVarNames<-as.vector(getAllTerms(simpleModel))
-  allVarNames<-as.vector(getAllTerms(complexModel))
-  allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)] #filter out interaction terms (terms that contain colon :)
-  allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)] #filter out transformed terms like polynomials (I means interpret as is)
-  allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
-  if(!all(allVarNames %in% c(numericVariables,factorVariables)))
-    stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
-  if(all(is.na(randomEffects))) randomEffects<-NULL
-  if(all(is.na(randomEffects2))) randomEffects2<-NULL
-  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
-  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
-  if(is.null(predictionGroups)) predictionGroups<-requiredVarNames
   if(EstimateIndex) {
-    indexVarNames<-as.vector(getAllTerms(indexModel))
+    indexVarNames<-extractVarNames(indexModel)
     if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
   } else indexVarNames=NULL
   if(EstimateBycatch) {
@@ -312,6 +316,7 @@ if("Year" %in%numericVariables) {
         requiredVarNames = requiredVarNames,
         allVarNames = allVarNames,
         complexModel = complexModel,
+        simpleModel = simpleModel,
         common = common,
         randomEffects = randomEffects,
         useParallel = useParallel,
@@ -343,6 +348,7 @@ if("Year" %in%numericVariables) {
             requiredVarNames = requiredVarNames,
             allVarNames = allVarNames,
             complexModel = complexModel,
+            simpleModel = simpleModel,
             randomEffects = randomEffects2,
             useParallel = useParallel,
             selectCriteria = selectCriteria,
@@ -571,6 +577,7 @@ if("Year" %in%numericVariables) {
             #     requiredVarNames = requiredVarNames,
             #     allVarNames = allVarNames,
             #     complexModel = complexModel,
+            #     simpleModel = simpleModel,
             #     useParallel = useParallel,
             #     selectCriteria = selectCriteria,
             #     catchType = catchType,

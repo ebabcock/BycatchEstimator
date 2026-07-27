@@ -149,6 +149,58 @@ standard.error<-function(x) {
   sd(x)/sqrt(length(x))
 }
 
+
+#' Extract variable names from a model object, including those inside smooths and polynomials
+#'
+#' @param model1 a model formula or fitted model object (e.g., from lm, glm, gam, glmmTMB)
+#'
+#' @returns A character vector of unique variable names used in the model, including those inside smooths (s(), te(), ti(), t2()), polynomials (poly()), and transformations (I()).
+#' @keywords internal
+extractVarNames <- function(model1) {
+  terms <- as.vector(MuMIn::getAllTerms(model1))
+
+  varNames <- character(0)
+
+  for (term in terms) {
+    # Split interactions (colon-separated)
+    parts <- unlist(strsplit(term, ":"))
+
+    for (part in parts) {
+      part <- trimws(part)
+
+      # Strip smooth: s(...), te(...), ti(...), t2(...) — extract inner variable(s)
+      if (grepl("^(s|te|ti|t2)\\(", part)) {
+        inner <- sub("^(s|te|ti|t2)\\((.+)\\)$", "\\2", part)
+        # Remove any extra s() arguments (e.g., k=5, bs="cr") — keep only positional args
+        inner_args <- unlist(strsplit(inner, ","))
+        inner_args <- trimws(inner_args)
+        # Keep only bare variable names (no = sign)
+        inner_vars <- inner_args[!grepl("=", inner_args)]
+        varNames <- c(varNames, inner_vars)
+
+        # Strip polynomial / as-is: I(x^2), I(log(x)), etc. — extract variable name
+      } else if (grepl("^I\\(", part)) {
+        inner <- sub("^I\\((.+)\\)$", "\\1", part)
+        # Extract the variable name (first word of letters/dots/underscores/digits)
+        var <- regmatches(inner, regexpr("^[A-Za-z_.][A-Za-z_.0-9]*", inner))
+        if (length(var) > 0) varNames <- c(varNames, var)
+
+        # Strip poly(): poly(x, 2) — extract just x
+      } else if (grepl("^poly\\(", part)) {
+        inner <- sub("^poly\\((.+)\\)$", "\\1", part)
+        var <- trimws(unlist(strsplit(inner, ","))[[1]])
+        varNames <- c(varNames, var)
+
+        # Plain variable name — keep as-is
+      } else {
+        varNames <- c(varNames, part)
+      }
+    }
+  }
+
+  unique(trimws(varNames))
+}
+
 #' Function to find best model by information criteria, by model type
 #'
 #' @param obsdatval Value
@@ -156,6 +208,7 @@ standard.error<-function(x) {
 #' @param requiredVarNames Value
 #' @param allVarNames Value
 #' @param complexModel Value
+#' @param simpleModel Value
 #' @param randomEffects Value
 #' @param useParallel Value
 #' @param selectCriteria Value
@@ -172,10 +225,11 @@ standard.error<-function(x) {
 #' @importFrom stats anova na.fail as.formula coef Gamma glm.control formula lm glm vcov
 #' @importFrom MASS glm.nb
 #' @keywords internal
-findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, complexModel,
-  randomEffects=NULL, useParallel, selectCriteria, varExclude, printOutput=FALSE,
-  catchType = NULL, common = NULL, dirname = NULL, run = NULL,modelScenario=NULL,shortName=NULL) {
-
+findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
+                            complexModel,simpleModel, randomEffects=NULL, useParallel,
+                            selectCriteria,varExclude, printOutput=FALSE, catchType = NULL,
+                            common = NULL, dirname = NULL, run = NULL,modelScenario=NULL,
+                            shortName=NULL) {
   offset<-TMBfamily<-NULL
   requiredVarNames<-requiredVarNames[!requiredVarNames %in% varExclude]
   if(length(requiredVarNames)>0) keepVars=requiredVarNames else keepVars=NULL
@@ -250,21 +304,22 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
   if(modType %in% c("TMBgamma","TMBdelta-Gamma")) {
     if(length(requiredVarNames)>0) keepVars=paste0("cond(",requiredVarNames,")")
   }
-  allVarNames<-as.vector(getAllTerms(complexModel))
-  allVarNames<-allVarNames[!allVarNames %in% varExclude]
+  #Remove any factors (including thier interactions) that are in the varExclude list
+  allTerms <- as.vector(getAllTerms(complexModel))
+  allTerms <- allTerms[!allTerms %in% varExclude]
+  allTerms <- allTerms[!sapply(strsplit(allTerms, ":"), function(x) any(x %in% varExclude))]
   if(length(requiredVarNames)>0 )
-    formulaList<-list(as.formula(paste("y~",paste(c(allVarNames,randomEffects),collapse="+"),offset)),
-                    as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames)],randomEffects),collapse="+"),offset)),
-                    as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames) &!allVarNames %in% varExclude],randomEffects),collapse="+"),offset)),
+    formulaList<-list(as.formula(paste("y~",paste(c(allTerms,randomEffects),collapse="+"),offset)),
+                    as.formula(paste("y~",paste(c(allTerms[!grepl(":",allTerms)],randomEffects),collapse="+"),offset)),
                     as.formula(paste("y~",paste(requiredVarNames,collapse="+"),offset)),NA) else
-        formulaList<-list(as.formula(paste("y~",paste(c(allVarNames,randomEffects),collapse="+"),offset)),
-                    as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames)],randomEffects),collapse="+"),offset)),
-                    as.formula(paste("y~",paste(c(allVarNames[!grepl(":",allVarNames) &!allVarNames %in% varExclude],randomEffects),collapse="+"),offset)),
-                    NA,NA)
+        formulaList<-list(as.formula(paste("y~",paste(c(allTerms,randomEffects),collapse="+"),offset)),
+                    as.formula(paste("y~",paste(c(allTerms[!grepl(":",allTerms)],randomEffects),collapse="+"),offset)))
+  formulaList<-formulaList[!duplicated(formulaList)]
   args$formula=formulaList[[1]]
   if(! modType=="Tweedie") modfit1<-try(do.call(funcName,args))  else
     modfit1<-try(cplm::cpglm(formulaList[[1]],data=obsdatval,na.action=na.fail))
-  for(i in 2:(length(formulaList))-1) {
+  #If model didn't converge, try one without interactions, or with just required variables
+  for(i in 2:(length(formulaList))) {
     if(class(modfit1)[1] %in% c("glm","lm","glm.nb")) {
       if(modfit1$rank<length(coef(modfit1))) class(modfit1)<-"try-error"
     }
@@ -277,7 +332,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames, c
         modfit1<-try(do.call(funcName,args)) else
           modfit1<-try(cplm::cpglm(formulaList[[i]],data=obsdatval,na.action=na.fail))
     }
-  }
+   }
   if(class(modfit1)[1]=="try-error")   {
     returnval=NULL
     print(paste(common[run],modType,"failed to converge"))
@@ -2227,16 +2282,20 @@ addR2<-function(dredgeTable,obsdatval,funcName) {
     if(funcName=="cpglm") {
       R2[i]=NA
     } else {
+      R2[i]=NA
       mod1<-get.models(dredgeTable,subset=i)[[1]]
-      mod2<-try(do.call(funcName,args=list(formula= formula(mod1$call),
-                                           data=obsdatval)))
-      if(funcName=="glmmTMB") {
-        if(ncol(model.matrix(mod2))==length(fixef(mod2)[[1]]))
-          R2[i]=r.squaredGLMM(mod2)[1,"R2c"] else
-            R2[i]=NA
-
-      } else
-        R2[i]=r.squaredGLMM(mod2)[1,"R2c"]
+#      mod2<-try(do.call(funcName,args=list(formula= formula(mod1$call),
+ #                                          data=obsdatval)))
+#      if(funcName=="glmmTMB") {
+#        if(ncol(model.matrix(mod2))==length(fixef(mod2)[[1]]))  {
+          z<-performance::r2(mod2)
+          if("R2" %in% names(z))  R2[i]=z$R2
+          if("Conditional R2" %in% names(z))  R2[i]=z$`Conditional R2`
+#          R2[i]=r.squaredGLMM(mod2)[1,"R2c"] else
+#        } else
+#          R2[i]=NA
+#      } else
+#        R2[i]=r.squaredGLMM(mod2)[1,"R2c"]
     }
   }
   R2
