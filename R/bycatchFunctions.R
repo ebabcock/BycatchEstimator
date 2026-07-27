@@ -2338,26 +2338,64 @@ getModelSummaryTable<-function(modfits,modTypes) {
 #' @param is_TMB
 #' @imports From stats model.matrix delete.response terms formula
 #' @keywords internal
+# Helper to build fixed-effect model matrix, handling glmmTMB smooths.
+# For models with smooth terms (s() in glmmTMB), model.matrix on the
+# fixed-only formula fails because s() is not a column in the data.
+# In that case we fall back to a numeric-only parametric matrix.
 get_fixed_model_matrix <- function(fit, data, is_TMB) {
-  a_full <- model.matrix(delete.response(terms(formula(fit, fixed.only = TRUE),
-                                               data = data)), data)
-  if (is_TMB) {
-    vcov_dim <- nrow(vcov(fit)[[1]])
+
+  has_smooth <- function(fit) {
+    any(sapply(attr(terms(formula(fit)), "specials"),
+               function(x) length(x) > 0))
+  }
+
+  # Check if formula contains smooth terms by looking for s( or t2( etc.
+  fmla_str <- deparse(formula(fit))
+  smooth_present <- grepl("\\bs\\(|\\bt2\\(|\\bte\\(|\\bti\\(", fmla_str)
+
+  if (smooth_present & is_TMB) {
+    # Cannot safely build model matrix from formula with smooth terms.
+    # Return NULL — caller will use se.fit-based variance instead.
+    return(NULL)
+  }
+
+  if (inherits(fit, "cpglm")) {
+    # cplm: formula() works, no smooth support anyway
+    fmla_fixed <- formula(fit)
+    coef_names <- names(coef(fit))
+    vcov_dim   <- nrow(fit$vcov)
+  } else if (is_TMB) {
+    fmla_fixed <- formula(fit, fixed.only = TRUE)
     coef_names <- names(fixef(fit)[[1]])
-  } else if (inherits(fit, "cpglm")) {
-    vcov_dim <- nrow(fit$vcov)
-    coef_names <- names(coef(fit))
+    vcov_dim   <- nrow(vcov(fit)[[1]])
   } else {
-    vcov_dim <- nrow(vcov(fit))
+    fmla_fixed <- formula(fit)
     coef_names <- names(coef(fit))
+    vcov_dim   <- nrow(vcov(fit))
   }
-  # Keep only columns whose names match the fixed-effect coefficient names
+
+  # Build model matrix from the fixed-only formula
+  tm <- tryCatch(
+    delete.response(terms(fmla_fixed, data = data)),
+    error = function(e) NULL
+  )
+  if (is.null(tm)) return(NULL)
+
+  a_full <- tryCatch(
+    model.matrix(tm, data),
+    error = function(e) NULL
+  )
+  if (is.null(a_full)) return(NULL)
+
+  # Align columns to vcov dimensions
   keep <- colnames(a_full) %in% coef_names
-  if (sum(keep) != vcov_dim) {
-    # Fallback: take first vcov_dim columns (intercept + parametric terms)
-    keep <- seq_len(vcov_dim)
+  if (sum(keep) == vcov_dim) {
+    return(a_full[, keep, drop = FALSE])
+  } else if (ncol(a_full) >= vcov_dim) {
+    return(a_full[, seq_len(vcov_dim), drop = FALSE])
+  } else {
+    return(NULL)  # dimensions don't match — fall back
   }
-  a_full[, keep, drop = FALSE]
 }
 
 #' Generate predicted total bycatch with standard errors and confidence intervals
@@ -2450,6 +2488,7 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
       if (!is_delta) {
 
         a <- get_fixed_model_matrix(modfit1, newdat, is_TMB)
+        use_sefit_var <- is.null(a)
 
         # Predictions on response and link scale ---------------------------------
         if (is_cplm) {
@@ -2536,18 +2575,37 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
 
         # Efficient variance: collapse gradient to parameter space --------------
         # v = A' d  is a p-vector; Var(T) = v' Sigma v + sum(residvar)
-        v_total <- drop(crossprod(a, deriv))
+        if (!use_sefit_var) {
+          # Standard efficient delta-method: v' Sigma v + sum(residvar)
+          v_total <- drop(crossprod(a, deriv))
+          param_var <- as.numeric(t(v_total) %*% Sigma_beta1 %*% v_total)
+        } else {
+          # Smooth present: use predict(se.fit=TRUE) for total parameter variance.
+          # se.fit already includes both fixed and smooth uncertainty.
+          # Var(sum y_i) ≈ sum_i sum_j Cov(y_i, y_j), approximated as
+          # (sum deriv_i * se.fit_i)^2  [conservative upper bound assuming
+          # perfect correlation] or sum(deriv_i^2 * se.fit_i^2) [independence].
+          # The independence approximation is used here (same as se.fit^2 summed).
+          pred_se <- predict(modfit1, newdata = newdat, type = "response",
+                             se.fit = TRUE, allow.new.levels = TRUE)$se.fit
+          # deriv_i * se.fit_i gives sd of contribution of obs i to total
+          param_var <- sum((deriv * pred_se)^2)
+        }
         yearpred$Total[i]    <- sum(predval)
-        yearpred$TotalVar[i] <- as.numeric(t(v_total) %*% Sigma_beta1 %*% v_total) + sum(residvar)
-
+        yearpred$TotalVar[i] <- param_var + sum(residvar)
         if (length(predictionGroups) > 1) {
           strata <- unique(newdat$strata)
           for (j in seq_along(strata)) {
             idx <- newdat$strata == strata[j]
-            v_k <- drop(crossprod(a[idx, , drop = FALSE], deriv[idx]))
+            if (!use_sefit_var) {
+              v_k <- drop(crossprod(a[idx, , drop = FALSE], deriv[idx]))
+              strat_param_var <- as.numeric(t(v_k) %*% Sigma_beta1 %*% v_k)
+            } else {
+              strat_param_var <- sum((deriv[idx] * pred_se[idx])^2)
+            }
             stratapred$Total[stratapred$Year == years[i]][j]    <- sum(predval[idx])
             stratapred$TotalVar[stratapred$Year == years[i]][j] <-
-              as.numeric(t(v_k) %*% Sigma_beta1 %*% v_k) + sum(residvar[idx])
+              strat_param_var + sum(residvar[idx])
           }
         }
 
@@ -2567,84 +2625,83 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
         #   residvar_i = Effort_i^2 * lo.se(p_i, sqrt(p_i*(1-p_i)), c_i, c_i_resid_sd)^2
         # =========================================================================
 
-        a1 <- get_fixed_model_matrix(modfit1, newdat,is_TMB)
-        a2 <- get_fixed_model_matrix(modfit2, newdat,is_TMB)
+        # --- Delta branch: get model matrices, detect smooth fallback ---
+        a1 <- get_fixed_model_matrix(modfit1, newdat, is_TMB)
+        a2 <- get_fixed_model_matrix(modfit2, newdat, is_TMB)
+        use_sefit_var1 <- is.null(a1)
+        use_sefit_var2 <- is.null(a2)
 
-        # Binomial component predictions ----------------------------------------
-        if (is_TMB) {
-          predlink1 <- predict(modfit1, newdata = newdat, allow.new.levels = TRUE)
-          predval1  <- predict(modfit1, newdata = newdat, type = "response", allow.new.levels = TRUE)
-        } else {
-          predlink1 <- predict(modfit1, newdata = newdat)
-          predval1  <- predict(modfit1, newdata = newdat, type = "response")
-        }
-        p_i       <- as.vector(predval1)
-        logit_d_i <- as.vector(exp(predlink1) / (exp(predlink1) + 1)^2)
-
-        # Positive component predictions ----------------------------------------
-        if (is_TMB) {
-          predlink2 <- predict(modfit2, newdata = newdat, allow.new.levels = TRUE)
-          predval2  <- predict(modfit2, newdata = newdat, type = "response", allow.new.levels = TRUE)
-        } else {
-          predlink2 <- predict(modfit2, newdata = newdat)
-          predval2  <- predict(modfit2, newdata = newdat, type = "response")
-        }
-
-        if (modtype %in% c("Delta-Lognormal", "TMBdelta-Lognormal")) {
-          sig2    <- sigma(modfit2)
-          temp2   <- predict(modfit2, newdata = newdat, se.fit = TRUE)
-          c_i     <- lnorm.mean(temp2$fit, sqrt(temp2$se.fit^2 + sig2^2))
-          c_i_resid_sd <- sqrt((exp(sig2^2) - 1) * exp(2 * temp2$fit + sig2^2))
-          # dc/deta2 = c_i  (lognormal, log link)
-          dc_deta2 <- c_i
-        } else {
-          # Delta-Gamma
-          shapepar <- if (inherits(modfit2, "glm")) gamma.shape(modfit2)[[1]] else
-            1 / (glmmTMB::sigma(modfit2))^2
-          c_i          <- as.vector(predval2)
-          c_i_resid_sd <- sqrt(c_i^2 / shapepar)
-          # dc/deta2 = c_i  (Gamma, log link)
-          dc_deta2 <- c_i
-        }
-
-        predval <- newdat$Effort * p_i * c_i
-
-        # Residual (distributional) variance per observation via Lo et al. (1992)
-        residvar <- newdat$Effort^2 * lo.se(p_i, sqrt(p_i * (1 - p_i)), c_i, c_i_resid_sd)^2 * newdat$SampleUnits
-
-        # Gradients collapsed to parameter space --------------------------------
-        w1       <- newdat$Effort * c_i * logit_d_i * newdat$SampleUnits      # d(T)/d(eta1_i) weights
-        w2       <- newdat$Effort * p_i * dc_deta2        # d(T)/d(eta2_i) weights
-        v1_total <- drop(crossprod(a1, w1))               # p1-vector
-        v2_total <- drop(crossprod(a2, w2))               # p2-vector
-
-        # Observed catch adjustment
-        if (includeObsCatch) {
-          obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
-          d <- match(newdatall$matchColumn, obsdatvalyear$matchColumn)
-          d <- d[!is.na(d)]
-          predval[d] <- predval[d] + obsdatvalyear$Catch
-        }
-
-        yearpred$Total[i] <- sum(predval)
-        yearpred$TotalVar[i] <- as.numeric(t(v1_total) %*% Sigma_beta1 %*% v1_total) +
-          as.numeric(t(v2_total) %*% Sigma_beta2 %*% v2_total) +
-          sum(residvar)
-
-        if (length(predictionGroups) > 1) {
-          strata <- unique(newdat$strata)
-          for (j in seq_along(strata)) {
-            idx  <- newdat$strata == strata[j]
-            v1_k <- drop(crossprod(a1[idx, , drop = FALSE], w1[idx]))
-            v2_k <- drop(crossprod(a2[idx, , drop = FALSE], w2[idx]))
-            stratapred$Total[stratapred$Year == years[i]][j]    <- sum(predval[idx])
-            stratapred$TotalVar[stratapred$Year == years[i]][j] <-
-              as.numeric(t(v1_k) %*% Sigma_beta1 %*% v1_k) +
-              as.numeric(t(v2_k) %*% Sigma_beta2 %*% v2_k) +
-              sum(residvar[idx])
+        # Pre-compute se.fit predictions if needed for either component
+        if (use_sefit_var1) {
+          if (is_TMB) {
+            pred_se1 <- predict(modfit1, newdata = newdat, type = "response",
+                                se.fit = TRUE, allow.new.levels = TRUE)$se.fit
+          } else {
+            pred_se1 <- predict(modfit1, newdata = newdat, type = "response",
+                                se.fit = TRUE)$se.fit
           }
         }
-      } # end delta branch
+        if (use_sefit_var2) {
+          if (is_TMB) {
+            pred_se2 <- predict(modfit2, newdata = newdat, type = "response",
+                                se.fit = TRUE, allow.new.levels = TRUE)$se.fit
+          } else {
+            pred_se2 <- predict(modfit2, newdata = newdat, type = "response",
+                                se.fit = TRUE)$se.fit
+          }
+        }
+
+        # --- Annual total parameter variance ---
+        # Model 1 (binomial): gradient weight w1 = Effort * c_i * logit_d_i
+        if (!use_sefit_var1) {
+          v1_total <- drop(crossprod(a1, w1))
+          param_var1 <- as.numeric(t(v1_total) %*% Sigma_beta1 %*% v1_total)
+        } else {
+          # se.fit is on response (probability) scale; chain-rule to total scale:
+          # d(Effort * p_i * c_i)/dp_i = Effort * c_i
+          # so sd of obs i contribution ≈ Effort_i * c_i * se.fit1_i
+          param_var1 <- sum((newdat$Effort * c_i * pred_se1)^2)
+        }
+
+        # Model 2 (positive): gradient weight w2 = Effort * p_i * dc_deta2
+        if (!use_sefit_var2) {
+          v2_total <- drop(crossprod(a2, w2))
+          param_var2 <- as.numeric(t(v2_total) %*% Sigma_beta2 %*% v2_total)
+        } else {
+          # se.fit is on response (c_i) scale; chain-rule to total scale:
+          # d(Effort * p_i * c_i)/dc_i = Effort * p_i
+          param_var2 <- sum((newdat$Effort * p_i * pred_se2)^2)
+        }
+
+        yearpred$Total[i]    <- sum(predval)
+        yearpred$TotalVar[i] <- param_var1 + param_var2 + sum(residvar)
+
+        # --- Stratum-level parameter variance ---
+        if (length(requiredVarNames) > 1) {
+          strata <- unique(newdat$strata)
+          for (j in seq_along(strata)) {
+            idx <- newdat$strata == strata[j]
+
+            if (!use_sefit_var1) {
+              v1_k <- drop(crossprod(a1[idx, , drop = FALSE], w1[idx]))
+              strat_param_var1 <- as.numeric(t(v1_k) %*% Sigma_beta1 %*% v1_k)
+            } else {
+              strat_param_var1 <- sum((newdat$Effort[idx] * c_i[idx] * pred_se1[idx])^2)
+            }
+
+            if (!use_sefit_var2) {
+              v2_k <- drop(crossprod(a2[idx, , drop = FALSE], w2[idx]))
+              strat_param_var2 <- as.numeric(t(v2_k) %*% Sigma_beta2 %*% v2_k)
+            } else {
+              strat_param_var2 <- sum((newdat$Effort[idx] * p_i[idx] * pred_se2[idx])^2)
+            }
+
+            stratapred$Total[stratapred$Year == years[i]][j]    <- sum(predval[idx])
+            stratapred$TotalVar[stratapred$Year == years[i]][j] <-
+              strat_param_var1 + strat_param_var2 + sum(residvar[idx])
+          }
+        }
+        } # end delta branch
     } # end year loop
 
     # --- Year offset ---
