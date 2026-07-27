@@ -430,7 +430,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
 #' @param modelScenario Value
 #' @param startYear Value
 #' @import tidyr
-#' @importFrom stats predict model.matrix rbinom sigma rnorm rlnorm rnbinom quantile
+#' @importFrom stats predict rbinom sigma rnorm rlnorm rnbinom quantile
 #' @importFrom MASS mvrnorm gamma.shape
 #' @keywords internal
 makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsdatval,
@@ -2284,8 +2284,8 @@ addR2<-function(dredgeTable,obsdatval,funcName) {
     } else {
       R2[i]=NA
       mod1<-get.models(dredgeTable,subset=i)[[1]]
-#      mod2<-try(do.call(funcName,args=list(formula= formula(mod1$call),
- #                                          data=obsdatval)))
+      mod2<-try(do.call(funcName,args=list(formula= formula(mod1$call),
+                                           data=obsdatval)))
 #      if(funcName=="glmmTMB") {
 #        if(ncol(model.matrix(mod2))==length(fixef(mod2)[[1]]))  {
           z<-performance::r2(mod2)
@@ -2328,6 +2328,36 @@ getModelSummaryTable<-function(modfits,modTypes) {
     }
   }
   modSum
+}
+
+
+#' Extract fixed effect model matrix columns corresponding to the vcov matrix
+#'
+#' @param fit
+#' @param data
+#' @param is_TMB
+#' @imports From stats model.matrix delete.response terms formula
+#' @keywords internal
+get_fixed_model_matrix <- function(fit, data, is_TMB) {
+  a_full <- model.matrix(delete.response(terms(formula(fit, fixed.only = TRUE),
+                                               data = data)), data)
+  if (is_TMB) {
+    vcov_dim <- nrow(vcov(fit)[[1]])
+    coef_names <- names(fixef(fit)[[1]])
+  } else if (inherits(fit, "cpglm")) {
+    vcov_dim <- nrow(fit$vcov)
+    coef_names <- names(coef(fit))
+  } else {
+    vcov_dim <- nrow(vcov(fit))
+    coef_names <- names(coef(fit))
+  }
+  # Keep only columns whose names match the fixed-effect coefficient names
+  keep <- colnames(a_full) %in% coef_names
+  if (sum(keep) != vcov_dim) {
+    # Fallback: take first vcov_dim columns (intercept + parametric terms)
+    keep <- seq_len(vcov_dim)
+  }
+  a_full[, keep, drop = FALSE]
 }
 
 #' Generate predicted total bycatch with standard errors and confidence intervals
@@ -2404,11 +2434,11 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
     yearpred  <- expand.grid(Year = years, Total = NA, TotalVar = NA)
     stratapred <- data.frame(newdatall[!duplicated(newdatall$strata), predictionGroups])
     stratapred$Total <- stratapred$TotalVar <- NA
-    if(!is_cplm)
-     tm1 <- delete.response(terms(modfit1)) else
-       tm1 <- delete.response(terms(formula(modfit1)))
-
-    if (is_delta) tm2 <- delete.response(terms(modfit2))
+    # if(!is_cplm)
+    #  tm1 <- delete.response(terms(modfit1)) else
+    #    tm1 <- delete.response(terms(formula(modfit1)))
+    #
+    # if (is_delta) tm2 <- delete.response(terms(modfit2))
 
     for (i in seq_along(years)) {
       newdat <- newdatall[newdatall$Year == years[i], ]
@@ -2419,7 +2449,7 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
       # =========================================================================
       if (!is_delta) {
 
-        a <- model.matrix(tm1, newdat)
+        a <- get_fixed_model_matrix(modfit1, newdat, is_TMB)
 
         # Predictions on response and link scale ---------------------------------
         if (is_cplm) {
@@ -2537,8 +2567,8 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
         #   residvar_i = Effort_i^2 * lo.se(p_i, sqrt(p_i*(1-p_i)), c_i, c_i_resid_sd)^2
         # =========================================================================
 
-        a1 <- model.matrix(tm1, newdat)
-        a2 <- model.matrix(tm2, newdat)
+        a1 <- get_fixed_model_matrix(modfit1, newdat,is_TMB)
+        a2 <- get_fixed_model_matrix(modfit2, newdat,is_TMB)
 
         # Binomial component predictions ----------------------------------------
         if (is_TMB) {
