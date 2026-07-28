@@ -2730,7 +2730,7 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
         yearpred$TotalVar[i] <- param_var1 + param_var2 + sum(residvar)
 
         # --- Stratum-level parameter variance ---
-        if (length(predoictionGroups) > 1) {
+        if (length(predictionGroups) > 1) {
           strata <- unique(newdat$strata)
           for (j in seq_along(strata)) {
             idx <- newdat$strata == strata[j]
