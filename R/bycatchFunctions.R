@@ -2436,16 +2436,12 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
                                         printOutput = TRUE, catchType, common,
                                         shortName, dirname, run, modelScenario, startYear) {
 
-  # --- Expand sample units ---
-  # if (includeObsCatch)
-  #   newdat$Effort <- newdat$unsampledEffort / newdat$SampleUnits else
-  #     newdat$Effort <- newdat$Effort / newdat$SampleUnits
-  #   newdat <- uncount(newdat, .data$SampleUnits)
-  #   nObs   <- nrow(newdat)
-  #   newdat$SampleUnits <- rep(1, nObs)
-  if (includeObsCatch)
-    newdat$Effort <- newdat$unsampledEffort
-  nObs<-sum(newdat$SampleUnits)
+  # --- Expand sample units if matching observed catch only ---
+  if (includeObsCatch)  {
+    newdat$Effort <- newdat$unsampledEffort / newdat$SampleUnits
+    newdat <- uncount(newdat, .data$SampleUnits)
+    newdat$SampleUnits <- rep(1, nObs)
+  }
   newdatall <- newdat
 
     is_delta <- modtype %in% c("Delta-Lognormal", "TMBdelta-Lognormal",
@@ -2558,7 +2554,10 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
           predval  <- predval * newdat$Effort
           deriv    <- predval
         }
-
+        #adjust for sample units for Binomial models
+        if (modtype %in% c("Binomial", "TMBbinomial")) {
+          predval <- predval*newdat$SampleUnits
+        }
         # Observed catch adjustment ---------------------------------------------
         if (includeObsCatch && !modtype %in% c("Binomial", "TMBbinomial")) {
           obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
@@ -2630,7 +2629,6 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
         a2 <- get_fixed_model_matrix(modfit2, newdat, is_TMB)
         use_sefit_var1 <- is.null(a1)
         use_sefit_var2 <- is.null(a2)
-
         # Pre-compute se.fit predictions if needed for either component
         if (use_sefit_var1) {
           if (is_TMB) {
@@ -2650,6 +2648,61 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
                                 se.fit = TRUE)$se.fit
           }
         }
+
+        # Binomial component predictions ----------------------------------------
+        if (is_TMB) {
+          predlink1 <- predict(modfit1, newdata = newdat, allow.new.levels = TRUE)
+          predval1  <- predict(modfit1, newdata = newdat, type = "response", allow.new.levels = TRUE)
+        } else {
+          predlink1 <- predict(modfit1, newdata = newdat)
+          predval1  <- predict(modfit1, newdata = newdat, type = "response")
+        }
+        p_i       <- as.vector(predval1)
+        logit_d_i <- as.vector(exp(predlink1) / (exp(predlink1) + 1)^2)
+
+        # Positive component predictions ----------------------------------------
+        if (is_TMB) {
+          predlink2 <- predict(modfit2, newdata = newdat, allow.new.levels = TRUE)
+          predval2  <- predict(modfit2, newdata = newdat, type = "response", allow.new.levels = TRUE)
+        } else {
+          predlink2 <- predict(modfit2, newdata = newdat)
+          predval2  <- predict(modfit2, newdata = newdat, type = "response")
+        }
+
+        if (modtype %in% c("Delta-Lognormal", "TMBdelta-Lognormal")) {
+          sig2    <- sigma(modfit2)
+          temp2   <- predict(modfit2, newdata = newdat, se.fit = TRUE)
+          c_i     <- lnorm.mean(temp2$fit, sqrt(temp2$se.fit^2 + sig2^2))
+          c_i_resid_sd <- sqrt((exp(sig2^2) - 1) * exp(2 * temp2$fit + sig2^2))
+          # dc/deta2 = c_i  (lognormal, log link)
+          dc_deta2 <- c_i
+        } else {
+          # Delta-Gamma
+          shapepar <- if (inherits(modfit2, "glm")) gamma.shape(modfit2)[[1]] else
+            1 / (glmmTMB::sigma(modfit2))^2
+          c_i          <- as.vector(predval2)
+          c_i_resid_sd <- sqrt(c_i^2 / shapepar)
+          # dc/deta2 = c_i  (Gamma, log link)
+          dc_deta2 <- c_i
+        }
+
+        predval <- newdat$Effort * p_i * c_i
+
+        # Residual (distributional) variance per observation via Lo et al. (1992)
+        residvar <- newdat$Effort^2 * lo.se(p_i, sqrt(p_i * (1 - p_i)), c_i, c_i_resid_sd)^2 * newdat$SampleUnits
+
+        # Gradients collapsed to parameter space --------------------------------
+        w1       <- newdat$Effort * c_i * logit_d_i * newdat$SampleUnits      # d(T)/d(eta1_i) weights
+        w2       <- newdat$Effort * p_i * dc_deta2        # d(T)/d(eta2_i) weights
+
+        # Observed catch adjustment
+        if (includeObsCatch) {
+          obsdatvalyear <- obsdatval[obsdatval$Year == years[i], ]
+          d <- match(newdatall$matchColumn, obsdatvalyear$matchColumn)
+          d <- d[!is.na(d)]
+          predval[d] <- predval[d] + obsdatvalyear$Catch
+        }
+
 
         # --- Annual total parameter variance ---
         # Model 1 (binomial): gradient weight w1 = Effort * c_i * logit_d_i
@@ -2677,7 +2730,7 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
         yearpred$TotalVar[i] <- param_var1 + param_var2 + sum(residvar)
 
         # --- Stratum-level parameter variance ---
-        if (length(requiredVarNames) > 1) {
+        if (length(predoictionGroups) > 1) {
           strata <- unique(newdat$strata)
           for (j in seq_along(strata)) {
             idx <- newdat$strata == strata[j]
