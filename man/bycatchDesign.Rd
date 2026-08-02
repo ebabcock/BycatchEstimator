@@ -27,7 +27,7 @@ bycatchDesign(
 
 \item{designVars}{Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.}
 
-\item{groupVar}{Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset}
+\item{groupVar}{Specify variables to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset. Variables must be included in the designVars.}
 
 \item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
 

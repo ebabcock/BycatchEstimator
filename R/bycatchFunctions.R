@@ -602,7 +602,9 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
           mutate(Total=.data$fit,
                  TotalVar=.data$se.fit^2+.data$fit+.data$fit^2/sigma(modfit1))
         sim = replicate(nsim,rnbinom(nObs,mu=exp(a %*% mvrnorm(1,fixef(modfit1)[[1]],
-                                                               vcov(modfit1)[[1]])+NewRandomVals)*newdat$Effort, size=sigma(modfit1)))
+                                                               vcov(modfit1)[[1]])+
+                                                   NewRandomVals)*newdat$Effort,
+                                     size=sigma(modfit1)))
       }
       if(modtype=="TMBtweedie") {
         allpred<-cbind(newdat,response1)  %>%
@@ -2051,8 +2053,8 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
    summarize(units=n(),effort=sum(.data$Effort))
  poolingSum<-left_join(poolingSum,x,by=poolingVars) %>%
    mutate(units=replace_na(.data$units,0),effort=replace_na(.data$effort,0)) %>%
-   mutate(needs.pooling=ifelse(.data$units>minStrataUnit, FALSE,TRUE),
-          pooled.n=ifelse(.data$units>minStrataUnit, units,NA),
+   mutate(needs.pooling=ifelse(.data$units>minStrataUnit & !any(poolTypes=="outGroup"), FALSE,TRUE),
+          pooled.n=ifelse(.data$units>minStrataUnit & !any(poolTypes=="outGroup"), units,NA),
           poolnum=NA,pooledTotalUnits=NA,pooledTotalEffort=NA) %>%
    ungroup()
   poolingSum<-as.data.frame(poolingSum)
@@ -2069,12 +2071,14 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
   }
   for(vari in 1:length(designVars))  {
    keepVars<-designVars[(1:length(designVars))>vari]
+   if(vari==length(designVars)) remainingOutGroup<-FALSE else
+     remainingOutGroup<-any(poolTypes[(vari+1):length(designVars)]=="outGroup")
    for(i in which(poolingSum$needs.pooling))  {
      if(poolTypes[1]=="none") {
        aa<-which(poolingSum[,designVars[1]] == poolingSum[i,designVars[1]])
        bb<-which(obsdatval[,designVars[1]] == poolingSum[i,designVars[1]])
      }
-     if(poolTypes[1]=="all") {
+     if(poolTypes[1] %in% c("all","outGroup"))  {
       aa<-1:nrow(poolingSum)
       bb<-1:nrow(obsdatval)
     }
@@ -2114,12 +2118,14 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
     if(length(bb)>0) {
      includePool[[i]]<-obsdatval[bb,]
      poolingSum$pooled.n[i]<-nrow(includePool[[i]])
-     poolingSum$needs.pooling[i]<-ifelse(poolingSum$pooled.n[i]>=minStrataUnit,FALSE,TRUE)
+     poolingSum$needs.pooling[i]<-ifelse(poolingSum$pooled.n[i]>=minStrataUnit
+                                         & !remainingOutGroup,FALSE,TRUE)
      poolingSum$pooledTotalEffort[i]<-sum(poolingSum$totalEffort[aa])
      poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
     } else poolingSum$needs.pooling[i]<-TRUE
    }
-   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-vari
+   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-
+     vari-sum(poolTypes=="outGroup")
   }
   includePool<-bind_rows(includePool,.id="stratum")
   poolingSum$stratum<-1:nrow(poolingSum)
@@ -2468,12 +2474,6 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
     yearpred  <- expand.grid(Year = years, Total = NA, TotalVar = NA)
     stratapred <- data.frame(newdatall[!duplicated(newdatall$strata), predictionGroups])
     stratapred$Total <- stratapred$TotalVar <- NA
-    # if(!is_cplm)
-    #  tm1 <- delete.response(terms(modfit1)) else
-    #    tm1 <- delete.response(terms(formula(modfit1)))
-    #
-    # if (is_delta) tm2 <- delete.response(terms(modfit2))
-
     for (i in seq_along(years)) {
       newdat <- newdatall[newdatall$Year == years[i], ]
       n_i    <- nrow(newdat)

@@ -8,6 +8,9 @@ bycatchSetup(
   obsdat,
   logdat,
   yearVar,
+  latitudeVar = NULL,
+  longitudeVar = NULL,
+  spatialBin = 1,
   obsEffort,
   logEffort,
   obsCatch,
@@ -32,6 +35,12 @@ bycatchSetup(
 \item{logdat}{Logbook data set}
 
 \item{yearVar}{Character. The column name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.}
+
+\item{latitudeVar}{Optional name of latitude column, to get spatial plots.}
+
+\item{longitudeVar}{Optional name of longitude column, to get spatial plots.}
+
+\item{spatialBin}{Optional. If latitude and longitude are provided, this is the size of the spatial bin in degrees to use for spatial plots. Default is 1 degree.}
 
 \item{obsEffort}{Character. The column name of the effort variable in \code{obsdat}. This variable must have the same effort units as \code{logEffort}}
 
@@ -75,6 +84,9 @@ setupObj<-bycatchSetup(
 obsdat = obsdatExample,
 logdat = logdatExample,
 yearVar = "Year",
+latitudeVar = "Latitude",
+longitudeVar = "Longitude",
+spatialBin = 1,
 obsEffort = "sampled.sets",
 logEffort = "sets",
 obsCatch = "Catch",

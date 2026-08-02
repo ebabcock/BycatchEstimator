@@ -13,7 +13,7 @@
 #' @param designScenario Short name, e.g. noPool, or Pool1, to distinguish outputs made with the same setupObj.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
 #' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
-#' @param groupVar Specify variable to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset
+#' @param groupVar Specify variables to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset. Variables must be included in the designVars.
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
 #' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "none", where data will not be pooled over this variable, "all" where data will be pooled over all levels of the variable, "pooledVar" where the variable named in pooledVar will be used to pool, and (currently for year only) "adjacent" to pool over adjacent years.
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
@@ -95,12 +95,28 @@ bycatchDesign <- function(
 
   if(is.null(logdat)) stop("Logdat needed for bycatch estimation. Re-run bycatchSetup.")
 
-  #make sure only one groupVar
-  groupVar<-groupVar[1]
-
   #check variables
+  isNewGroup<-FALSE
   if(!all(designVars %in% c(factorVariables,"Year"))) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
-
+  if(!all(is.na(groupVar))) {  #if not choosing to summarize whole dataset
+   if(!all(groupVar %in% c(factorVariables,"Year"))) stop(paste0("The grouping variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
+   if(!all(groupVar %in% c(designVars,"Year"))) isNewGroup<-TRUE else isNewGroup<-FALSE
+  }
+  originalDesignPooling<-designPooling
+  originalDesignVars<-designVars
+  originalPoolTypes<-poolTypes
+  originalPooledVar<-pooledVar
+  originalAdjacentNum<-adjacentNum
+  if(isNewGroup) {  #If pooling is requested and the grouping variable is not in the designVars, add it to the designVars and pool over all levels of that variable before doing rest of pooling
+      temp<-setdiff(groupVar,designVars)
+      if(length(temp)>0) {
+        designPooling<-TRUE
+        designVars<-c(temp,designVars)
+        poolTypes<-c(rep("outGroup",length(temp)),poolTypes)
+        adjacentNum<-c(rep(NA,length(temp)),adjacentNum)
+        pooledVar<-c(rep(NA,length(temp)),pooledVar)
+      }
+  }
 
   #Set up directory for output
  #outDir<-paste0(baseDir, paste("/Output", runName))
@@ -110,8 +126,10 @@ bycatchDesign <- function(
   poolingSum<-list()
   includePool<-list()
   yearSumGraph<-list()
+  groupSumGraph<-list()
   designyeardf <- list()
   designstratadf<-list()
+  designgroupdf<-list()
 
   # spp loop
   for(run in 1:numSp) {
@@ -137,10 +155,12 @@ bycatchDesign <- function(
       poolingSum[[run]]<-NULL
       includePool[[run]]<-NULL
     }
-
+    if(all(is.na(groupVar))) xVar<-"Year" else
+      if("Year" %in% groupVar) xVar<-"Year" else
+       xVar<-groupVar[1]
     designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
-                             strataVars = groupVar,
+                             strataVars = xVar,
                              designVars = designVars,
                              designPooling = designPooling,
                              minStrataUnit = minStrataUnit,
@@ -165,31 +185,53 @@ bycatchDesign <- function(
     )
     write.csv(designstratadf[[run]],
               paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
+    #And by requested groups
+    designgroupdf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
+                                              logdatval = logdat,
+                                              strataVars = groupVar,
+                                              designVars = designVars,
+                                              designPooling = designPooling,
+                                              minStrataUnit = minStrataUnit,
+                                              startYear = startYear,
+                                              poolingSum = poolingSum[[run]],
+                                              includePool= includePool[[run]]
+    )
+    write.csv(designgroupdf[[run]],
+              paste0(dirname[[run]],shortName[run],designScenario,"DesignGroup.csv"), row.names = FALSE)
   }
-  if(all(is.na(groupVar))) {
+  if(all(is.na(groupVar)) ) {
     yearSum[[run]]$Year="All"
     designyeardf[[run]]$Year="All"
-  }
-  if(groupVar!="Year" & !is.na(groupVar)) {
+  } else {
+    #Make grouping table for summaries
     x<-NULL
     if("Ratio" %in% designMethods)
-      x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],!!groupVar,Total=.data$ratioMean,Total.se=.data$ratioSE)))
+      x=c(x,list("Ratio"=dplyr::select(designgroupdf[[run]],!!groupVar,
+                                       Total=.data$ratioMean,Total.se=.data$ratioSE)))
     if("Delta" %in% designMethods)
-      x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],!!groupVar,Total=.data$deltaMean,Total.se=.data$deltaSE)))
+      x=c(x,list("Design Delta"=dplyr::select(designgroupdf[[run]],!!groupVar,
+                                              Total=.data$deltaMean,Total.se=.data$deltaSE)))
+    groupSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
+      mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
+             Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
+      mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
   }
-    if(groupVar=="Year") {
-      x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,Total=.data$Cat,Total.se=.data$Cse))
-      if("Ratio" %in% designMethods)
-        x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$ratioMean,Total.se=.data$ratioSE)))
-      if("Delta" %in% designMethods)
-        x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],Year=.data$Year,Total=.data$deltaMean,Total.se=.data$deltaSE)))
-    }
+    #By year or first grouping variable for graphing
+    if("Year" %in% groupVar) {
+      x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,
+                                                 Total=.data$Cat,Total.se=.data$Cse))
 
+    } else x<-NULL
+      if("Ratio" %in% designMethods)
+        x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],all_of(xVar),
+                                         Total=.data$ratioMean,Total.se=.data$ratioSE)))
+      if("Delta" %in% designMethods)
+        x=c(x,list("Design Delta"=dplyr::select(designyeardf[[run]],all_of(xVar),
+                                                Total=.data$deltaMean,Total.se=.data$deltaSE)))
     yearSumGraph[[run]]<-bind_rows(x,.id="Source")     %>%
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-
   } #close loop for each sp
 
 
@@ -199,12 +241,12 @@ bycatchDesign <- function(
     designInputs = list(
       designScenario=designScenario,
       designMethods = designMethods,
-      designVars = designVars,
+      designVars = originalDesignVars,
       groupVar = groupVar,
-      designPooling = designPooling,
-      poolTypes=poolTypes,
-      pooledVar=pooledVar,
-      adjacentNum=adjacentNum,
+      designPooling = originalDesignPooling,
+      poolTypes=originalPoolTypes,
+      pooledVar=originalPooledVar,
+      adjacentNum=originalAdjacentNum,
       minStrataUnit = minStrataUnit,
       baseDir = baseDir
     ),
@@ -213,10 +255,12 @@ bycatchDesign <- function(
       yearSum = yearSum,
       yearSumGraph = yearSumGraph,
       strataSum = strataSum,
+      groupSumGraph  = groupSumGraph,
       poolingSum = poolingSum,
       includePool = includePool,
       designyeardf = designyeardf,
-      designstratadf = designstratadf
+      designstratadf = designstratadf,
+      designgroupdf = designgroupdf
     )
 
   )

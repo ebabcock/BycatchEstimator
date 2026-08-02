@@ -210,6 +210,10 @@ bycatchFit<-function(
   if(VarCalc %in% c("delta","Delta","deltamethod","deltaMethod")) VarCalc="DeltaMethod"
   if(VarCalc %in% c("simulate","simulated","Simulated")) VarCalc="Simulate"
   if(!VarCalc %in% c("None","Simulate","DeltaMethod","DeltaMethodOld")) VarCalc="None"
+  if(VarCalc=="Simulate"& isSmooth) {
+    print("Cannot use Simulate with smooth terms at this time, using DeltaMethod instead")
+    VarCalc="DeltaMethod"
+  }
   # if(includeObsCatch & EstimateBycatch) {
   #    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
   #    if(length(missing_trips)>0){

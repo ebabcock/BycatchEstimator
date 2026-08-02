@@ -35,7 +35,7 @@ tablenum<-1
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
 # change out.dir, setupObj and run while code testing
-# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output SimulatedExample_new2functions/"
+# outDir <- "C:/Users/babco/OneDrive/Documents/GitHub/BycatchEstimator/OutputLLSIM_BUM_"
 # setupObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchSetupSpecification.rds"))
 # designObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchDesignSpecification.rds"))
 
@@ -57,7 +57,8 @@ obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
 #unpack designObj
 designScenario<-designMethods<-designVars<-groupVar<-designPooling<-poolTypes<-pooledVar<-adjacentNum<-minStrataUnit<-baseDir<-NULL
 
-yearSum<-yearSumGraph<-strataSum<-poolingSum<-includePool<-designyeardf<-designstratadf<-NULL
+yearSum<-yearSumGraph<-groupSumGraph<-strataSum<-poolingSum<-includePool<-
+  designyeardf<-designstratadf<-designgroupdf<-NULL
 
   for(r in 1:NROW(designObj$designInputs)) assign(names(designObj$designInputs)[r], designObj$designInputs[[r]])
   for(r in 1:NROW(designObj$designOutputs)) assign(names(designObj$designOutputs)[r],designObj$designOutputs[[r]])
@@ -73,27 +74,43 @@ if("Year" %in% numericVariables) { #treat Year as numeric variable
 
 
 ```{r dataChecks, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
-cat("The input settings for model-based estimation applied to",common[run],"(",sp[run],") ",catchType[run], "were as follows.")
+cat("The input settings for model-based estimation applied to ",common[run]," (",sp[run],") ",catchType[run], " were as follows.",sep="")
 cat("\n")
 cat("\n")
-cat("- Design-based methods used were ", designMethods,".")
+cat("- Design-based methods used were ", paste(designMethods,collapse=", "), ".",sep="")
 cat("\n")
 cat("\n")
-cat("- Stratification variables were",designVars,",")
+cat("- Stratification variables were ",paste(designVars,collapse=", "), ".",sep="")
 cat("\n")
 cat("\n")
+outGroup<-NULL
+if(!all(is.na(groupVar))) {
+ cat("- Estimates grouped by ",paste(groupVar,collapse=", "), " in summaries.",sep="")
+ cat("\n")
+ cat("\n")
+ outGroup<-groupVar[!groupVar %in% designVars]
+ if(length(outGroup)>0)  {
+   cat("- Samples were always pooled across ",paste(outGroup,collapse=","),", because it was not included as a design variable.",sep="")
+ cat("\n")
+ cat("\n") 
+   }
+} else {
+ cat("- No grouping variables specified. Only a total estimate will be provided.")
+ cat("\n")
+ cat("\n")
+}
 if(designPooling) {
- cat("- Strata were pooled to acheive a minimum of",minStrataUnit, "sample units. Variables were pooled in this order if necessary:")
+ cat("- Strata were pooled to acheive a minimum of ",minStrataUnit, " sample units. Variables were pooled in this order if necessary:",sep="")
  for(i in 1:length(designVars)) {
-   if(poolTypes[i]=="none") cat("(",i,")",designVars[i],"not pooled, ")
-   if(poolTypes[i]=="all")  cat("(",i,")",designVars[i],"pooled across all levels, ")
-   if(poolTypes[i]=="adjacent")  cat("(",i,")",designVars[i],"pooled across",adjacentNum[i],"years before and after, ")
-   if(poolTypes[i]=="pooledVar")  cat("(",i,")",designVars[i],"pooled within",pooledVar[i],", ")
+   if(poolTypes[i]=="none") cat("(",i,") ",designVars[i]," not pooled, ",sep="")
+   if(poolTypes[i]=="all")  cat("(",i,") ",designVars[i]," pooled across all levels, ",sep="")
+   if(poolTypes[i]=="adjacent")  cat("(",i,") ",designVars[i]," pooled across ",adjacentNum[i]," years before and after, ",sep="")
+   if(poolTypes[i]=="pooledVar")  cat("(",i,") ",designVars[i]," pooled within ",pooledVar[i],", ",sep="")
  }  
  if(any(is.na(poolingSum[[run]]$poolnum))) 
    cat("but",sum(is.na(poolingSum[[run]]$poolnum)),"strata remained below the minimum number of sample units after pooling.") else cat("and with pooling, all strata met minimum sample size requirement.") 
 } else
-  cat("- No pooling of strata")
+  cat("- No pooling of strata by design variables.")
 cat("\n")
 temp<-setdiff(select(logdat,all_of(designVars)),select(obsdat,all_of(designVars)))%>%
   filter(!duplicated(.))
@@ -126,10 +143,24 @@ if(any(is.na(poolingSum[[run]]$poolnum))) {
 ```
 
 ```{r table-results, message=FALSE,warning=FALSE, echo=FALSE,results='asis'}
-cat("Table ",tablenum,". Design-based bycatch estimates for each ", tolower(groupVar),". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
+
+if("Year" %in% groupVar & length(groupVar)>1 & !all(is.na(groupVar))) {
+cat("Table ",tablenum,". Design-based total bycatch estimate by year. Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
+  temp <- designyeardf[[run]] %>%
+    mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
+    remove_rownames()
+  
+  print(kbl(temp,format="simple"))
+  tablenum<-tablenum+1
+  cat("\n")
+  cat('<div style="height:30px;"></div>\n') 
+}
+if(all(is.na(groupVar))) textVal<-"Total design-based bycatch estimates for all strata combined" else
+  textVal<-paste("Design-based bycatch estimates for each combination of ",paste(groupVar,collapse=", "),sep="")
+cat("Table ",tablenum,". ",textVal,". Columns are: mean bycatch calculated by the ratio estimator (ratioMean), standard deviation of the ratio estimator (ratioSE), mean bycatch calculated by the delta estimator (deltaMean), standard deviation of the delta estimator (deltaSE).",sep = "")
 tablenum<-tablenum+1
 
-temp <- designyeardf[[run]] %>%
+temp <- designgroupdf[[run]] %>%
   mutate_if(is.numeric,   ~ ifelse(abs(.x) > 1, round(.x), round(.x, 2))) %>%
   remove_rownames()
 
@@ -138,38 +169,65 @@ tablenum<-tablenum+1
 cat("\n")
 cat('<div style="height:30px;"></div>\n') 
 
-# any plot or print table for estimates stratified by other variables?
 ```
 
 
 ```{r plot-designestimator, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE, results="asis"}
-yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Method") %>%
-  mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
-    Method=sub("Mean","",Method),
-    Method=sub("SE","",Method)) %>%
-  pivot_wider(names_from=parameter,values_from=value)
-
-print(ggplot(yearSumLong,aes(x=!!sym(groupVar),y=Mean,ymin=Mean-1.96*SE,ymax=Mean+1.96*SE,color=Method,fill=Method,group=Method))+
+# yearSumLong<-pivot_longer(designyeardf[[run]],ratioMean:deltaSE,names_to = "Method") %>%
+#   mutate(parameter=ifelse(grepl("Mean",Method),"Mean","SE"),
+#     Method=sub("Mean","",Method),
+#     Method=sub("SE","",Method)) %>%
+#   pivot_wider(names_from=parameter,values_from=value)
+if(!all(is.na(groupVar))) {
+if("Year" %in% groupVar) {
+  xVar<- "Year"
+  facetGroup<-setdiff(groupVar,"Year")
+} else {
+  xVar<- groupVar[1]
+  if(length(groupVar)>1) facetGroup<-groupVar[2:length(groupVar)] else 
+    facetGroup<-NULL
+}
+cat("\n")
+print(ggplot(yearSumGraph[[run]],aes(x=!!sym(xVar),y=Total,ymin=TotalUCI,
+                                     ymax=TotalLCI,color=Source,fill=Source,group=Source))+
   geom_line()+
   geom_point()+
-  geom_ribbon(alpha=0.5))
-cat("\n Figure ", figurenum, ". Design-based bycatch estimates per ",tolower(groupVar), " with 95% confidence intervals.",sep = "")
+  geom_ribbon(alpha=0.5)+
+  labs(x=xVar,y="Total",fill="Estimator",color="Estimator"))
+cat("\n Figure ", figurenum, ". Design-based bycatch estimates per ",tolower(xVar), " with 95% confidence intervals.",sep = "")
 figurenum<-figurenum+1
+cat('\n') 
+if(length(groupVar)>1) {
+print(ggplot(groupSumGraph[[run]],aes(x=!!sym(xVar),y=Total,ymin=TotalUCI,
+                                     ymax=TotalLCI,color=Source,fill=Source,
+                                     group=Source))+
+  geom_line()+
+  geom_point()+
+  geom_ribbon(alpha=0.5)+
+  facet_wrap(as.formula(paste("~",paste(facetGroup,collapse="+"))),scales="free_y")+
+    labs(x=xVar,y="Total",fill="Estimator",color="Estimator"))
+cat("\n Figure ", figurenum, ". Design-based bycatch estimates per ",
+    paste(tolower(groupVar),collapse=", "), " with 95% confidence intervals.",sep = "")
+figurenum<-figurenum+1
+}
 cat('<div style="height:30px;"></div>\n') 
-
+  
+}
 ```
 
 
 ```{r plot-pooling, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
-if(designPooling){
+if(designPooling & !all(is.na(groupVar))){
 poolingSum[[run]]<-poolingSum[[run]] %>%
   mutate(Pooling=as.character(poolnum)) %>%
   mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))
 print(ggplot(poolingSum[[run]])+
-  geom_bar(aes(x=!!sym(groupVar),fill=Pooling)))
-cat("\n Figure ", figurenum, ". Count of strata per ",tolower(groupVar), " with number of last design variable (")
+  geom_bar(aes(x=!!sym(xVar),fill=Pooling)))
+cat("\n Figure ", figurenum, ". Count of strata per ",tolower(xVar), " with number of last design variable (")
 cat(designVars,sep=", ")
 cat(") pooled to achieve the minimum sample size.",sep = "")
+if(length(outGroup)>0)
+  cat(" Samples were always pooled across ",paste(outGroup,collapse=", "),".",sep="")
 figurenum<-figurenum+1
 }
 
