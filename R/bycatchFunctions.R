@@ -352,6 +352,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
     if(grepl("TMB",modType) )
       modfit1<-glmmTMB(formula(modfit1),family=TMBfamily,data=obsdatval,na.action=na.fail)
     if(useParallel) {
+      libs<-"MuMin"
       if(modType=="Tweedie") libs<-c("MuMin","cplm")
       if(grepl("TMB",modType)) libs<-c("MuMIn","glmmTMB")
       if(modType=="NegBin") libs<-c("MuMIn","MASS")
@@ -669,9 +670,19 @@ makePredictionsSimVarBig<-function(modfit1, modfit2=NULL, newdat, modtype, obsda
   if(is.numeric(yearpred$Year))
     if(min(yearpred$Year,na.rm=TRUE)==0)
       yearpred$Year=yearpred$Year+startYear
-  if(is.numeric(stratapred$Year))
-    if(min(stratapred$Year,na.rm=TRUE)==0)
-     stratapred$Year=stratapred$Year+startYear
+  if("Year" %in% names(stratapred)) {
+    if(is.numeric(stratapred$Year))  {
+      if(min(stratapred$Year,na.rm=TRUE)==0)
+        temp=stratapred$Year+startYear
+    } else
+        temp=stratapred$Year
+    stratapred<-stratapred %>%
+      select(-Year) %>%
+      separate_wider_delim(cols=strata,delim="-",names=predictionGroups) %>%
+      mutate(Year=temp)
+  } else
+    stratapred<-stratapred %>%
+     separate_wider_delim(cols=strata,delim="_",names=predictionGroups)
   if(is.na(max(yearpred$Total.cv)) | max(yearpred$Total.cv,na.rm=TRUE)>10) {
     print(paste(common[run],modtype," CV >10 or NA variance"))
     returnval=NULL
@@ -2038,94 +2049,90 @@ MakeSummary<-function(obsdatval,logdatval,strataVars, EstimateBycatch, startYear
 #' @param adjacentNum Value
 #' @keywords internal
 getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
-  pooledVar,poolTypes,adjacentNum) {
- obsdatval<-data.frame(obsdatval)
- logdatval<-data.frame(logdatval)
- poolingVars<-c(designVars,pooledVar[!is.na(pooledVar) &!pooledVar %in% designVars])
- if("Year" %in% poolingVars) {
-   if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
-   if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
-   if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
- }
- poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%
-  summarize(totalUnits=sum(.data$SampleUnits),totalEffort=sum(.data$Effort))
- x<-obsdatval %>%group_by_at(all_of(poolingVars)) %>%
-   summarize(units=n(),effort=sum(.data$Effort))
- poolingSum<-left_join(poolingSum,x,by=poolingVars) %>%
-   mutate(units=replace_na(.data$units,0),effort=replace_na(.data$effort,0)) %>%
-   mutate(needs.pooling=ifelse(.data$units>minStrataUnit & !any(poolTypes=="outGroup"), FALSE,TRUE),
-          pooled.n=ifelse(.data$units>minStrataUnit & !any(poolTypes=="outGroup"), units,NA),
-          poolnum=NA,pooledTotalUnits=NA,pooledTotalEffort=NA) %>%
-   ungroup()
+                     pooledVar,poolTypes,adjacentNum) {
+  obsdatval<-data.frame(obsdatval)
+  logdatval<-data.frame(logdatval)
+  poolingVars<-c(designVars,pooledVar[!is.na(pooledVar) &!pooledVar %in% designVars])
+  if("Year" %in% poolingVars) {
+    if(is.factor(obsdatval$Year)) yearFactor<-TRUE else yearFactor<-FALSE
+    if(is.factor(obsdatval$Year)) obsdatval$Year=as.numeric(as.character(obsdatval$Year))
+    if(is.factor(logdatval$Year)) logdatval$Year=as.numeric(as.character(logdatval$Year))
+  }
+  poolingSum<-logdatval %>% group_by_at(all_of(poolingVars)) %>%
+    summarize(totalUnits=sum(.data$SampleUnits),totalEffort=sum(.data$Effort))
+  x<-obsdatval %>%group_by_at(all_of(poolingVars)) %>%
+    summarize(units=n(),effort=sum(.data$Effort))
+  poolingSum<-left_join(poolingSum,x,by=poolingVars) %>%
+    mutate(units=replace_na(.data$units,0),effort=replace_na(.data$effort,0)) %>%
+    mutate(needs.pooling=ifelse(.data$units>minStrataUnit, FALSE,TRUE),
+           pooled.n=ifelse(.data$units>minStrataUnit, units,NA),
+           poolnum=NA,pooledTotalUnits=NA,pooledTotalEffort=NA) %>%
+    ungroup()
   poolingSum<-as.data.frame(poolingSum)
   poolingSum$poolnum[!poolingSum$needs.pooling]<-0
   includePool<-list()
   for(i in which(!poolingSum$needs.pooling))  {
-   poolingSum$pooledTotalUnits[i]<-poolingSum$totalUnits[i]
-   poolingSum$pooledTotalEffort[i]<-poolingSum$totalEffort[i]
-   bb<-1:nrow(obsdatval)
-   for(j in 1:length(designVars)) {
-     bb<-bb[bb %in% which(obsdatval[,designVars[j]]==poolingSum[i,designVars[j]])]
-   }
-   includePool[[i]]<-obsdatval[bb,]
+    poolingSum$pooledTotalUnits[i]<-poolingSum$totalUnits[i]
+    poolingSum$pooledTotalEffort[i]<-poolingSum$totalEffort[i]
+    bb<-1:nrow(obsdatval)
+    for(j in 1:length(designVars)) {
+      bb<-bb[bb %in% which(obsdatval[,designVars[j]]==poolingSum[i,designVars[j]])]
+    }
+    includePool[[i]]<-obsdatval[bb,]
   }
   for(vari in 1:length(designVars))  {
-   keepVars<-designVars[(1:length(designVars))>vari]
-   if(vari==length(designVars)) remainingOutGroup<-FALSE else
-     remainingOutGroup<-any(poolTypes[(vari+1):length(designVars)]=="outGroup")
-   for(i in which(poolingSum$needs.pooling))  {
-     if(poolTypes[1]=="none") {
-       aa<-which(poolingSum[,designVars[1]] == poolingSum[i,designVars[1]])
-       bb<-which(obsdatval[,designVars[1]] == poolingSum[i,designVars[1]])
-     }
-     if(poolTypes[1] %in% c("all","outGroup"))  {
-      aa<-1:nrow(poolingSum)
-      bb<-1:nrow(obsdatval)
-    }
-    if(poolTypes[1]=="pooledVar") {
-      aa<-which(poolingSum[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
-      bb<-which(obsdatval[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
-    }
-    if(poolTypes[1]=="adjacent") {
-      aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
-                  poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
-      bb<-which(obsdatval[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
-                                  obsdatval[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
-    }
-    if(vari>1) {
-      for(var2 in 2:vari) {
-        if(poolTypes[var2]=="none") {
-          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] == poolingSum[i,designVars[var2]])]
-          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] == poolingSum[i,designVars[var2]])]
-        }
-        if(poolTypes[var2]=="pooledVar") {
-          aa<-aa[aa %in% which(poolingSum[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
-          bb<-bb[bb %in% which(obsdatval[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
-        }
-        if(poolTypes[var2]=="adjacent") {
-          aa<-aa[aa %in% which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
-          bb<-bb[bb %in% which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
-                      obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
+    keepVars<-designVars[(1:length(designVars))>vari]
+    for(i in which(poolingSum$needs.pooling))  {
+      if(poolTypes[1]=="none") {
+        aa<-which(poolingSum[,designVars[1]] == poolingSum[i,designVars[1]])
+        bb<-which(obsdatval[,designVars[1]] == poolingSum[i,designVars[1]])
+      }
+      if(poolTypes[1]=="all") {
+        aa<-1:nrow(poolingSum)
+        bb<-1:nrow(obsdatval)
+      }
+      if(poolTypes[1]=="pooledVar") {
+        aa<-which(poolingSum[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
+        bb<-which(obsdatval[,pooledVar[1]]==poolingSum[i,pooledVar[1]])
+      }
+      if(poolTypes[1]=="adjacent") {
+        aa<-which(poolingSum[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
+                    poolingSum[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+        bb<-which(obsdatval[,designVars[1]] >= poolingSum[i,designVars[1]]-adjacentNum[1] &
+                    obsdatval[,designVars[1]] <= poolingSum[i,designVars[1]]+adjacentNum[1])
+      }
+      if(vari>1) {
+        for(var2 in 2:vari) {
+          if(poolTypes[var2]=="none") {
+            aa<-aa[aa %in% which(poolingSum[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+            bb<-bb[bb %in% which(obsdatval[,designVars[var2]] == poolingSum[i,designVars[var2]])]
+          }
+          if(poolTypes[var2]=="pooledVar") {
+            aa<-aa[aa %in% which(poolingSum[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
+            bb<-bb[bb %in% which(obsdatval[,pooledVar[var2]]==poolingSum[i,pooledVar[var2]])]
+          }
+          if(poolTypes[var2]=="adjacent") {
+            aa<-aa[aa %in% which(poolingSum[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                                   poolingSum[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
+            bb<-bb[bb %in% which(obsdatval[,designVars[var2]] >= poolingSum[i,designVars[var2]]-adjacentNum[var2] &
+                                   obsdatval[,designVars[var2]] <= poolingSum[i,designVars[var2]]+adjacentNum[var2])]
+          }
         }
       }
+      if(length(keepVars)>0) {
+        for(j in 1:length(keepVars)) {
+          aa<-aa[aa %in% which(poolingSum[,keepVars[j]]==poolingSum[i,keepVars[j]])]
+          bb<-bb[bb %in% which(obsdatval[,keepVars[j]]==poolingSum[i,keepVars[j]])]
+        }}
+      if(length(bb)>0) {
+        includePool[[i]]<-obsdatval[bb,]
+        poolingSum$pooled.n[i]<-nrow(includePool[[i]])
+        poolingSum$needs.pooling[i]<-ifelse(poolingSum$pooled.n[i]>=minStrataUnit,FALSE,TRUE)
+        poolingSum$pooledTotalEffort[i]<-sum(poolingSum$totalEffort[aa])
+        poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
+      } else poolingSum$needs.pooling[i]<-TRUE
     }
-    if(length(keepVars)>0) {
-    for(j in 1:length(keepVars)) {
-      aa<-aa[aa %in% which(poolingSum[,keepVars[j]]==poolingSum[i,keepVars[j]])]
-      bb<-bb[bb %in% which(obsdatval[,keepVars[j]]==poolingSum[i,keepVars[j]])]
-    }}
-    if(length(bb)>0) {
-     includePool[[i]]<-obsdatval[bb,]
-     poolingSum$pooled.n[i]<-nrow(includePool[[i]])
-     poolingSum$needs.pooling[i]<-ifelse(poolingSum$pooled.n[i]>=minStrataUnit
-                                         & !remainingOutGroup,FALSE,TRUE)
-     poolingSum$pooledTotalEffort[i]<-sum(poolingSum$totalEffort[aa])
-     poolingSum$pooledTotalUnits[i]<-sum(poolingSum$totalUnits[aa])
-    } else poolingSum$needs.pooling[i]<-TRUE
-   }
-   poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-
-     vari-sum(poolTypes=="outGroup")
+    poolingSum$poolnum[!poolingSum$needs.pooling &is.na(poolingSum$poolnum)]<-vari
   }
   includePool<-bind_rows(includePool,.id="stratum")
   poolingSum$stratum<-1:nrow(poolingSum)
@@ -2139,10 +2146,12 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
 }
 
 
+
 #' Function to make design based estimates of bycatch from the
 #' ratio estimator of Pennington Delta estimator, pooling as
-#' needed for strata missing data.
-#' stratification defined by designVars, then aggregated to strataVars
+#' needed for strata missing data. All estimates are first calculated at the
+#' stratification defined by designVars, then aggregated to strataVars. Use outGroups
+#' to include any grouping Variables that are not in designVars.
 #'
 #' @param obsdatval Value
 #' @param logdatval Value
@@ -2153,10 +2162,11 @@ getPooling<-function(obsdatval,logdatval,minStrataUnit,designVars,
 #' @param startYear Value
 #' @param poolingSum Value
 #' @param includePool Value
+#' @param outGroups Value
 #' @keywords internal
 getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
                              designPooling,minStrataUnit=1,startYear,
-                             poolingSum=NULL,includePool=NULL) {
+                             poolingSum=NULL,includePool=NULL,outGroups=NULL) {
   if(!designPooling) {
     x<-obsdatval %>%
       group_by_at(all_of(designVars))  %>%
@@ -2189,7 +2199,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
   } else {  #For pooling
   poolVars<-designVars
   logdatval<-left_join(logdatval,poolingSum[,c(designVars,"stratum")],by=designVars)
-  x<-obsdatval %>%
+  x<-obsdatval %>%  #summary by stratum
       group_by_at(all_of(poolVars) ) %>%
       summarize(OCat=sum(.data$Catch,na.rm=TRUE),
                 OEff=sum(.data$Effort,na.rm=TRUE),
@@ -2201,7 +2211,7 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
                 OEffS=sd(.data$Effort,na.rm=TRUE),
                 Cov=cov(.data$Catch,.data$Effort, use="complete.obs" )) %>%
       mutate(PFrac=.data$Pos/.data$OUnit)
-     y<-includePool %>%
+     y<-includePool %>%  #summary by stratum of the pooled data
       group_by(.data$stratum) %>%
       summarize(deltaMeanCPUE=deltaEstimatorMean(.data$cpue),
                 deltaVar=deltaEstimatorVar(.data$cpue),
@@ -2256,6 +2266,79 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
   returnval
 }
 
+#' Allocate design estimates to grouping variable not in the designVars
+#'
+#' @param logdatval
+#' @param groupVar
+#' @param designVars
+#' @param designstratadf
+#' @keywords internal
+getDesignEstimatesUngroup<-function(
+    logdatval,
+    groupVar,
+    designVars,
+    designstratadf){
+  if("Year" %in% designVars) {
+    logdatval<-logdatval%>%
+      mutate(Year=as.numeric(as.character(Year)))
+    designstratadf<-designstratadf%>%
+      mutate(Year=as.numeric(as.character(Year)))
+  }
+  NewGroup<-setdiff(groupVar,designVars)
+  OldGroup<-intersect(groupVar,designVars)
+  y<-logdatval %>% group_by_at(all_of(designVars)) %>%
+    summarize(TotalEffort=sum(Effort,na.rm=TRUE),
+              SampleUnits=sum(SampleUnits,na.rm=TRUE))%>%
+    mutate(Year=as.numeric(as.character(Year)))
+  designstratadf<-left_join(designstratadf,y,by=designVars)
+  if(length(OldGroup)>0)
+    designstratadf<-designstratadf %>% group_by_at(all_of(OldGroup))
+  x<-designstratadf %>%
+    summarize(ratioMean=sum(ratioMean,na.rm=TRUE),
+              ratioVar=sum(ratioSE^2,na.rm=TRUE),
+              deltaMean=sum(deltaMean,na.rm=TRUE),
+              deltaVar=sum(deltaSE^2,na.rm=TRUE),
+              sEffort=sum(TotalEffort,na.rm=TRUE),
+              sSampleUnits=sum(SampleUnits,na.rm=TRUE))%>%
+    ungroup()
+  designgroupdf<-logdatval %>%
+    group_by_at(all_of(groupVar)) %>%
+    summarize(TotalEffort=sum(Effort,na.rm=TRUE),
+              SampleUnits=sum(SampleUnits,na.rm=TRUE)) %>%
+    ungroup()
+  # Join the summarized estimates to designgroupdf on OldGroup variables
+  if(length(OldGroup) > 0) {
+    designgroupdf <- left_join(designgroupdf, x, by = OldGroup)
+  } else {
+    # No shared grouping variables: broadcast the single-row summary to all groups
+    designgroupdf <- designgroupdf %>%
+      mutate(
+        ratioMean  = x$ratioMean,
+        ratioVar   = x$ratioVar,
+        deltaMean  = x$deltaMean,
+        deltaVar   = x$deltaVar,
+        sEffort    = x$sEffort,
+        sSampleUnits = x$sSampleUnits
+      )
+  }
+
+  # Allocate estimates proportionally to each group's share of total effort
+  designgroupdf <- designgroupdf %>%
+    mutate(
+      effortProp   = TotalEffort / sEffort,
+      ratioMean    = ratioMean  * effortProp,
+      ratioVar     = ratioVar   * effortProp^2,
+      deltaMean    = deltaMean  * effortProp,
+      deltaVar     = deltaVar   * effortProp^2
+    ) %>%
+    mutate(
+      ratioSE = sqrt(ratioVar),
+      deltaSE = sqrt(deltaVar)
+    ) %>%
+    select(-effortProp, -sEffort, -sSampleUnits, -ratioVar, -deltaVar)
+
+  return(designgroupdf)
+}
 
 
 

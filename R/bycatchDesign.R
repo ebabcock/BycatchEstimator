@@ -91,31 +91,20 @@ bycatchDesign <- function(
   for(r in 1:NROW(setupObj$bycatchInputs)) assign(names(setupObj$bycatchInputs)[r], setupObj$bycatchInputs[[r]]) #assign values of bycatchInputs to each element
   for(r in 1:NROW(setupObj$bycatchOutputs)) assign(names(setupObj$bycatchOutputs)[r],setupObj$bycatchOutputs[[r]])
 
-  if(designPooling & length(pooledVar[!is.na(pooledVar)]>0)) temp2<-pooledVar[!is.na(pooledVar)] else temp2<-NULL
-
   if(is.null(logdat)) stop("Logdat needed for bycatch estimation. Re-run bycatchSetup.")
 
   #check variables
-  isNewGroup<-FALSE
+  NewGroup<-NULL
   if(!all(designVars %in% c(factorVariables,"Year"))) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
   if(!all(is.na(groupVar))) {  #if not choosing to summarize whole dataset
    if(!all(groupVar %in% c(factorVariables,"Year"))) stop(paste0("The grouping variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
-   if(!all(groupVar %in% c(designVars,"Year"))) isNewGroup<-TRUE else isNewGroup<-FALSE
+   if(!all(groupVar %in% c(designVars,"Year")))
+     NewGroup<-setdiff(groupVar,designVars)
   }
-  originalDesignPooling<-designPooling
-  originalDesignVars<-designVars
-  originalPoolTypes<-poolTypes
-  originalPooledVar<-pooledVar
-  originalAdjacentNum<-adjacentNum
-  if(isNewGroup) {  #If pooling is requested and the grouping variable is not in the designVars, add it to the designVars and pool over all levels of that variable before doing rest of pooling
-      temp<-setdiff(groupVar,designVars)
-      if(length(temp)>0) {
-        designPooling<-TRUE
-        designVars<-c(temp,designVars)
-        poolTypes<-c(rep("outGroup",length(temp)),poolTypes)
-        adjacentNum<-c(rep(NA,length(temp)),adjacentNum)
-        pooledVar<-c(rep(NA,length(temp)),pooledVar)
-      }
+  if(designPooling==FALSE) {
+    poolTypes=rep("none",length(designVars))
+    pooledVar=rep(NA,length(designVars))
+    adjacentNum=rep(NA,length(designVars))
   }
 
   #Set up directory for output
@@ -156,9 +145,11 @@ bycatchDesign <- function(
       includePool[[run]]<-NULL
     }
     if(all(is.na(groupVar))) xVar<-"Year" else
-      if("Year" %in% groupVar) xVar<-"Year" else
-       xVar<-groupVar[1]
-    designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
+      if("Year" %in% groupVar ) xVar<-"Year" else
+        if(is.null(NewGroup)) xVar<-groupVar[1] else
+          xVar<-NULL
+    if(!is.null(xVar)) {
+     designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
                              strataVars = xVar,
                              designVars = designVars,
@@ -171,7 +162,8 @@ bycatchDesign <- function(
     write.csv(designyeardf[[run]],
               paste0(dirname[[run]],shortName[run],designScenario,"DesignYear.csv"),
               row.names = FALSE)
-
+    } else
+      designyeardf[[run]]<-NULL
     #And design based stratification
     designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
@@ -186,23 +178,34 @@ bycatchDesign <- function(
     write.csv(designstratadf[[run]],
               paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
     #And by requested groups
-    designgroupdf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
-                                              logdatval = logdat,
-                                              strataVars = groupVar,
-                                              designVars = designVars,
-                                              designPooling = designPooling,
-                                              minStrataUnit = minStrataUnit,
-                                              startYear = startYear,
-                                              poolingSum = poolingSum[[run]],
-                                              includePool= includePool[[run]]
-    )
+    if(is.null(NewGroup)) {
+      designgroupdf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
+                                               logdatval = logdat,
+                                               strataVars = groupVar,
+                                               designVars = designVars,
+                                               designPooling = designPooling,
+                                               minStrataUnit = minStrataUnit,
+                                               startYear = startYear,
+                                               poolingSum = poolingSum[[run]],
+                                               includePool= includePool[[run]]
+      )
+    }  else
+      { #If there is a grouping Var not in the strata
+      designgroupdf[[run]]<-getDesignEstimatesUngroup(
+                                               logdatval = logdat,
+                                               groupVar = groupVar,
+                                               designVars = designVars,
+                                               designstratadf = designstratadf[[run]]
+      )
+  }
     write.csv(designgroupdf[[run]],
               paste0(dirname[[run]],shortName[run],designScenario,"DesignGroup.csv"), row.names = FALSE)
-  }
+
   if(all(is.na(groupVar)) ) {
     yearSum[[run]]$Year="All"
     designyeardf[[run]]$Year="All"
-  } else {
+  } else
+    {
     #Make grouping table for summaries
     x<-NULL
     if("Ratio" %in% designMethods)
@@ -232,7 +235,18 @@ bycatchDesign <- function(
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
-  } #close loop for each sp
+  } else {
+    yearSum[[run]]<-NULL
+    designyeardf[[run]]<-NULL
+    designstratadf[[run]]<-NULL
+    designgroupdf[[run]]<-NULL
+    poolingSum[[run]]<-NULL
+    includePool[[run]]<-NULL
+    yearSumGraph[[run]]<-NULL
+    groupSumGraph[[run]]<-NULL
+  }
+  }
+    #close loop for each sp
 
 
   #Create output list
@@ -241,12 +255,12 @@ bycatchDesign <- function(
     designInputs = list(
       designScenario=designScenario,
       designMethods = designMethods,
-      designVars = originalDesignVars,
+      designVars = designVars,
       groupVar = groupVar,
-      designPooling = originalDesignPooling,
-      poolTypes=originalPoolTypes,
-      pooledVar=originalPooledVar,
-      adjacentNum=originalAdjacentNum,
+      designPooling = designPooling,
+      poolTypes=poolTypes,
+      pooledVar=pooledVar,
+      adjacentNum=adjacentNum,
       minStrataUnit = minStrataUnit,
       baseDir = baseDir
     ),

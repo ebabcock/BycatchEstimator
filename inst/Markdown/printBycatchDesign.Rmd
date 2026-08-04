@@ -34,10 +34,8 @@ tablenum<-1
 ```
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
-# change out.dir, setupObj and run while code testing
+# change outDir, setupObj and run while code testing
 # outDir <- "C:/Users/babco/OneDrive/Documents/GitHub/BycatchEstimator/OutputLLSIM_BUM_"
-# setupObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchSetupSpecification.rds"))
-# designObj<-readRDS(file=paste0(out.dir,"2025-05-06_BycatchDesignSpecification.rds"))
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
 designObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchDesign",designScenario,".rds"))

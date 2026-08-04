@@ -47,12 +47,6 @@ tablenum<-1
 ```
 
 ```{r load-data, results=FALSE,  message=FALSE, echo=FALSE}
-# change out.dir, setupObj and run while code testing
-# out.dir <- "C:/Users/aadao/OneDrive/Documents/NA work 2025/ICCAT work/Tool improvements project/Output LLSIMBUMtripExample/"
-# setupObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchSetupSpecification.rds"))
-# modelObj<-readRDS(file=paste0(out.dir,"2025-06-13_BycatchFitSpecification.rds"))
-# run=1
-# source("C:/Users/aadao/BycatchEstimator/R/bycatchFunctions.R")
 
 setupObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchSetupSpecification.rds"))
 modelObj<-readRDS(file=paste0(outDir,"/",Sys.Date(),"_BycatchFit",modelScenario,".rds"))
@@ -242,11 +236,8 @@ cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, for ",c
   fignum<-fignum+1
   cat('\n')
 }
-cat('<div style="height:30px;"></div>\n') 
 
 if(length(predictionGroups>1)) {
-  cat("Figure ",fignum,". Total bycatch estimates for all valid models, for ",common[run],varText,obsText,", by strata. \n",sep="")
-  fignum<-fignum+1
   cat('\n')
   cat('<div style="height:30px;"></div>\n') 
   plotSums(
@@ -254,8 +245,9 @@ if(length(predictionGroups>1)) {
     modType = "All",
     facetGroup = predictionGroups[!predictionGroups %in% c("Year")],
     fileName = NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit, VarCal = VarCalc)
-  cat("\n")
-  cat("\n")
+  cat("Figure ",fignum,". Total bycatch estimates for all valid models, for ",common[run],varText,obsText,", by strata. \n",sep="")
+  fignum<-fignum+1
+ cat('<div style="height:30px;"></div>\n') 
 }
 
 if(EstimateIndex) if(any(allindex[[run]]$Valid==1)) {
