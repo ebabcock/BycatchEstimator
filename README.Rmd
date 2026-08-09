@@ -24,7 +24,7 @@ BycatchEstimator uses both model-based and design-based procedures to estimate t
 
 ## Installation
 
-The code runs best in R studio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables can be printed to an html or pdf file using R Markdown and the knitr library, which outputs a LaTex file. If you want to have the results in a pdf format, you must have a LaTex program installed, such as TinyTex (https://yihui.org/tinytex/). The default is to have the results printed to a html file, from which you can extract figures and tables.
+The code runs best in RStudio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables can be printed to an html or pdf file. If you want results in pdf format, you must have a LaTex program installed, such as TinyTex (https://yihui.org/tinytex/). The default is to have the results printed to a html file, along with .csv files of all the estimates.
 
 You can install the development version of BycatchEstimator from [GitHub](https://github.com/) with:
 
@@ -40,14 +40,9 @@ If you have used older versions of this tool, see the the article on how to adju
 
 ## Getting started
 
-Due to a complication in coding, the user must load `library(MuMIn)` in addition to `library(BycatchEstimator)`.
-
 ```{r start, eval = FALSE}
 library(BycatchEstimator)
-library(MuMIn)
 ```
-
-## LLSIM Example
 
 To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021). 
 

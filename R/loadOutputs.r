@@ -14,7 +14,13 @@
 #' @param designScenarios Character vector of designScenario values from original run. NULL to read in no design-based results.
 #' @param modelScenarios Character vector of modelScenario values from original run.
 #' @export
-#' @returns Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScenario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.
+#' @returns Returns a list with the setupObj from the specified run, a list called designObjList
+#' which contains the design-based model inputs and outputs for each designScenario, modelObjList,
+#'  which is the same for the models in modelScenarios, a data frame called allYearEstimates which
+#'  is the annual estimates across all design-based and model-based scenarios in a format suitable
+#'   for ggplot, allYearEstimatesGroups, which is the same by the groups defined in groupVar
+#'   and predictionGroups, as well as the results by groups for models and design-based estimators
+#'   separately (allModResultsStrata, allDesignResultsStrata).
 #' @keywords reload outputs
 loadOutputs<-function(baseDir = getwd(),
                       runName,
@@ -39,24 +45,35 @@ loadOutputs<-function(baseDir = getwd(),
       designFile<-paste0(runDate,"_BycatchDesign",designScenarios[i],".rds")
       if(!file.exists(paste0(outDir,"/",designFile))) stop(paste("Design file",designFile ,"not found in",outDir,"."))
       designObjList[[i]]<-readRDS(file=paste0(outDir,"/",designFile))
-      names(designObjList[[i]]$designOutputs$yearSumGraph)<-
-        paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
-      allDesignResults[[i]]<-bind_rows(designObjList[[i]]$designOutputs$yearSumGraph,
-                                       .id="Common")%>%
-        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
-        mutate(Valid=1)
-      names(designObjList[[i]]$designOutputs$groupSumGraph)<-
-        paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
-      allDesignResultsStrata[[i]]<-bind_rows(designObjList[[i]]$designOutputs$groupSumGraph,
-                                             .id="Common")%>%
-        separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
-        mutate(Valid=1)
+      if(length(designObjList[[i]]$designOutputs$yearSumGraph)>0) {
+        names(designObjList[[i]]$designOutputs$yearSumGraph)<-
+          paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+        allDesignResults[[i]]<-bind_rows(designObjList[[i]]$designOutputs$yearSumGraph,
+                                         .id="Common")%>%
+          separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
+          mutate(Valid=1)
+        names(allDesignResults)[i]<-designScenarios[i]
+        if("Year" %in% names(allDesignResults[[i]]))
+          if(!is.numeric(allDesignResults[[i]]$Year))
+            allDesignResults[[i]]$Year<-as.numeric(as.character(allDesignResults[[i]]$Year))
+      }
+      if(length(designObjList[[i]]$designOutputs$groupSumGraph)>0) {
+        names(designObjList[[i]]$designOutputs$groupSumGraph)<-
+          paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+        allDesignResultsStrata[[i]]<-bind_rows(designObjList[[i]]$designOutputs$groupSumGraph,
+                                               .id="Common")%>%
+          separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))%>%
+          mutate(Valid=1)
+        names(allDesignResultsStrata)[i]<-designScenarios[i]
+        if("Year" %in% names(allDesignResultsStrata[[i]]))
+          if(!is.numeric(allDesignResultsStrata[[i]]$Year))
+            allDesignResultsStrata[[i]]$Year<-as.numeric(as.character(allDesignResultsStrata[[i]]$Year))
+      }
     }
-    names(designObjList)<-designScenarios
-    names(allDesignResults)<-designScenarios
-    names(allDesignResultsStrata)<-designScenarios
-    allDesignResults<-bind_rows(allDesignResults,.id="Scenario")
-    allDesignResultsStrata<-bind_rows(allDesignResultsStrata,.id="Scenario")
+    if(length(allDesignResults) > 0)
+      allDesignResults<-bind_rows(allDesignResults,.id="Scenario")
+    if(length(allDesignResultsStrata)>0)
+      allDesignResultsStrata<-bind_rows(allDesignResultsStrata,.id="Scenario")
     if("Year" %in% names(allDesignResults)) {
       allDesignResults<-mutate(allDesignResults,Year=as.numeric(as.character(Year)))
       allDesignResultsStrata<-mutate(allDesignResultsStrata,Year=as.numeric(as.character(Year)))

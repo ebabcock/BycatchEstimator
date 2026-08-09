@@ -1,9 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120"/>
+# BycatchEstimator <img src="man/figures/imgfile.png" align="right" width="120" alt="BycatchEstimator logo"/>
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 BycatchEstimator uses both model-based and design-based procedures to
@@ -19,14 +20,12 @@ version of a Shiny app that runs the data checks described below, go to
 
 ## Installation
 
-The code runs best in R studio. Before running the code for the first
+The code runs best in RStudio. Before running the code for the first
 time, install the latest versions of R and RStudio. The output figures
-and tables can be printed to an html or pdf file using R Markdown and
-the knitr library, which outputs a LaTex file. If you want to have the
-results in a pdf format, you must have a LaTex program installed, such
-as TinyTex (<https://yihui.org/tinytex/>). The default is to have the
-results printed to a html file, from which you can extract figures and
-tables.
+and tables can be printed to an html or pdf file. If you want results in
+pdf format, you must have a LaTex program installed, such as TinyTex
+(<https://yihui.org/tinytex/>). The default is to have the results
+printed to a html file, along with .csv files of all the estimates.
 
 You can install the development version of BycatchEstimator from
 [GitHub](https://github.com/) with:
@@ -50,15 +49,9 @@ to the new version of bycatchEstimator in
 
 ## Getting started
 
-Due to a complication in coding, the user must load `library(MuMIn)` in
-addition to `library(BycatchEstimator)`.
-
 ``` r
 library(BycatchEstimator)
-library(MuMIn)
 ```
-
-## LLSIM Example
 
 To demonstrate its use, example data sets are included in this R
 package. In this example, we will use data sets from LLSIM (Goodyear

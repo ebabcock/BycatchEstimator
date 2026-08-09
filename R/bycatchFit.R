@@ -19,7 +19,7 @@
 #' @param randomEffects Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param selectCriteria Character. Model selection criteria. Options are AICc, AIC and BIC
-#' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE). This may not work with a small or unbalanced dataset
+#' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE) to compare the best models in each model type defined by \code{modelTry}. This may not work with a small or unbalanced dataset
 #' @param CIval Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95%
 #' @param VarCalc Character. Variance calculation method. Options are: "DeltaMethod", a fast delta-method is the default; "Simulate" for a simulate based method, or "None" for no variance calculations. DeltaMethodOld" is available for backward compatibility.  Simulate will not work with a large number of sample units in the logbook data.
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
@@ -150,9 +150,12 @@ bycatchFit<-function(
   terms <- as.vector(MuMIn::getAllTerms(simpleModel))
   if(any(grepl("^(s|te|ti|t2)\\(", terms))) stop("Simple model cannot include smooth terms a this time.")
   allVarNames<-extractVarNames(complexModel)
-  allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
+  allVarNames<-unique(c("Year",allVarNames))
   if(!all(allVarNames %in% c(numericVariables,factorVariables)))
     stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
+  for(i in 1:length(factorVariables)) {
+    if(length(unique(obsdat[[factorVariables[i]]]))<2) stop(paste("Variable",factorVariables[i], "has fewer than two levels. Do not include it in the proposed model."))
+  }
   if(all(is.na(randomEffects))) randomEffects<-NULL
   if(all(is.na(randomEffects2))) randomEffects2<-NULL
   if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon

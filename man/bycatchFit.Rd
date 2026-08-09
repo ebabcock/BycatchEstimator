@@ -41,7 +41,7 @@ bycatchFit(
 
 \item{indexModel}{Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.}
 
-\item{predictionGroups, }{Character vector. Categorical variables to group predictions, such as years and spatial areas. These need not be in the fitted model, but must be factor variables defined in bycatchSetup. The default (if NULL is entered) is the termsin simpleModel. Annual summaries are also given by default.}
+\item{predictionGroups, }{Character vector. Categorical variables to group predictions, such as years and spatial areas. These need not be in the fitted model, but must be factor variables defined in bycatchSetup. The default (if NULL is entered) is the terms in simpleModel. Annual summaries are also given by default if year is in predictionGroups.}
 
 \item{modelTry}{Specify which observation error models to try. Options are: "Binomial", "Normal","Lognormal","Poisson", "Delta-Lognormal", and "Delta-Gamma", for models using the lm and glm functions, "NegBin" for Negative binomial using glm.nb in the MASS library, "Tweedie" for Tweedie GLM from the cpglm function in the cplm library, and "TMBbinomial","TMBnormal", "TMBlognormal","TMBpoisson" , "TMBdelta-Lognormal","TMBdelta-Gamma", "TMBnbinom1", "TMBnbinom2", and "TMBtweedie" for the corresponding models from the glmmTMB library. Binomial or TMBbinomial will be run automatically as part of the delta models if any of them are selected.}
 

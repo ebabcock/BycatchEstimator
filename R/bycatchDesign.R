@@ -12,8 +12,8 @@
 #' @param setupObj  An object produced by \code{bycatchSetup}.
 #' @param designScenario Short name, e.g. noPool, or Pool1, to distinguish outputs made with the same setupObj.
 #' @param designMethods Character vector of methods to use for design based estimation. Current options are Ratio and Delta (for a delta-lognormal estimator).
-#' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur.
-#' @param groupVar Specify variables to keep separate in summaries. Defaults to Year. Put "NA" to summarize over whole dataset. Variables must be included in the designVars.
+#' @param designVars Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur. These are typically the variables used in a stratified random sampling allocation of observer coverage.
+#' @param groupVar Character vector of variables to keep separate in summaries. Defaults to Year only. Variables must be defined in bycatchSetup, but need not be in designVars. If a grouping variable is not in the design variables, estimated bycatch will be allocated across groups proportionally to logbook effort.
 #' @param designPooling TRUE if design-based estimates should be pooled for strata with missing data
 #' @param poolTypes Type of pooling for each variable in designVars, as a character vector in the same order. Options are "none", where data will not be pooled over this variable, "all" where data will be pooled over all levels of the variable, "pooledVar" where the variable named in pooledVar will be used to pool, and (currently for year only) "adjacent" to pool over adjacent years.
 #' @param pooledVar Variables to pool over for any variable with pooledVar in the previous line, as a character vector in the same order as designVars. Use NA for variables with other pooling methods.  This can be used to pool (for example) months into seasons when pooling is needed.
@@ -94,6 +94,10 @@ bycatchDesign <- function(
   if(is.null(logdat)) stop("Logdat needed for bycatch estimation. Re-run bycatchSetup.")
 
   #check variables
+  if(all(is.na(groupVar)))
+    if("Year" %in% designVars)
+      groupVar<-"Year" else
+        groupVar<-NA
   NewGroup<-NULL
   if(!all(designVars %in% c(factorVariables,"Year"))) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
   if(!all(is.na(groupVar))) {  #if not choosing to summarize whole dataset

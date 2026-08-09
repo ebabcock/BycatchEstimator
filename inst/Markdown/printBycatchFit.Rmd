@@ -138,8 +138,10 @@ cat("- Best predictor variable in each model group selected with",selectCriteria
 cat("\n")
 cat("\n")
 if(!DoCrossValidation) cat("- No cross-validation requested")
-if(DoCrossValidation & !is.null(rmsetab[[run]])) {
- if(!all(is.na(rmsetab[[run]])))  cat("- Cross-validation results generated") else {
+if(DoCrossValidation) 
+  if(length(modelTry)==1) cat("- Cross-validation not run for only one model type.") else
+    if(!is.null(rmsetab[[run]])) {
+      if(!all(is.na(rmsetab[[run]])))  cat("- Cross-validation results generated") else {
    cat("- Cross-validation failed") 
    DoCrossValidation<-FALSE  
  } 
@@ -224,7 +226,7 @@ cat('<div style="height:30px;"></div>\n')
 
 
 # Figures of All models together
-if(EstimateBycatch ) {
+if(EstimateBycatch & !all(allmods[[run]]$Source %in% c("Binomial","TMBbinomial")) ) {
  if(plotValidation)  {
    plotSumsValidate(filter(allmods[[run]],Valid==1),trueVals,NULL,trueCols[run], allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit,VarCalc = VarCalc)
   }else{
@@ -237,7 +239,7 @@ cat("\n Figure ",fignum,". Total bycatch estimates for all valid models, for ",c
   cat('\n')
 }
 
-if(length(predictionGroups>1)) {
+if(length(predictionGroups)>1& !all(allmods[[run]]$Source %in% c("Binomial","TMBbinomial")) ) {
   cat('\n')
   cat('<div style="height:30px;"></div>\n') 
   plotSums(
@@ -336,15 +338,31 @@ cat('<div style="height:30px;"></div>\n')
   
   lineText=ifelse(VarCalc=="Simulate" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma", "TMBdelta-Lognormal","TMBdelta-Gamma"),". Solid line is the best estimate and dashed line is the mean across simulations","")
   if(EstimateBycatch) {
-   if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run], allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit,VarCalc = VarCalc) else
-   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, allVarNames = allVarNames, startYear = startYear, common = common, run = run, catchType = catchType, catchUnit = catchUnit)
+   if(plotValidation & ! modelTry[mod] %in% c("Binomial","TMBbinomial"))  
+     plotSumsValidate(dplyr::filter(allmods[[run]],Source==modelTry[mod]),trueVals,NULL,trueCols[run],
+                      allVarNames=allVarNames, startYear=startYear, common=common, run=run, 
+                      catchType=catchType, catchUnit=catchUnit,VarCalc = VarCalc) else
+   plotSums(modPredVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, 
+            allVarNames = allVarNames, startYear = startYear, common = common, 
+            run = run, catchType = catchType, catchUnit = catchUnit)
   if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," from Binomial",varText,lineText,". \n",sep="") else
    cat("\n Figure ",fignum,". Estimated total bycatch from ",modelTry[mod],varText,obsText,lineText, ". \n",sep="")
    fignum<-fignum+1
    cat('\n')
    cat('<div style="height:30px;"></div>\n') 
+  if(length(predictionGroups)>1) {
+   plotSums(modPredValsStrata[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL,
+                facetGroup = predictionGroups[!predictionGroups %in% c("Year")],
+            allVarNames = allVarNames, startYear = startYear, common = common, 
+            run = run, catchType = catchType, catchUnit = catchUnit)
+  if(modelTry[mod] %in% c("Binomial","TMBbinomial"))  cat("\n Figure ",fignum,". Estimated total number of positive ",sampleUnit," by strata, from Binomial",varText,lineText,". \n",sep="") else
+   cat("\n Figure ",fignum,". Estimated total bycatch by strata, from ",modelTry[mod],varText,obsText,lineText, ". \n",sep="")
+   fignum<-fignum+1
+   cat('\n')
+   cat('<div style="height:30px;"></div>\n')    
+  } 
+   
   }
-  
  if(EstimateIndex) {
    plotIndex(modIndexVals[[run]][[modelTry[mod]]],modelTry[mod],fileName=NULL, indexVarNames=indexVarNames, allVarNames=allVarNames, startYear=startYear, common=common, run=run, catchType=catchType, catchUnit=catchUnit)
    cat("\n Figure ",fignum,". Estimated relative index from ",modelTry[mod]," plus and minus one standard error. \n",sep="")

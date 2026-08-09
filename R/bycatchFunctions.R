@@ -326,14 +326,14 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
     if(class(modfit1)[1] == "cpglm")  {
       if(length(coef(modfit1))!=dim(modfit1$vcov)[1])  class(modfit1)<-"try-error"
     }
-    if(class(modfit1)[1]=="try-error")   {
+    if(inherits(modfit1,"try-error"))   {
       args$formula=formulaList[[i]]
       if(! modType=="Tweedie")
         modfit1<-try(do.call(funcName,args)) else
           modfit1<-try(cplm::cpglm(formulaList[[i]],data=obsdatval,na.action=na.fail))
     }
    }
-  if(class(modfit1)[1]=="try-error")   {
+  if(inherits(modfit1,"try-error"))   {
     returnval=NULL
     print(paste(common[run],modType,"failed to converge"))
   } else {
@@ -380,7 +380,7 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
     } else {
       modfit2<-try(dredge(modfit1,rank=selectCriteria,fixed=keepVars,extra=extras))
     }
-    if(class(modfit2)[1]!="try-error") {
+    if(!inherits(modfit2,"try-error")) {
       modfit3<-get.models(modfit2,1)[[1]]
     } else {
       modfit2<-NULL
@@ -1077,12 +1077,12 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250,plotResiduals=TRU
         simvals=simulateTweedie(modfit1,nsim)
         simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                             fittedPredictedResponse = cplm::predict(modfit1,type="response")))
-        if(class(simulationOutput)[1]=="try-error") {
+        if(inherits(simulationOutput,"try-error")) {
           simvals=simulateTweedie(modfit1,nsim*4)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                               fittedPredictedResponse = cplm::predict(modfit1,type="response")))
         }
-        if(class(simulationOutput)[1]=="try-error") {
+        if(inherits(simulationOutput,"try-error")) {
           simvals=simulateTweedie(modfit1,nsim*10)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                               fittedPredictedResponse = cplm::predict(modfit1,type="response")))
@@ -1092,17 +1092,17 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250,plotResiduals=TRU
         simvals=simulateNegBinGam(modfit1,nsim)
         simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                             fittedPredictedResponse = predict(modfit1,type="response")))
-        if(class(simulationOutput)[1]=="try-error") {
+        if(inherits(simulationOutput,"try-error")) {
           simvals=simulateNegBinGam(modfit1,nsim*4)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                               fittedPredictedResponse = predict(modfit1,type="response")))
         }
-        if(class(simulationOutput)[1]=="try-error") {
+        if(inherits(simulationOutput,"try-error")) {
           simvals=simulateNegBinGam(modfit1,nsim*10)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                               fittedPredictedResponse = predict(modfit1,type="response")))
         }
-        if(class(simulationOutput)[1]=="try-error") {
+        if(inherits(simulationOutput,"try-error")) {
           simvals=simulateNegBinGam(modfit1,nsim*15)
           simulationOutput = try(createDHARMa(simulatedResponse = simvals, observedResponse =modfit1$y ,
                                               fittedPredictedResponse = predict(modfit1,type="response")))
@@ -1110,10 +1110,10 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250,plotResiduals=TRU
       }
       if( class(modfit1)[1] !="cpglm" & !(class(modfit1)[1]=="gam" & modType=="NegBin"))     {  #Regular DHARMa residuals work for everything but cpglm
         simulationOutput <- try(simulateResiduals(fittedModel = modfit1, n = nsim))
-        if(class(simulationOutput)[1]=="try-error") simulationOutput <- try(simulateResiduals(fittedModel = modfit1, n = nsim*4))
-        if(class(simulationOutput)[1]=="try-error") simulationOutput <- try(simulateResiduals(fittedModel = modfit1, n = nsim*10))
+        if(inherits(simulationOutput,"try-error")) simulationOutput <- try(simulateResiduals(fittedModel = modfit1, n = nsim*4))
+        if(inherits(simulationOutput,"try-error")) simulationOutput <- try(simulateResiduals(fittedModel = modfit1, n = nsim*10))
       }
-      if(class(simulationOutput)[1]!="try-error") {
+      if(!inherits(simulationOutput,"try-error")) {
         #      plot(simulationOutput, quantreg = F)
         #      title(modType,outer=2,line=-1)
         df1<-data.frame(Residual=simulationOutput$scaledResiduals[subsam],Predictor=simulationOutput$fittedPredictedResponse[subsam]) %>%
@@ -1132,7 +1132,7 @@ ResidualsFunc<-function(modfit1,modType,fileName=NULL,nsim=250,plotResiduals=TRU
             geom_hline(aes(yintercept=0.5),lty=2)+
             geom_hline(aes(yintercept=0.75),lty=2)+
             geom_hline(aes(yintercept=0.25),lty=2)
-          if(class(try(rqss(Residual~qss(Rank.Predictor,lambda=2),data=df1),silent = TRUE))!="try-error")
+          if(!inherits(try(rqss(Residual~qss(Rank.Predictor,lambda=2),data=df1),silent = TRUE),"try-error"))
             g4<-g4+geom_quantile(method = "rqss",col="red", formula=y ~ qss(x, lambda = 2))
         } else {
           g4<-ggplot(df1,aes(x=.data$Rank.Predictor,y=.data$Residual))+
@@ -1243,7 +1243,7 @@ FitModelFuncCV<-function(formula1,modType,obsdatval) {
     TMBfamily=gsub("TMB","",modType)
     modfit1=try(glmmTMB(formula1,family=TMBfamily,data=obsdatval))
   }
-  if(class(modfit1)[1]=="try-error") modfit1=NULL
+  if(inherits(modfit1,"try-error")) modfit1=NULL
   modfit1
 }
 
@@ -1259,7 +1259,7 @@ makePredictions<-function(modfit1,modfit2=NULL,modType,newdat,obsdatval=NULL) {
   if(!is.null(modfit1)) {
     if(modType=="Tweedie")    predval1<-try(data.frame(fit=cplm::predict(modfit1,newdata=newdat,type="response"))) else
       predval1<-try(data.frame(predict(modfit1,newdata=newdat,se.fit=TRUE,type="response")))
-    if(class(predval1)[[1]]!="try-error") {
+    if(!inherits(predval1,"try-error")) {
       if(!is.null(modfit2))  {
         predval2<-data.frame(predict(modfit2,newdata=newdat,se.fit=TRUE,type="response"))
         names(predval2)=paste0(names(predval2),"2")
@@ -1981,8 +1981,8 @@ FitModelFunc<-function(formula1,formula2,modType,obsdatval,outputDir) {
     obsdatval$y=log(obsdatval$cpue+0.1)
     modfit1=try(glmmTMB(formula2,family=Gamma(link="log"),data=obsdatval))
   }
-  if(class(modfit1)[1]=="try-error") modfit1=NULL
-  if(class(modfit2)[1]=="try-error") modfit2=NULL
+  if(inherits(modfit1,"try-error")) modfit1=NULL
+  if(inherits(modfit2,"try-error")) modfit2=NULL
   # if(!is.null(modfit1)) {
   #   if(modType %in% c("Binomial","Delta-Lognormal","Delta-Gamma"))  #for delta models write binomial anova
   #     write.csv(anova(modfit1,test="Chi"),file=paste0(outputDir,"/BinomialAnova.csv"))

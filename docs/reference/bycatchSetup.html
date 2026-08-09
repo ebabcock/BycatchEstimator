@@ -48,6 +48,9 @@
 <span>  <span class="va">obsdat</span>,</span>
 <span>  <span class="va">logdat</span>,</span>
 <span>  <span class="va">yearVar</span>,</span>
+<span>  latitudeVar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  longitudeVar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spatialBin <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">obsEffort</span>,</span>
 <span>  <span class="va">logEffort</span>,</span>
 <span>  <span class="va">obsCatch</span>,</span>
@@ -81,6 +84,18 @@
 
 <dt id="arg-yearvar">yearVar<a class="anchor" aria-label="anchor" href="#arg-yearvar"></a></dt>
 <dd><p>Character. The column name of the year variable in <code>obsdat</code> and <code>logdat</code>. Both input files must contain the same variable name for year.</p></dd>
+
+
+<dt id="arg-latitudevar">latitudeVar<a class="anchor" aria-label="anchor" href="#arg-latitudevar"></a></dt>
+<dd><p>Optional name of latitude column, to get spatial plots.</p></dd>
+
+
+<dt id="arg-longitudevar">longitudeVar<a class="anchor" aria-label="anchor" href="#arg-longitudevar"></a></dt>
+<dd><p>Optional name of longitude column, to get spatial plots.</p></dd>
+
+
+<dt id="arg-spatialbin">spatialBin<a class="anchor" aria-label="anchor" href="#arg-spatialbin"></a></dt>
+<dd><p>Optional. If latitude and longitude are provided, this is the size of the spatial bin in degrees to use for spatial plots. Default is 1 degree.</p></dd>
 
 
 <dt id="arg-obseffort">obsEffort<a class="anchor" aria-label="anchor" href="#arg-obseffort"></a></dt>
@@ -156,6 +171,9 @@
 <span class="r-in"><span>obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span></span>
 <span class="r-in"><span>logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span></span>
 <span class="r-in"><span>yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span></span>
+<span class="r-in"><span>latitudeVar <span class="op">=</span> <span class="st">"Latitude"</span>,</span></span>
+<span class="r-in"><span>longitudeVar <span class="op">=</span> <span class="st">"Longitude"</span>,</span></span>
+<span class="r-in"><span>spatialBin <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>obsEffort <span class="op">=</span> <span class="st">"sampled.sets"</span>,</span></span>
 <span class="r-in"><span>logEffort <span class="op">=</span> <span class="st">"sets"</span>,</span></span>
 <span class="r-in"><span>obsCatch <span class="op">=</span> <span class="st">"Catch"</span>,</span></span>
