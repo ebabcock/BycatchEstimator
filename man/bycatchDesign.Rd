@@ -27,7 +27,7 @@ bycatchDesign(
 
 \item{designVars}{Specify strata that must be included in design based estimates, in order across which data should be pooled. Order of these variables determines order for which pooling will occur. These are typically the variables used in a stratified random sampling allocation of observer coverage.}
 
-\item{groupVar}{Specify variables to keep separate in summaries. Defaults to Year. Variables must be defined in bycatchSetup, but need not be in designVars. If a grouping variable is not in the design variables, estimated bycatch will be allocated across groups proportionally to logbook effort.}
+\item{groupVar}{Character vector of variables to keep separate in summaries. Defaults to Year only. Variables must be defined in bycatchSetup, but need not be in designVars. If a grouping variable is not in the design variables, estimated bycatch will be allocated across groups proportionally to logbook effort.}
 
 \item{designPooling}{TRUE if design-based estimates should be pooled for strata with missing data}
 

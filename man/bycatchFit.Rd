@@ -51,7 +51,7 @@ bycatchFit(
 
 \item{selectCriteria}{Character. Model selection criteria. Options are AICc, AIC and BIC}
 
-\item{DoCrossValidation}{Specify whether to run a 10 fold cross-validation (TRUE or FALSE). This may not work with a small or unbalanced dataset}
+\item{DoCrossValidation}{Specify whether to run a 10 fold cross-validation (TRUE or FALSE) to compare the best models in each model type defined by \code{modelTry}. This may not work with a small or unbalanced dataset}
 
 \item{CIval}{Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95\%}
 

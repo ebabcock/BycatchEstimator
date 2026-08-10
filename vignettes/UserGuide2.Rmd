@@ -34,20 +34,19 @@ The workflow for using `BycatchEstimator` is:
 1. Install the code and test that everything works properly by running an example.
 2. Run the `bycatchSetup` function to produce data summaries and plots, to make sure that your data are appropriate for bycatch estimation.
 3. Run either `bycatchDesign` for design-based estimators, or `bycatchFit` for model-based estimators, or both. 
-4. Use the output figures and tables directly, or if desired, use the `loadOutputs` function to input the model runs back into R for more advanced analysis.
+4. Use the output figures and tables directly, or if desired, use the `loadOutputs` function to input the model runs back into R for more advanced analysis and graphics.
 5. Validate results if possible.
 
 This user guide provides both detailed information on how to use the tool, and some general guidance on bycatch estimation. 
 
 ## Installing the code
 
-The code runs best in RStudio. Before running the code for the first time, install the latest versions of R (@R-base) and RStudio (@RStudio). The following libraries are used: tidyverse, ggplot2, MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra, pdftools (if pdf output is selected), foreach, doParallel, reshape2, glmmTMB, GGally and quantreg (@tidyverse; @ggplot2; @MASS; @lme4; @cplm; @tweedie; @DHARMa; @tidyselect; @MuMIn; @gridExtra; @gtable; @gt; @pdftools;@foreach;@doParallel; @reshape2; @glmmTMB;@GGally; @quantreg). The output figures and tables are printed to the user's choice of an html or pdf file using RMarkdown and the knitr library(@knitr). To use pdf outputs, you must have a LaTex program installed, such as TinyTex (@TinyTeX, @tinytex, @knitr). For a quick start guide with example data, see the GitHub page (https://github.com/ebabcock/BycatchEstimator). For more help with installation issues, see the Installation Guide  https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html. The following code will load the libary from GitHub using devtools (@devtools).
+The code runs best in RStudio. Before running the code for the first time, install the latest versions of R (@R-base) and RStudio (@RStudio). The following libraries are used: tidyverse, ggplot2, MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra, pdftools (if pdf output is selected), foreach, doParallel, reshape2, glmmTMB, GGally, quantreg, kableExtra, and performance (@tidyverse; @ggplot2; @MASS; @lme4; @cplm; @tweedie; @DHARMa; @tidyselect; @MuMIn; @gridExtra; @gtable; @gt; @pdftools;@foreach;@doParallel; @reshape2; @glmmTMB;@GGally; @quantreg; @kableExtra; @performance). The output figures and tables are printed to the user's choice of an html or pdf file using RMarkdown and the knitr library(@knitr). To use pdf outputs, you must have a LaTex program installed, such as TinyTex (@TinyTeX, @tinytex, @knitr). For a quick start guide with example data, see the GitHub page (https://github.com/ebabcock/BycatchEstimator). For more help with installation issues, see the Installation Guide  https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html. The following code will load the libary from GitHub using devtools (@devtools).
 
 ```{r,eval=evalOption}
 # install.packages("devtools")
 #devtools::install_github("ebabcock/BycatchEstimator")
 library(BycatchEstimator)
-library(MuMIn)
 ```
 
 ## Data specification
@@ -59,6 +58,9 @@ setupObj<-bycatchSetup(
   obsdat = obsdatExample,
   logdat = logdatExample,
   yearVar = "Year",
+  latitudeVar = NULL,
+  longitudeVar = NULL,
+  spatialBin = 1,
   obsEffort = "sampled.sets",
   logEffort = "sets",
   obsCatch = "Catch",
@@ -80,9 +82,9 @@ setupObj<-bycatchSetup(
 
 The observer data should be aggregated to the appropriate sample unit, such as trips or sets, so that each row corresponds to one sample unit. Effort must be in the same units in both data sets (e.g. sets or hook-hours). The logbook data may be aggregated to sample units, or it may be aggregated further, as long as it includes data on all stratification or predictor variables. For example, the logbook data can be aggregated by year, region and season if those are the stratification variables, or each row can be one sample unit. If the logbook data are aggregated, there must be a column, with a name specified in logNum, giving the number of sample units per row in the logbook data (logNum=NA means all rows on the logbook data are one sample unit). This information on the number of sample units is needed for the variance calculations. If any environmental variables, such as depth, are included, the observed and logbook data probably both have to be entered at the set level. 
 
-The observer data should have columns for year and the other predictor (for models) or stratification (for design-based) variables, the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have columns for Year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. If there are any NA values in any of the variables, those rows will be deleted from the observer data set. Any NA values in the logbook dataset will cause the function to stop with an error message. There should be no NA values in the logbook data, because this dataset should be a complete accounting of all effort. 
+The observer data should have columns for year and the other predictor (for models) or stratification (for design-based) variables, as well as any variables defining groups to be kept separate in the estimates (e.g. spatial regions), the observed effort and the observed bycatch or catch per trip of each species to be estimated. The logbook data must also have columns for Year and the other predictor variables, and the total effort in the same units (e.g. sets or hook-hours) as the observer data. If there are any NA values in any of the variables, those rows will be deleted from the observer data set. Any NA values in the logbook dataset will cause the function to stop with an error message. There should be no NA values in the logbook data, because this dataset should be a complete accounting of all effort. 
 
-Any variables you intend to use in analysis should be entered in the character vectors named factorVariables or numericVariables. Note that design-based methods only work for categorical variables. Year is interpreted as a factor in the design-based methods whether it is numerical or factor. For model-based methods, Year may be either a number or a factor. Note that there is an input "yearVar" for the name of the year variable in your datasets. However, this variable will be renamed as Year (with a capital Y) in the code. If Year is not a predictor variable in your analysis, you must still input a value for yearVar in `dataSetup`, but you don't have to use it the analysis functions. Year should be be spelled "Year" in numericVariables, factorVariables, and all other model inputs.
+Any variables you intend to use in analysis or in summarizing the output should be entered in the character vectors named factorVariables or numericVariables. Note that design-based methods only work for categorical variables. Year is interpreted as a factor in the design-based methods whether it is numerical or factor in the input. For model-based methods, Year may be either a number or a factor. Note that there is an input "yearVar" for the name of the year variable in your datasets. However, this variable will be renamed as Year (with a capital Y) in the code. If Year is not a predictor variable in your analysis, you must still input a value for yearVar in `dataSetup`, but you don't have to use it the analysis functions. Year should be be spelled "Year" in numericVariables, factorVariables, and all other model inputs.
 
 The code can be used to analyze multiple species, or disposition types (e.g. retained catch, dead discards, live releases) at the same time. This is specified by inputting a vector rather than a single value for the scientific name, common name, units of estimates, and the name of the column containing the catch data (obsCatch).All these inputs can be a single value if analyzing only one species and catch type. 
 
@@ -102,11 +104,15 @@ Figures comparing logbook and observer effort are:
 
 - Pairs plots showing the overlap of observer and total (logbook) effort across pairs of categorical or numeric variables. (Categorical variables with more than 15 levels are converted to numerical to plot).
 
+- If latitudeVar, longitudeVar, and spatialBin are provided, maps of the total logbook effort and fraction sampled in squares spatialBin degrees latitude by spatialBin degrees longitude.
+
 Figures showing catch in the observer data are:
 
 - Barplots of presence and absence of the bycatch species by year and by level of categorical and numeric variables.
 
 - Barplots of total catch the bycatch species by year and by level of categorical and numeric variables.
+
+- If latitudeVar, longitudeVar, and spatialBin are provided, maps of the total observed effort and total catch in squares spatialBin degrees latitude by spatialBin degrees longitude.
 
 - Violin plots and scatterplots of catch per sample unit, across categorical and numeric variables.
 
@@ -139,13 +145,17 @@ minStrataUnit = 1
 )
 ```
 
-The function takes the output of `bycatchSetup` (e.g. setupObj) as an input, which must have been run on the same day, along with specifications for the design-based estimators. You may run multiple scenarios (e.g. different pooling specifications) from the same setupObj, by specifying a scenario name (designScenario), which will be included in the output file names. The design-based methods available are a stratified ratio estimator @Rao or the design based delta-lognormal estimator of @Pennington. To use design-based estimators, specify them as a character vector. For example, designMethods =c("Ratio","Delta") will calculate both estimates. The total bycatch estimates are made at the stratification variables defined by the user in the vector called designVars, which must be categorical variables. Annual summaries are produced by summing across strata within years. If you want to produce the output plots across some variable other than Year (e.g. 2-year periods), specify the name of this variable with groupVar. 
+The function takes the output of `bycatchSetup` (e.g. setupObj) as an input, which must have been run on the same day, along with specifications for the design-based estimators. You may run multiple scenarios (e.g. different pooling specifications) from the same setupObj, by specifying a scenario name (designScenario), which will be included in the output file names. The design-based methods available are a stratified ratio estimator @Rao or the design based delta-lognormal estimator of @Pennington. To use design-based estimators, specify them as a character vector. For example, designMethods =c("Ratio","Delta") will calculate both estimates. The total bycatch estimates are made at the stratification variables defined by the user in the vector called designVars, which must be categorical variables. These are assumed to be the stratification variables in a stratified random allocation of observers to sample units, and estimates are made in the strata defined by these variables before summarizing as needed. 
 
-To deal with strata that have no observations or few observations, the user may request pooling (designPooling=TRUE), and specify the minimum number of sample units needed to avoid pooling. If pooling, the total bycatch is estimated for the observer and logbook data specified by the pooling scheme for each stratum (i.e. combination of variables) and then allocated to the stratum according to the fraction of the logbook effort in the pooled data that is in the stratum of interest. Unpooled estimates are used for strata with sufficient data. Variances are also allocated to the stratum of interest based on the fraction of total effort. See @Brown for details of one potential pooling scheme. If pooling is requested, the strata will be pooled in the order of designVars. Three additional vectors are needed to define how the pooling works: poolTypes, which says whether the variable should be pooled across "adjacent" levels (for Year only), "all" values, a new variable "pooledVar" (e.g. season rather than month) or "none" if the levels of a variable should always be kept separate; pooledVar which specifies the new variable for pooling for the pooledVar pooling method; and adjacentNum which specifies the number of adjacent years to include for the adjacent year method (e.g. 1 to include both the previous and following year). Each of these vectors must be the same length as designVars. You must also specify the minimum number of sample units in a stratum to require pooling. 
+Annual summaries are produced by summing across strata within years. The input groupVar is a character vector for the variables to be grouped over in the outputed summary statistics. For example, this can be used to make outputs within statistical areas in each year (groupVar=c("Year","StatArea")), or to summarize by a variable other than Year, (groupVar=c("StatArea")). The variables in groupVar may or may not be stratification variables (in designVars). Bycatch estimates are allocated across groups that are in groupVar but not designVar proportionally to total logbook effort. 
 
-This function produces the user's choice of a pdf or html file with bycatch estimates for each species and catch type, labelled with the designScenario and species name plus "design results". The file includes a table with the total estimates by year for each method, along with standard errors, a figure showing the estimates by year with 95% confidence intervals. If pooling was requested, there is a barplot showing the number of strata pooled in each Year to each variable in designVars, also indicating the number of strata that have not acheived the specified minimum number of sample units.  
+To deal with strata (defined by designVars) that have no observations or few observations, the user may request pooling (designPooling=TRUE), and specify the minimum number of sample units needed to avoid pooling. If pooling, the total bycatch is estimated for the observer and logbook data specified by the pooling scheme for each stratum (i.e. combination of variables) and then allocated to the stratum according to the fraction of the logbook effort in the pooled data that is in the stratum of interest. Unpooled estimates are used for strata with sufficient data. Variances are also allocated to the stratum of interest based on the fraction of total effort. See @Brown for details of one potential pooling scheme. 
 
-The outputs are also given in .csv files in a folder labeled "Design outputs". The estimates are in columns called ratioMean, ratioSE, deltaMean and deltaSE in the file labelled DesignSummary (by year) and the file labelled DesignStrata (by stata). If pooling was requested, a csv labelled "pooling" gives the number of sample units in the strata with and without pooling, etc. See details on outputs in the Appendix. 
+If pooling is requested, the strata will be pooled in the order of designVars. Three additional vectors are needed to define how the pooling works: poolTypes, which says whether the variable should be pooled across "adjacent" levels (for Year only), "all" values, a new variable "pooledVar" (e.g. season rather than month) or "none" if the levels of a variable should always be kept separate; pooledVar which specifies the new variable for pooling for the pooledVar pooling method; and adjacentNum which specifies the number of adjacent years to include for the adjacent year method (e.g. 1 to include both the previous and following year). Each of these vectors must be the same length as designVars. You must also specify the minimum number of sample units in a stratum to require pooling. In the case that estimates are requested grouped by a variable not in designVars, the estimates are made in each strata defined by designVars, with pooling if requested, then allocated across the new grouping variable in proportion to total logbook effort. 
+
+This function produces the user's choice of a pdf or html file with bycatch estimates for each species and catch type, labelled with the designScenario and species name plus "design results". The file includes a table with the total estimates by year for each method, along with standard errors, and the same by the groups defined by groupVar (if requested). There is a figure showing the estimates by year with 95% confidence intervals, and the same by the groupVar groups. If pooling was requested, there is a barplot showing the number of strata pooled in each Year to each variable in designVars, also indicating the number of strata that have not acheived the specified minimum number of sample units.  
+
+The outputs are also given in .csv files in a folder labeled "Design outputs". The estimates are in columns called ratioMean, ratioSE, deltaMean and deltaSE in the files labelled DesignSummary (by year) DesignStrata (by stata), and DesignGroup (by groupVar). If pooling was requested, a csv labelled "pooling" gives the number of sample units in the strata with and without pooling, etc. See details on outputs in the Appendix. 
 
 In general, if there are any combinations of the stratification variables (designVars) which do not exist in the observer data but do exist in the logbook data, you should consider at least some pooling. Without pooling, the model will assume there is no bycatch in the unsampled strata, so that, if there are many stratification variables, the total bycatch could be under-estimated substantially. You can experiment with different pooling schemes and see if they give very different results, by giving them different designScenario names. 
 
@@ -173,6 +183,7 @@ bycatchFit(
   modelScenario = "s1",
   complexModel = formula(y~Year+season),
   simpleModel = formula(y~Year),
+  predictionGroups = "Year",
   indexModel = formula(y~Year),
   modelTry = c("Tweedie","Lognormal","Delta-Lognormal","Delta-Gamma", "TMBnbinom1","TMBlognormal",
                           "TMBnbinom2","TMBtweedie","Normal","Binomial","NegBin", "TMBgamma","Gamma",
@@ -196,17 +207,19 @@ The user specifies which potential predictor variables to use and what potential
 
 To use this function, specify the input data object generated by `bycatchSetup`. You may run more than one scenario from the same setupObj, by specifying "modelScenario". The character vector "modelTry" indicates both the potential observation error distributions to try and which functions to use in the fitting. Options are: "Tweedie" from the cplm library,"Lognormal","Delta-Lognormal","Delta-Gamma","Normal","Binomial","Poisson" and  "Gamma" from the ordinary `glm` and `lm` functions, "NegBin" from the MASS library's `glm.nb` function, and "TMBnbinom1","TMBlognormal", "TMBnbinom2","TMBtweedie", "TMBgamma", "TMBbinomial", "TMBnormal", "TMBpoisson", "TMBdelta-Lognormal" and "TMBdelta-Gamma" from glmmTMB). A binomial model will be tried if it was requested, or if either a delta-lognormal or delta-Gamma model were requested, since delta models have a binomial component. Note that the model outputs with the same funtional form (e.g. Tweedie) should be the same whether using glmmTMB or other functions. The negative binomial 2 in TMB is the same as the negative binomial in glm.nb. To get faster results, use glmmTMB for all model fitting. 
 
-Give the formulas for the most complex and simplest set of predictor variables to be considered within each model group. These should be in the format of R formulas (e.g. *formula(y~Year)*), with y on the left-hand side of the formula. The year variable must be called Year (capital Y), whatever it is called in the actual data (entered in yearVar). If the simplest model requires stratification variables other than Year, summaries of the predicted bycatch at the level of these stratification variables will be printed to .csv files, but will not be plotted. The user-specified simplest model will often include Year, and can also include, for example, stratification variables that are used in the observer program sampling design. If Year is not in the simplest model (e.g. simplest model is the null model y~1), the model still produces bycatch estimates in each year, which can vary from one year to the next if effort changes. If an abundance index is requested, it will be calculated including all the variables requested in indexVars, to allow for different indices for different stratification variables if desired (e.g. different spatial areas). All the variables used in the model must have been included in either numericVariables or factorVariables in `bycatchSetup`, and they retain this classification. 
+Give the formulas for the most complex and simplest set of predictor variables to be considered within each model group. These should be in the format of R formulas (e.g. *formula(y~Year+area)*), with y on the left-hand side of the formula. The year variable must be called Year (capital Y), whatever it is called in the actual data (entered in yearVar). The simplest model often includes year only (*formula(y~Year)*), but it may be the Null model (*formula(y~1)*), or a model with more variables if desired. The input predictionGroups specifies which variables should be used to define the groups for which bycatch estimates are made. This defaults to Year only, but it can also be used to summarize the results by grouping variables that may or may not be included in the model (e.g. spatial areas or gears), provided the variable is in the observer and logbook data sets. If Year or other grouping variables in predictionGroups are not in the model chosen for bycatch esimation using information criteria, the model still produces bycatch estimates in each group, by predicting bycatch in every logbook sample unit in the group. 
+
+If an abundance index is requested, it will be calculated including all the variables requested in indexVars, to allow for different indices for different stratification variables if desired (e.g. different spatial areas). All the variables used in the model must have been included in either numericVariables or factorVariables in `bycatchSetup`, and they retain this classification. 
 
 The variables in the simplest and most complex model are interpreted as fixed effects. Any desired random effects can be entered as a character vector (e.g. randomEffects="Year:area"). In the case that any delta models are used, there can be separate random effects for the binomial model (randomEffects) and abundance when present model (randomEffects2). If there are any random effects, all fitting will be done in glmmTMB. Random effects, if any, will be included in all models during model selection. This may be useful for including a trip effect in a set-by-set analysis, for example, or for including a Year:area interaction as a random effect when calculating indices.
 
 Specify which information criterion to use in narrowing down the predictor variables to use in each observation error model group; or use the default of BIC. Model selection is done with dredge function in the MuMIn library(@MuMIn) based on the user's choice of information criteria (AICc, AIC or BIC) and considering all models between the simplest and most complex. The model with the lowest value of the information criterion is chosen as best within each observation error group.  
 
+The function may be slow if you have a large data set. If the variable useParallel is TRUE and your computer has multiple cores, the dredge function will be run in parallel. This greatly speeds up the calculations. If you have trouble getting this to work, set useParallel to FALSE. For large datasets, make sure that VarCalc = DeltaMethod, as this function has been revised to be more efficient, and is now much faster than the Simulate method. 
+
 Specify whether to do cross validation to choose between observation error models. The best candidate models in each observation error group are then compared using 10-fold cross validation, to see which observation error model best predicts CPUE. Note that information criteria cannot be used directly to compare, for example, delta-lognormal to negative binomial or Tweedie, because the observation error models have different y data. However, the models can be used to predict CPUE directly, and these predictions can be compared with cross validation. The best model according to cross validation is the one with the lowest root mean square error (RMSE) in the predicted CPUE and the mean error (ME) closest to zero, excluding from consideration models that do not fit well according to criteria described below. Note that this model selection using information criteria and cross validation is only intended as a guide. The user should also look at the information criteria across multiple models, as well as residuals and other diagnostics, and may want to choose a different model for bycatch estimation or abundance index calculation based on other criteria, such as the design of the observer sampling program. Also, the code only does one draw of the 10-fold cross-validation, so that, for small sample sizes, different model runs may give different cross-validation results. 
 
 For the best model in each observation error model group, the total bycatch is estimated by predicting the catch in all logbook trips (i.e., the whole fishery) from the fitted model and summing across trips. If includeObsCatch is FALSE (the default), the bycatch will be predicted across all the logbook data, There is an option, using includeObsCatch=TRUE, to only predict bycatch from unobserved effort (i.e. trips or sets not sampled by observers, and for sampled trips or sets, only the effort not sampled by the observer) and calculate total bycatch as the observed bycatch plus the predicted bycatch in unobserved effort. This only works if it is possible to match the observed trips or sets to the logbook trips or sets, and the amount of observed effort in a sample unit is always less than or equal to the amount of total effort. For fisheries with high observer coverage (e.g. 20% or more), predicting bycatch from only unobserved effort would be preferred, because treating the whole fishery as unobserved might overestimate the variance. To use this option, there must be a column with the same name in both obsdat and logdat (matchColumn), such as trip number or set number, that can match all observations in obsdat to logdat. If the observer sampled only part of the effort (e.g. they sampled only some sets in a trip), then bycatch will be predicted for the logdat effort minus the obsdat effort for observed sample unit. If includeObsCatch is TRUE, `bycatchFit` will give warnings if, for example, sample units in the observer data are not found in the logbook data, or the observed effort is more than the logbook total effort in any sample units. This option works in the simulated example data, but can be difficult to set up with real data, and requires a lot of data cleaning, to make the observer and logbook data consistent.    
-
-The function may be slow (more than an hour) if you have a large data set. If the variable useParallel is TRUE and your computer has multiple cores, the dredge function will be run in parallel. This greatly speeds up the calculations. If you have trouble getting this to work, set useParallel to FALSE. 
 
 Finally, if you have information on total bycatch in each year to validate your estimates, for example in a simulation study, fill out the arguments `plotValidation`, `trueVals`, `trueCols`. Otherwise, leave these arguments out, or set themto FALSE, NULL and NULL, respectively. To include validation data, `trueVals` should be set equal to a character string containing a filename (with complete path) for a file containing a column labelled "Year", and columns with the total bycatch in each year, with names specified in `trueCols`. For multiple species, `trueCols` can be a vector giving the names of all the column for each species in order. 
 
@@ -220,7 +233,9 @@ For all models together, the file includes:
  
  - Parameters from the fitted models, including the scale (variance or the estimated scaling parameter depending on the model type) along with the total log likelihood and residual degrees of freedom.
  
- - A figure of bycatch across years, with confidence intervals.
+ - A figure of bycatch across years (if Year is an included variable), with confidence intervals.
+ 
+  - A figure of bycatch across all the variables in predictionGroups, if anything other than Year, with confidence intervals.
  
  - A figure of the abundance indices across years, if requested, with confidence intervals.
  
@@ -234,7 +249,7 @@ For all models together, the file includes:
  
  - Observed vs. predicted values figures.
  
- - The figures showing the total catch with confidence interval.
+ - The figures showing the total catch with confidence interval, by Year and/or the variables in predictionGropus.
  
  - If requested, an abundance index.
  
@@ -242,9 +257,9 @@ These results may be all that is needed. However, if you want to look more close
 
 - Model Selection. The MuMIn dredge model selection table.
 
-- Annual Summary. The estimated total bycatch, standard errors and confidence intervals for the model. 
+- Annual Summary. The estimated total bycatch, standard errors and confidence intervals for the model.
 
-- Stratum Summary. The estimated total bycatch, standard errors and confidence intervals for the model at the variables in simpleModel. 
+- Stratum Summary. The estimated total bycatch, standard errors and confidence intervals for the model at the variables in predictionGroups. 
 
 - Annual Index. The annual abundance index if requested. 
 
@@ -348,19 +363,21 @@ For each model group, the best model, as selected by the information criteria, i
 
 To calculate total bycatch for all other models, the model predicts the catch in each sample unit of the logbook data from the models fitted to the observer data and sums them over sample units to get the total baycatch. For all the negative binomial models, the log(effort) from the logbook trips is used as an offset in the predictions, along with the values of all the predictor variables, so that the model can predict bycatch in each logbook sample unit directly. Tweedie and normal models predict CPUE, which is then multiplied by effort. Delta-lognormal and delta-Gamma models have separate components for the probability of a positive observation and the CPUE if positive, which must be multiplied together (with appropriate bias corrections) and multiplied by effort to get the total catch. Catch in each sample is summed across sample to get the total catch in each year.
 
-The variance of the prediction in each sample is calculated as the variance of the prediction interval, which is the variance of the estimated mean prediction plus the residual variance. The variances are then summed across sample units to get variance of the total catch estimate in each year. Because the predicted catches in each logbook trip are dependent on linear model coefficients, which are the same across multiple trips, the trips are not independent; thus, the variances cannot be added without accounting for the covariance. The variance of the total catch in each year is thus calculated either using Monte Carlo simulation, or using a delta method (described below). Users may also chose not to estimate variances for large logbook datasets where these methods will not work. In the case where only the unobserved bycatch is estimated, the observed bycatch is added to the predictions as a known constant with no variance. The delta method variance is not available for the delta-lognormal, delta-Gamma or Tweedie models using cplm, although it is available for Tweedie using glmmTMB. 
+The variance of the prediction in each sample is calculated as the variance of the prediction interval, which is the variance of the estimated mean prediction plus the residual variance. The variances are then summed across sample units to get variance of the total catch estimate in each year. Because the predicted catches in each logbook trip are dependent on linear model coefficients, which are the same across multiple trips, the trips are not independent; thus, the variances cannot be added without accounting for the covariance. The variance of the total catch in each year is thus calculated either using Monte Carlo simulation, or using a delta method (described below). Users may also chose not to estimate variances for large logbook datasets where these methods will not work. In the case where only the unobserved bycatch is estimated, the observed bycatch is added to the predictions as a known constant with no variance. 
 
 For delta-lognormal models, the variance of the predicted CPUE is needed to bias-correct when converting the mean predicted log(CPUE) to mean predicted CPUE. The variance of the prediction interval for each trip is calculated as the variance of the estimated mean plus the residual variance, and this value is used in the bias correction. The total predicted CPUE is the predicted probability of a positive observation from the binomial times the predicted positive CPUE, and predicted catch is the predicted CPUE times effort. The variance of the total CPUE is calculated using the method of @Lo. 
 
-For the Monte Carlo variance estimation method, we first draw random values of the linear model coefficients from a multivariate normal distribution with the mean and variance/covariance matrix estimated from the model. The predictions for each trip are then drawn for each draw of the parameters using the appropriate probability density function (e.g. Tweedie, negative binomial) with additional parameters (e.g. residual variance, negative binomial dispersion, Tweedie $p$ and $\phi$) estimated by the model. Trips are then summed for each year (adding the observed catch if necessary) within each draw, and the mean, standard error, and quantiles (e.g. 2.5% and 97.5% for a 95% confidence interval) are then calculated across the Monte Carlo draws. An approximation of the total variance of the predicted bycatch can also be made using a delta method. The delta method approximates the variance of a function of a variable as the derivative of the function squared times the variance of the original variable. Thus, the variance of the prediction intervals in the original data scale is calculated by pre and post multiplying the derivative of the inverse link function to the variance covariance matrix of the predicted values. 
+For the Monte Carlo variance estimation method, we first draw random values of the linear model coefficients from a multivariate normal distribution with the mean and variance/covariance matrix estimated from the model. The predictions for each trip are then drawn for each draw of the parameters using the appropriate probability density function (e.g. Tweedie, negative binomial) with additional parameters (e.g. residual variance, negative binomial dispersion, Tweedie $p$ and $\phi$) estimated by the model. Trips are then summed for each year (adding the observed catch if necessary) within each draw, and the mean, standard error, and quantiles (e.g. 2.5% and 97.5% for a 95% confidence interval) are then calculated across the Monte Carlo draws. 
+
+An approximation of the total variance of the predicted bycatch can also be made using a delta method. The delta method approximates the variance of a function of a variable as the derivative of the function squared times the variance of the original variable. Thus, the variance of the prediction intervals in the original data scale is calculated by pre and post multiplying the derivative of the inverse link function to the variance covariance matrix of the predicted values. 
 
 
 $$\Sigma_p = J \Sigma_l J'  $$
 
 were $\Sigma_l$ is the variance covariance matrix for the predicted trips in the stratum on the scale of the log link, and J is the matrix of derivatives. See the function MakePredictionsDeltaVar in 
-bycatchFunctions.R for the details for each model type. This code is partly based on the method developed by https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value. The delta method is not available for delta-Gamma, delta-lognormal, or Tweedie via the cplm library. For those error models, the simulation method will be used even if the delta method is selected with VarCalc. 
+bycatchFunctions.R for the details for each model type. This code is partly based on the method developed by https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value. 
 
-If the logbook data is aggregated across multiple trips (e.g. by strata) the effort is allocated equally to all the trips in a row of the logbook data table for the purpose of simulating catches or estimating variances using the delta method. This allocation procedure is not needed to estimate the mean total bycatch, but it is necessary to estimate the variances correctly. When using aggregated effort, it is not yet possible to include the observed catches as known.  
+If the logbook data is aggregated across multiple trips (e.g. by strata) the effort is allocated equally to all the trips in a row of the logbook data table for the purpose of simulating catches or estimating variances using the delta method in the case when includeObsCatch is TRUE. This allocation procedure is not needed when using the delta method with includeObsCatch = FALSE, because the delta method calculations account for the sample size in each aggregated row in the observer data.  
 
 #### Grouping and aggregation in data
 
@@ -409,21 +426,19 @@ ggplot(allResults$allYearEstimates,aes(x=Year,y=Total,
 
 ```
 
-The results from multiple runs can also be combined, with bind_rows.
+The model results grouped by predictionGroups are in allModResultsGroup, and design results grouped by groupVar are in allDesignResultsGroup, and they are combined in allGroupEstimates. If the same variables were used in groupVar and PredictionGroups, they can be added plotted together. For example, if groupVar and predictionGroups both include Year and area, the code would be (not evaluated).
 
-```{r,eval=FALSE}
-Run1<-loadOutputs(baseDir = getwd(),
-                  runName = "Run1",
-                  designScenarios = c("noPool","Pool1"),
-                  modelScenarios = c("s1","s2"))
-Run2<-loadOutputs(baseDir = getwd(),
-                  runName = "Run2",
-                  designScenarios = c("noPool","Pool1"),
-                  modelScenarios = c("g1","g2"))
-allRuns<-bind_rows(Run1,Run2)
+
+```{r, eval=FALSE}
+ggplot(allResults$allGroupEstimates,aes(x=Year,y=Total,
+                                       ymin=TotalLCI,ymax=TotalUCI,
+                      fill=Source,color=Source))+
+  geom_line()+
+  geom_ribbon(alpha=0.4)+
+  theme_bw()+
+  facet_wrap(~area)
 ```
 
-This code will produce a data frame with all the results from all scenarios and species in both runs together, distinguished by the column called "Run".
 
 Within the list returned by `loadOutputs`,the results under designOutputs and modelOutputs include:
 
@@ -431,7 +446,9 @@ Within the list returned by `loadOutputs`,the results under designOutputs and mo
 
 - modpredVals, a list for all species, containing a list of tibbles of the bycatch.
 
-- allmods, a long format tibble with all the model annual predictions together, which is included in allYearEstimates
+- allmods, a long format tibble with all the model annual predictions together, which is included in allYearEstimates.
+
+- allmodsStrata, a long format tibble with all the model predictions grouped by predictionGroups, which is included in allGroupEstimates.
 
 - Allindex, the same for abundance indices if calculated.
 
@@ -442,6 +459,8 @@ And for design-based results:
 - poolingSum, the pooling summary data, the same as the .csv file
 
 - yearSumGraph, annual summaries in the same formula as the model outputs in allmods, which are combined in allYearEstimates
+
+- groupSumGraph, summaries by the variables in groupVar 
 
  
 ## Validation and conclusions

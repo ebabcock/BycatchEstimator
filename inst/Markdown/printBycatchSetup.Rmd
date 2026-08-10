@@ -444,7 +444,7 @@ cat("\n")
 if(!is.null(latitudeVar) & !is.null(longitudeVar)) {
 cat("\n\n")
 plot_catch_sampled(obsdat=obsdat,bin_size=spatialBin,catch_col = obsCatch[[run]]) 
-cat("\n Figure ",figurenum,". Count of total ",sampleUnit," by ", spatialBin," x ",spatialBin," grid, and catch of ",common[[run]], " (circles). \n",sep="")
+cat("\n Figure ",figurenum,". Count of observed ",sampleUnit," by ", spatialBin," x ",spatialBin," grid, and catch of ",common[[run]], " (circles). \n",sep="")
 figurenum<-figurenum+1
 cat('<div style="height:30px;"></div>\n') 
 }

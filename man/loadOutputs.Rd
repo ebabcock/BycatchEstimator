@@ -24,7 +24,13 @@ loadOutputs(
 \item{modelScenarios}{Character vector of modelScenario values from original run.}
 }
 \value{
-Returns a list with the setupObj from the specified run, a list called designObjList which contains the design-based model inputs and outputs for each designScenario, modelObjList, which is the same for the models in modelScenarios, and a data frame called allYearEstimates which is the annual estimates across all design-based and model-based scenarios in a format suitable for ggplot.
+Returns a list with the setupObj from the specified run, a list called designObjList
+which contains the design-based model inputs and outputs for each designScenario, modelObjList,
+which is the same for the models in modelScenarios, a data frame called allYearEstimates which
+is the annual estimates across all design-based and model-based scenarios in a format suitable
+for ggplot, allGroupEstimates, which is the same by the groups defined in groupVar
+and predictionGroups, as well as the results by groups for models and design-based estimators
+separately (allModResultsGroup, allDesignResultsGroup).
 }
 \description{
 Reads in all the R objects created during runs of the bycatchEstimator for further analysis

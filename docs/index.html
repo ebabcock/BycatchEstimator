@@ -54,7 +54,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bycatchestimator-">BycatchEstimator <img src="reference/figures/imgfile.png" align="right" width="120"><a class="anchor" aria-label="anchor" href="#bycatchestimator-"></a>
+<div class="page-header"><h1 id="bycatchestimator-">BycatchEstimator <img src="reference/figures/imgfile.png" align="right" width="120" alt="BycatchEstimator logo"><a class="anchor" aria-label="anchor" href="#bycatchestimator-"></a>
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
@@ -62,7 +62,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The code runs best in R studio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables can be printed to an html or pdf file using R Markdown and the knitr library, which outputs a LaTex file. If you want to have the results in a pdf format, you must have a LaTex program installed, such as TinyTex (<a href="https://yihui.org/tinytex/" class="external-link uri">https://yihui.org/tinytex/</a>). The default is to have the results printed to a html file, from which you can extract figures and tables.</p>
+<p>The code runs best in RStudio. Before running the code for the first time, install the latest versions of R and RStudio. The output figures and tables can be printed to an html or pdf file. If you want results in pdf format, you must have a LaTex program installed, such as TinyTex (<a href="https://yihui.org/tinytex/" class="external-link uri">https://yihui.org/tinytex/</a>). The default is to have the results printed to a html file, along with .csv files of all the estimates.</p>
 <p>You can install the development version of BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
@@ -73,14 +73,8 @@
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<p>Due to a complication in coding, the user must load <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(MuMIn)</a></code> in addition to <code><a href="https://ebabcock.github.io/BycatchEstimator/">library(BycatchEstimator)</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="llsim-example">LLSIM Example<a class="anchor" aria-label="anchor" href="#llsim-example"></a>
-</h2>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span></code></pre></div>
 <p>To demonstrate its use, example data sets are included in this R package. In this example, we will use data sets from LLSIM (Goodyear 2021).</p>
 <div class="section level3">
 <h3 id="logbook-data">Logbook data<a class="anchor" aria-label="anchor" href="#logbook-data"></a>
