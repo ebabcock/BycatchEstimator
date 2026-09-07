@@ -332,12 +332,12 @@ bycatchSetup <- function(
     }
 
   #Clean up: delete the figures/ directory after rendering
-  if(!is.null(mkd)) {
-    fig_dir <- file.path(dirname(mkd), "figures")
-    if (dir.exists(fig_dir)) {
-      unlink(fig_dir, recursive = TRUE)
-    }
-  }
+  #if(!is.null(mkd)) {
+  #  fig_dir <- file.path(dirname(mkd), "figures")
+  #  if (dir.exists(fig_dir)) {
+  #    unlink(fig_dir, recursive = TRUE)
+  #  }
+  #}
 
   return(output)
 
