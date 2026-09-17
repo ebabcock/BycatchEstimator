@@ -300,7 +300,7 @@ bycatchSetup <- function(
       if(!is.null( mkd)){
 
       #Bill edit
-      tempReport <- file.path(tempdir(), "printBycatchSetup.Rmd")
+      tempReport <- file.path(baseDir, "printBycatchSetup.Rmd")
       file.copy(mkd, tempReport, overwrite = TRUE)
 
       rmarkdown::render(tempReport, #Bill edit
@@ -324,7 +324,7 @@ bycatchSetup <- function(
       if(!is.null( mkd)){
 
       #Bill edit
-      tempReport <- file.path(tempdir(), "printBycatchSetup.Rmd")
+      tempReport <- file.path(baseDir, "printBycatchSetup.Rmd")
       file.copy(mkd, tempReport, overwrite = TRUE)
 
       tryCatch({
@@ -354,7 +354,8 @@ bycatchSetup <- function(
 
   #Clean up: delete the figures/ directory after rendering
   if(!is.null(mkd)) {
-    fig_dir <- file.path(dirname(mkd), "figures")
+    unlink(tempReport)
+    fig_dir <- file.path(baseDir, "figures")
     if (dir.exists(fig_dir)) {
       unlink(fig_dir, recursive = TRUE)
     }
