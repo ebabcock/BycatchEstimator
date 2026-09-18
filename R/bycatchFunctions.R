@@ -2268,10 +2268,10 @@ getDesignEstimates<-function(obsdatval,logdatval,strataVars,designVars=NULL,
 
 #' Allocate design estimates to grouping variable not in the designVars
 #'
-#' @param logdatval
-#' @param groupVar
-#' @param designVars
-#' @param designstratadf
+#' @param logdatval  logbook data with effort and sample units
+#' @param groupVar  grouping variable to allocate estimates to
+#' @param designVars  design variables used to calculate estimates
+#' @param designstratadf data frame of design estimates by designVars
 #' @keywords internal
 getDesignEstimatesUngroup<-function(
     logdatval,
@@ -2422,10 +2422,10 @@ getModelSummaryTable<-function(modfits,modTypes) {
 
 #' Extract fixed effect model matrix columns corresponding to the vcov matrix
 #'
-#' @param fit
-#' @param data
-#' @param is_TMB
-#' @imports From stats model.matrix delete.response terms formula
+#' @param fit  Fitted model object
+#' @param data  Data frame used to fit the model
+#' @param is_TMB Logical; whether the model is a glmmTMB object
+#' @importFrom stats model.matrix delete.response terms formula
 #' @keywords internal
 # Helper to build fixed-effect model matrix, handling glmmTMB smooths.
 # For models with smooth terms (s() in glmmTMB), model.matrix on the
@@ -2894,7 +2894,6 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
 #' @returns Makes a plot of the spatial distribution of total effort and sampled effort, with points sized by fraction sampled.
 #' @export
 #'
-#' @examples
 plot_effort_sampled <- function(logdat, obsdat,
                                 bin_size   = 1,
                                 effort_col = "Effort") {
@@ -2994,12 +2993,11 @@ plot_effort_sampled <- function(logdat, obsdat,
 #' @param obsdat observer data
 #' @param bin_size spatial bin size
 #' @param effort_col column with effort data
-#' @param catch_col
+#' @param catch_col column with catch data
 #'
-#' @returns
+#' @returns Makes a plot of sampled catch and effort, with effort as tile fill and catch as circle size
 #' @export
 #'
-#' @examples
 plot_catch_sampled <- function(obsdat,
                                bin_size    = 1,
                                effort_col  = "Effort",

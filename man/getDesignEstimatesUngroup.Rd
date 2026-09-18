@@ -6,6 +6,15 @@
 \usage{
 getDesignEstimatesUngroup(logdatval, groupVar, designVars, designstratadf)
 }
+\arguments{
+\item{logdatval}{logbook data with effort and sample units}
+
+\item{groupVar}{grouping variable to allocate estimates to}
+
+\item{designVars}{design variables used to calculate estimates}
+
+\item{designstratadf}{data frame of design estimates by designVars}
+}
 \description{
 Allocate design estimates to grouping variable not in the designVars
 }

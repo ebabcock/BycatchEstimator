@@ -6,6 +6,13 @@
 \usage{
 get_fixed_model_matrix(fit, data, is_TMB)
 }
+\arguments{
+\item{fit}{Fitted model object}
+
+\item{data}{Data frame used to fit the model}
+
+\item{is_TMB}{Logical; whether the model is a glmmTMB object}
+}
 \description{
 Extract fixed effect model matrix columns corresponding to the vcov matrix
 }

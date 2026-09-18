@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Elizabeth A.
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2026-08-09</h4>
+            <h4 data-toc-skip class="date">2026-09-18</h4>
       
 
       <div class="d-none name"><code>UserGuide2.Rmd</code></div>
@@ -107,7 +107,7 @@ estimation.</li>
 or <code>bycatchFit</code> for model-based estimators, or both.</li>
 <li>Use the output figures and tables directly, or if desired, use the
 <code>loadOutputs</code> function to input the model runs back into R
-for more advanced analysis.</li>
+for more advanced analysis and graphics.</li>
 <li>Validate results if possible.</li>
 </ol>
 <p>This user guide provides both detailed information on how to use the
@@ -122,26 +122,30 @@ Team (2020)</span>) and RStudio (<span class="citation">RStudio Team
 (2020)</span>). The following libraries are used: tidyverse, ggplot2,
 MASS, lme4, cplm, tweedie, DHARMa, tidyselect, MuMIn, gridExtra,
 pdftools (if pdf output is selected), foreach, doParallel, reshape2,
-glmmTMB, GGally and quantreg (<span class="citation">Wickham et al.
-(2019)</span>; <span class="citation">Wickham (2016)</span>; <span class="citation">Venables and Ripley (2002)</span>; <span class="citation">Bates et al. (2015)</span>; <span class="citation">Zhang (2013)</span>; <span class="citation">Dunn and
-Smyth (2005)</span>; <span class="citation">Hartig (2020)</span>; <span class="citation">Henry and Wickham (2020)</span>; <span class="citation">Barton (2020)</span>; <span class="citation">Auguie
-(2017)</span>; <span class="citation">Wickham and Pedersen
-(2019)</span>; <span class="citation">Iannone et al. (2020)</span>;
-<span class="citation">Ooms (2020)</span>;<span class="citation">Microsoft and Weston (2020)</span>;<span class="citation">Corporation and Weston (2020)</span>; <span class="citation">Wickham (2007)</span>; <span class="citation"><span class="nocase">Brooks et al.</span> (2017)</span>;<span class="citation">Schloerke et al. (2024)</span>; <span class="citation">Koenker (2021)</span>). The output figures and tables
-are printed to the user’s choice of an html or pdf file using RMarkdown
-and the knitr library(<span class="citation">Xie (2025)</span>). To use
-pdf outputs, you must have a LaTex program installed, such as TinyTex
-(<span class="citation">Xie (2019)</span>, <span class="citation">Xie
-(2021)</span>, <span class="citation">Xie (2025)</span>). For a quick
-start guide with example data, see the GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
+glmmTMB, GGally, quantreg, kableExtra, and performance (<span class="citation">Wickham et al. (2019)</span>; <span class="citation">Wickham (2016)</span>; <span class="citation">Venables
+and Ripley (2002)</span>; <span class="citation">Bates et al.
+(2015)</span>; <span class="citation">Zhang (2013)</span>; <span class="citation">Dunn and Smyth (2005)</span>; <span class="citation">Hartig (2020)</span>; <span class="citation">Henry and
+Wickham (2020)</span>; <span class="citation">Barton (2020)</span>;
+<span class="citation">Auguie (2017)</span>; <span class="citation">Wickham and Pedersen (2019)</span>; <span class="citation">Iannone et al. (2020)</span>; <span class="citation">Ooms (2020)</span>;<span class="citation">Microsoft and
+Weston (2020)</span>;<span class="citation">Corporation and Weston
+(2020)</span>; <span class="citation">Wickham (2007)</span>; <span class="citation"><span class="nocase">Brooks et al.</span>
+(2017)</span>;<span class="citation">Schloerke et al. (2024)</span>;
+<span class="citation">Koenker (2021)</span>; <span class="citation">Zhu
+(2026)</span>; <span class="citation">(<strong>performance?</strong>)</span>). The output
+figures and tables are printed to the user’s choice of an html or pdf
+file using RMarkdown and the knitr library(<span class="citation">Xie
+(2025)</span>). To use pdf outputs, you must have a LaTex program
+installed, such as TinyTex (<span class="citation">Xie (2019)</span>,
+<span class="citation">Xie (2021)</span>, <span class="citation">Xie
+(2025)</span>). For a quick start guide with example data, see the
+GitHub page (<a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>). For more
 help with installation issues, see the Installation Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html</a>.
 The following code will load the libary from GitHub using devtools
 (<span class="citation">Wickham et al. (2022)</span>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="co">#devtools::install_github("ebabcock/BycatchEstimator")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MuMIn</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ebabcock.github.io/BycatchEstimator/">BycatchEstimator</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="data-specification">Data specification<a class="anchor" aria-label="anchor" href="#data-specification"></a>
@@ -159,6 +163,9 @@ fishery. This function must be run before running either
 <span>  obsdat <span class="op">=</span> <span class="va">obsdatExample</span>,</span>
 <span>  logdat <span class="op">=</span> <span class="va">logdatExample</span>,</span>
 <span>  yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
+<span>  latitudeVar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  longitudeVar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spatialBin <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  obsEffort <span class="op">=</span> <span class="st">"sampled.sets"</span>,</span>
 <span>  logEffort <span class="op">=</span> <span class="st">"sets"</span>,</span>
 <span>  obsCatch <span class="op">=</span> <span class="st">"Catch"</span>,</span>
@@ -193,27 +200,29 @@ included, the observed and logbook data probably both have to be entered
 at the set level.</p>
 <p>The observer data should have columns for year and the other
 predictor (for models) or stratification (for design-based) variables,
-the observed effort and the observed bycatch or catch per trip of each
-species to be estimated. The logbook data must also have columns for
-Year and the other predictor variables, and the total effort in the same
-units (e.g. sets or hook-hours) as the observer data. If there are any
-NA values in any of the variables, those rows will be deleted from the
-observer data set. Any NA values in the logbook dataset will cause the
-function to stop with an error message. There should be no NA values in
-the logbook data, because this dataset should be a complete accounting
-of all effort.</p>
-<p>Any variables you intend to use in analysis should be entered in the
-character vectors named factorVariables or numericVariables. Note that
-design-based methods only work for categorical variables. Year is
-interpreted as a factor in the design-based methods whether it is
-numerical or factor. For model-based methods, Year may be either a
-number or a factor. Note that there is an input “yearVar” for the name
-of the year variable in your datasets. However, this variable will be
-renamed as Year (with a capital Y) in the code. If Year is not a
-predictor variable in your analysis, you must still input a value for
-yearVar in <code>dataSetup</code>, but you don’t have to use it the
-analysis functions. Year should be be spelled “Year” in
-numericVariables, factorVariables, and all other model inputs.</p>
+as well as any variables defining groups to be kept separate in the
+estimates (e.g. spatial regions), the observed effort and the observed
+bycatch or catch per trip of each species to be estimated. The logbook
+data must also have columns for Year and the other predictor variables,
+and the total effort in the same units (e.g. sets or hook-hours) as the
+observer data. If there are any NA values in any of the variables, those
+rows will be deleted from the observer data set. Any NA values in the
+logbook dataset will cause the function to stop with an error message.
+There should be no NA values in the logbook data, because this dataset
+should be a complete accounting of all effort.</p>
+<p>Any variables you intend to use in analysis or in summarizing the
+output should be entered in the character vectors named factorVariables
+or numericVariables. Note that design-based methods only work for
+categorical variables. Year is interpreted as a factor in the
+design-based methods whether it is numerical or factor in the input. For
+model-based methods, Year may be either a number or a factor. Note that
+there is an input “yearVar” for the name of the year variable in your
+datasets. However, this variable will be renamed as Year (with a capital
+Y) in the code. If Year is not a predictor variable in your analysis,
+you must still input a value for yearVar in <code>dataSetup</code>, but
+you don’t have to use it the analysis functions. Year should be be
+spelled “Year” in numericVariables, factorVariables, and all other model
+inputs.</p>
 <p>The code can be used to analyze multiple species, or disposition
 types (e.g. retained catch, dead discards, live releases) at the same
 time. This is specified by inputting a vector rather than a single value
@@ -251,6 +260,9 @@ and numerical variable.</p></li>
 effort across pairs of categorical or numeric variables. (Categorical
 variables with more than 15 levels are converted to numerical to
 plot).</p></li>
+<li><p>If latitudeVar, longitudeVar, and spatialBin are provided, maps
+of the total logbook effort and fraction sampled in squares spatialBin
+degrees latitude by spatialBin degrees longitude.</p></li>
 </ul>
 <p>Figures showing catch in the observer data are:</p>
 <ul>
@@ -258,6 +270,9 @@ plot).</p></li>
 and by level of categorical and numeric variables.</p></li>
 <li><p>Barplots of total catch the bycatch species by year and by level
 of categorical and numeric variables.</p></li>
+<li><p>If latitudeVar, longitudeVar, and spatialBin are provided, maps
+of the total observed effort and total catch in squares spatialBin
+degrees latitude by spatialBin degrees longitude.</p></li>
 <li><p>Violin plots and scatterplots of catch per sample unit, across
 categorical and numeric variables.</p></li>
 <li><p>Violin plots and scatterplots of catch per unit effort (CPUE),
@@ -337,47 +352,63 @@ estimators, specify them as a character vector. For example,
 designMethods =c(“Ratio”,“Delta”) will calculate both estimates. The
 total bycatch estimates are made at the stratification variables defined
 by the user in the vector called designVars, which must be categorical
-variables. Annual summaries are produced by summing across strata within
-years. If you want to produce the output plots across some variable
-other than Year (e.g. 2-year periods), specify the name of this variable
-with groupVar.</p>
-<p>To deal with strata that have no observations or few observations,
-the user may request pooling (designPooling=TRUE), and specify the
-minimum number of sample units needed to avoid pooling. If pooling, the
-total bycatch is estimated for the observer and logbook data specified
-by the pooling scheme for each stratum (i.e. combination of variables)
-and then allocated to the stratum according to the fraction of the
-logbook effort in the pooled data that is in the stratum of interest.
-Unpooled estimates are used for strata with sufficient data. Variances
-are also allocated to the stratum of interest based on the fraction of
-total effort. See <span class="citation">Brown (2001)</span> for details
-of one potential pooling scheme. If pooling is requested, the strata
-will be pooled in the order of designVars. Three additional vectors are
-needed to define how the pooling works: poolTypes, which says whether
-the variable should be pooled across “adjacent” levels (for Year only),
-“all” values, a new variable “pooledVar” (e.g. season rather than month)
-or “none” if the levels of a variable should always be kept separate;
-pooledVar which specifies the new variable for pooling for the pooledVar
-pooling method; and adjacentNum which specifies the number of adjacent
-years to include for the adjacent year method (e.g. 1 to include both
-the previous and following year). Each of these vectors must be the same
-length as designVars. You must also specify the minimum number of sample
-units in a stratum to require pooling.</p>
+variables. These are assumed to be the stratification variables in a
+stratified random allocation of observers to sample units, and estimates
+are made in the strata defined by these variables before summarizing as
+needed.</p>
+<p>Annual summaries are produced by summing across strata within years.
+The input groupVar is a character vector for the variables to be grouped
+over in the outputed summary statistics. For example, this can be used
+to make outputs within statistical areas in each year
+(groupVar=c(“Year”,“StatArea”)), or to summarize by a variable other
+than Year, (groupVar=c(“StatArea”)). The variables in groupVar may or
+may not be stratification variables (in designVars). Bycatch estimates
+are allocated across groups that are in groupVar but not designVar
+proportionally to total logbook effort.</p>
+<p>To deal with strata (defined by designVars) that have no observations
+or few observations, the user may request pooling (designPooling=TRUE),
+and specify the minimum number of sample units needed to avoid pooling.
+If pooling, the total bycatch is estimated for the observer and logbook
+data specified by the pooling scheme for each stratum (i.e. combination
+of variables) and then allocated to the stratum according to the
+fraction of the logbook effort in the pooled data that is in the stratum
+of interest. Unpooled estimates are used for strata with sufficient
+data. Variances are also allocated to the stratum of interest based on
+the fraction of total effort. See <span class="citation">Brown
+(2001)</span> for details of one potential pooling scheme.</p>
+<p>If pooling is requested, the strata will be pooled in the order of
+designVars. Three additional vectors are needed to define how the
+pooling works: poolTypes, which says whether the variable should be
+pooled across “adjacent” levels (for Year only), “all” values, a new
+variable “pooledVar” (e.g. season rather than month) or “none” if the
+levels of a variable should always be kept separate; pooledVar which
+specifies the new variable for pooling for the pooledVar pooling method;
+and adjacentNum which specifies the number of adjacent years to include
+for the adjacent year method (e.g. 1 to include both the previous and
+following year). Each of these vectors must be the same length as
+designVars. You must also specify the minimum number of sample units in
+a stratum to require pooling. In the case that estimates are requested
+grouped by a variable not in designVars, the estimates are made in each
+strata defined by designVars, with pooling if requested, then allocated
+across the new grouping variable in proportion to total logbook
+effort.</p>
 <p>This function produces the user’s choice of a pdf or html file with
 bycatch estimates for each species and catch type, labelled with the
 designScenario and species name plus “design results”. The file includes
 a table with the total estimates by year for each method, along with
-standard errors, a figure showing the estimates by year with 95%
-confidence intervals. If pooling was requested, there is a barplot
-showing the number of strata pooled in each Year to each variable in
-designVars, also indicating the number of strata that have not acheived
-the specified minimum number of sample units.</p>
+standard errors, and the same by the groups defined by groupVar (if
+requested). There is a figure showing the estimates by year with 95%
+confidence intervals, and the same by the groupVar groups. If pooling
+was requested, there is a barplot showing the number of strata pooled in
+each Year to each variable in designVars, also indicating the number of
+strata that have not acheived the specified minimum number of sample
+units.</p>
 <p>The outputs are also given in .csv files in a folder labeled “Design
 outputs”. The estimates are in columns called ratioMean, ratioSE,
-deltaMean and deltaSE in the file labelled DesignSummary (by year) and
-the file labelled DesignStrata (by stata). If pooling was requested, a
-csv labelled “pooling” gives the number of sample units in the strata
-with and without pooling, etc. See details on outputs in the
+deltaMean and deltaSE in the files labelled DesignSummary (by year)
+DesignStrata (by stata), and DesignGroup (by groupVar). If pooling was
+requested, a csv labelled “pooling” gives the number of sample units in
+the strata with and without pooling, etc. See details on outputs in the
 Appendix.</p>
 <p>In general, if there are any combinations of the stratification
 variables (designVars) which do not exist in the observer data but do
@@ -442,6 +473,7 @@ abundance index is done with the function <code>bycatchFit</code></p>
 <span>  modelScenario <span class="op">=</span> <span class="st">"s1"</span>,</span>
 <span>  complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">season</span><span class="op">)</span>,</span>
 <span>  simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
+<span>  predictionGroups <span class="op">=</span> <span class="st">"Year"</span>,</span>
 <span>  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
 <span>  modelTry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Tweedie"</span>,<span class="st">"Lognormal"</span>,<span class="st">"Delta-Lognormal"</span>,<span class="st">"Delta-Gamma"</span>, <span class="st">"TMBnbinom1"</span>,<span class="st">"TMBlognormal"</span>,</span>
 <span>                          <span class="st">"TMBnbinom2"</span>,<span class="st">"TMBtweedie"</span>,<span class="st">"Normal"</span>,<span class="st">"Binomial"</span>,<span class="st">"NegBin"</span>, <span class="st">"TMBgamma"</span>,<span class="st">"Gamma"</span>,</span>
@@ -459,7 +491,6 @@ abundance index is done with the function <code>bycatchFit</code></p>
 <span>  trueCols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reportType <span class="op">=</span> <span class="st">"html"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "1 Simulated species, catch, complete, 2026-08-09 14:33:37.01684"</span></span></code></pre>
 <p>The user specifies which potential predictor variables to use and
 what potential error distribution models (e.g. negative binomial,
 delta-lognormal) to use. The function uses information criteria to pick
@@ -491,24 +522,27 @@ binomial in glm.nb. To get faster results, use glmmTMB for all model
 fitting.</p>
 <p>Give the formulas for the most complex and simplest set of predictor
 variables to be considered within each model group. These should be in
-the format of R formulas (e.g. <em>formula(y~Year)</em>), with y on the
-left-hand side of the formula. The year variable must be called Year
+the format of R formulas (e.g. <em>formula(y~Year+area)</em>), with y on
+the left-hand side of the formula. The year variable must be called Year
 (capital Y), whatever it is called in the actual data (entered in
-yearVar). If the simplest model requires stratification variables other
-than Year, summaries of the predicted bycatch at the level of these
-stratification variables will be printed to .csv files, but will not be
-plotted. The user-specified simplest model will often include Year, and
-can also include, for example, stratification variables that are used in
-the observer program sampling design. If Year is not in the simplest
-model (e.g. simplest model is the null model y~1), the model still
-produces bycatch estimates in each year, which can vary from one year to
-the next if effort changes. If an abundance index is requested, it will
-be calculated including all the variables requested in indexVars, to
-allow for different indices for different stratification variables if
-desired (e.g. different spatial areas). All the variables used in the
-model must have been included in either numericVariables or
-factorVariables in <code>bycatchSetup</code>, and they retain this
-classification.</p>
+yearVar). The simplest model often includes year only
+(<em>formula(y~Year)</em>), but it may be the Null model
+(<em>formula(y~1)</em>), or a model with more variables if desired. The
+input predictionGroups specifies which variables should be used to
+define the groups for which bycatch estimates are made. This defaults to
+Year only, but it can also be used to summarize the results by grouping
+variables that may or may not be included in the model (e.g. spatial
+areas or gears), provided the variable is in the observer and logbook
+data sets. If Year or other grouping variables in predictionGroups are
+not in the model chosen for bycatch esimation using information
+criteria, the model still produces bycatch estimates in each group, by
+predicting bycatch in every logbook sample unit in the group.</p>
+<p>If an abundance index is requested, it will be calculated including
+all the variables requested in indexVars, to allow for different indices
+for different stratification variables if desired (e.g. different
+spatial areas). All the variables used in the model must have been
+included in either numericVariables or factorVariables in
+<code>bycatchSetup</code>, and they retain this classification.</p>
 <p>The variables in the simplest and most complex model are interpreted
 as fixed effects. Any desired random effects can be entered as a
 character vector (e.g. randomEffects=“Year:area”). In the case that any
@@ -527,6 +561,13 @@ user’s choice of information criteria (AICc, AIC or BIC) and considering
 all models between the simplest and most complex. The model with the
 lowest value of the information criterion is chosen as best within each
 observation error group.</p>
+<p>The function may be slow if you have a large data set. If the
+variable useParallel is TRUE and your computer has multiple cores, the
+dredge function will be run in parallel. This greatly speeds up the
+calculations. If you have trouble getting this to work, set useParallel
+to FALSE. For large datasets, make sure that VarCalc = DeltaMethod, as
+this function has been revised to be more efficient, and is now much
+faster than the Simulate method.</p>
 <p>Specify whether to do cross validation to choose between observation
 error models. The best candidate models in each observation error group
 are then compared using 10-fold cross validation, to see which
@@ -575,11 +616,6 @@ observed effort is more than the logbook total effort in any sample
 units. This option works in the simulated example data, but can be
 difficult to set up with real data, and requires a lot of data cleaning,
 to make the observer and logbook data consistent.</p>
-<p>The function may be slow (more than an hour) if you have a large data
-set. If the variable useParallel is TRUE and your computer has multiple
-cores, the dredge function will be run in parallel. This greatly speeds
-up the calculations. If you have trouble getting this to work, set
-useParallel to FALSE.</p>
 <p>Finally, if you have information on total bycatch in each year to
 validate your estimates, for example in a simulation study, fill out the
 arguments <code>plotValidation</code>, <code>trueVals</code>,
@@ -609,8 +645,10 @@ each model.</p></li>
 <li><p>Parameters from the fitted models, including the scale (variance
 or the estimated scaling parameter depending on the model type) along
 with the total log likelihood and residual degrees of freedom.</p></li>
-<li><p>A figure of bycatch across years, with confidence
-intervals.</p></li>
+<li><p>A figure of bycatch across years (if Year is an included
+variable), with confidence intervals.</p></li>
+<li><p>A figure of bycatch across all the variables in predictionGroups,
+if anything other than Year, with confidence intervals.</p></li>
 <li><p>A figure of the abundance indices across years, if requested,
 with confidence intervals.</p></li>
 <li><p>Boxplots of the cross validation metrics across folds, if
@@ -622,8 +660,8 @@ cross-validation was requestd.</p></li>
 function.</p></li>
 <li><p>Ordinary and quantile residual figures.</p></li>
 <li><p>Observed vs. predicted values figures.</p></li>
-<li><p>The figures showing the total catch with confidence
-interval.</p></li>
+<li><p>The figures showing the total catch with confidence interval, by
+Year and/or the variables in predictionGropus.</p></li>
 <li><p>If requested, an abundance index.</p></li>
 </ul>
 <p>These results may be all that is needed. However, if you want to look
@@ -637,7 +675,7 @@ folder called “Fit files”. These files are:</p>
 confidence intervals for the model.</p></li>
 <li><p>Stratum Summary. The estimated total bycatch, standard errors and
 confidence intervals for the model at the variables in
-simpleModel.</p></li>
+predictionGroups.</p></li>
 <li><p>Annual Index. The annual abundance index if requested.</p></li>
 </ul>
 </div>
@@ -1114,9 +1152,7 @@ Monte Carlo simulation, or using a delta method (described below). Users
 may also chose not to estimate variances for large logbook datasets
 where these methods will not work. In the case where only the unobserved
 bycatch is estimated, the observed bycatch is added to the predictions
-as a known constant with no variance. The delta method variance is not
-available for the delta-lognormal, delta-Gamma or Tweedie models using
-cplm, although it is available for Tweedie using glmmTMB.</p>
+as a known constant with no variance.</p>
 <p>For delta-lognormal models, the variance of the predicted CPUE is
 needed to bias-correct when converting the mean predicted log(CPUE) to
 mean predicted CPUE. The variance of the prediction interval for each
@@ -1140,14 +1176,14 @@ and
 estimated by the model. Trips are then summed for each year (adding the
 observed catch if necessary) within each draw, and the mean, standard
 error, and quantiles (e.g. 2.5% and 97.5% for a 95% confidence interval)
-are then calculated across the Monte Carlo draws. An approximation of
-the total variance of the predicted bycatch can also be made using a
-delta method. The delta method approximates the variance of a function
-of a variable as the derivative of the function squared times the
-variance of the original variable. Thus, the variance of the prediction
-intervals in the original data scale is calculated by pre and post
-multiplying the derivative of the inverse link function to the variance
-covariance matrix of the predicted values.</p>
+are then calculated across the Monte Carlo draws.</p>
+<p>An approximation of the total variance of the predicted bycatch can
+also be made using a delta method. The delta method approximates the
+variance of a function of a variable as the derivative of the function
+squared times the variance of the original variable. Thus, the variance
+of the prediction intervals in the original data scale is calculated by
+pre and post multiplying the derivative of the inverse link function to
+the variance covariance matrix of the predicted values.</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mi>p</mi></msub><mo>=</mo><mi>J</mi><msub><mi mathvariant="normal">Σ</mi><mi>l</mi></msub><msup><mi>J</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">\Sigma_p = J \Sigma_l J'  </annotation></semantics></math></p>
 <p>were
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Σ</mi><mi>l</mi></msub><annotation encoding="application/x-tex">\Sigma_l</annotation></semantics></math>
@@ -1155,18 +1191,15 @@ is the variance covariance matrix for the predicted trips in the stratum
 on the scale of the log link, and J is the matrix of derivatives. See
 the function MakePredictionsDeltaVar in bycatchFunctions.R for the
 details for each model type. This code is partly based on the method
-developed by <a href="https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value" class="external-link uri">https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value</a>.
-The delta method is not available for delta-Gamma, delta-lognormal, or
-Tweedie via the cplm library. For those error models, the simulation
-method will be used even if the delta method is selected with
-VarCalc.</p>
+developed by <a href="https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value" class="external-link uri">https://stackoverflow.com/questions/39337862/linear-model-with-lm-how-to-get-prediction-variance-of-sum-of-predicted-value</a>.</p>
 <p>If the logbook data is aggregated across multiple trips (e.g. by
 strata) the effort is allocated equally to all the trips in a row of the
 logbook data table for the purpose of simulating catches or estimating
-variances using the delta method. This allocation procedure is not
-needed to estimate the mean total bycatch, but it is necessary to
-estimate the variances correctly. When using aggregated effort, it is
-not yet possible to include the observed catches as known.</p>
+variances using the delta method in the case when includeObsCatch is
+TRUE. This allocation procedure is not needed when using the delta
+method with includeObsCatch = FALSE, because the delta method
+calculations account for the sample size in each aggregated row in the
+observer data.</p>
 </div>
 <div class="section level4">
 <h4 id="grouping-and-aggregation-in-data">Grouping and aggregation in data<a class="anchor" aria-label="anchor" href="#grouping-and-aggregation-in-data"></a>
@@ -1248,7 +1281,7 @@ Total.se, Total.cv, and a column called Valid, which will be 1 for valid
 models or methods, and 0 for models that had some problem in the model
 fitting. This data-frame is appropriate for ggplot.</p></li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span> <span class="co">#for data manipulation and ggplot</span></span>
 <span><span class="co">#Load in both design and model based estimates</span></span>
 <span><span class="va">allResults</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/loadOutputs.html">loadOutputs</a></span><span class="op">(</span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -1264,22 +1297,20 @@ fitting. This data-frame is appropriate for ggplot.</p></li>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="UserGuide2_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
-<p>The results from multiple runs can also be combined, with
-bind_rows.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Run1</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/loadOutputs.html">loadOutputs</a></span><span class="op">(</span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                  runName <span class="op">=</span> <span class="st">"Run1"</span>,</span>
-<span>                  designScenarios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"noPool"</span>,<span class="st">"Pool1"</span><span class="op">)</span>,</span>
-<span>                  modelScenarios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s1"</span>,<span class="st">"s2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">Run2</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/loadOutputs.html">loadOutputs</a></span><span class="op">(</span>baseDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                  runName <span class="op">=</span> <span class="st">"Run2"</span>,</span>
-<span>                  designScenarios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"noPool"</span>,<span class="st">"Pool1"</span><span class="op">)</span>,</span>
-<span>                  modelScenarios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g1"</span>,<span class="st">"g2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">allRuns</span><span class="op">&lt;-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">Run1</span>,<span class="va">Run2</span><span class="op">)</span></span></code></pre></div>
-<p>This code will produce a data frame with all the results from all
-scenarios and species in both runs together, distinguished by the column
-called “Run”.</p>
+<p>The model results grouped by predictionGroups are in
+allModResultsGroup, and design results grouped by groupVar are in
+allDesignResultsGroup, and they are combined in allGroupEstimates. If
+the same variables were used in groupVar and PredictionGroups, they can
+be added plotted together. For example, if groupVar and predictionGroups
+both include Year and area, the code would be (not evaluated).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">allResults</span><span class="op">$</span><span class="va">allGroupEstimates</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Year</span>,y<span class="op">=</span><span class="va">Total</span>,</span>
+<span>                                       ymin<span class="op">=</span><span class="va">TotalLCI</span>,ymax<span class="op">=</span><span class="va">TotalUCI</span>,</span>
+<span>                      fill<span class="op">=</span><span class="va">Source</span>,color<span class="op">=</span><span class="va">Source</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">area</span><span class="op">)</span></span></code></pre></div>
 <p>Within the list returned by <code>loadOutputs</code>,the results
 under designOutputs and modelOutputs include:</p>
 <ul>
@@ -1288,7 +1319,10 @@ fits.</p></li>
 <li><p>modpredVals, a list for all species, containing a list of tibbles
 of the bycatch.</p></li>
 <li><p>allmods, a long format tibble with all the model annual
-predictions together, which is included in allYearEstimates</p></li>
+predictions together, which is included in allYearEstimates.</p></li>
+<li><p>allmodsStrata, a long format tibble with all the model
+predictions grouped by predictionGroups, which is included in
+allGroupEstimates.</p></li>
 <li><p>Allindex, the same for abundance indices if calculated.</p></li>
 </ul>
 <p>And for design-based results:</p>
@@ -1299,6 +1333,7 @@ predictions together, which is included in allYearEstimates</p></li>
 file</p></li>
 <li><p>yearSumGraph, annual summaries in the same formula as the model
 outputs in allmods, which are combined in allYearEstimates</p></li>
+<li><p>groupSumGraph, summaries by the variables in groupVar</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -1647,6 +1682,10 @@ Report Generation in <span>R</span></em>. <a href="https://yihui.org/knitr/" cla
 <div id="ref-cplm" class="csl-entry">
 Zhang, Yanwei. 2013. <em>Likelihood-Based and Bayesian Methods for
 Tweedie Compound Poisson Linear Mixed Models</em>.
+</div>
+<div id="ref-kableExtra" class="csl-entry">
+Zhu, Hao. 2026. <em>kableExtra: Construct Complex Table with ’Kable’ and
+Pipe Syntax</em>. <a href="https://doi.org/10.32614/CRAN.package.kableExtra" class="external-link">https://doi.org/10.32614/CRAN.package.kableExtra</a>.
 </div>
 </div>
 </div>

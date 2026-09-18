@@ -23,42 +23,46 @@ import(tidyr)
 import(tidyverse)
 import(tweedie)
 import(utils)
-importFrom(MASS,gamma.shape)
-importFrom(MASS,glm.nb)
-importFrom(MASS,mvrnorm)
+importFrom(MASS,
+  gamma.shape,
+  glm.nb,
+  mvrnorm
+)
 importFrom(glmmTMB,fixef)
 importFrom(gridExtra,grid.arrange)
 importFrom(reshape2,colsplit)
-importFrom(stats,Gamma)
-importFrom(stats,aggregate)
-importFrom(stats,anova)
-importFrom(stats,as.formula)
-importFrom(stats,coef)
-importFrom(stats,cor)
-importFrom(stats,cov)
-importFrom(stats,delete.response)
-importFrom(stats,formula)
-importFrom(stats,glm)
-importFrom(stats,glm.control)
-importFrom(stats,lm)
-importFrom(stats,median)
-importFrom(stats,model.matrix)
-importFrom(stats,na.fail)
-importFrom(stats,predict)
-importFrom(stats,qnorm)
-importFrom(stats,quantile)
-importFrom(stats,qunif)
-importFrom(stats,rbinom)
-importFrom(stats,residuals)
-importFrom(stats,rgamma)
-importFrom(stats,rlnorm)
-importFrom(stats,rnbinom)
-importFrom(stats,rnorm)
-importFrom(stats,sd)
-importFrom(stats,sigma)
-importFrom(stats,terms)
-importFrom(stats,update)
-importFrom(stats,var)
-importFrom(stats,vcov)
+importFrom(stats,
+  Gamma,
+  aggregate,
+  anova,
+  as.formula,
+  coef,
+  cor,
+  cov,
+  delete.response,
+  formula,
+  glm,
+  glm.control,
+  lm,
+  median,
+  model.matrix,
+  na.fail,
+  predict,
+  qnorm,
+  quantile,
+  qunif,
+  rbinom,
+  residuals,
+  rgamma,
+  rlnorm,
+  rnbinom,
+  rnorm,
+  sd,
+  sigma,
+  terms,
+  update,
+  var,
+  vcov
+)
 importFrom(tidyr,pivot_longer)
 importFrom(tweedie,rtweedie)

@@ -17,6 +17,11 @@ plot_catch_sampled(
 \item{bin_size}{spatial bin size}
 
 \item{effort_col}{column with effort data}
+
+\item{catch_col}{column with catch data}
+}
+\value{
+Makes a plot of sampled catch and effort, with effort as tile fill and catch as circle size
 }
 \description{
 Make a plot of the observed effort and catches
