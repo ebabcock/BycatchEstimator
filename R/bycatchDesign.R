@@ -150,9 +150,22 @@ bycatchDesign <- function(
     }
     if(all(is.na(groupVar))) xVar<-"Year" else
       if("Year" %in% groupVar ) xVar<-"Year" else
-        if(is.null(NewGroup)) xVar<-groupVar[1] else
-          xVar<-NULL
-    if(!is.null(xVar)) {
+        xVar<-groupVar[1]
+      #Summary by design-based stratification
+      designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
+                                                  logdatval = logdat,
+                                                  strataVars = designVars,
+                                                  designVars = designVars,
+                                                  designPooling = designPooling,
+                                                  minStrataUnit = minStrataUnit,
+                                                  startYear = startYear,
+                                                  poolingSum = poolingSum[[run]],
+                                                  includePool= includePool[[run]]
+        )
+        write.csv(designstratadf[[run]],
+                  paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
+        # Summary by year, or first groupVar if year isn't in groupVar
+        if(is.null(NewGroup)) {  #if we don't need to allocate across groups not in designVars
      designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
                              strataVars = xVar,
@@ -163,26 +176,20 @@ bycatchDesign <- function(
                              poolingSum = poolingSum[[run]],
                              includePool= includePool[[run]]
     )
+        } else
+        { #If there is a grouping Var not in the strata
+          designyeardf[[run]]<-getDesignEstimatesUngroup(
+            logdatval = logdat,
+            groupVar = xVar,
+            designVars = designVars,
+            designstratadf = designstratadf[[run]]
+          )
+        }
     write.csv(designyeardf[[run]],
               paste0(dirname[[run]],shortName[run],designScenario,"DesignYear.csv"),
               row.names = FALSE)
-    } else
-      designyeardf[[run]]<-NULL
-    #And design based stratification
-    designstratadf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
-                             logdatval = logdat,
-                             strataVars = designVars,
-                             designVars = designVars,
-                             designPooling = designPooling,
-                             minStrataUnit = minStrataUnit,
-                             startYear = startYear,
-                             poolingSum = poolingSum[[run]],
-                             includePool= includePool[[run]]
-    )
-    write.csv(designstratadf[[run]],
-              paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
-    #And by requested groups
-    if(is.null(NewGroup)) {
+    #And by all requested groups in groupVar
+    if(is.null(NewGroup)) {  # if all groupVar in designVars
       designgroupdf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                                                logdatval = logdat,
                                                strataVars = groupVar,
@@ -223,12 +230,13 @@ bycatchDesign <- function(
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
   }
-    #By year or first grouping variable for graphing
-    if("Year" %in% groupVar) {
+    #By year or first grouping variable for graphing, only works if grouping var is in designVars
+    if("Year" %in% groupVar & !("Year" %in% NewGroup)) {
       x<-list("Unstratified ratio"=dplyr::select(yearSum[[run]],Year=.data$Year,
                                                  Total=.data$Cat,Total.se=.data$Cse))
 
     } else x<-NULL
+#    if(is.null(NewGroup)) {  # if designyeardf exists
       if("Ratio" %in% designMethods)
         x=c(x,list("Ratio"=dplyr::select(designyeardf[[run]],all_of(xVar),
                                          Total=.data$ratioMean,Total.se=.data$ratioSE)))
@@ -239,6 +247,7 @@ bycatchDesign <- function(
       mutate(TotalVar=.data$Total.se^2,Total.cv=.data$Total.se/.data$Total,
              Total.mean=NA,TotalLCI=.data$Total-1.96*.data$Total.se,TotalUCI=.data$Total+1.96*.data$Total.se) %>%
       mutate(TotalLCI=ifelse(.data$TotalLCI<0,0,.data$TotalLCI))
+ #   } else   yearSumGraph[[run]]<-NULL
   } else {
     yearSum[[run]]<-NULL
     designyeardf[[run]]<-NULL

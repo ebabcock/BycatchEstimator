@@ -216,6 +216,7 @@ cat('<div style="height:30px;"></div>\n')
 
 ```{r plot-pooling, results=TRUE,  message=FALSE, echo=FALSE, warning=FALSE,results="asis"}
 if(designPooling & !all(is.na(groupVar))){
+xVar<-ifelse("Year" %in% designVars,"Year",designVars[1]) 
 poolingSum[[run]]<-poolingSum[[run]] %>%
   mutate(Pooling=as.character(poolnum)) %>%
   mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))

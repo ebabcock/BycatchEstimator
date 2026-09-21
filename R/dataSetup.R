@@ -42,8 +42,8 @@
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
-#' latitudeVar = "Latitude",
-#' longitudeVar = "Longitude",
+#' latitudeVar = NULL,
+#' longitudeVar = NULL,
 #' spatialBin = 1,
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
@@ -165,6 +165,13 @@ bycatchSetup <- function(
 
 
     if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
+
+    #Check that logdat includes at least as many sample units as logdat
+    if(sum(logdat$SampleUnits)<nrow(obsdat))
+       stop(paste("Number of",sampleUnit,"in logdat is less than number of rows in obsdat.
+                  If logbook data is aggregated, check that logNum is set to the name of a
+                  column with the number of",sampleUnit,"per row in logdat"))
+
 
     # add here warning message about NAs in logbook data
     if(any(is.na(logdat[,c(allVarNames,"Effort")]))){

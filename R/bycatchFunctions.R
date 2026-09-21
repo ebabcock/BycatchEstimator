@@ -90,7 +90,7 @@ deltaEstimatorVar<-function(x) {
   returnval
 }
 
-#' Function for Pennington(1983) method SE of the mean squAred
+#' Function for Pennington(1983) method SE of the mean squared
 #'
 #' Output is SE squared of the delta estimator
 #' @param x is vector of data input
@@ -2356,7 +2356,9 @@ getDesignEstimatesUngroup<-function(
 #' @param sxy Value
 #' @keywords internal
 ratioVar<-function(x,X,n,N,Rhat,sx2,sy2,sxy) {
-  X^2*(1-n/N)/(x^2/n)*(sy2+Rhat^2*sx2-2*Rhat*sxy)
+  return<-X^2*(1-n/N)/(x^2/n)*(sy2+Rhat^2*sx2-2*Rhat*sxy)
+  return<-ifelse(return<0,NA,return)
+  return
 }
 
 #' Return a column of R squared values from input of a MuMin dredge table
