@@ -1,0 +1,4 @@
+"","model","formula","RMSE","ME"
+"1","TMBbinomial","area + fleet + Year2 + 1",NA,NA
+"2","TMBdelta-Lognormal","area + fleet + 1",0.0850440952071802,-0.000605723616228469
+"3","TMBnbinom2","area + fleet + Year2 + 1 + offset(log(Effort))",0.0871469232015593,0.00263586886612231

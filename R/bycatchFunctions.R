@@ -2288,7 +2288,8 @@ getDesignEstimatesUngroup<-function(
   OldGroup<-intersect(groupVar,designVars)
   y<-logdatval %>% group_by_at(all_of(designVars)) %>%
     summarize(TotalEffort=sum(Effort,na.rm=TRUE),
-              SampleUnits=sum(SampleUnits,na.rm=TRUE))%>%
+              SampleUnits=sum(SampleUnits,na.rm=TRUE))
+  if("Year" %in% designVars) y<-y %>%
     mutate(Year=as.numeric(as.character(Year)))
   designstratadf<-left_join(designstratadf,y,by=designVars)
   if(length(OldGroup)>0)

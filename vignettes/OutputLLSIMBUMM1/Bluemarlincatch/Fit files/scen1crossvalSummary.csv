@@ -1,7 +1,7 @@
 "","model","formula","RMSE","ME"
 "1","TMBbinomial","area + fleet + 1 + Year",NA,NA
-"2","TMBdelta-Lognormal","area + fleet + 1 + Year",0.0672908888563351,-0.00120311719193281
-"3","TMBnbinom1","area + fleet + 1 + Year + offset(log(Effort))",0.0672656535127889,0.00399662820654564
-"4","NegBin","area + fleet + 1 + Year + offset(log(Effort))",0.0668284143587847,0.00117297112707801
-"5","TMBnbinom2","area + fleet + 1 + Year + offset(log(Effort))",0.0668283952234144,0.00117298472604597
-"6","TMBtweedie","area + fleet + 1 + Year",0.0733557952981436,0.00113930140607102
+"2","TMBdelta-Lognormal","area + fleet + 1 + Year",0.0846153233316724,-0.000475866473745806
+"3","TMBnbinom1","area + fleet + 1 + Year + offset(log(Effort))",0.0850379640332744,0.00429951519766226
+"4","NegBin","area + fleet + 1 + Year + offset(log(Effort))",0.0857523921599326,0.00241890174535449
+"5","TMBnbinom2","area + fleet + 1 + Year + offset(log(Effort))",0.0857523858276225,0.00241890209834127
+"6","TMBtweedie","area + fleet + 1 + Year",0.0850863491481004,0.000340487756034707

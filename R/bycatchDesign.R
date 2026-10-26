@@ -102,7 +102,7 @@ bycatchDesign <- function(
   if(!all(designVars %in% c(factorVariables,"Year"))) stop(paste0("The design variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
   if(!all(is.na(groupVar))) {  #if not choosing to summarize whole dataset
    if(!all(groupVar %in% c(factorVariables,"Year"))) stop(paste0("The grouping variables for design-based estimation must be in the list of factor variables in the setup object. Year may be a number or a factor."))
-   if(!all(groupVar %in% c(designVars,"Year")))
+   if(!all(groupVar %in% c(designVars)))
      NewGroup<-setdiff(groupVar,designVars)
   }
   if(designPooling==FALSE) {
@@ -165,7 +165,7 @@ bycatchDesign <- function(
         write.csv(designstratadf[[run]],
                   paste0(dirname[[run]],shortName[run],designScenario,"DesignStrata.csv"), row.names = FALSE)
         # Summary by year, or first groupVar if year isn't in groupVar
-        if(is.null(NewGroup)) {  #if we don't need to allocate across groups not in designVars
+        if(is.null(NewGroup) & xVar %in% designVars) {  #if we don't need to allocate across groups not in designVars
      designyeardf[[run]]<-getDesignEstimates(obsdatval = dat[[run]],
                              logdatval = logdat,
                              strataVars = xVar,

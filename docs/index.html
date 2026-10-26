@@ -58,7 +58,7 @@
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>BycatchEstimator uses both model-based and design-based procedures to estimate total annual bycatch by expanding a sample, such as an observer database to the total effort from logbooks or landings records. The model framework can also be used to estimate an annual index of abundance, calculated only from the observer data. See the User’s Guide under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> for details. The source code is at <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a>. For a development version of a Shiny app that runs the data checks described below, go to <a href="https://natureanalytics.shinyapps.io/BycatchEstimator/" class="external-link uri">https://natureanalytics.shinyapps.io/BycatchEstimator/</a></p>
+<p>BycatchEstimator uses both model-based and design-based procedures to estimate total annual bycatch by expanding a sample, such as an observer database to the total effort from logbooks or landings records. The model framework can also be used to estimate an annual index of abundance, calculated only from the observer data. See the User’s Guide under articles at the <a href="https://ebabcock.github.io/BycatchEstimator/">bycatchEstimator site</a> for details. The source code is at the <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link">GitHub site</a>. For a development version of a Shiny app that runs the data checks described below, click <a href="https://natureanalytics.shinyapps.io/BycatchEstimator/" class="external-link">here</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -66,7 +66,15 @@
 <p>You can install the development version of BycatchEstimator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ebabcock/BycatchEstimator"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `install_github()` was deprecated in devtools 2.5.0.</span></span>
+<span><span class="co">#&gt; ℹ Please use pak::pak("user/repo") instead.</span></span>
+<span><span class="co">#&gt; This warning is displayed once per session.</span></span>
+<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span><span class="co">#&gt; generated.</span></span>
+<span><span class="co">#&gt; Using GitHub PAT from the git credential store.</span></span>
+<span><span class="co">#&gt; Skipping install of 'BycatchEstimator' from a github remote, the SHA1 (a893b12c) has not changed since last install.</span></span>
+<span><span class="co">#&gt;   Use `force = TRUE` to force installation</span></span></code></pre></div>
 <p>For more help with installation, see the <a href="https://ebabcock.github.io/BycatchEstimator/">Installation Guide</a>. Also, see the <a href="https://miami.zoom.us/rec/share/ec4dqzeZ4s_fuoVM8wb6B-a5npAwZZfV9tNciZpGaUMcQAYVLrJiWXQo5yXWjfVl.9Sl_3METqgD8O5l0?startTime=1751276745000" class="external-link">video tutorial</a> Passcode: gZ!tK8!n</p>
 <p>If you have used older versions of this tool, see the the article on how to adjust your code to use the new version. It is under articles at <a href="https://ebabcock.github.io/BycatchEstimator/" class="uri">https://ebabcock.github.io/BycatchEstimator/</a> and called <a href="https://ebabcock.github.io/BycatchEstimator/articles/TransitionFrom2024Version.html">Transitioning to the new version of bycatchEstimator in 2025</a>.</p>
 </div>
@@ -79,16 +87,16 @@
 <div class="section level3">
 <h3 id="logbook-data">Logbook data<a class="anchor" aria-label="anchor" href="#logbook-data"></a>
 </h3>
-<p>Simulation of longline fleets with LLSIM was conducted using three idealized fleets as described by Goodyear (2021). These fleets are a USA-like fleet (fleet 1), Japan-like fleet (fleet 2) and a Brazil-like fleet (fleet 3). The simulated data set included three fleets, with data spanning from 1990 to 2018 to reflect the approximate period for which observer coverage has been established. The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were allocated by trip (Babcock and Goodyear 2021). Sets are allocated to trip if they were in the same gear, month and spatial area (5 x 5 squares). Trips with more than 100 sets were randomly allocated to different trips so that the median trips had about 20 sets.</p>
+<p>Simulation of longline fleets with LLSIM was conducted using three idealized fleets as described by Goodyear (2021). These fleets are a USA-like fleet (fleet 1), Japan-like fleet (fleet 2) and a Brazil-like fleet (fleet 3). The simulated data set included three fleets, with data spanning from 1990 to 2018 to reflect the approximate period for which observer coverage has been established. The species distribution model (SDM) and longline simulator generates a 3-dimensional distribution of blue marlin and swordfish throughout the Atlantic Ocean based on the habitat preferences of the species. Simulated longline sets are then generated by distributing hooks throughout the habitat of the species, consistent with the distribution, gear, hooks between floats, use of lightsticks and other characteristics of historical longline fishing fleets. While LLSIM initially produces set-level catches, both logbooks and observer databases were allocated to “trips” based on random sampling algorithm (Babcock and Goodyear 2021).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">LLSIM_BUM_Example_logbook</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_logbook</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="observer-program-data">Observer program data<a class="anchor" aria-label="anchor" href="#observer-program-data"></a>
 </h3>
 <p>Observer program data are generated by passing the trip-level logbook data to an observer program sub-model. The observer sub-model assumes that observer coverage is randomly assigned to trips, with 5% coverage of trips. The entire trip is assumed to be observed.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">LLSIM_BUM_Example_observer</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">LLSIM_BUM_Example_observer</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="data-setup">Data setup<a class="anchor" aria-label="anchor" href="#data-setup"></a>
@@ -101,6 +109,9 @@
 <span>  yearVar <span class="op">=</span> <span class="st">"Year"</span>,</span>
 <span>  obsEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
 <span>  logEffort <span class="op">=</span> <span class="st">"hooks"</span>,</span>
+<span>  latitudeVar <span class="op">=</span> <span class="st">"lat"</span>,</span>
+<span>  longitudeVar <span class="op">=</span> <span class="st">"lon"</span>,</span>
+<span>  spatialBin <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  obsCatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SWO"</span>,<span class="st">"BUM"</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="co"># selecting Blue marlin catch</span></span>
 <span>  catchUnit <span class="op">=</span> <span class="st">"number"</span>,</span>
 <span>  catchType <span class="op">=</span> <span class="st">"catch"</span>,</span>
@@ -120,11 +131,12 @@
 <div class="section level3">
 <h3 id="design-based-estimators">Design-based estimators<a class="anchor" aria-label="anchor" href="#design-based-estimators"></a>
 </h3>
-<p>Estimation of bycatch using design-based estimators is done with <code>bycatchDesign</code>, requiring the output of <code>bycatchSet</code> and other inputs. This uses a stratified ratio estimator or stratified delta-lognormal estimator, with stratification variables defined by the user. To deal with strata that have no observations or few observations, the user may request pooling, and specify the minimum number of sample units needed to avoid pooling. <code>bycatchDesign</code> also produces an html or pdf output with results to the specified directory.</p>
+<p>Estimation of bycatch using design-based estimators is done with <code>bycatchDesign</code>, requiring the output of <code>bycatchSet</code> and other inputs. This uses a stratified ratio estimator or stratified delta-lognormal estimator, with stratification variables defined by the user. To deal with strata that have no observations or few observations, the user may request pooling, and specify the minimum number of sample units needed to avoid pooling. The input groupVar is a character vector of the names of variables to be used to group the output into useful summaries. <code>bycatchDesign</code> also produces an html or pdf output with results to the specified directory.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">designObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/bycatchDesign.html">bycatchDesign</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  designScenario <span class="op">=</span> <span class="st">"noPool"</span>,</span>
+<span>  groupVar <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"area"</span><span class="op">)</span>,</span>
 <span>  designMethods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ratio"</span>, <span class="st">"Delta"</span><span class="op">)</span>,</span>
 <span>  designVars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"area"</span>,<span class="st">"season"</span><span class="op">)</span>,</span>
 <span>  designPooling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -138,11 +150,12 @@
 <div class="section level3">
 <h3 id="model-based-estimators">Model-based estimators<a class="anchor" aria-label="anchor" href="#model-based-estimators"></a>
 </h3>
-<p>Estimation of bycatch and/or index of abundance is carried out by using the function <code>bycatchFit</code>. This function requires an object produced by <code>bycatchSetup</code>. Bycatch estimation is carried out by running linear models based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) with predictor variables (e.g., year, season, depth). The task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC) and cross validation. Once a best approximating model is identified, the standardized CPUE model is used to predict total bycatch in all logbook trips and summing across trips. The user needs to define the most complex model configuration and simple model configuration, and the function will fit all models in between. Random effects can also be specified, and the user needs to opt-in for doing cross validation. The default method for variance calculation is the simulation method, but other options are available. <code>bycatchFit</code> also produces an html or pdf output with results to the specified directory.</p>
+<p>Estimation of bycatch and/or index of abundance is carried out by using the function <code>bycatchFit</code>. This function requires an object produced by <code>bycatchSetup</code>. Bycatch estimation is carried out by running linear models based on user-defined statistical distributions of observation error models (e.g. delta-lognormal, and negative binomial) with predictor variables (e.g., year, season, depth). The task of identifying a best approximating model is addressed through a semi-automated model selection process based on the user’s choice of information criteria (AICc, AIC or BIC) and cross validation. Once a best approximating model is identified, the standardized CPUE model is used to predict total bycatch in all logbook trips and summing across trips. The user needs to define the most complex model configuration and simple model configuration, and the function will fit all models in between. Random effects can also be specified, and the user needs to opt-in for doing cross validation. The total bycatch is estimated for each combination of the variables specified in “PredictionGroups”, as well as (generally) by Year. The default method for variance calculation is the delta method, but other options are available. <code>bycatchFit</code> also produces an html or pdf output with results to the specified directory.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/bycatchFit.html">bycatchFit</a></span><span class="op">(</span></span>
 <span>  setupObj <span class="op">=</span> <span class="va">setupObj</span>,</span>
 <span>  modelScenario <span class="op">=</span> <span class="st">"s1"</span>,</span>
+<span>  predictionGroups<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year"</span>,<span class="st">"area"</span><span class="op">)</span>,</span>
 <span>  complexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">+</span><span class="va">area</span><span class="op">)</span>,</span>
 <span>  simpleModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
 <span>  indexModel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">Year</span><span class="op">)</span>,</span>
@@ -152,7 +165,7 @@
 <span>  selectCriteria <span class="op">=</span> <span class="st">"BIC"</span>,</span>
 <span>  DoCrossValidation <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  CIval <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  VarCalc <span class="op">=</span> <span class="st">"Simulate"</span>,</span>
+<span>  VarCalc <span class="op">=</span> <span class="st">"DeltaMethod"</span>,</span>
 <span>  useParallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nSims <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  plotValidation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -179,6 +192,7 @@
 <span>  <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">geom_ribbon</span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>See the User Guide for more es</p>
 </div>
 </div>
 <div class="section level2">
