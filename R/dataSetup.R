@@ -157,14 +157,14 @@ bycatchSetup <- function(
       logNum<-"SampleUnits"
     }
     logdat<-logdat %>%
-      rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
+      rename(SampleUnits=!!logNum) %>%
       mutate(across(all_of(factorVariables),factor))
+    if(logNum==logEffort)  #if logEffort and logNum are the same column, use mutate not rename
+      logdat<-mutate(logdat,Effort=SampleUnits) else
+        logdat<-rename(logdat,Effort=!!logEffort)
     if(sum(!is.na(numericVariables))>0)
       logdat<-logdat %>%
       mutate(across(all_of(numericVariables),as.numeric2))
-
-
-    if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
 
     #Check that logdat includes at least as many sample units as logdat
     if(sum(logdat$SampleUnits)<nrow(obsdat))
