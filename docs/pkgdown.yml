@@ -5,8 +5,9 @@ articles:
   Course2025: Course2025.html
   InstallationGuide: InstallationGuide.html
   TransitionFrom2024Version: TransitionFrom2024Version.html
+  TransitionFrom2025Version: TransitionFrom2025Version.html
   UserGuide2: UserGuide2.html
-last_built: 2026-10-26T12:04Z
+last_built: 2026-11-08T18:18Z
 urls:
   reference: https://ebabcock.github.io/BycatchEstimator/reference
   article: https://ebabcock.github.io/BycatchEstimator/articles

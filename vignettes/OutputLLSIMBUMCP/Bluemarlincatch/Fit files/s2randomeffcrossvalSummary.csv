@@ -1,6 +1,6 @@
 "","model","formula","RMSE","ME"
 "1","TMBbinomial","area + fleet + season + Year + (1 | Year:area)",NA,NA
-"2","TMBdelta-Lognormal","area + fleet + Year + (1 | Year:area)",0.157751611388178,0.00322820387692528
-"3","TMBdelta-Gamma","area + fleet + Year + (1 | Year:area)",0.158130829034824,0.00180821516026403
-"4","TMBnbinom2","area + fleet + Year + (1 | Year:area) + offset(log(Effort))",0.15927387309846,0.00112213037026004
-"5","TMBtweedie","area + fleet + Year + (1 | Year:area)",0.157331905899742,0.000960157000406975
+"2","TMBdelta-Lognormal","area + fleet + Year + (1 | Year:area)",0.159842945784058,0.00305144641848588
+"3","TMBdelta-Gamma","area + fleet + Year + (1 | Year:area)",0.160447786396172,0.00155977726934332
+"4","TMBnbinom2","area + fleet + Year + (1 | Year:area) + offset(log(Effort))",0.161396148465885,0.0011062888190368
+"5","TMBtweedie","area + fleet + Year + (1 | Year:area)",0.159363366709873,0.000576709881193776

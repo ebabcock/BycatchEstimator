@@ -1,0 +1,26 @@
+---
+title: "Transitioning to the new version in 2026"
+author: "Elizabeth A. Babcock"
+date: "2026-11-08"
+output: html_document
+---
+
+Changes in new version in 2026
+
+1. The delta method for variance calculation is now much faster, and
+is the recommended method.
+
+2. It is now possible to report design-based or model-based estimates in any 
+aggregation desired. For example, you could estimate design-based estimators
+at the scale of one set of spatial areas (e.g. national statistical areas), 
+and report by a different set of spatial areas (e.g. ICCAT statistical areas). 
+The existing variable `groupVar` in `bycatchDesign` may now be a character vector 
+giving the variables to group over. See user guide for details.
+
+3. If the user inputs column names for latitude and latitude (or northing and easting)
+along with a number for the size of desired spatial bins (e.g. 1 degree by 1 degree),
+maps summarizing the total and observed effort, and catches of the target species
+are plotted in `bycatchSetup`
+
+4. Code that worked last year should still work. Please contact ebabcock@miami.edu
+with any issues. 
