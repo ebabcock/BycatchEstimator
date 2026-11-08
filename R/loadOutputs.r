@@ -95,18 +95,21 @@ loadOutputs<-function(baseDir = getwd(),
       allModResults[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmods,
                                     .id="Common")%>%
         separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))
-      names(modelObjList[[i]]$modelOutputs$allmodsStrata)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
-      allModResultsGroup[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmodsStrata,
+      #If grouped results exist
+      if(length(modelObjList[[i]]$modelOutputs$allmodsStrata)>0) {
+       names(modelObjList[[i]]$modelOutputs$allmodsStrata)<-paste(1:numSp,setupObj$bycatchInputs$common,setupObj$bycatchInputs$sp,setupObj$bycatchInputs$catchType,sep=";")
+       allModResultsGroup[[i]]<-bind_rows(modelObjList[[i]]$modelOutputs$allmodsStrata,
                                           .id="Common")%>%
         separate_wider_delim(Common,delim=";",names = c("spNum","Common","Species","CatchType"))
     }
+  }
     names(modelObjList)<-modelScenarios
     names(allModResults)<-modelScenarios
     allModResults<-bind_rows(allModResults,.id="Scenario")
-    allModResultsGroup<-bind_rows(allModResultsGroup,.id="Scenario")
+    if(length(modelObjList[[i]]$modelOutputs$allmodsStrata)>0) allModResultsGroup<-bind_rows(allModResultsGroup,.id="Scenario")
     if("Year" %in% names(allModResults)) {
       allModResults<-mutate(allModResults,Year=as.numeric(as.character(Year)))
-      allModResultsGroup<-mutate(allModResultsGroup,Year=as.numeric(as.character(Year)))
+      if(length(modelObjList[[i]]$modelOutputs$allmodsStrata)>0) allModResultsGroup<-mutate(allModResultsGroup,Year=as.numeric(as.character(Year)))
     }
   }  else {
     allModResults<-NULL

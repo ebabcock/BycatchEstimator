@@ -2368,6 +2368,7 @@ ratioVar<-function(x,X,n,N,Rhat,sx2,sy2,sxy) {
 #' @param obsdatval observer data
 #' @param funcName function used in fitting (e.g. glm or glmmTMB)
 #' @keywords internal
+#' @import MuMIn
 addR2<-function(dredgeTable,obsdatval,funcName) {
   R2<-NA
   for(i in 1:nrow(dredgeTable)) {
