@@ -2533,7 +2533,7 @@ makePredictionsDeltaVarFast <- function(modfit1, modfit2 = NULL, newdat, modtype
   if (includeObsCatch)  {
     newdat$Effort <- newdat$unsampledEffort / newdat$SampleUnits
     newdat <- uncount(newdat, .data$SampleUnits)
-    newdat$SampleUnits <- rep(1, nObs)
+    newdat$SampleUnits <- rep(1, nrow(newdat))
   }
   newdatall <- newdat
 
