@@ -14,7 +14,7 @@ makePredictionsSimVarBig(
   obsdatval,
   includeObsCatch,
   nsim,
-  requiredVarNames,
+  predictionGroups,
   CIval,
   printOutput = TRUE,
   catchType,
@@ -59,7 +59,7 @@ makePredictionsSimVarBig(
 
   Value
 
-- requiredVarNames:
+- predictionGroups:
 
   Value
 

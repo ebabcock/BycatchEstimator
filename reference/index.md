@@ -18,3 +18,7 @@
   : Logbook simple example data set
 - [`obsdatExample`](https://ebabcock.github.io/BycatchEstimator/reference/obsdatExample.md)
   : Observer simple example data set
+- [`plot_catch_sampled()`](https://ebabcock.github.io/BycatchEstimator/reference/plot_catch_sampled.md)
+  : Make a plot of the observed effort and catches
+- [`plot_effort_sampled()`](https://ebabcock.github.io/BycatchEstimator/reference/plot_effort_sampled.md)
+  : Make plot of effort and sampling distribution

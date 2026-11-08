@@ -13,7 +13,7 @@ makePredictionsNoVar(
   obsdatval = NULL,
   nsims,
   includeObsCatch,
-  requiredVarNames,
+  predictionGroups,
   printOutput = TRUE,
   catchType,
   common,
@@ -51,7 +51,7 @@ makePredictionsNoVar(
 
   Value
 
-- requiredVarNames:
+- predictionGroups:
 
   Value
 

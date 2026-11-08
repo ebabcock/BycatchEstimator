@@ -1,9 +1,10 @@
-# Function to make design based estimates of bycatch from the ratio estimator of Pennington Delta estimator, pooling as needed for strata missing data. stratification defined by designVars, then aggregated to strataVars
+# Function to make design based estimates of bycatch from the ratio estimator of Pennington Delta estimator, pooling as needed for strata missing data. All estimates are first calculated at the stratification defined by designVars, then aggregated to strataVars. Use outGroups to include any grouping Variables that are not in designVars.
 
 Function to make design based estimates of bycatch from the ratio
 estimator of Pennington Delta estimator, pooling as needed for strata
-missing data. stratification defined by designVars, then aggregated to
-strataVars
+missing data. All estimates are first calculated at the stratification
+defined by designVars, then aggregated to strataVars. Use outGroups to
+include any grouping Variables that are not in designVars.
 
 ## Usage
 
@@ -17,7 +18,8 @@ getDesignEstimates(
   minStrataUnit = 1,
   startYear,
   poolingSum = NULL,
-  includePool = NULL
+  includePool = NULL,
+  outGroups = NULL
 )
 ```
 
@@ -56,5 +58,9 @@ getDesignEstimates(
   Value
 
 - includePool:
+
+  Value
+
+- outGroups:
 
   Value

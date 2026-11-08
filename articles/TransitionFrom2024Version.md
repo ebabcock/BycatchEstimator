@@ -8,6 +8,7 @@ the following code. This is not recommended, as the new versions has
 corrections and new features:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("ebabcock/BycatchEstimator@v0.0.9")
 ```
@@ -40,6 +41,7 @@ changes in comments. The new output file includes data warnings and
 summaries
 
 ``` r
+
 library(BycatchEstimator)
 library(MuMIn)
 setupObj<-bycatchSetup(
@@ -83,6 +85,7 @@ specifications for design-based estimators. There is a new pooling
 option “none” for variables that should never by pooled.
 
 ``` r
+
 bycatchDesign(
 setupObj = setupObj,
 designScenario = "noPool",                  #NEW:Name for output files 
@@ -102,6 +105,7 @@ The new `bycatchFit` takes setupObj as an input, as well as all the
 specifications for model-based estimators.
 
 ``` r
+
 bycatchFit(
 setupObj = setupObj, 
 modelScenario = "s1",                       #NEW. Name included in output files

@@ -1,4 +1,4 @@
-# Function for Pennington(1983) method SE of the mean squAred
+# Function for Pennington(1983) method SE of the mean squared
 
 Output is SE squared of the delta estimator
 

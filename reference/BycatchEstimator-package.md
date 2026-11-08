@@ -21,6 +21,8 @@ Useful links:
 
 Authors:
 
+- Elizabeth Babcock <ebabcock@rsmas.miami.edu>
+
 - William Harford <bill@natureanalytics.ca> \[contributor\]
 
 - Ana Adao <aadao@natureanalytics.ca> \[contributor\]

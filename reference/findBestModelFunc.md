@@ -11,6 +11,7 @@ findBestModelFunc(
   requiredVarNames,
   allVarNames,
   complexModel,
+  simpleModel,
   randomEffects = NULL,
   useParallel,
   selectCriteria,
@@ -44,6 +45,10 @@ findBestModelFunc(
   Value
 
 - complexModel:
+
+  Value
+
+- simpleModel:
 
   Value
 

@@ -11,6 +11,7 @@ bycatchFit(
   complexModel,
   simpleModel,
   indexModel = NULL,
+  predictionGroups = NULL,
   modelTry = c("Delta-Lognormal", "Delta-Gamma", "TMBnbinom1", "TMBnbinom2",
     "TMBtweedie"),
   randomEffects = NULL,
@@ -18,7 +19,7 @@ bycatchFit(
   selectCriteria = "BIC",
   DoCrossValidation = FALSE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "DeltaMethod",
   includeObsCatch = FALSE,
   matchColumn = NULL,
   EstimateIndex = FALSE,
@@ -58,6 +59,14 @@ bycatchFit(
   Specify as stats::formula. Use indexModel to specify which strata to
   keep separate in calculating abundance indices.
 
+- predictionGroups, :
+
+  Character vector. Categorical variables to group predictions, such as
+  years and spatial areas. These need not be in the fitted model, but
+  must be factor variables defined in bycatchSetup. The default (if NULL
+  is entered) is the terms in simpleModel. Annual summaries are also
+  given by default if year is in predictionGroups.
+
 - modelTry:
 
   Specify which observation error models to try. Options are:
@@ -93,8 +102,9 @@ bycatchFit(
 
 - DoCrossValidation:
 
-  Specify whether to run a 10 fold cross-validation (TRUE or FALSE).
-  This may not work with a small or unbalanced dataset
+  Specify whether to run a 10 fold cross-validation (TRUE or FALSE) to
+  compare the best models in each model type defined by `modelTry`. This
+  may not work with a small or unbalanced dataset
 
 - CIval:
 
@@ -103,11 +113,11 @@ bycatchFit(
 
 - VarCalc:
 
-  Character. Variance calculation method. Options are:
-  "Simulate","DeltaMethod", or "None". Simulate will not work with a
-  large number of sample units in the logbook data. The delta method for
-  variance calculation is not implemented for the delta-lognormal or
-  delta-gamma methods.
+  Character. Variance calculation method. Options are: "DeltaMethod", a
+  fast delta-method is the default; "Simulate" for a simulate based
+  method, or "None" for no variance calculations. DeltaMethodOld" is
+  available for backward compatibility. Simulate will not work with a
+  large number of sample units in the logbook data.
 
 - includeObsCatch:
 
@@ -194,13 +204,14 @@ modelScenario = "s1",
 complexModel = formula(y~(Year+season)^2),
 simpleModel = formula(y~Year),
 indexModel = formula(y~Year),
+predictionGroups = NULL,
 modelTry = c("Delta-Lognormal","TMBnbinom2"),
 randomEffects = NULL,
 randomEffects2 = NULL,
 selectCriteria = "BIC",
 DoCrossValidation = TRUE,
 CIval = 0.05,
-VarCalc = "Simulate",
+VarCalc = "DeltaMethod",
 includeObsCatch=FALSE,
 matchColumn=NULL,
 EstimateIndex=FALSE,

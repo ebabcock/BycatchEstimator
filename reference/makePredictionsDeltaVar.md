@@ -12,7 +12,7 @@ makePredictionsDeltaVar(
   modtype,
   obsdatval,
   includeObsCatch,
-  requiredVarNames,
+  predictionGroups,
   CIval,
   printOutput = TRUE,
   catchType,
@@ -47,7 +47,7 @@ makePredictionsDeltaVar(
 
   Value
 
-- requiredVarNames:
+- predictionGroups:
 
   Value
 

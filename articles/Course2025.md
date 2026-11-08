@@ -23,6 +23,7 @@ including tidyverse. For more guidance, see here:
 <https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.html>
 
 ``` r
+
 #devtools::install_github("ebabcock/BycatchEstimator")
 library(BycatchEstimator)
 library(MuMIn)
@@ -38,16 +39,17 @@ The package includes some simulated longline observer data from LLSIM,
 and a toy example data set. This is the toy data:
 
 ``` r
+
 summary(obsdatExample)
 ```
 
-    ##       EW                season           Year       sampled.sets     
-    ##  Length:394         Min.   :1.000   Min.   :2009   Min.   :  0.7347  
-    ##  Class :character   1st Qu.:1.000   1st Qu.:2011   1st Qu.: 17.9600  
-    ##  Mode  :character   Median :1.000   Median :2013   Median : 22.4808  
-    ##                     Mean   :1.398   Mean   :2013   Mean   : 30.1655  
-    ##                     3rd Qu.:2.000   3rd Qu.:2015   3rd Qu.: 46.4658  
-    ##                     Max.   :2.000   Max.   :2018   Max.   :107.7441  
+    ##          EW          season           Year       sampled.sets     
+    ##  Length   :394   Min.   :1.000   Min.   :2009   Min.   :  0.7347  
+    ##  N.unique :  2   1st Qu.:1.000   1st Qu.:2011   1st Qu.: 17.9600  
+    ##  N.blank  :  0   Median :1.000   Median :2013   Median : 22.4808  
+    ##  Min.nchar:  1   Mean   :1.398   Mean   :2013   Mean   : 30.1655  
+    ##  Max.nchar:  1   3rd Qu.:2.000   3rd Qu.:2015   3rd Qu.: 46.4658  
+    ##                  Max.   :2.000   Max.   :2018   Max.   :107.7441  
     ##      Catch       
     ##  Min.   : 0.000  
     ##  1st Qu.: 0.000  
@@ -57,6 +59,7 @@ summary(obsdatExample)
     ##  Max.   :33.000
 
 ``` r
+
 dim(obsdatExample)
 ```
 
@@ -72,25 +75,20 @@ model-base estimates. CPUE would be in terms of *Catch/sampled.sets*.
 The corresponding logbook data is here:
 
 ``` r
+
 summary(logdatExample)
 ```
 
-    ##       sets               Year          season           EW           
-    ##  Min.   :  0.4343   Min.   :2009   Min.   :1.000   Length:7794       
-    ##  1st Qu.: 13.1870   1st Qu.:2011   1st Qu.:1.000   Class :character  
-    ##  Median : 25.3512   Median :2013   Median :1.000   Mode  :character  
-    ##  Mean   : 28.2885   Mean   :2013   Mean   :1.415                     
-    ##  3rd Qu.: 38.4678   3rd Qu.:2016   3rd Qu.:2.000                     
-    ##  Max.   :529.8817   Max.   :2018   Max.   :2.000                     
-    ##      trips  
-    ##  Min.   :1  
-    ##  1st Qu.:1  
-    ##  Median :1  
-    ##  Mean   :1  
-    ##  3rd Qu.:1  
-    ##  Max.   :1
+    ##       sets               Year          season              EW           trips  
+    ##  Min.   :  0.4343   Min.   :2009   Min.   :1.000   Length   :7794   Min.   :1  
+    ##  1st Qu.: 13.1870   1st Qu.:2011   1st Qu.:1.000   N.unique :   2   1st Qu.:1  
+    ##  Median : 25.3512   Median :2013   Median :1.000   N.blank  :   0   Median :1  
+    ##  Mean   : 28.2885   Mean   :2013   Mean   :1.415   Min.nchar:   1   Mean   :1  
+    ##  3rd Qu.: 38.4678   3rd Qu.:2016   3rd Qu.:2.000   Max.nchar:   1   3rd Qu.:1  
+    ##  Max.   :529.8817   Max.   :2018   Max.   :2.000                    Max.   :1
 
 ``` r
+
 dim(logdatExample)
 ```
 
@@ -115,6 +113,7 @@ directory for the user to review. The inputs to the `bycatchSetup`
 function are explained in the help file. To see what the function does:
 
 ``` r
+
 ?bycatchSetup
 ```
 
@@ -125,6 +124,7 @@ For now, let’s run the simulated example data. First set the working
 directory to where you want the outputs to be, for example:
 
 ``` r
+
 # Commented out so it will not run, because every computer has a different path. 
 # setwd("~/Tutorials")
 ```
@@ -133,6 +133,7 @@ Now copy and paste this example to the console or an R script and run
 it:
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatExample,
   logdat = logdatExample,
@@ -191,12 +192,14 @@ this function if you are only using model-based estimates (see below).
 The inputs to `bycatchDesign` are explained in the help file:
 
 ``` r
+
 ?bycatchDesign
 ```
 
 You can use this code:
 
 ``` r
+
 bycatchDesign(
 setupObj = setupObj,
 designScenario = "withPooling",
@@ -227,6 +230,7 @@ later.
 The `bycatchFit` function does all the model-based estimates.
 
 ``` r
+
 ?bycatchFit
 ```
 
@@ -238,6 +242,7 @@ modelTry. It can also do cross validation if desired. It prints out the
 model based estimates, diagnostics, and selection criteria.
 
 ``` r
+
 bycatchFit(
 setupObj = setupObj,
 modelScenario = "model1",
@@ -273,6 +278,7 @@ bycatchSetup and how to interpret them (what to look out for in terms of
 potential issues with the data). First load the libraries:
 
 ``` r
+
 # devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed and up to date
 library(BycatchEstimator)
 library(MuMIn)
@@ -287,6 +293,7 @@ called *trip* which can be used to match the sampled trips in the
 observer data to the corresponding trips in the logbook.
 
 ``` r
+
 print(head(LLSIM_BUM_Example_observer))
 ```
 
@@ -303,6 +310,7 @@ print(head(LLSIM_BUM_Example_observer))
     ## #   habSWO <dbl>, habBUM <dbl>, season <dbl>, area <chr>
 
 ``` r
+
 print(head(LLSIM_BUM_Example_logbook))
 ```
 
@@ -322,6 +330,7 @@ print(head(LLSIM_BUM_Example_logbook))
 Now let’s run bycatchSetup with the following arguments:
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = LLSIM_BUM_Example_observer,
   logdat = LLSIM_BUM_Example_logbook,
@@ -417,6 +426,7 @@ estimators, including different pooling methods, using the data sets
 included with the tool. First load the libraries:
 
 ``` r
+
 # devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed and up to date
 library(BycatchEstimator)
 library(MuMIn)
@@ -431,6 +441,7 @@ catch of blue marlin *BUM* and effort is in *hooks*. Run first
 data:
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = LLSIM_BUM_Example_observer,
   logdat = LLSIM_BUM_Example_logbook,
@@ -458,6 +469,7 @@ setupObj<-bycatchSetup(
 And then run `bycatchDesign`, first with no pooling:
 
 ``` r
+
 bycatchDesign(
   setupObj = setupObj,
   designScenario = "NoPooling",
@@ -483,6 +495,7 @@ pooling.
 ### With pooling
 
 ``` r
+
 bycatchDesign(
   setupObj = setupObj,
   designScenario = "Pool2", #update name
@@ -508,6 +521,7 @@ the stratum, if n was above the minimum. For example, look at *Year*
 1996, *fleet* 3, and *area* N.
 
 ``` r
+
 pooling<-read.csv("OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPool2Pooling.csv") 
 head(pooling)
 ```
@@ -528,6 +542,7 @@ head(pooling)
     ## 6              777         27417.542
 
 ``` r
+
 pooling%>%
   mutate(Pooling=as.character(poolnum)) %>%
   mutate(Pooling=ifelse(is.na(Pooling),paste0(">",max(poolnum,na.rm=TRUE)),Pooling))%>%
@@ -539,6 +554,7 @@ pooling%>%
 ![](Course2025_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
+
 #pull out an exmple
 filter(pooling,Year %in% 1994:2000, fleet==3, area=="N")
 ```
@@ -566,6 +582,7 @@ pooling. Does the *pooled.n* value for 1998 make sense?
 Let’s look at a stratum that needed more pooling.
 
 ``` r
+
 filter(pooling,Year %in% 2002:2006, fleet==1)
 ```
 
@@ -594,6 +611,7 @@ estimate. So, *poolnum* is 2, and the *pooled.n* includes all areas for
 that fleet in that year.
 
 ``` r
+
 nrow(filter(LLSIM_BUM_Example_observer,Year %in% 2002:2006,fleet==1))
 ```
 
@@ -607,6 +625,7 @@ as a diagnostic that the pooling works as intended (last figure).
 Now try the pooling for a higher minimum number of observed trips:
 
 ``` r
+
 bycatchDesign(
   setupObj = setupObj,
   designScenario = "Pool5", #update name
@@ -621,6 +640,7 @@ bycatchDesign(
 ```
 
 ``` r
+
 pooling<-read.csv("OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPool5Pooling.csv") 
 pooling%>%
   mutate(Pooling=as.character(poolnum)) %>%
@@ -642,6 +662,7 @@ months, the variable to pool on (if needed) could be season. Let’s try
 that.
 
 ``` r
+
 bycatchDesign(
   setupObj = setupObj,
   designScenario = "PoolMonth", #update name
@@ -656,6 +677,7 @@ bycatchDesign(
 ```
 
 ``` r
+
 pooling<-read.csv("OutputLLSIMBUM/Bluemarlincatch/Design files/BluemarlincatchPoolMonthPooling.csv") 
 pooling%>%
   mutate(Pooling=as.character(poolnum)) %>%
@@ -693,6 +715,7 @@ selection and diagnostics, including:
 - Choosing the best model.
 
 ``` r
+
 # devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed
 library(BycatchEstimator)
 library(MuMIn)
@@ -705,6 +728,7 @@ this demonstration, we will limit the data to a 5 year period so it will
 run faster.
 
 ``` r
+
 obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2011:2015)
 logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2011:2015)
 ```
@@ -724,6 +748,7 @@ should not include any interactions.
 First run again `bycatchSetup` with the 5 years of data:
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
   logdat = logdatTest,
@@ -753,6 +778,7 @@ ranking models in the MuMIn dredge function. Bayesian information
 criterion (BIC) works well.
 
 ``` r
+
 bycatchFit(
   setupObj = setupObj,
   modelScenario = "scen1",
@@ -798,20 +824,21 @@ observations), “fit” (meaning the model never converged) or “CV”
 (meaning predicted CVs were too large).
 
 ``` r
+
 crossval<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1crossvalSummary.csv")
 crossval %>%
   mutate_if(is.numeric,round,digits=4) %>%
   flextable()
 ```
 
-| X   | model              | formula                                       | RMSE   | ME      |
-|-----|--------------------|-----------------------------------------------|--------|---------|
-| 1   | TMBbinomial        | area + fleet + 1 + Year                       |        |         |
-| 2   | TMBdelta-Lognormal | area + fleet + 1 + Year                       | 0.0673 | -0.0012 |
-| 3   | TMBnbinom1         | area + fleet + 1 + Year + offset(log(Effort)) | 0.0673 | 0.0040  |
-| 4   | NegBin             | area + fleet + 1 + Year + offset(log(Effort)) | 0.0668 | 0.0012  |
-| 5   | TMBnbinom2         | area + fleet + 1 + Year + offset(log(Effort)) | 0.0668 | 0.0012  |
-| 6   | TMBtweedie         | area + fleet + 1 + Year                       | 0.0734 | 0.0011  |
+| X | model | formula | RMSE | ME |
+|----|----|----|----|----|
+| 1 | TMBbinomial | area + fleet + 1 + Year |  |  |
+| 2 | TMBdelta-Lognormal | area + fleet + 1 + Year | 0.0806 | -0.0005 |
+| 3 | TMBnbinom1 | area + fleet + 1 + Year + offset(log(Effort)) | 0.0812 | 0.0044 |
+| 4 | NegBin | area + fleet + 1 + Year + offset(log(Effort)) | 0.0813 | 0.0022 |
+| 5 | TMBnbinom2 | area + fleet + 1 + Year + offset(log(Effort)) | 0.0813 | 0.0022 |
+| 6 | TMBtweedie | area + fleet + 1 + Year | 0.0813 | 0.0000 |
 
 Figure 2 in the html file shows boxplots of RMSE and ME across 10 folds
 of the cross validation. The RMSE and ME values are very similar between
@@ -820,6 +847,7 @@ models but the delta-lognormal has the lowest RMSE. The csv files called
 figures.
 
 ``` r
+
 rmse<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1rmse.csv") %>% 
   pivot_longer(TMBdelta.Lognormal:TMBtweedie, names_to="Model", values_to="RMSE") 
 ggplot(rmse,aes(x=Model,y=RMSE)) + geom_boxplot()
@@ -828,6 +856,7 @@ ggplot(rmse,aes(x=Model,y=RMSE)) + geom_boxplot()
 ![](Course2025_files/figure-html/unnamed-chunk-31-1.png)
 
 ``` r
+
 me<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1me.csv") %>% 
   pivot_longer(TMBdelta.Lognormal:TMBtweedie, names_to="Model", values_to="ME") 
 ggplot(me,aes(x=Model,y=ME)) + geom_boxplot()
@@ -847,22 +876,23 @@ to minor violations of model assumptions. In this case, negative binomal
 and Tweedie have some failures.
 
 ``` r
+
 diagnostics_summary<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/scen1modelSummary.csv")
 diagnostics_summary %>% 
   mutate_if(is.numeric,round,digits=4) %>%
   flextable()
 ```
 
-| X                | TMBbinomial | TMBdelta.Lognormal | TMBnbinom1 | NegBin | TMBnbinom2 | TMBtweedie |
-|------------------|-------------|--------------------|------------|--------|------------|------------|
-| KS.D             | 0.0540      | 0.0709             | 0.0590     | 0.0458 | 0.0279     | 0.0568     |
-| KS.p             | 0.3783      | 0.8282             | 0.2759     | 0.5894 | 0.9798     | 0.3190     |
-| Dispersion.ratio | 1.0088      | 1.0106             | 1.5408     | 0.9058 | 0.9983     | 1.9923     |
-| Dispersion.p     | 0.9280      | 0.8880             | 0.0560     | 0.6800 | 0.6800     | 0.0000     |
-| ZeroInf.ratio    | 0.9984      |                    | 1.0119     | 1.0355 | 1.0323     | 0.9981     |
-| ZeroInf.p        | 1.0000      | 1.0000             | 0.7840     | 0.3040 | 0.3120     | 0.9440     |
-| Outlier          | 0.0000      | 1.0000             | 1.0000     | 2.0000 | 1.0000     | 3.0000     |
-| Outlier.p        | 1.0000      | 0.4642             | 1.0000     | 0.3800 | 1.0000     | 0.4975     |
+| X | TMBbinomial | TMBdelta.Lognormal | TMBnbinom1 | NegBin | TMBnbinom2 | TMBtweedie |
+|----|----|----|----|----|----|----|
+| KS.D | 0.0300 | 0.0524 | 0.0242 | 0.0380 | 0.0341 | 0.0778 |
+| KS.p | 0.7544 | 0.7116 | 0.9296 | 0.4583 | 0.5998 | 0.0044 |
+| Dispersion.ratio | 0.9895 | 1.0073 | 1.5402 | 0.9487 | 0.9097 | 1.6140 |
+| Dispersion.p | 0.8320 | 0.8640 | 0.0000 | 0.8960 | 0.9120 | 0.0240 |
+| ZeroInf.ratio | 1.0010 |  | 0.9969 | 1.0373 | 1.0373 | 0.9965 |
+| ZeroInf.p | 0.9920 | 1.0000 | 0.9600 | 0.2000 | 0.2240 | 0.9360 |
+| Outlier | 2.0000 | 2.0000 | 7.0000 | 5.0000 | 7.0000 | 10.0000 |
+| Outlier.p | 0.4515 | 0.6558 | 0.1299 | 0.6093 | 0.1299 | 0.0082 |
 
 Table 3 provides parameter values from the fitted models, together with
 the likelihood and residuals degrees of freedom.
@@ -889,6 +919,7 @@ includes area, fleet and year. We can see the ranking of other models in
 the file labelled “modelSelectionNegbin.csv”.
 
 ``` r
+
 negBinSel<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/Bluemarlincatchscen1ModelSelectionNegBin.csv")
 negBinSel %>%
   dplyr::select(!offset.log.Effort..)%>%
@@ -896,23 +927,23 @@ negBinSel %>%
   flextable()
 ```
 
-| X.Intercept. | area | fleet | season | Year  | area.season | AICc   | AIC    | BIC    | df  | logLik  | selectCriteria | delta | weight | R2   |
-|--------------|------|-------|--------|-------|-------------|--------|--------|--------|-----|---------|----------------|-------|--------|------|
-| -3.98        | +    | +     |        | -0.09 |             | 513.36 | 513.06 | 534.95 | 6   | -250.53 | 534.95         | 0.00  | 1      | 0.14 |
-| -3.60        | +    | +     | +      | -0.15 |             | 513.81 | 513.15 | 545.99 | 9   | -247.57 | 545.99         | 11.04 | 0      | 0.18 |
-| -3.10        | +    |       |        | -0.14 |             | 536.66 | 536.52 | 551.11 | 4   | -264.26 | 551.11         | 16.16 | 0      | 0.06 |
-| -3.38        |      |       |        | -0.16 |             | 544.55 | 544.46 | 555.41 | 3   | -269.23 | 555.41         | 20.46 | 0      | 0.01 |
-| -3.92        | +    | +     | +      | -0.19 | +           | 512.89 | 511.74 | 555.53 | 12  | -243.87 | 555.53         | 20.58 | 0      | 0.23 |
-| -3.95        |      | +     |        | -0.15 |             | 541.76 | 541.55 | 559.79 | 5   | -265.77 | 559.79         | 24.84 | 0      | 0.06 |
-| -2.75        | +    |       | +      | -0.20 |             | 535.64 | 535.23 | 560.77 | 7   | -260.62 | 560.77         | 25.82 | 0      | 0.10 |
-| -3.02        |      |       | +      | -0.22 |             | 543.48 | 543.17 | 565.07 | 6   | -265.59 | 565.07         | 30.11 | 0      | 0.05 |
-| -3.53        |      | +     | +      | -0.21 |             | 541.19 | 540.66 | 569.86 | 8   | -262.33 | 569.86         | 34.90 | 0      | 0.11 |
-| -2.87        | +    |       | +      | -0.23 | +           | 539.48 | 538.68 | 575.17 | 10  | -259.34 | 575.17         | 40.21 | 0      | 0.12 |
+| X.Intercept. | area | fleet | season | Year | area.season | AICc | AIC | BIC | df | logLik | selectCriteria | delta | weight | R2 |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| -3.31 | + | + |  | -0.26 |  | 1,117.35 | 1,117.18 | 1,142.52 | 6 | -552.59 | 1,142.52 | 0.00 | 0.97 | 0.20 |
+| -3.02 | + | + | + | -0.26 |  | 1,112.93 | 1,112.57 | 1,150.59 | 9 | -547.28 | 1,150.59 | 8.07 | 0.02 | 0.23 |
+| -3.28 | + | + | + | -0.26 | + | 1,101.63 | 1,100.99 | 1,151.69 | 12 | -538.50 | 1,151.69 | 9.16 | 0.01 | 0.29 |
+| -3.33 |  | + |  | -0.25 |  | 1,155.98 | 1,155.86 | 1,176.99 | 5 | -572.93 | 1,176.99 | 34.46 | 0.00 | 0.13 |
+| -2.53 | + |  |  | -0.27 |  | 1,162.15 | 1,162.07 | 1,178.97 | 4 | -577.04 | 1,178.97 | 36.45 | 0.00 | 0.10 |
+| -2.20 | + |  | + | -0.27 |  | 1,151.75 | 1,151.53 | 1,181.10 | 7 | -568.76 | 1,181.10 | 38.58 | 0.00 | 0.15 |
+| -2.94 |  | + | + | -0.27 |  | 1,148.15 | 1,147.86 | 1,181.66 | 8 | -565.93 | 1,181.66 | 39.13 | 0.00 | 0.17 |
+| -2.74 |  |  |  | -0.26 |  | 1,170.37 | 1,170.32 | 1,183.00 | 3 | -582.16 | 1,183.00 | 40.47 | 0.00 | 0.06 |
+| -2.38 |  |  | + | -0.27 |  | 1,159.46 | 1,159.29 | 1,184.64 | 6 | -573.65 | 1,184.64 | 42.12 | 0.00 | 0.11 |
+| -2.38 | + |  | + | -0.27 | + | 1,144.76 | 1,144.31 | 1,186.56 | 10 | -562.16 | 1,186.56 | 44.04 | 0.00 | 0.20 |
 
 The html output has a four panel residual plot for each model type
 (example Figure 3 that shows residuals for TMBbinomial). The four panels
-are: (a) ordinary residuals, i.e plotting $y - \widehat{y}$ against
-$\widehat{y}$, (b) the qqnormal plot of the ordinary residuals, (c) a
+are: (a) ordinary residuals, i.e plotting $`y-\hat{y}`$ against
+$`\hat{y}`$, (b) the qqnormal plot of the ordinary residuals, (c) a
 qquniform plot of the quantile residuals, and (d) quantile residuals
 against model predictions. Part c and d are the plots generated by the
 DHARMa library. The residuals are calculated by simulating data from the
@@ -935,6 +966,7 @@ best model in each model type. These are also saved as csv files
 labelled “AnnualSummary”.
 
 ``` r
+
 ResultsNegBin<-read.csv("OutputLLSIMBUMM1/Bluemarlincatch/Fit files/Bluemarlincatchscen1NegBinAnnualSummary.csv")
 ggplot(ResultsNegBin,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI))+
   geom_line()+
@@ -969,6 +1001,7 @@ blue marlin data. The following models will show how to:
 3.  Add more variables.
 
 ``` r
+
 # devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed
 library(BycatchEstimator)
 library(MuMIn)
@@ -980,6 +1013,7 @@ this demonstration, we will limit the data to a 15 year period so it
 will run faster.
 
 ``` r
+
 obsdatTest<-filter(LLSIM_BUM_Example_observer,Year %in% 2001:2015)
 logdatTest<-filter(LLSIM_BUM_Example_logbook,Year %in% 2001:2015)
 ```
@@ -992,6 +1026,7 @@ data to be included. Note that all variables to be included in the CPUE
 standardization must be included in numericVariables or factorVariables:
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
   logdat = NULL, #no logbook data
@@ -1027,6 +1062,7 @@ but not in the selected best model according to the information
 criteria, the areas will all have the same index:
 
 ``` r
+
 bycatchFit(
   setupObj,
   modelScenario = "scen1",
@@ -1052,6 +1088,7 @@ estimates, but there will be abundance indices plotted, plus and minus a
 standard error. The results are also in a .csv file.
 
 ``` r
+
 nbinom2Index<-read.csv("OutputLLSIMBUMCP/Bluemarlincatch/Fit files/Bluemarlincatchscen1TMBnbinom2Index.csv")
 ggplot(nbinom2Index,aes(x=Year,y=Index,ymin=lowerCI
 ,ymax=upperCI))+
@@ -1077,6 +1114,7 @@ delta models, randomEffects2 can be used to give a different set of
 randomEffects for the two model components.
 
 ``` r
+
 bycatchFit(
   setupObj,
   modelScenario = "s2randomeff",
@@ -1105,6 +1143,7 @@ will be set to their mean for the prediction. Here we add two numerical
 variables (hbf and habBUM) and more factors (light).
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
   logdat = logdatTest, #no logbook data
@@ -1128,6 +1167,7 @@ setupObj<-bycatchSetup(
 ```
 
 ``` r
+
 bycatchFit(
   setupObj,
   modelScenario = "morevar",
@@ -1167,6 +1207,7 @@ This tutorial has some advanced and specialized methods:
 5.  Reading in the R objects with .rds files
 
 ``` r
+
 # devtools::install_github("ebabcock/BycatchEstimator")  #Make sure library is installed
 library(BycatchEstimator)
 library(MuMIn)
@@ -1188,6 +1229,7 @@ and cross validation may select different models for each species.
 We will run both blue marlin and swordfish together.
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
   logdat = logdatTest,
@@ -1216,6 +1258,7 @@ the html output with the data checks. Now copy and paste the following
 code to the console:
 
 ``` r
+
 bycatchFit(
   setupObj,
   modelScenario = "multispp",
@@ -1250,6 +1293,7 @@ in logdat. Let’s re-run bycatchSetup with only one species, then run
 bycatchFit
 
 ``` r
+
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
   logdat = logdatTest,
@@ -1309,6 +1353,7 @@ function I() is needed for calculations inside an R formula, such as
 squaring, so the code understands it correctly.
 
 ``` r
+
 # The code automatically converts variables listed in numericVariables to numeric, but you can also do that yourself, with this R code
 obsdatTest$Year<-as.numeric(as.character(obsdatTest$Year)) 
 logdatTest$Year<-as.numeric(as.character(logdatTest$Year))
@@ -1331,6 +1376,7 @@ bycatchFit(
 In this case, the information criteria included a squared term.
 
 ``` r
+
 Resultsnbinom<-read.csv("OutputLLSIMBUM/Bluemarlincatch/Fit files/BluemarlincatchnumYearTMBnbinom2AnnualSummary.csv")
 ggplot(Resultsnbinom,aes(x=Year,y=Total,ymin=TotalLCI,ymax=TotalUCI))+
   geom_line()+
@@ -1344,6 +1390,7 @@ The following tests a two year time block, and also allows the model to
 estimate a null model by setting simpleModel=formula(y~1).
 
 ``` r
+
 #Make new variable for the 2 year time block
 obsdatTest$Year2<-2*trunc(obsdatTest$Year/2)
 logdatTest$Year2<-2*trunc(logdatTest$Year/2)
@@ -1399,8 +1446,13 @@ validation data must be in a dataframe, and input in bycatchFit using
 the settings in bycatchFit:
 
 ``` r
-trueVals<-read.csv("TotalAnnualCatches.csv") #read in validation data
-trueVals<-filter(trueVals,Year %in% 2011:2015) #filter for years 2011 - 2015
+
+#Pull true catches from the simulated logbook data
+trueVals<-LLSIM_BUM_Example_logbook |>
+  filter(Year %in% 2011:2015) |>
+  group_by(Year) |>
+  summarize(Total.BUM=sum(BUM),
+            Total.SWO=sum(SWO))
 
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
@@ -1467,6 +1519,7 @@ design-based and model-based bycatch estimates together. This is based
 on the example code in the user’s guide.
 
 ``` r
+
 #Run some design-based estimates
 bycatchDesign(
   setupObj = setupObj,
@@ -1514,9 +1567,9 @@ makes a simplified version of the logbookd ata for the purposes of the
 tutorial.
 
 ``` r
-library(tidyverse)
+
 obsdat<-LLSIM_BUM_Example_observer%>%
-  select(trip,Year,fleet,hooks,sets,season,area,SWO,BUM) %>%
+  dplyr::select(trip,Year,fleet,hooks,sets,season,area,SWO,BUM) %>%
   filter(Year>1999)
 ```
 
@@ -1537,6 +1590,7 @@ the names of the new columns have to be a character string (i.e. in
 quotes) because they are not defined in the dataframe.
 
 ``` r
+
 ?pivot_longer
 obsdatLong<-pivot_longer(obsdat,
                          cols=c(SWO,BUM),
@@ -1548,18 +1602,21 @@ The new dataset is longer because each trip now has two rows, one for
 each species. All other columns have been replicated.
 
 ``` r
+
 dim(obsdat)
 ```
 
     ## [1] 2147    9
 
 ``` r
+
 dim(obsdatLong)
 ```
 
     ## [1] 4294    9
 
 ``` r
+
 head(obsdatLong)
 ```
 
@@ -1576,6 +1633,7 @@ head(obsdatLong)
 This is now the right format for making a ggplot, for example:
 
 ``` r
+
 ggplot(obsdatLong,aes(x=Year,y=Catch,fill=Species))+
   geom_col()+
   ggtitle("Total catch of swordfish and blue marlin")
@@ -1593,6 +1651,7 @@ existing columns). The input values_fill optionally specifies that, if
 there is no row for a species in a set, a zero will be filled in.
 
 ``` r
+
 ?pivot_wider
 obsdatWide<-obsdatLong %>% pivot_wider(names_from=Species,
                                        values_from=Catch,
@@ -1611,6 +1670,7 @@ the pivot_wider function. This dataset doesn’t need this step, but here
 is the code in case you need it.
 
 ``` r
+
 obsdatLongAgg<-obsdatLong %>% group_by(trip,Year,fleet,hooks,sets,Species) %>%
   summarize(Catch=sum(Catch))%>%
   ungroup()
@@ -1620,6 +1680,7 @@ dim(obsdatLongAgg)
     ## [1] 4294    7
 
 ``` r
+
 dim(obsdatLong)
 ```
 
@@ -1634,6 +1695,7 @@ uses the uncount function to make a dataset with one row per fish, so we
 can see how to aggregate it into the format we need.
 
 ``` r
+
 obsdatUncount<-obsdatLong %>%
   uncount(Catch)
 dim(obsdatUncount)
@@ -1642,6 +1704,7 @@ dim(obsdatUncount)
     ## [1] 90882     8
 
 ``` r
+
 head(obsdatUncount)
 ```
 
@@ -1666,6 +1729,7 @@ rows (which is the number of fish) using the n() function in the
 summarize function.
 
 ``` r
+
 obsdatRegroup<-obsdatUncount %>% group_by(trip,Year,fleet,hooks,sets,Species) %>%
   summarize(Catch=n())%>%
   ungroup()
@@ -1675,6 +1739,7 @@ This dataset now has a Catch column with counts of swordfish and blue
 marlin
 
 ``` r
+
 head(obsdatRegroup)
 ```
 
@@ -1691,6 +1756,7 @@ head(obsdatRegroup)
 We can now pivot wider to get in the correct format for linear models.
 
 ``` r
+
 obsdatRegroupWide<-obsdatRegroup %>% pivot_wider(names_from = Species,
                                                  values_from = Catch,
                                                  values_fill = 0)
@@ -1712,12 +1778,14 @@ catch species not found in each trip. However, we still have a problem.
 We don’t have as many rows in this table as in the original obsdat.
 
 ``` r
+
 dim(obsdatRegroupWide)
 ```
 
     ## [1] 2049    7
 
 ``` r
+
 dim(obsdat)
 ```
 
@@ -1729,6 +1797,7 @@ obsdat to the trip numbers that are not in obsdatRegroupWide and looks
 at the first few rows.
 
 ``` r
+
 head(filter(obsdat,!trip %in% obsdatRegroupWide$trip))
 ```
 
@@ -1754,7 +1823,8 @@ information on the individual animals observed. The data might be
 formatted like this:
 
 ``` r
-tripTable<-select(obsdat,trip,sets,hooks,sets,season,area)
+
+tripTable<-dplyr::select(obsdat,trip,sets,hooks,sets,season,area)
 head(tripTable)
 ```
 
@@ -1769,7 +1839,8 @@ head(tripTable)
     ## 6 101.2002.5.1.25.-85      2  1.6       2 N
 
 ``` r
-animalTable<-select(obsdatUncount,trip,Species)%>%
+
+animalTable<-dplyr::select(obsdatUncount,trip,Species)%>%
   mutate(length=NA,
          weight=NA)
 head(animalTable)
@@ -1804,6 +1875,7 @@ variables already in tripTable (except those used in matching rows, as
 shown below).
 
 ``` r
+
 animalCatch<-animalTable %>% group_by(trip,Species) %>%
   summarize(Catch=n())%>%
   ungroup()
@@ -1816,6 +1888,7 @@ dim(animalCatchWide)
     ## [1] 2049    3
 
 ``` r
+
 dim(tripTable)
 ```
 
@@ -1827,58 +1900,61 @@ variable (by=trip) present in both datasets to match the rows. It will
 keep all the rows in tripTable (the left table in the left_join).
 
 ``` r
+
 ?left_join
 finalTable<-left_join(tripTable,animalCatchWide,by="trip")
 summary(finalTable)
 ```
 
-    ##      trip                sets           hooks            season     
-    ##  Length:2147        Min.   : 1.00   Min.   :  0.01   Min.   :1.000  
-    ##  Class :character   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  
-    ##  Mode  :character   Median :15.00   Median : 22.08   Median :2.000  
-    ##                     Mean   :15.79   Mean   : 32.45   Mean   :2.465  
-    ##                     3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  
-    ##                     Max.   :99.00   Max.   :258.98   Max.   :4.000  
-    ##                                                                     
-    ##      area                BUM               SWO         
-    ##  Length:2147        Min.   :  0.000   Min.   :   0.00  
-    ##  Class :character   1st Qu.:  0.000   1st Qu.:   7.00  
-    ##  Mode  :character   Median :  1.000   Median :  20.00  
-    ##                     Mean   :  3.413   Mean   :  40.94  
-    ##                     3rd Qu.:  3.000   3rd Qu.:  40.00  
-    ##                     Max.   :108.000   Max.   :1256.00  
-    ##                     NA's   :98        NA's   :98
+    ##         trip           sets           hooks            season     
+    ##  Length   :2147   Min.   : 1.00   Min.   :  0.01   Min.   :1.000  
+    ##  N.unique :2147   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  
+    ##  N.blank  :   0   Median :15.00   Median : 22.08   Median :2.000  
+    ##  Min.nchar:  16   Mean   :15.79   Mean   : 32.45   Mean   :2.465  
+    ##  Max.nchar:  24   3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  
+    ##                   Max.   :99.00   Max.   :258.98   Max.   :4.000  
+    ##                                                                   
+    ##         area           BUM               SWO         
+    ##  Length   :2147   Min.   :  0.000   Min.   :   0.00  
+    ##  N.unique :   2   1st Qu.:  0.000   1st Qu.:   7.00  
+    ##  N.blank  :   0   Median :  1.000   Median :  20.00  
+    ##  Min.nchar:   1   Mean   :  3.413   Mean   :  40.94  
+    ##  Max.nchar:   1   3rd Qu.:  3.000   3rd Qu.:  40.00  
+    ##                   Max.   :108.000   Max.   :1256.00  
+    ##                   NAs    :98        NAs    :98
 
 We see that there are 98 MA values of BUM and SWO, for the trips that
 were now match. We just need to replace those with zeros, as they are
 trips that caught no swordfish or blue marlin.
 
 ``` r
+
 finalTable<-finalTable %>%
   mutate(across(BUM:SWO,~replace_na(.x,0)))
 summary(finalTable)
 ```
 
-    ##      trip                sets           hooks            season     
-    ##  Length:2147        Min.   : 1.00   Min.   :  0.01   Min.   :1.000  
-    ##  Class :character   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  
-    ##  Mode  :character   Median :15.00   Median : 22.08   Median :2.000  
-    ##                     Mean   :15.79   Mean   : 32.45   Mean   :2.465  
-    ##                     3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  
-    ##                     Max.   :99.00   Max.   :258.98   Max.   :4.000  
-    ##      area                BUM               SWO         
-    ##  Length:2147        Min.   :  0.000   Min.   :   0.00  
-    ##  Class :character   1st Qu.:  0.000   1st Qu.:   6.00  
-    ##  Mode  :character   Median :  1.000   Median :  18.00  
-    ##                     Mean   :  3.258   Mean   :  39.07  
-    ##                     3rd Qu.:  3.000   3rd Qu.:  39.00  
-    ##                     Max.   :108.000   Max.   :1256.00
+    ##         trip           sets           hooks            season     
+    ##  Length   :2147   Min.   : 1.00   Min.   :  0.01   Min.   :1.000  
+    ##  N.unique :2147   1st Qu.: 4.00   1st Qu.:  4.00   1st Qu.:1.000  
+    ##  N.blank  :   0   Median :15.00   Median : 22.08   Median :2.000  
+    ##  Min.nchar:  16   Mean   :15.79   Mean   : 32.45   Mean   :2.465  
+    ##  Max.nchar:  24   3rd Qu.:20.00   3rd Qu.: 51.20   3rd Qu.:4.000  
+    ##                   Max.   :99.00   Max.   :258.98   Max.   :4.000  
+    ##         area           BUM               SWO         
+    ##  Length   :2147   Min.   :  0.000   Min.   :   0.00  
+    ##  N.unique :   2   1st Qu.:  0.000   1st Qu.:   6.00  
+    ##  N.blank  :   0   Median :  1.000   Median :  18.00  
+    ##  Min.nchar:   1   Mean   :  3.258   Mean   :  39.07  
+    ##  Max.nchar:   1   3rd Qu.:  3.000   3rd Qu.:  39.00  
+    ##                   Max.   :108.000   Max.   :1256.00
 
 We now have the correct zero catches in the table. We can confirm that
 this process recreated the exact same data that was in the original
 obsdat, as follows:
 
 ``` r
+
 table(obsdat$BUM==finalTable$BUM)
 ```
 
@@ -1887,6 +1963,7 @@ table(obsdat$BUM==finalTable$BUM)
     ## 2147
 
 ``` r
+
 table(obsdat$SWO==finalTable$SWO)
 ```
 

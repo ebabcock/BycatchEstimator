@@ -42,12 +42,17 @@ bycatchDesign(
 
   Specify strata that must be included in design based estimates, in
   order across which data should be pooled. Order of these variables
-  determines order for which pooling will occur.
+  determines order for which pooling will occur. These are typically the
+  variables used in a stratified random sampling allocation of observer
+  coverage.
 
 - groupVar:
 
-  Specify variable to keep separate in summaries. Defaults to Year. Put
-  "NA" to summarize over whole dataset
+  Character vector of variables to keep separate in summaries. Defaults
+  to Year only. Variables must be defined in bycatchSetup, but need not
+  be in designVars. If a grouping variable is not in the design
+  variables, estimated bycatch will be allocated across groups
+  proportionally to logbook effort.
 
 - designPooling:
 

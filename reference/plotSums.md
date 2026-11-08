@@ -17,7 +17,8 @@ plotSums(
   run,
   catchType,
   catchUnit,
-  VarCalc
+  VarCalc,
+  facetGroups = NULL
 )
 ```
 

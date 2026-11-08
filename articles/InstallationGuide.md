@@ -22,6 +22,9 @@ files to make changes on your computer. If you can’t install on your own
 computer, bycatchEstimator works fine in RStudio cloud
 (<https://rstudio.cloud>).
 
+You should not need RTools or Xcode to install the package. If you see a
+warning about this, ignore it.
+
 ## Installation
 
 To install BycatchEstimator from GitHub, you must have the devtools
@@ -30,16 +33,20 @@ BycatchEstimator from [GitHub](https://github.com/). To install the
 current version, use this:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("ebabcock/BycatchEstimator")
 ```
 
-To install the version from 2024, use this. The current version is
-recommended because it has some new features:
+To install the version from 2024 or 2025, use this syntax. The current
+version is recommended because it has some new features and is much more
+efficient:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("ebabcock/BycatchEstimator@v0.0.9")
+devtools::install_github("ebabcock/BycatchEstimator@v1.0.0")
 ```
 
 When you install BycatchEstimator, it will install and/or update many
@@ -52,22 +59,16 @@ out of date.
 
 ## Getting started
 
-Due to a complication in coding, the user must load
-[`library(MuMIn)`](https://rdrr.io/r/base/library.html) in addition to
-[`library(BycatchEstimator)`](https://ebabcock.github.io/BycatchEstimator/).
+After running the library function, try looking for the help files for
+the BycatchEstimator functions to make sure the library is loaded.
 
 ``` r
+
 library(BycatchEstimator)
-library(MuMIn)
-```
-
-At this point, try looking for the help files for the BycatchEstimator
-functions to make sure the library is loaded.
-
-``` r
 ?bycatchSetup
 ?bycatchDesign
 ?bycatchFit
+?loadOutputs
 ```
 
 You should now be able to run the functions. Try running the example

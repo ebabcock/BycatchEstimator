@@ -10,6 +10,9 @@ bycatchSetup(
   obsdat,
   logdat,
   yearVar,
+  latitudeVar = NULL,
+  longitudeVar = NULL,
+  spatialBin = 1,
   obsEffort,
   logEffort,
   obsCatch,
@@ -44,6 +47,20 @@ bycatchSetup(
   Character. The column name of the year variable in `obsdat` and
   `logdat`. Both input files must contain the same variable name for
   year.
+
+- latitudeVar:
+
+  Optional name of latitude column, to get spatial plots.
+
+- longitudeVar:
+
+  Optional name of longitude column, to get spatial plots.
+
+- spatialBin:
+
+  Optional. If latitude and longitude are provided, this is the size of
+  the spatial bin in degrees to use for spatial plots. Default is 1
+  degree.
 
 - obsEffort:
 
@@ -142,6 +159,9 @@ setupObj<-bycatchSetup(
 obsdat = obsdatExample,
 logdat = logdatExample,
 yearVar = "Year",
+latitudeVar = NULL,
+longitudeVar = NULL,
+spatialBin = 1,
 obsEffort = "sampled.sets",
 logEffort = "sets",
 obsCatch = "Catch",
