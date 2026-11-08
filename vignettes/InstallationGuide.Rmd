@@ -21,6 +21,8 @@ BycatchEstimator requires recent versions of R and all the libraries that it use
 
 RStudio will need to have authority to make changes on your computer so that you can install new libraries. You may need to run RStudio with administrator privileges, and/or give permission for the installation files to make changes on your computer. If you can't install on your own computer, bycatchEstimator works fine in RStudio cloud (https://rstudio.cloud).
 
+You should not need RTools or Xcode to install the package. If you see a warning about this, ignore it.
+
 
 ## Installation
 
@@ -32,11 +34,12 @@ You can then install the development version of BycatchEstimator from [GitHub](h
 devtools::install_github("ebabcock/BycatchEstimator")
 ```
 
-To install the version from 2024, use this. The current version is recommended because it has some new features:
+To install the version from 2024 or 2025, use this syntax. The current version is recommended because it has some new features and is much more efficient:
 
 ```{r installOld}
 # install.packages("devtools")
 devtools::install_github("ebabcock/BycatchEstimator@v0.0.9")
+devtools::install_github("ebabcock/BycatchEstimator@v1.0.0")
 
 ```
 
@@ -46,19 +49,15 @@ When you install BycatchEstimator, it will install and/or update many other file
 
 ## Getting started
 
-Due to a complication in coding, the user must load `library(MuMIn)` in addition to `library(BycatchEstimator)`.
+After running the library function, try looking for the help files for the BycatchEstimator functions to make sure the library is loaded.  
+
 
 ```{r start, eval = FALSE}
 library(BycatchEstimator)
-library(MuMIn)
-```
-
-At this point, try looking for the help files for the BycatchEstimator functions to make sure the library is loaded.  
-
-```{r eval = FALSE}
 ?bycatchSetup
 ?bycatchDesign
 ?bycatchFit
+?loadOutputs
 ```
 
 You should now be able to run the functions. Try running the example data here https://github.com/ebabcock/BycatchEstimator to make sure it works. For more information see the User's Guide https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html.

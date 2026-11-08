@@ -925,8 +925,12 @@ As you can see in the output html file, the best model is now the one that has t
 With simulated data you can compare the estimated total bycatch to true total bycatch, as we will do here. With real data, you can use the tool to predict total landed catch as a test of the methodology. The validation data must be in a dataframe, and input in bycatchFit using the settings in bycatchFit:
 
 ```{r, eval=evalOption}
-trueVals<-read.csv("TotalAnnualCatches.csv") #read in validation data
-trueVals<-filter(trueVals,Year %in% 2011:2015) #filter for years 2011 - 2015
+#Pull true catches from the simulated logbook data
+trueVals<-LLSIM_BUM_Example_logbook |>
+  filter(Year %in% 2011:2015) |>
+  group_by(Year) |>
+  summarize(Total.BUM=sum(BUM),
+            Total.SWO=sum(SWO))
 
 setupObj<-bycatchSetup(
   obsdat = obsdatTest,
@@ -1017,9 +1021,8 @@ We will use an example dataset from a simulated longline fishery from the Bycatc
 This first chunk opens the tidyverse and BycatchEstimator libraries and makes a simplified version of the logbookd ata for the purposes of the tutorial.
  
 ```{r, error=FALSE, message=FALSE}
-library(tidyverse)
 obsdat<-LLSIM_BUM_Example_observer%>%
-  select(trip,Year,fleet,hooks,sets,season,area,SWO,BUM) %>%
+  dplyr::select(trip,Year,fleet,hooks,sets,season,area,SWO,BUM) %>%
   filter(Year>1999)
 ```
 
@@ -1121,9 +1124,9 @@ These rows in the original data indicating zero catches are needed for our linea
 Often datasets from observer programs and surveys will have one table containing observations for each sample unit (e.g. set, trip, transect), including, time, date, location, etc., and have a separate table for the information on the individual animals observed. The data might be formatted like this:
 
 ```{r}
-tripTable<-select(obsdat,trip,sets,hooks,sets,season,area)
+tripTable<-dplyr::select(obsdat,trip,sets,hooks,sets,season,area)
 head(tripTable)
-animalTable<-select(obsdatUncount,trip,Species)%>%
+animalTable<-dplyr::select(obsdatUncount,trip,Species)%>%
   mutate(length=NA,
          weight=NA)
 head(animalTable)

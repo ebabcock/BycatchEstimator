@@ -12,7 +12,7 @@ makePredictionsNoVar(
   obsdatval = NULL,
   nsims,
   includeObsCatch,
-  requiredVarNames,
+  predictionGroups,
   printOutput = TRUE,
   catchType,
   common,
@@ -36,7 +36,7 @@ makePredictionsNoVar(
 
 \item{includeObsCatch}{Value}
 
-\item{requiredVarNames}{Value}
+\item{predictionGroups}{Value}
 
 \item{printOutput}{Value}
 

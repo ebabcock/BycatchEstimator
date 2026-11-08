@@ -12,6 +12,9 @@
 #' @param obsdat  Observer data set
 #' @param logdat Logbook data set
 #' @param yearVar Character. The column name of the year variable in \code{obsdat} and \code{logdat}. Both input files must contain the same variable name for year.
+#' @param latitudeVar Optional name of latitude column, to get spatial plots.
+#' @param longitudeVar Optional name of longitude column, to get spatial plots.
+#' @param spatialBin Optional. If latitude and longitude are provided, this is the size of the spatial bin in degrees to use for spatial plots. Default is 1 degree.
 #' @param obsEffort Character. The column name of the effort variable in \code{obsdat}. This variable must have the same effort units as \code{logEffort}
 #' @param logEffort Character. The column name of the effort variable in \code{logdat}. Optional and only used when estimating bycatch. This variable must have the same effort units as \code{obsEffort}
 #' @param obsCatch Character vector. The name of the column(s) in \code{obsdat} that contain catch. If it is a vector, order of variable names must follow the same order as names provided in \code{common} and \code{sp}
@@ -39,6 +42,9 @@
 #' obsdat = obsdatExample,
 #' logdat = logdatExample,
 #' yearVar = "Year",
+#' latitudeVar = NULL,
+#' longitudeVar = NULL,
+#' spatialBin = 1,
 #' obsEffort = "sampled.sets",
 #' logEffort = "sets",
 #' obsCatch = "Catch",
@@ -61,6 +67,9 @@ bycatchSetup <- function(
     obsdat,
     logdat,
     yearVar,
+    latitudeVar = NULL,
+    longitudeVar = NULL,
+    spatialBin = 1,
     obsEffort,
     logEffort,
     obsCatch,
@@ -102,6 +111,15 @@ bycatchSetup <- function(
       rename(Year=!!yearVar)
   }
 
+  #Set up latitude and longitude variables if provided
+  if(!is.null(latitudeVar) & !is.null(longitudeVar)) {
+    obsdat<-obsdat %>%
+      rename(Latitude=!!latitudeVar,Longitude=!!longitudeVar)
+    if(EstimateBycatch) {
+      logdat<-logdat %>%
+        rename(Latitude=!!latitudeVar,Longitude=!!longitudeVar)
+    }
+  }
   # set up factor variables and numeric variables
   if(is.null(numericVariables)) numericVariables<-NA
   if(unique(!is.na(numericVariables))){
@@ -139,14 +157,21 @@ bycatchSetup <- function(
       logNum<-"SampleUnits"
     }
     logdat<-logdat %>%
-      rename(Effort=!!logEffort,SampleUnits=!!logNum) %>%
+      rename(SampleUnits=!!logNum) %>%
       mutate(across(all_of(factorVariables),factor))
+    if(logNum==logEffort)  #if logEffort and logNum are the same column, use mutate not rename
+      logdat<-mutate(logdat,Effort=SampleUnits) else
+        logdat<-rename(logdat,Effort=!!logEffort)
     if(sum(!is.na(numericVariables))>0)
       logdat<-logdat %>%
       mutate(across(all_of(numericVariables),as.numeric2))
 
+    #Check that logdat includes at least as many sample units as logdat
+    if(sum(logdat$SampleUnits)<nrow(obsdat))
+       stop(paste("Number of",sampleUnit,"in logdat is less than number of rows in obsdat.
+                  If logbook data is aggregated, check that logNum is set to the name of a
+                  column with the number of",sampleUnit,"per row in logdat"))
 
-    if(logEffort==sampleUnit) logdat<-mutate(logdat,Effort=SampleUnits)
 
     # add here warning message about NAs in logbook data
     if(any(is.na(logdat[,c(allVarNames,"Effort")]))){
@@ -233,6 +258,9 @@ bycatchSetup <- function(
       obsdat = obsdat,
       logdat = logdat,
       yearVar = yearVar,
+      latitudeVar = latitudeVar,
+      longitudeVar = longitudeVar,
+      spatialBin = spatialBin,
       obsEffort = obsEffort,
       logEffort = logEffort,
       obsCatch = obsCatch,
@@ -279,7 +307,7 @@ bycatchSetup <- function(
       if(!is.null( mkd)){
 
       #Bill edit
-      tempReport <- file.path(tempdir(), "printBycatchSetup.Rmd")
+      tempReport <- file.path(baseDir, "printBycatchSetup.Rmd")
       file.copy(mkd, tempReport, overwrite = TRUE)
 
       rmarkdown::render(tempReport, #Bill edit
@@ -303,7 +331,7 @@ bycatchSetup <- function(
       if(!is.null( mkd)){
 
       #Bill edit
-      tempReport <- file.path(tempdir(), "printBycatchSetup.Rmd")
+      tempReport <- file.path(baseDir, "printBycatchSetup.Rmd")
       file.copy(mkd, tempReport, overwrite = TRUE)
 
       tryCatch({
@@ -333,7 +361,8 @@ bycatchSetup <- function(
 
   #Clean up: delete the figures/ directory after rendering
   if(!is.null(mkd)) {
-    fig_dir <- file.path(dirname(mkd), "figures")
+    unlink(tempReport)
+    fig_dir <- file.path(baseDir, "figures")
     if (dir.exists(fig_dir)) {
       unlink(fig_dir, recursive = TRUE)
     }

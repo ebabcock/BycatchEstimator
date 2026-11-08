@@ -10,7 +10,7 @@ makePredictionsDeltaVar(
   modtype,
   obsdatval,
   includeObsCatch,
-  requiredVarNames,
+  predictionGroups,
   CIval,
   printOutput = TRUE,
   catchType,
@@ -33,7 +33,7 @@ makePredictionsDeltaVar(
 
 \item{includeObsCatch}{Value}
 
-\item{requiredVarNames}{Value}
+\item{predictionGroups}{Value}
 
 \item{CIval}{Value}
 

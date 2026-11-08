@@ -10,6 +10,7 @@ findBestModelFunc(
   requiredVarNames,
   allVarNames,
   complexModel,
+  simpleModel,
   randomEffects = NULL,
   useParallel,
   selectCriteria,
@@ -33,6 +34,8 @@ findBestModelFunc(
 \item{allVarNames}{Value}
 
 \item{complexModel}{Value}
+
+\item{simpleModel}{Value}
 
 \item{randomEffects}{Value}
 

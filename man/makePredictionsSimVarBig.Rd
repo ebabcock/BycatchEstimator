@@ -12,7 +12,7 @@ makePredictionsSimVarBig(
   obsdatval,
   includeObsCatch,
   nsim,
-  requiredVarNames,
+  predictionGroups,
   CIval,
   printOutput = TRUE,
   catchType,
@@ -41,7 +41,7 @@ makePredictionsSimVarBig(
 
 \item{nsim}{Value}
 
-\item{requiredVarNames}{Value}
+\item{predictionGroups}{Value}
 
 \item{CIval}{Value}
 

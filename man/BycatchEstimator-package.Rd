@@ -23,6 +23,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Elizabeth Babcock \email{ebabcock@rsmas.miami.edu}
   \item William Harford \email{bill@natureanalytics.ca} [contributor]
   \item Ana Adao \email{aadao@natureanalytics.ca} [contributor]
 }

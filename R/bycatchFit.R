@@ -15,12 +15,13 @@
 #' @param complexModel Specify as stats::formula. Specify the most complex and simplest model to be considered. The code will find and compare all intermediate models using information criteria. Include only fixed effects.
 #' @param simpleModel Specify as stats::formula. This model includes all variables that must be in the final bycatch estimation model
 #' @param indexModel Specify as stats::formula. Use indexModel to specify which strata to keep separate in calculating abundance indices.
+#' @param predictionGroups, Character vector. Categorical variables to group predictions, such as years and spatial areas. These need not be in the fitted model, but must be factor variables defined in bycatchSetup. The default (if NULL is entered) is the terms in simpleModel. Annual summaries are also given by default if year is in predictionGroups.
 #' @param randomEffects Character vector. Random effects that should be included in all non-delta and binomial models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param randomEffects2 Character vector. Random effects that should be included in the positive catch component of delta models, as a character vector in (e.g. "Year:area" to include Year:area as a random effect). Null if none. Note that random effects will be included in all models. The code will not evaluate whether they should be included.
 #' @param selectCriteria Character. Model selection criteria. Options are AICc, AIC and BIC
-#' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE). This may not work with a small or unbalanced dataset
+#' @param DoCrossValidation Specify whether to run a 10 fold cross-validation (TRUE or FALSE) to compare the best models in each model type defined by \code{modelTry}. This may not work with a small or unbalanced dataset
 #' @param CIval Specify confidence interval for total bycatch estimates. Should be the alpha level, e.g. 0.05 for 95%
-#' @param VarCalc Character. Variance calculation method. Options are: "Simulate","DeltaMethod", or "None".  Simulate will not work with a large number of sample units in the logbook data. The delta method for variance calculation is not implemented for the delta-lognormal or delta-gamma methods.
+#' @param VarCalc Character. Variance calculation method. Options are: "DeltaMethod", a fast delta-method is the default; "Simulate" for a simulate based method, or "None" for no variance calculations. DeltaMethodOld" is available for backward compatibility.  Simulate will not work with a large number of sample units in the logbook data.
 #' @param includeObsCatch Logical. Set to TRUE if (1) the observed sample units can be matched to the logbook sample units and (2) you want to calculate total bycatch as the observed bycatch plus the predicted unobserved bycatch. This doesn't work with aggregated logbook effort.
 #' @param matchColumn Character. If \code{includeObsCatch} is TRUE, give the name of the column that matches sample units between the observer and logbook data. Otherwise, this can be NA
 #' @param EstimateIndex Logical. What would you like to estimate? You may calculate either an annual abundance index, or total bycatch, or both.
@@ -68,13 +69,14 @@
 #' complexModel = formula(y~(Year+season)^2),
 #' simpleModel = formula(y~Year),
 #' indexModel = formula(y~Year),
+#' predictionGroups = NULL,
 #' modelTry = c("Delta-Lognormal","TMBnbinom2"),
 #' randomEffects = NULL,
 #' randomEffects2 = NULL,
 #' selectCriteria = "BIC",
 #' DoCrossValidation = TRUE,
 #' CIval = 0.05,
-#' VarCalc = "Simulate",
+#' VarCalc = "DeltaMethod",
 #' includeObsCatch=FALSE,
 #' matchColumn=NULL,
 #' EstimateIndex=FALSE,
@@ -93,13 +95,14 @@ bycatchFit<-function(
   complexModel,
   simpleModel,
   indexModel = NULL,
+  predictionGroups = NULL,
   modelTry = c("Delta-Lognormal","Delta-Gamma","TMBnbinom1","TMBnbinom2","TMBtweedie"),
   randomEffects=NULL,
   randomEffects2=NULL,
   selectCriteria = "BIC",
   DoCrossValidation = FALSE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "DeltaMethod",
   includeObsCatch=FALSE,
   matchColumn=NULL,
   EstimateIndex=FALSE,
@@ -113,6 +116,7 @@ bycatchFit<-function(
 
   #unpack setup obj
   obsdat<-logdat<-yearVar<-obsEffort<-logEffort<-obsCatch<-catchUnit<-catchType<-
+    latitudeVar<-longitudeVar<-spatialBin<-
     logNum<-sampleUnit<-factorVariables<-numericVariables<-EstimateBycatch<-
     baseDir<-dirname<-outDir<-runName<-runDescription<-common<-sp<-NULL
 
@@ -139,8 +143,27 @@ bycatchFit<-function(
   if(("TMBdelta-Lognormal" %in% modelTry |"TMBdelta-Gamma" %in% modelTry) & !"TMBbinomial" %in% modelTry)
     modelTry<-c("TMBbinomial",modelTry)
 
-  #If there are any random effects, all fitting will be done in glmmTMB
-  if(!is.null(randomEffects) | !is.null(randomEffects2)) {
+  #Look for smooth terms
+  terms <- as.vector(MuMIn::getAllTerms(complexModel))
+  if(any(grepl("^(s|te|ti|t2)\\(", terms))) isSmooth<-TRUE else isSmooth<-FALSE
+  requiredVarNames<-extractVarNames(simpleModel)
+  terms <- as.vector(MuMIn::getAllTerms(simpleModel))
+  if(any(grepl("^(s|te|ti|t2)\\(", terms))) stop("Simple model cannot include smooth terms a this time.")
+  allVarNames<-extractVarNames(complexModel)
+  allVarNames<-unique(c("Year",allVarNames))
+  if(!all(allVarNames %in% c(numericVariables,factorVariables)))
+    stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
+  for(i in 1:length(factorVariables)) {
+    if(length(unique(obsdat[[factorVariables[i]]]))<2) stop(paste("Variable",factorVariables[i], "has fewer than two levels. Do not include it in the proposed model."))
+  }
+  if(all(is.na(randomEffects))) randomEffects<-NULL
+  if(all(is.na(randomEffects2))) randomEffects2<-NULL
+  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
+  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
+  if(is.null(predictionGroups)) predictionGroups<-requiredVarNames
+
+  #If there are any random effects or smooths, all fitting will be done in glmmTMB
+  if(!is.null(randomEffects) | !is.null(randomEffects2) | isSmooth) {
     modelTry<-case_when(modelTry=="Binomial" ~"TMBbinomial",
                         modelTry=="Normal" ~"TMBnormal",
                         modelTry=="Poisson" ~"TMBpoisson",
@@ -154,20 +177,8 @@ bycatchFit<-function(
     modelTry<-unique(modelTry)
   }
 
-  requiredVarNames<-as.vector(getAllTerms(simpleModel))
-  allVarNames<-as.vector(getAllTerms(complexModel))
-  allVarNames<-allVarNames[grep(":",allVarNames,invert=TRUE)] #filter out interaction terms (terms that contain colon :)
-  allVarNames<-allVarNames[grep("I(*)",allVarNames,invert=TRUE)] #filter out transformed terms like polynomials (I means interpret as is)
-  allVarNames<-unique(c("Year",allVarNames))  #EAB 2/18/2025
-  if(!all(allVarNames %in% c(numericVariables,factorVariables)))
-    stop(paste("Variables",allVarNames[!allVarNames %in%c(numericVariables,factorVariables) ]," not in numericVariables or factorVariables. Re-run bycatchSetup and include this variable" ))
-  if(all(is.na(randomEffects))) randomEffects<-NULL
-  if(all(is.na(randomEffects2))) randomEffects2<-NULL
-  if(!is.null(randomEffects)) temp<-unlist(strsplit(randomEffects,":")) else temp<-NULL # extract random effects terms where it finds colon
-  if(!is.null(randomEffects2)) temp<-c(temp,unlist(strsplit(randomEffects2,":"))) else temp<-NULL
-
   if(EstimateIndex) {
-    indexVarNames<-as.vector(getAllTerms(indexModel))
+    indexVarNames<-extractVarNames(indexModel)
     if(!"Year" %in% indexVarNames) indexVarNames<-c("Year",indexVarNames)
   } else indexVarNames=NULL
   if(EstimateBycatch) {
@@ -199,9 +210,13 @@ bycatchFit<-function(
     }
   } else indexDat<-NULL
   if(is.null(VarCalc)) VarCalc="None"
-  if(VarCalc %in% c("delta","Delta")) VarCalc="DeltaMethod"
+  if(VarCalc %in% c("delta","Delta","deltamethod","deltaMethod")) VarCalc="DeltaMethod"
   if(VarCalc %in% c("simulate","simulated","Simulated")) VarCalc="Simulate"
-  if(!VarCalc %in% c("None","Simulate","DeltaMethod")) VarCalc="None"
+  if(!VarCalc %in% c("None","Simulate","DeltaMethod","DeltaMethodOld")) VarCalc="None"
+  if(VarCalc=="Simulate"& isSmooth) {
+    print("Cannot use Simulate with smooth terms at this time, using DeltaMethod instead")
+    VarCalc="DeltaMethod"
+  }
   # if(includeObsCatch & EstimateBycatch) {
   #    missing_trips <- setdiff(obsdat$matchColumn,logdat$matchColumn)
   #    if(length(missing_trips)>0){
@@ -263,12 +278,14 @@ if("Year" %in%numericVariables) {
   modelSelectTable<-list()
   modFits<-list()
   modPredVals<-list()
+  modPredValsStrata<-list()
   modIndexVals<-list()
   residualTab<-list()
   bestmod<-NULL
   predbestmod<-list()
   indexbestmod<-list()
   allmods<-list()
+  allmodsStrata<-list()
   allindex<-list()
   modelFail<-matrix("-",numSp,length(modelTry),dimnames=list(common,modelTry))
   rmsetab<-list()
@@ -287,6 +304,8 @@ if("Year" %in%numericVariables) {
                                   ME=rep(NA,length(modelTry)))
     modPredVals[[run]]<-rep(list(NULL),length(modelTry))
     names(modPredVals[[run]])<-modelTry
+    modPredValsStrata[[run]]<-rep(list(NULL),length(modelTry))
+    names(modPredValsStrata[[run]])<-modelTry
     modIndexVals[[run]]<- modPredVals[[run]]
     modFits[[run]]<- modPredVals[[run]]
     modelSelectTable[[run]]<- modPredVals[[run]]
@@ -297,13 +316,14 @@ if("Year" %in%numericVariables) {
 
     #Fit all models except delta
     for(mod in which(!grepl("delta",modelTry,ignore.case=TRUE))){
-      modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
+      modFit<-suppressWarnings(findBestModelFunc(
         obsdatval = datval,
         modType = modelTry[mod],
         printOutput=TRUE,
         requiredVarNames = requiredVarNames,
         allVarNames = allVarNames,
         complexModel = complexModel,
+        simpleModel = simpleModel,
         common = common,
         randomEffects = randomEffects,
         useParallel = useParallel,
@@ -329,12 +349,13 @@ if("Year" %in%numericVariables) {
       if((min(summary(posdat$Year))>0 |  is.numeric(datval$Year)) &
          (!is.null(modFits[[run]][["Binomial"]]) | !is.null(modFits[[run]][["TMBbinomial"]]))) { #If all years have at least one positive observation and binomial converged, carry on with delta models
         for(mod in which(grepl("delta",modelTry,ignore.case=TRUE)))  {
-          modFit<-suppressWarnings(BycatchEstimator:::findBestModelFunc(
+          modFit<-suppressWarnings(findBestModelFunc(
             obsdatval = posdat,
             modType = modelTry[mod],
             requiredVarNames = requiredVarNames,
             allVarNames = allVarNames,
             complexModel = complexModel,
+            simpleModel = simpleModel,
             randomEffects = randomEffects2,
             useParallel = useParallel,
             selectCriteria = selectCriteria,
@@ -362,18 +383,22 @@ if("Year" %in%numericVariables) {
     if(EstimateBycatch) {
       BigData<-ifelse(sum(logdat$SampleUnits)>10000, TRUE, FALSE)
       #Add stratum designation and check sample size in strata
-      if(length(requiredVarNames)>1) {
-        logdat$strata<-apply( logdat[ , requiredVarNames ] , 1 , paste , collapse = "-" )
+      if(length(predictionGroups)>1) {
+        logdat$strata<-apply( logdat[ , predictionGroups ] , 1 , paste , collapse = "-" )
       }
-      if(length(requiredVarNames)==1)   {
-        logdat$strata <- pull(logdat,var=requiredVarNames)
+      if(length(predictionGroups)==1)   {
+        logdat$strata <- pull(logdat,var= predictionGroups)
       }
-      if(length(requiredVarNames)==0)   {
+      if(length(predictionGroups)==0)   {
         logdat$strata <- rep(1,nrow(logdat))
       }
-      if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000) {
-        print("Cannot calculate variance for large number of logbook sample units")
-        VarCalc<-"None"
+      if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000 & VarCalc =="Simulate") {
+        print("Cannot calculate variance for large number of logbook sample units with simulate, using delta method")
+        VarCalc<-"DeltaMethod"
+      }
+      if(max(tapply(logdat$SampleUnits,logdat$strata,sum))>100000 & VarCalc =="DeltaMethodOld") {
+        print("Cannot calculate variance for large number of logbook sample units with DeltaMethodOld, using fast delta method")
+        VarCalc<-"DeltaMethod"
       }
     }
     for(mod in 1:length(modelTry)) {
@@ -388,9 +413,8 @@ if("Year" %in%numericVariables) {
           modFit2<-NULL
         }
         if(EstimateBycatch) {
-          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethod" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-Lognormal","TMBdelta-Gamma")))
-            modPredVals[[run]][[modelTry[mod]]]<-
-              makePredictionsSimVarBig(
+          if(VarCalc=="Simulate" |(VarCalc=="DeltaMethodOld" & modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie", "TMBdelta-Lognormal","TMBdelta-Gamma"))) {
+            temp<-makePredictionsSimVarBig(
                 modfit1=modFit1,
                 modfit2=modFit2,
                 modtype=modelTry[mod],
@@ -398,7 +422,7 @@ if("Year" %in%numericVariables) {
                 obsdatval=datval,
                 includeObsCatch = includeObsCatch,
                 nsim = nSims,
-                requiredVarNames = requiredVarNames,
+                predictionGroups = predictionGroups,
                 CIval = CIval,
                 common = common,
                 catchType = catchType,
@@ -409,15 +433,17 @@ if("Year" %in%numericVariables) {
                 randomEffects2=randomEffects2,
                 modelScenario=modelScenario,
                 startYear=startYear)
-          if(VarCalc=="DeltaMethod" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma"))
-            modPredVals[[run]][[modelTry[mod]]]<-
-              makePredictionsDeltaVar(
+            modPredVals[[run]][[modelTry[mod]]]<-temp[[1]]
+            modPredValsStrata[[run]][[modelTry[mod]]]<-temp[[2]]
+          }
+          if(VarCalc=="DeltaMethodOld" & !modelTry[mod] %in% c("Delta-Lognormal","Delta-Gamma","Tweedie","TMBdelta-Lognormal","TMBdelta-Gamma")) {
+            temp<-makePredictionsDeltaVar(
                 modfit1=modFit1,
                 modtype=modelTry[mod],
                 newdat=logdat,
                 obsdatval=datval,
                 includeObsCatch = includeObsCatch,
-                requiredVarNames = requiredVarNames,
+                predictionGroups = predictionGroups,
                 CIval = CIval,
                 common = common,
                 shortName = shortName,
@@ -427,8 +453,31 @@ if("Year" %in%numericVariables) {
                 modelScenario=modelScenario,
                 startYear=startYear
               )
+            modPredVals[[run]][[modelTry[mod]]]<-temp[[1]]
+            modPredValsStrata[[run]][[modelTry[mod]]]<-temp[[2]]
+          }
+          if(VarCalc=="DeltaMethod") {
+            temp<-makePredictionsDeltaVarFast(modfit1=modFit1,
+                modfit2=modFit2,
+                modtype=modelTry[mod],
+                newdat=logdat,
+                obsdatval=datval,
+                includeObsCatch = includeObsCatch,
+                predictionGroups = predictionGroups,
+                CIval = CIval,
+                common = common,
+                catchType = catchType,
+                dirname = dirname,
+                shortName = shortName,
+                run = run,
+                modelScenario=modelScenario,
+                startYear=startYear
+              )
+            modPredVals[[run]][[modelTry[mod]]]<-temp[[1]]
+            modPredValsStrata[[run]][[modelTry[mod]]]<-temp[[2]]
+          }
           if(VarCalc=="None") {
-            modPredVals[[run]][[modelTry[mod]]]<-
+            temp<-
               makePredictionsNoVar(
                 modfit1=modFit1,
                 modfit2=modFit2,
@@ -437,7 +486,7 @@ if("Year" %in%numericVariables) {
                 obsdatval=datval,
                 includeObsCatch = includeObsCatch,
                 nsims = nSims,
-                requiredVarNames = requiredVarNames,
+                predictionGroups = predictionGroups,
                 common = common,
                 catchType = catchType,
                 shortName = shortName,
@@ -446,6 +495,8 @@ if("Year" %in%numericVariables) {
                 modelScenario=modelScenario,
                 startYear=startYear
               )
+              modPredVals[[run]][[modelTry[mod]]]<-temp[[1]]
+              modPredValsStrata[[run]][[modelTry[mod]]]<-temp[[2]]
           }
         }
         if(EstimateIndex) {
@@ -497,8 +548,13 @@ if("Year" %in%numericVariables) {
       allmods[[run]]<-bind_rows(modPredVals[[run]],.id="Source") %>%
         filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
       allmods[[run]]$Valid<-ifelse(modelFail[run,match(allmods[[run]]$Source,dimnames(modelFail)[[2]])]=="-",1,0)
+    if(length(predictionGroups)>1) {
+#      print(paste("Predictions are being made for",length(unique(logdat$strata)),"strata"))
+      allmodsStrata[[run]]<-bind_rows(modPredValsStrata[[run]],.id="Source") %>%
+        filter(!.data$Source=="Binomial",!.data$Source=="TMBbinomial")
+      allmodsStrata[[run]]$Valid<-ifelse(modelFail[run,match(allmodsStrata[[run]]$Source,dimnames(modelFail)[[2]])]=="-",1,0)
     }
-
+    }
     if(EstimateIndex) {
       allindex[[run]]<-bind_rows(modIndexVals[[run]],.id="Source") %>%
         filter(!.data$Source=="Binomial",!.data$Source=="TMBbinonomial")
@@ -528,6 +584,7 @@ if("Year" %in%numericVariables) {
             #     requiredVarNames = requiredVarNames,
             #     allVarNames = allVarNames,
             #     complexModel = complexModel,
+            #     simpleModel = simpleModel,
             #     useParallel = useParallel,
             #     selectCriteria = selectCriteria,
             #     catchType = catchType,
@@ -627,6 +684,7 @@ if("Year" %in%numericVariables) {
       complexModel = complexModel,
       simpleModel = simpleModel,
       indexModel = indexModel,
+      predictionGroups = predictionGroups,
       selectCriteria = selectCriteria,
       DoCrossValidation = DoCrossValidation,
       CIval = CIval,
@@ -655,6 +713,7 @@ if("Year" %in%numericVariables) {
       predbestmod = predbestmod,
       indexbestmod = indexbestmod,
       allmods = allmods,
+      allmodsStrata = allmodsStrata,
       allindex = allindex,
       modelFail = modelFail,
       rmsetab = rmsetab,
