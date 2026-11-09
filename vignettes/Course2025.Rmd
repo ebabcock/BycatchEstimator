@@ -9,7 +9,7 @@ output:
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,error=FALSE,message=FALSE,eval=TRUE)
-evalOption<-TRUE #FALSE to just print html, TRUE to get bycatch outputs
+evalOption<-FALSE #FALSE to just print html, TRUE to get bycatch outputs
 ```
 
 # Introduction and Agenda
