@@ -477,7 +477,7 @@ bycatchFit(
   selectCriteria = "BIC",
   DoCrossValidation = TRUE,
   CIval = 0.05,
-  VarCalc = "Simulate",
+  VarCalc = "DeltaMethod",
   useParallel = TRUE,
   nSims = 100,
   plotValidation = FALSE,
@@ -1236,7 +1236,7 @@ This function returns a list, including:
 library(tidyverse) #for data manipulation and ggplot
 #Load in both design and model based estimates
 allResults<-loadOutputs(baseDir = getwd(),
-                      runName= "Simulated",
+                      runName="Simulated", 
                       runDate =  Sys.Date(),
                       designScenarios = "withPooling",
                       modelScenarios = "s1"
