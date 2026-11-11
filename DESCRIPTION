@@ -16,5 +16,4 @@ LazyData: true
 URL: https://ebabcock.github.io/BycatchEstimator/
 Suggests: 
     knitr
-VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.1

@@ -27,6 +27,7 @@ loadOutputs<-function(baseDir = getwd(),
                       runDate =  Sys.Date(),
                       designScenarios = NULL,
                       modelScenarios = NULL) {
+
   #Check that setup file exists and read in.
   tempRunName<-abbreviate(runName,minlength=10)
   outDir<-paste0(baseDir, paste0("/Output", tempRunName))

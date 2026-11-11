@@ -2278,6 +2278,10 @@ getDesignEstimatesUngroup<-function(
     groupVar,
     designVars,
     designstratadf){
+
+  Year<-Effort<-SampleUnits<-ratioMean<-ratioSE<-deltaMean<-deltaSE<-TotalEffort<-
+    sEffort<-effortProp<-deltaVar<-sSampleUnits
+
   if("Year" %in% designVars) {
     logdatval<-logdatval%>%
       mutate(Year=as.numeric(as.character(Year)))
