@@ -2280,7 +2280,7 @@ getDesignEstimatesUngroup<-function(
     designstratadf){
 
   Year<-Effort<-SampleUnits<-ratioMean<-ratioSE<-deltaMean<-deltaSE<-TotalEffort<-
-    sEffort<-effortProp<-deltaVar<-sSampleUnits
+    sEffort<-effortProp<-deltaVar<-sSampleUnits<-NULL
 
   if("Year" %in% designVars) {
     logdatval<-logdatval%>%
