@@ -308,7 +308,11 @@ bycatchDesign <- function(
 
       if(!is.null( mkd)){
 
-        rmarkdown::render(mkd,
+        #Bill edit
+        tempReport <- file.path(baseDir, "printBycatchDesign.Rmd")
+        file.copy(mkd, tempReport, overwrite = TRUE)
+
+        rmarkdown::render(tempReport, #Bill edit
                           params=list(outDir=outDir, run = run, designScenario=designScenario),
                           output_format = "html_document",
                           output_file = paste0(shortName[run],designScenario ,"DesignResults.html"),
@@ -327,8 +331,12 @@ bycatchDesign <- function(
 
       if(!is.null( mkd)){
 
+        #Bill edit
+        tempReport <- file.path(baseDir, "printBycatchDesign.Rmd")
+        file.copy(mkd, tempReport, overwrite = TRUE)
+
         tryCatch({
-        rmarkdown::render(mkd,
+        rmarkdown::render(tempReport, #Bill edit
                           params=list(outDir=outDir, run = run),
                           output_format = "pdf_document",
                           output_file = paste0(shortName[run],designScenario , "DesignResults.pdf"),
@@ -338,7 +346,7 @@ bycatchDesign <- function(
         },
         error = function(e){
           message("PDF rendering failed, reverting to html.")
-          rmarkdown::render(mkd,
+          rmarkdown::render(tempReport, #Bill edit
                             params=list(outDir=outDir, run = run),
                             output_format = "html_document",
                             output_file = paste0(shortName[run],designScenario ,"DesignResults.html"),
