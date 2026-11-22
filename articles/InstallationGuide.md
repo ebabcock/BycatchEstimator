@@ -2,18 +2,10 @@
 
 ## Before you install BycatchEstimator
 
-The BycatchEstimator package prints output figures to either html or pdf
-files. If you select pdf output, you must have a LaTeX package installed
-on your computer. If you don’t have this, you can install TinyTex
-(<https://yihui.org/tinytex/>), which works and takes up less disk space
-than other LaTeX options. Try the test code from the TinyTex
-installation guide to make sure you can print to a pdf before trying to
-install BycatchEstimator.
-
 BycatchEstimator requires recent versions of R and all the libraries
-that it uses. If you have an older version of R, update R and all your
-libraries to the current version before you try to install
-BycatchEstimator.
+that it uses. If you have an older version of R, [update
+R](https://cran.r-project.org/) and all your libraries to the current
+version before you try to install BycatchEstimator.
 
 RStudio will need to have authority to make changes on your computer so
 that you can install new libraries. You may need to run RStudio with
@@ -71,9 +63,16 @@ library(BycatchEstimator)
 ?loadOutputs
 ```
 
-You should now be able to run the functions. Try running the example
-data here <https://github.com/ebabcock/BycatchEstimator> to make sure it
-works. For more information see the User’s Guide
-<https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html>.
+You should now be able to run the functions. Try running the
+[examples](https://github.com/ebabcock/BycatchEstimator) to make sure it
+works. For more information see the [User’s
+Guide](https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html).
 
-Contact <ebabcock@miami.edu> for help if you can’t get it to work.
+The BycatchEstimator package prints output figures to either html or pdf
+files.To get started, use the default html outputs.If you select pdf
+output, you must have a LaTeX package installed on your computer. If you
+don’t have this, you can install [TinyTex](https://yihui.org/tinytex/),
+which works and takes up less disk space than other LaTeX options.
+
+Contact `ebabcock@miami.edu` for help if you can’t get any of this to
+work.

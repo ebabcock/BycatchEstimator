@@ -33,6 +33,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Course2025.html">Material from 2025 ICCAT Training Course</a></li>
+    <li><a class="dropdown-item" href="../articles/Data_Formatting.html">Data formatting</a></li>
     <li><a class="dropdown-item" href="../articles/InstallationGuide.html">Installing BycatchEstimator</a></li>
     <li><a class="dropdown-item" href="../articles/TransitionFrom2024Version.html">Transitioning to the new version of bycatchEstimator in 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TransitionFrom2025Version.html">Transitioning to the new version in 2026</a></li>
@@ -61,7 +62,7 @@
                         <h4 data-toc-skip class="author">Beth
 Babcock</h4>
             
-            <h4 data-toc-skip class="date">2026-11-16</h4>
+            <h4 data-toc-skip class="date">2026-11-22</h4>
       
 
       <div class="d-none name"><code>InstallationGuide.Rmd</code></div>
@@ -72,17 +73,9 @@ Babcock</h4>
 <div class="section level2">
 <h2 id="before-you-install-bycatchestimator">Before you install BycatchEstimator<a class="anchor" aria-label="anchor" href="#before-you-install-bycatchestimator"></a>
 </h2>
-<p>The BycatchEstimator package prints output figures to either html or
-pdf files. If you select pdf output, you must have a LaTeX package
-installed on your computer. If you don’t have this, you can install
-TinyTex (<a href="https://yihui.org/tinytex/" class="external-link uri">https://yihui.org/tinytex/</a>), which works and takes up
-less disk space than other LaTeX options. Try the test code from the
-TinyTex installation guide to make sure you can print to a pdf before
-trying to install BycatchEstimator.</p>
 <p>BycatchEstimator requires recent versions of R and all the libraries
-that it uses. If you have an older version of R, update R and all your
-libraries to the current version before you try to install
-BycatchEstimator.</p>
+that it uses. If you have an older version of R, <a href="https://cran.r-project.org/" class="external-link">update R</a> and all your libraries
+to the current version before you try to install BycatchEstimator.</p>
 <p>RStudio will need to have authority to make changes on your computer
 so that you can install new libraries. You may need to run RStudio with
 administrator privileges, and/or give permission for the installation
@@ -128,11 +121,16 @@ loaded.</p>
 <span><span class="op">?</span><span class="va">bycatchDesign</span></span>
 <span><span class="op">?</span><span class="va">bycatchFit</span></span>
 <span><span class="op">?</span><span class="va">loadOutputs</span></span></code></pre></div>
-<p>You should now be able to run the functions. Try running the example
-data here <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link uri">https://github.com/ebabcock/BycatchEstimator</a> to make
-sure it works. For more information see the User’s Guide <a href="https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html" class="uri">https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html</a>.</p>
-<p>Contact <a href="mailto:ebabcock@miami.edu" class="email">ebabcock@miami.edu</a> for help if you can’t get it to
-work.</p>
+<p>You should now be able to run the functions. Try running the <a href="https://github.com/ebabcock/BycatchEstimator" class="external-link">examples</a> to make
+sure it works. For more information see the <a href="https://ebabcock.github.io/BycatchEstimator/articles/UserGuide2.html">User’s
+Guide</a>.</p>
+<p>The BycatchEstimator package prints output figures to either html or
+pdf files.To get started, use the default html outputs.If you select pdf
+output, you must have a LaTeX package installed on your computer. If you
+don’t have this, you can install <a href="https://yihui.org/tinytex/" class="external-link">TinyTex</a>, which works and takes up
+less disk space than other LaTeX options.</p>
+<p>Contact <code>ebabcock@miami.edu</code> for help if you can’t get any
+of this to work.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

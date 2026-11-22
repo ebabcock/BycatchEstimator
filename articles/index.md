@@ -4,6 +4,8 @@
 
 - [Material from 2025 ICCAT Training
   Course](https://ebabcock.github.io/BycatchEstimator/articles/Course2025.md):
+- [Data
+  formatting](https://ebabcock.github.io/BycatchEstimator/articles/Data_Formatting.md):
 - [Installing
   BycatchEstimator](https://ebabcock.github.io/BycatchEstimator/articles/InstallationGuide.md):
 - [Transitioning to the new version of bycatchEstimator in

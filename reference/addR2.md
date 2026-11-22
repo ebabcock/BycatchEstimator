@@ -1,6 +1,6 @@
-# Return a column of R squared values from input of a MuMin dredge table
+# Return a column of R squared values from input of a MuMIn dredge table
 
-Return a column of R squared values from input of a MuMin dredge table
+Return a column of R squared values from input of a MuMIn dredge table
 
 ## Usage
 
@@ -12,7 +12,7 @@ addR2(dredgeTable, obsdatval, funcName)
 
 - dredgeTable:
 
-  dredge output from MuMin
+  dredge output from MuMIn
 
 - obsdatval:
 
