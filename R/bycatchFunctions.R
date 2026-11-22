@@ -352,8 +352,8 @@ findBestModelFunc<-function(obsdatval, modType, requiredVarNames, allVarNames,
     if(grepl("TMB",modType) )
       modfit1<-glmmTMB(formula(modfit1),family=TMBfamily,data=obsdatval,na.action=na.fail)
     if(useParallel) {
-      libs<-"MuMin"
-      if(modType=="Tweedie") libs<-c("MuMin","cplm")
+      libs<-"MuMIn"
+      if(modType=="Tweedie") libs<-c("MuMIn","cplm")
       if(grepl("TMB",modType)) libs<-c("MuMIn","glmmTMB")
       if(modType=="NegBin") libs<-c("MuMIn","MASS")
       export_list <- list(
@@ -2366,9 +2366,9 @@ ratioVar<-function(x,X,n,N,Rhat,sx2,sy2,sxy) {
   return
 }
 
-#' Return a column of R squared values from input of a MuMin dredge table
+#' Return a column of R squared values from input of a MuMIn dredge table
 #'
-#' @param dredgeTable dredge output from MuMin
+#' @param dredgeTable dredge output from MuMIn
 #' @param obsdatval observer data
 #' @param funcName function used in fitting (e.g. glm or glmmTMB)
 #' @keywords internal

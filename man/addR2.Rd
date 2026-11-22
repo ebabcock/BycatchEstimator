@@ -2,18 +2,18 @@
 % Please edit documentation in R/bycatchFunctions.R
 \name{addR2}
 \alias{addR2}
-\title{Return a column of R squared values from input of a MuMin dredge table}
+\title{Return a column of R squared values from input of a MuMIn dredge table}
 \usage{
 addR2(dredgeTable, obsdatval, funcName)
 }
 \arguments{
-\item{dredgeTable}{dredge output from MuMin}
+\item{dredgeTable}{dredge output from MuMIn}
 
 \item{obsdatval}{observer data}
 
 \item{funcName}{function used in fitting (e.g. glm or glmmTMB)}
 }
 \description{
-Return a column of R squared values from input of a MuMin dredge table
+Return a column of R squared values from input of a MuMIn dredge table
 }
 \keyword{internal}
